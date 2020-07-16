@@ -192,9 +192,9 @@ namespace Vodovoz
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 			//Настройка сервисов
-			if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("email_service_address")) {
+			if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("local_email_service_address")) {
 				if(ParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
-					EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("email_service_address"));
+					EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("local_email_service_address"));
 				}
 			}
 			if(ParametersProvider.Instance.ContainsParameter("instant_sms_enabled_database") && ParametersProvider.Instance.ContainsParameter("sms_service_address")) {

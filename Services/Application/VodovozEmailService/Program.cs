@@ -6,6 +6,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Web;
 using System.Threading;
+using System.Timers;
 using EmailService;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -36,6 +37,8 @@ namespace VodovozEmailService
 		private static string mysqlUser;
 		private static string mysqlPassword;
 		private static string mysqlDatabase;
+		
+		private static System.Timers.Timer emailRoutineTimer;
 
 		public static void Main(string[] args)
 		{
@@ -122,7 +125,14 @@ namespace VodovozEmailService
 #endif
 				EmailSendingHost.Open();
 				MailjetEventsHost.Open();
-
+				/*
+				emailRoutineTimer = new System.Timers.Timer(120000); //2 минуты
+				emailRoutineTimer.Elapsed += EmailRoutineTimer_Elapsed;
+				emailRoutineTimer.Start();
+				*/
+				
+				EmailManager.GetUnsentDocs(QSMain.ConnectionString);
+				
 				logger.Info("Server started.");
 
 				UnixSignal[] signals = {
@@ -138,6 +148,16 @@ namespace VodovozEmailService
 				if(Environment.OSVersion.Platform == PlatformID.Unix)
 					Thread.CurrentThread.Abort();
 				Environment.Exit(0);
+			}
+		}
+
+		private static void EmailRoutineTimer_Elapsed(object sender, ElapsedEventArgs e)
+		{
+			try {
+				EmailManager.GetUnsentDocs(QSMain.ConnectionString);
+			}
+			catch(Exception ex) {
+				logger.Error(ex, "Исключение при выполение фоновой задачи.");
 			}
 		}
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
@@ -9,6 +10,7 @@ namespace Vodovoz.EntityRepositories
 	public interface IEmailRepository
 	{
 		List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId);
+		List<BillDocument> GetAllUnsentDocuments(IUnitOfWork uow, DateTime date);
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmail(int orderId, OrderDocumentType type);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);

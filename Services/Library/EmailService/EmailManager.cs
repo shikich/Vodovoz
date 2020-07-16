@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EmailService.Mailjet;
+using fyiReporting.RDL;
 using Mailjet.Client;
 using Mailjet.Client.Resources;
 using Newtonsoft.Json.Linq;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Report;
+using RdlEngine;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -15,6 +21,8 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace EmailService
@@ -29,6 +37,7 @@ namespace EmailService
 		static CancellationTokenSource cancellationToken = new CancellationTokenSource();
 		static BlockingCollection<Email> emailsQueue = new BlockingCollection<Email>();
 		static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
+		static List<BillDocument> unsentBills = new List<BillDocument>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(userSecretKey));
 		static int workerTasksCreatedCounter = 0;
 		static IEmailRepository emailRepository = new EmailRepository();
@@ -79,6 +88,60 @@ namespace EmailService
 		public static int GetEmailsInQueue()
 		{
 			return emailsQueue.Count;
+		}
+
+		public static void GetUnsentDocs(string connectionString)
+		{
+			unsentBills.Clear();
+
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение всех неотправленных счетов"))
+			{
+				unsentBills = emailRepository.GetAllUnsentDocuments(uow, new DateTime(2020, 03,04));
+
+				if (unsentBills.Any())
+				{
+					foreach (var bill in unsentBills)
+					{
+						var email = CreateEmail(bill, connectionString);
+						
+						if(email != null)
+							AddEmailToSend(email);
+					}
+				}
+			}
+			
+		}
+
+		private static Email CreateEmail(BillDocument billDocument, string connectionString)
+		{
+			var wasHideSignature = billDocument.HideSignature;
+			billDocument.HideSignature = false;
+			ReportInfo ri = billDocument.GetReportInfo();
+			billDocument.HideSignature = wasHideSignature;
+
+			var billTemplate = billDocument.GetEmailTemplate();
+			Email email = new Email {
+				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
+				Text = billTemplate.Text,
+				HtmlText = billTemplate.TextHtml,
+				Recipient = new EmailContact("", "as1854@yandex.ru"/*emailAddressForBill.Address*/),
+				Sender = new EmailContact("vodovoz-spb.ru", ParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
+				Order = billDocument.Order.Id,
+				OrderDocumentType = OrderDocumentType.Bill
+			};
+			foreach(var item in billTemplate.Attachments) {
+				email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
+			}
+			using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), connectionString, OutputPresentationType.PDF, true)) {
+				string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
+				email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
+			}
+			
+			var employee = billDocument.Order.Author;
+			email.AuthorId = employee != null ? employee.Id : 0;
+			email.ManualSending = false;
+
+			return email;
 		}
 
 		public static void AddEvent(MailjetEvent mailjetEvent)
