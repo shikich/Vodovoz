@@ -8,7 +8,7 @@ using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Dialogs.Cash;
 
 namespace Vodovoz.Dialogs.Fuel
 {

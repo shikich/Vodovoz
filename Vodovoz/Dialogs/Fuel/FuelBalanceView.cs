@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Gtk;
-using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Dialogs.Cash;
 
 namespace Vodovoz.Dialogs.Fuel
 {

@@ -10,7 +10,7 @@ using QS.DomainModel.NotifyChange;
 using Vodovoz.Domain.Fuel;
 using System.Linq;
 
-namespace Vodovoz.ViewModels.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Cash
 {
 	public class FuelBalanceViewModel : UoWWidgetViewModelBase
 	{

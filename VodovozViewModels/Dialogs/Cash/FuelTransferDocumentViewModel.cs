@@ -18,7 +18,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.TempAdapters;
 
-namespace Vodovoz.ViewModels.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Cash
 {
 	public class FuelTransferDocumentViewModel : EntityTabViewModelBase<FuelTransferDocument>
 	{

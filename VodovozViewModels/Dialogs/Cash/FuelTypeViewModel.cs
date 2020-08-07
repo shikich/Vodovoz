@@ -4,7 +4,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
-namespace Vodovoz.ViewModels.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Cash
 {
 	public class FuelTypeViewModel : EntityTabViewModelBase<FuelType>
 	{

@@ -2,7 +2,7 @@
 using Gtk;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
-using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Dialogs.Cash;
 
 namespace Vodovoz.Dialogs.Fuel
 {

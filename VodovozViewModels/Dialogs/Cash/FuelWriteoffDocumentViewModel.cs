@@ -18,7 +18,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 
-namespace Vodovoz.ViewModels.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Cash
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{

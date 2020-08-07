@@ -14,7 +14,7 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Dialogs.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 
 namespace Vodovoz.ViewModels.Journals.Cash
