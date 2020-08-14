@@ -6,5 +6,6 @@ namespace Vodovoz.Infrastructure.Services
 	public interface IEmployeeService
 	{
 		Employee GetEmployeeForUser(IUnitOfWork uow, int userId);
+		Employee GetEmployeeForCurrentUser(IUnitOfWork uow);
 	}
 }
