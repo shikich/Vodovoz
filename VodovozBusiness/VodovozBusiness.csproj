@@ -786,6 +786,8 @@
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
     <Compile Include="Domain\Logistic\LateArrivalReason.cs" />
+    <Compile Include="EntityRepositories\Cash\ICashCategoryRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\CashCategoryRepository.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\CashCategoryParametersProvider.cs" />
     <Compile Include="Services\ICashCategoryParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
