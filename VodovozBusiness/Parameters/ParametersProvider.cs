@@ -5,17 +5,13 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Parameters
 {
-	public class ParametersProvider
+	public class ParametersProvider : IParametersProvider
 	{
 		public static ParametersProvider Instance { get; private set; }
 
 		static ParametersProvider()
 		{
 			Instance = new ParametersProvider();
-		}
-
-		private ParametersProvider()
-		{
 		}
 
 		Dictionary<string, string> parameters = new Dictionary<string, string>();

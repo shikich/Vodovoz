@@ -786,6 +786,7 @@
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
     <Compile Include="Domain\Logistic\LateArrivalReason.cs" />
+    <Compile Include="Parameters\IParametersProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
