@@ -15,11 +15,8 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Employees;
-using QS.EntityRepositories;
 using QS.Services;
-using Vodovoz.EntityRepositories;
 using QS.Project.Services;
-using Vodovoz.PermissionExtensions;
 
 namespace Vodovoz
 {
@@ -36,59 +33,59 @@ namespace Vodovoz
 		public CashIncomeDlg (IPermissionService permissionService)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
-			Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
-			if(Entity.Casher == null)
-			{
-				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
-				FailInitialize = true;
-				return;
-			}
+			//UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
+			//Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
+			//if(Entity.Casher == null)
+			//{
+			//	MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+			//	FailInitialize = true;
+			//	return;
+			//}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
-			canCreate = userPermission.CanCreate;
-			if(!userPermission.CanCreate) 
-			{
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
-				FailInitialize = true;
-				return;
-			}
-			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
+			//var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			//canCreate = userPermission.CanCreate;
+			//if(!userPermission.CanCreate) 
+			//{
+			//	MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
+			//	FailInitialize = true;
+			//	return;
+			//}
+			//if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
 
-				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
-				FailInitialize = true;
-				return;
-			}
+			//	MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+			//	FailInitialize = true;
+			//	return;
+			//}
 
-			Entity.Date = DateTime.Now;
-			ConfigureDlg ();
+			//Entity.Date = DateTime.Now;
+			//ConfigureDlg ();
 		}
 
-		public CashIncomeDlg (int id, IPermissionService permissionService)
-		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income> (id);
+		//public CashIncomeDlg (int id, IPermissionService permissionService)
+		//{
+		//	this.Build ();
+		//	UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income> (id);
 
-			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
+		//	if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
 
-				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
-				FailInitialize = true;
-				return;
-			}
+		//		MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+		//		FailInitialize = true;
+		//		return;
+		//	}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
-			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
-				FailInitialize = true;
-				return;
-			}
-			canEdit = userPermission.CanUpdate;
+		//	var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+		//	if(!userPermission.CanRead) {
+		//		MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
+		//		FailInitialize = true;
+		//		return;
+		//	}
+		//	canEdit = userPermission.CanUpdate;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+		//	var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+		//	canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			
-			ConfigureDlg ();
-		}
+		//	ConfigureDlg ();
+		//}
 
 		public CashIncomeDlg (Expense advance, IPermissionService permissionService) : this (permissionService) 
 		{
@@ -105,11 +102,11 @@ namespace Vodovoz
 			selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
 		}
 
-		public CashIncomeDlg (Income sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
+		//public CashIncomeDlg (Income sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
 
-		private bool CanEdit => (UoW.IsNew && canCreate) ||
-		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
-		                        canEditRectroactively;
+		//private bool CanEdit => (UoW.IsNew && canCreate) ||
+		                        //(canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		                        //canEditRectroactively;
 		
 		void ConfigureDlg()
 		{
@@ -118,56 +115,57 @@ namespace Vodovoz
 				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
 			}
 
-			enumcomboOperation.ItemsEnum = typeof(IncomeType);
-			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
+			//enumcomboOperation.ItemsEnum = typeof(IncomeType);
+			//enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
-			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
-			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
+			//var filterCasher = new EmployeeFilterViewModel();
+			//filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
+			//yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
+			//yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel();
-			filter.Status = Domain.Employees.EmployeeStatus.IsWorking;
-			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
-			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
+			//var filter = new EmployeeFilterViewModel();
+			//filter.Status = Domain.Employees.EmployeeStatus.IsWorking;
+			//yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
+			//yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 
-			var filterRL = new RouteListsFilter(UoW);
-			filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
-			yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
-			yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
-			yEntryRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			//var filterRL = new RouteListsFilter(UoW);
+			//filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
+			//yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
+			//yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
+			//yEntryRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yEntryRouteList.Hidden += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.ChangedByUser += YEntryRouteList_ValueOrVisibilityChanged;
 
-			yentryClient.ItemsQuery = Repositories.CounterpartyRepository.ActiveClientsQuery ();
-			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
+			//yentryClient.ItemsQuery = Repositories.CounterpartyRepository.ActiveClientsQuery ();
+			//yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
 
-			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
+			//ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			OrmMain.GetObjectDescription<ExpenseCategory> ().ObjectUpdated += OnExpenseCategoryUpdated;
-			OnExpenseCategoryUpdated (null, null);
-			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
+			//OrmMain.GetObjectDescription<ExpenseCategory> ().ObjectUpdated += OnExpenseCategoryUpdated;
+			//OnExpenseCategoryUpdated (null, null);
+			//comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
 
-			OrmMain.GetObjectDescription<IncomeCategory> ().ObjectUpdated += OnIncomeCategoryUpdated;
-			OnIncomeCategoryUpdated (null, null);
-			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
+			//OrmMain.GetObjectDescription<IncomeCategory> ().ObjectUpdated += OnIncomeCategoryUpdated;
+			//OnIncomeCategoryUpdated (null, null);
+			//comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
 
-			checkNoClose.Binding.AddBinding(Entity, e => e.NoFullCloseMode, w => w.Active);
+			//checkNoClose.Binding.AddBinding(Entity, e => e.NoFullCloseMode, w => w.Active);
 
-			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
+			//yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
-			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
+			//ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
 
-			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<Selectable<Expense>> ()
-				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
-				.AddColumn ("Дата").AddTextRenderer (a => a.Value.Date.ToString ())
-				.AddColumn ("Получено").AddTextRenderer (a => a.Value.Money.ToString ("C"))
-				.AddColumn ("Непогашено").AddTextRenderer (a => a.Value.UnclosedMoney.ToString ("C"))
-				.AddColumn ("Статья").AddTextRenderer (a => a.Value.ExpenseCategory.Name)
-				.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
-				.Finish ();
+			//ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<Selectable<Expense>> ()
+				//.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
+				//.AddColumn ("Дата").AddTextRenderer (a => a.Value.Date.ToString ())
+				//.AddColumn ("Получено").AddTextRenderer (a => a.Value.Money.ToString ("C"))
+				//.AddColumn ("Непогашено").AddTextRenderer (a => a.Value.UnclosedMoney.ToString ("C"))
+				//.AddColumn ("Статья").AddTextRenderer (a => a.Value.ExpenseCategory.Name)
+				//.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
+				//.Finish ();
+
 			UpdateSubdivision();
 
 			if (!CanEdit)
@@ -180,35 +178,35 @@ namespace Vodovoz
 			}
 		}
 
-		public void FillForRoutelist(int routelistId)
-		{
-			var cashier = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
-			if(cashier == null) {
-				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
-				return;
-			}
+		//public void FillForRoutelist(int routelistId)
+		//{
+		//	var cashier = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+		//	if(cashier == null) {
+		//		MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+		//		return;
+		//	}
 
-			var rl = UoW.GetById<RouteList>(routelistId);
+		//	var rl = UoW.GetById<RouteList>(routelistId);
 
-			Entity.IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW);
-			Entity.TypeOperation = IncomeType.DriverReport;
-			Entity.Date = DateTime.Now;
-			Entity.Casher = cashier;
-			Entity.Employee = rl.Driver;
-			Entity.Description = $"Закрытие МЛ №{rl.Id} от {rl.Date:d}";
-			Entity.RouteListClosing = rl;
-			Entity.RelatedToSubdivision = rl.ClosingSubdivision;
-		}
+		//	Entity.IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW);
+		//	Entity.TypeOperation = IncomeType.DriverReport;
+		//	Entity.Date = DateTime.Now;
+		//	Entity.Casher = cashier;
+		//	Entity.Employee = rl.Driver;
+		//	Entity.Description = $"Закрытие МЛ №{rl.Id} от {rl.Date:d}";
+		//	Entity.RouteListClosing = rl;
+		//	Entity.RelatedToSubdivision = rl.ClosingSubdivision;
+		//}
 
-		void OnIncomeCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
-		}
+		//void OnIncomeCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		//{
+		//	comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
+		//}
 
-		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
-		}
+		//void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		//{
+		//	comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
+		//}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
 		{
@@ -242,34 +240,34 @@ namespace Vodovoz
 			return true;
 		}
 			
-		protected void OnButtonPrintClicked (object sender, EventArgs e)
-		{
-			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Expense), "квитанции"))
-				Save ();
+		//protected void OnButtonPrintClicked (object sender, EventArgs e)
+		//{
+		//	if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Expense), "квитанции"))
+		//		Save ();
 
-			var reportInfo = new QS.Report.ReportInfo {
-				Title = String.Format ("Квитанция №{0} от {1:d}", Entity.Id, Entity.Date),
-				Identifier = "Cash.ReturnTicket",
-				Parameters = new Dictionary<string, object> {
-					{ "id",  Entity.Id }
-				}
-			};
+		//	var reportInfo = new QS.Report.ReportInfo {
+		//		Title = String.Format ("Квитанция №{0} от {1:d}", Entity.Id, Entity.Date),
+		//		Identifier = "Cash.ReturnTicket",
+		//		Parameters = new Dictionary<string, object> {
+		//			{ "id",  Entity.Id }
+		//		}
+		//	};
 
-			var report = new QSReport.ReportViewDlg (reportInfo);
-			TabParent.AddTab (report, this, false);
-		}
+		//	var report = new QSReport.ReportViewDlg (reportInfo);
+		//	TabParent.AddTab (report, this, false);
+		//}
 
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			buttonPrint.Sensitive = Entity.TypeOperation == IncomeType.Return;
 			labelExpenseTitle.Visible = comboExpense.Visible = Entity.TypeOperation == IncomeType.Return;
 			labelIncomeTitle.Visible = comboCategory.Visible = Entity.TypeOperation != IncomeType.Return;
+			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
+			yspinMoney.ValueAsDecimal = 0;
 
 			labelClientTitle.Visible = yentryClient.Visible = Entity.TypeOperation == IncomeType.Payment;
 
 			vboxDebts.Visible = checkNoClose.Visible = Entity.TypeOperation == IncomeType.Return && UoW.IsNew;
-			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
-			yspinMoney.ValueAsDecimal = 0;
 
 			FillDebts ();
 			CheckOperation((IncomeType)e.SelectedItem);
@@ -294,30 +292,30 @@ namespace Vodovoz
 			FillDebts ();
 		}
 
-		protected void FillDebts(){
-			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null) {
-				var advances = Repository.Cash.AccountableDebtsRepository
-					.UnclosedAdvance (UoW, Entity.Employee, Entity.ExpenseCategory);
-				selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
-				.ToList ();
-				selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
-				ytreeviewDebts.ItemsDataSource = selectableAdvances;
-			}
-		}
+		//protected void FillDebts(){
+		//	if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null) {
+		//		var advances = Repository.Cash.AccountableDebtsRepository
+		//			.UnclosedAdvance (UoW, Entity.Employee, Entity.ExpenseCategory);
+		//		selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
+		//		.ToList ();
+		//		selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
+		//		ytreeviewDebts.ItemsDataSource = selectableAdvances;
+		//	}
+		//}
 
-		protected void OnAdvanceSelectionChanged(object sender, EventArgs args){
-			if(checkNoClose.Active && (sender as Selectable<Expense>).Selected)
-			{
-				selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
-			}
+		//protected void OnAdvanceSelectionChanged(object sender, EventArgs args){
+		//	if(checkNoClose.Active && (sender as Selectable<Expense>).Selected)
+		//	{
+		//		selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
+		//	}
 
-			if (checkNoClose.Active)
-				return;
+		//	if (checkNoClose.Active)
+		//		return;
 
-			Entity.Money = selectableAdvances.
-				Where(expense=>expense.Selected)
-				.Sum (selectedExpense => selectedExpense.Value.UnclosedMoney);
-		}
+		//	Entity.Money = selectableAdvances.
+		//		Where(expense=>expense.Selected)
+		//		.Sum (selectedExpense => selectedExpense.Value.UnclosedMoney);
+		//}
 			
 		protected void OnCheckNoCloseToggled(object sender, EventArgs e)
 		{
@@ -349,32 +347,32 @@ namespace Vodovoz
 		}
 	}
 
-	public class Selectable<T> {
+	//public class Selectable<T> {
 
-		private bool selected;
+	//	private bool selected;
 
-		public bool Selected {
-			get { return selected;}
-			set{ selected = value;
-				if (SelectChanged != null)
-					SelectChanged (this, EventArgs.Empty);
-			}
-		}
+	//	public bool Selected {
+	//		get { return selected;}
+	//		set{ selected = value;
+	//			if (SelectChanged != null)
+	//				SelectChanged (this, EventArgs.Empty);
+	//		}
+	//	}
 
-		public event EventHandler SelectChanged;
+	//	public event EventHandler SelectChanged;
 
-		public void SilentUnselect()
-		{
-			selected = false;
-		}
+	//	public void SilentUnselect()
+	//	{
+	//		selected = false;
+	//	}
 
-		public T Value { get; set;}
+	//	public T Value { get; set;}
 
-		public Selectable(T obj)
-		{
-			Value = obj;
-			Selected = false;
-		}
-	}
+	//	public Selectable(T obj)
+	//	{
+	//		Value = obj;
+	//		Selected = false;
+	//	}
+	//}
 }
 

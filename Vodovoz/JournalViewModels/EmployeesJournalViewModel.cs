@@ -8,8 +8,8 @@ using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
 
 namespace Vodovoz.JournalViewModels
 {

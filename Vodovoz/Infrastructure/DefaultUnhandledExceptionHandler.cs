@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
+using Gdk;
 using Gtk;
 using QS.Dialog;
 using QS.Project.Domain;
@@ -9,6 +11,7 @@ using QS.ErrorReporting;
 using Vodovoz.Views;
 using Vodovoz.Tools;
 using QS.Services;
+using CairoHelper = Pango.CairoHelper;
 
 namespace Vodovoz.Infrastructure
 {
@@ -66,6 +69,7 @@ namespace Vodovoz.Infrastructure
 			AppDomain.CurrentDomain.UnhandledException += OnApplcationException;
 			GLib.ExceptionManager.UnhandledException -= OnGtkException;
 			GLib.ExceptionManager.UnhandledException += OnGtkException;
+			TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 		}
 
 		public void ErrorMessage(Exception ex)
@@ -106,6 +110,13 @@ namespace Vodovoz.Infrastructure
 			}
 		}
 
+		private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+		{
+			logger.Fatal((Exception)e.Exception, "Поймано необработаное исключение в Application Domain.");
+			ErrorMessage((Exception)e.Exception);
+			e.SetObserved();
+		}
+		
 		private void OnApplcationException(object sender, UnhandledExceptionEventArgs e)
 		{
 			logger.Fatal((Exception)e.ExceptionObject, "Поймано необработаное исключение в Application Domain.");

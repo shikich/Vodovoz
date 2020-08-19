@@ -6,5 +6,6 @@ namespace Vodovoz.TempAdapters
     public interface IEmployeeJournalFactory
     {
         IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory();
-    }
+		IEntityAutocompleteSelectorFactory CreateWorkingEmployeeAutocompleteSelectorFactory();
+	}
 }

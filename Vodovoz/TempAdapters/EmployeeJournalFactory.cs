@@ -1,10 +1,9 @@
 using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
 
 namespace Vodovoz.TempAdapters
 {
@@ -15,5 +14,17 @@ namespace Vodovoz.TempAdapters
             return new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel,
                 EmployeeFilterViewModel>(ServicesConfig.CommonServices);
         }
-    }
+
+		public IEntityAutocompleteSelectorFactory CreateWorkingEmployeeAutocompleteSelectorFactory()
+		{
+			var selectorFactory = new EntitySelectorFactory<Employee, EmployeesJournalViewModel>(() => {
+				var filter = new EmployeeFilterViewModel();
+				filter.Status = EmployeeStatus.IsWorking;
+				var journal = new EmployeesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				return journal;
+			});
+
+			return selectorFactory;
+		}
+	}
 }

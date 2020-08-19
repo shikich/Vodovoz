@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
@@ -15,6 +16,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools.CallTasks;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -189,8 +191,6 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual List<Expense> AdvanceForClosing { get; protected set;}
 
-		public virtual bool NoFullCloseMode { get; set;}
-
 		#endregion
 
 		public Income() { }
@@ -220,7 +220,7 @@ namespace Vodovoz.Domain.Cash
 				throw new InvalidOperationException ("Приходный ордер должен иметь тип '"+Gamma.Utilities.AttributeUtil.GetEnumTitle(IncomeType.Return)+"'");
 			}
 
-			if(NoFullCloseMode)
+			if(IsPartialDebtReturn)
 			{
 				var advance = AdvanceForClosing.First();
 				advance.AddAdvanceCloseItem(this, Money);
@@ -252,6 +252,71 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		#endregion
+
+		#region Debts return
+
+		private bool isPartialDebtReturn;
+		public virtual bool IsPartialDebtReturn {
+			get => isPartialDebtReturn;
+			set => SetField(ref isPartialDebtReturn, value);
+		}
+
+		private GenericObservableList<SelectableNode<Expense>> debts = new GenericObservableList<SelectableNode<Expense>>();
+		public virtual GenericObservableList<SelectableNode<Expense>> Debts {
+			get => debts;
+			set => SetField(ref debts, value);
+		}
+
+		private void RefreshDebts(IUnitOfWork uow)
+		{
+			if(TypeOperation != IncomeType.Return || Employee == null) {
+				return;
+			}
+
+			var unclosedAdvances = AccountableDebtsRepository.UnclosedAdvance(uow, Employee, ExpenseCategory);
+			var selectableDebts = unclosedAdvances.Select(advance => new SelectableNode<Expense>(advance)).ToList();
+			Debts = new GenericObservableList<SelectableNode<Expense>>(selectableDebts);
+			foreach(SelectableNode<Expense> debt in Debts) {
+				debt.PropertyChanged += (sender, e) => {
+					if(e.PropertyName == nameof(debt.Selected)) {
+						DebtSelectionChanged(debt);
+					}
+				};
+			}
+		}
+
+		private void DebtSelectionChanged(SelectableNode<Expense> currentSelectedDebt)
+		{
+			if(!Debts.Any(x => x.Selected)) {
+				return;
+			}
+			if(IsPartialDebtReturn) {
+				PartialDebtReturn(currentSelectedDebt);
+			} else {
+				FullDebtReturn();
+			}
+		}
+
+		private void PartialDebtReturn(SelectableNode<Expense> currentSelectedDebt)
+		{
+			foreach(var debt in Debts.Where(x => x != currentSelectedDebt)) {
+				debt.SilentUnselect();
+				OnPropertyChanged(nameof(Debts));
+			}
+
+			if(currentSelectedDebt.Selected) {
+				Money = currentSelectedDebt.Value.UnclosedMoney;
+			}
+		}
+
+		private void FullDebtReturn()
+		{
+			Money = Debts
+				.Where(expense => expense.Selected)
+				.Sum(selectedExpense => selectedExpense.Value.UnclosedMoney);
+		}
+
+		#endregion Debts return
 
 		#region IValidatableObject implementation
 
@@ -299,7 +364,7 @@ namespace Vodovoz.Domain.Cash
 							yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
 								new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
 						} else {
-							if(NoFullCloseMode) {
+							if(PartialDebtReturn) {
 								var advance = AdvanceForClosing.First();
 								if(Money > advance.UnclosedMoney)
 									yield return new ValidationResult("Сумма возврата не должна превышать сумму которую брал человек за вычетом уже возвращенных средств.",

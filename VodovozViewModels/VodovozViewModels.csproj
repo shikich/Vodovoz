@@ -99,8 +99,8 @@
     <Compile Include="Dialogs\Cash\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Cash\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Cash\FuelWriteoffDocumentViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\Logistic\DistrictJournalFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
@@ -206,15 +206,17 @@
     <Compile Include="Journals\JournalNodes\SubdivisionJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageDistrictJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageDistrictLevelRatesJournalNode.cs" />
-    <Compile Include="Journals\FilterViewModels\ComplaintFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Employees\FineFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\ComplaintFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\Employees\FineFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\Goods\NomenclatureFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\Goods\NomenclatureStockFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\Organization\SubdivisionFilterViewModel.cs" />
+    <Compile Include="Journals\Filters\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\EmptyClass.cs" />
     <Compile Include="Journals\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
+    <Compile Include="Dialogs\Cash\CashIncomeViewModel.cs" />
+    <Compile Include="Journals\Filters\Employees\EmployeeFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -240,7 +242,7 @@
     <Folder Include="Journals\" />
     <Folder Include="Journals\JournalViewModels\" />
     <Folder Include="Journals\JournalNodes\" />
-    <Folder Include="Journals\FilterViewModels\" />
+    <Folder Include="Journals\Filters\" />
     <Folder Include="Journals\Cash\" />
     <Folder Include="Journals\Nodes\" />
     <Folder Include="Journals\Nodes\Cash\" />
