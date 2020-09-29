@@ -58,6 +58,6 @@ namespace Vodovoz.Domain.Orders {
             set => SetField(ref fromClientText, value);
         }
 
-        public override DefaultOrderType DefaultOrderType => DefaultOrderType.OrderFrom1c;
+        public override OrderType Type => OrderType.OrderFrom1c;
     }
 }

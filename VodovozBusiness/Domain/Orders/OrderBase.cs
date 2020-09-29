@@ -59,6 +59,13 @@ namespace Vodovoz.Domain.Orders {
 			set => SetField(ref dailyNumber, value);
 		}
 		
+		DateTime? timeDelivered;
+		[Display(Name = "Время доставки")]
+		public virtual DateTime? TimeDelivered {
+			get => timeDelivered;
+			set => SetField(ref timeDelivered, value);
+		}
+		
 		OrderStatus status;
 		[Display(Name = "Статус заказа")]
 		public virtual OrderStatus Status {
@@ -71,6 +78,13 @@ namespace Vodovoz.Domain.Orders {
 		public virtual Counterparty Counterparty {
 			get => counterparty;
 			set => SetField(ref counterparty, value);
+		}
+		
+		CounterpartyContract contract;
+		[Display(Name = "Договор")]
+		public virtual CounterpartyContract Contract {
+			get => contract;
+			set => SetField(ref contract, value);
 		}
 
 		DeliveryPoint deliveryPoint;
@@ -173,10 +187,11 @@ namespace Vodovoz.Domain.Orders {
 			set => SetField(ref orderPaymentStatus, value);
 		}
 
+		private decimal orderCashSum;
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum {
-			get => PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld ? OrderSum - OrderSumReturn/*OrderSumTotal - OrderSumReturnTotal*/ : 0;
-			protected set { }
+			get => orderCashSum;
+			set => SetField(ref orderCashSum, value);
 		}
 		
 		private Employee acceptedOrderEmployee;
@@ -246,7 +261,7 @@ namespace Vodovoz.Domain.Orders {
 			set => SetField(ref paymentType, value);
 		}
 		
-		public abstract DefaultOrderType DefaultOrderType { get; }
+		public abstract OrderType Type { get; }
 
 		IList<OrderItem> orderItems = new List<OrderItem>();
 		[Display(Name = "Строки заказа")]
@@ -316,29 +331,9 @@ namespace Vodovoz.Domain.Orders {
 			get => observableDepositOperations ??
 			       (observableDepositOperations = new GenericObservableList<DepositOperation>(DepositOperations));
 		}
-		
-		public virtual decimal OrderSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.ActualSum;
-				}
-				return sum;
-			}
-		}
-		
-		public virtual decimal OrderSumReturn {
-			get {
-				decimal sum = 0;
-				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					sum += dep.Total;
-				}
-				return sum;
-			}
-		}
     }
 
-    public enum DefaultOrderType {
+    public enum OrderType {
 	    SelfDeliveryOrder,
 	    DeliveryOrder,
 	    VisitingMasterOrder,

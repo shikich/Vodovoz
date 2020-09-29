@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Orders {
@@ -38,7 +39,14 @@ namespace Vodovoz.Domain.Orders {
 		    set => SetField(ref paymentByCardFrom, value);
 	    }
 	    
-	    public override DefaultOrderType DefaultOrderType => DefaultOrderType.DeliveryOrder;
+	    DefaultDocumentType? defaultDocumentType;
+	    [Display(Name = "Тип безналичных документов")]
+	    public virtual DefaultDocumentType? DefaultDocumentType {
+		    get => defaultDocumentType;
+		    set => SetField(ref defaultDocumentType, value);
+	    }
+	    
+	    public override OrderType Type => OrderType.DeliveryOrder;
 	    
 	    private int? orderNumberFromOnlineStore;
 	    [Display(Name = "Номер онлайн заказа")]

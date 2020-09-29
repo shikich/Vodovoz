@@ -6,13 +6,13 @@ namespace Vodovoz.HibernateMapping.Order {
 	public class OrderBaseMap : ClassMap<OrderBase> {
 
 		public OrderBaseMap() {
-			Table("orders");
+			Table("new_orders");
 
 			OptimisticLock.Version();
 			Version(x => x.Version).Column("version");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			DiscriminateSubClassesOnColumn("default_order_type");
+			DiscriminateSubClassesOnColumn("type");
 
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.IsFirstOrder).Column("is_first_order");
@@ -20,7 +20,7 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.DeliveryDate).Column("delivery_date");
 			Map(x => x.OrderCashSum).Column("order_cash_sum");
 			Map(x => x.DailyNumber).Column("daily_number").ReadOnly();
-			Map(x => x.Status).Column("order_status");
+			Map(x => x.Status).Column("status");
 			Map(x => x.LastEditedTime).Column("last_edited_time");
 			Map(x => x.CommentManager).Column("comment_manager");
 			Map(x => x.BillDate).Column("bill_date");
@@ -37,10 +37,12 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.IsPaymentBySms).Column("is_payment_by_sms");
 			Map(x => x.IsContactlessDelivery).Column("is_contactless_delivery");
 			Map(x => x.OrderPaymentStatus).Column("order_payment_status").CustomType<OrderPaymentStatusStringType>();
+			Map(x => x.TimeDelivered).Column("time_delivered");
 
 			References(x => x.Author).Column("author_employee_id");
 			References(x => x.AcceptedOrderEmployee).Column("accepted_order_employee_id");
 			References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.Contract).Column("counterparty_contract_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.BottlesMovementOperation).Column("bottles_movement_operation_id");
 			References(x => x.MoneyMovementOperation).Column("money_movement_operation_id");
@@ -65,6 +67,7 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.EShopOrder).Column("e_shop_order");
 			Map(x => x.OrderNumberFromOnlineStore).Column("order_number_from_online_store");
 			Map(x => x.ReturnedTare).Column("returned_tare");
+			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
 
 			References(x => x.PaymentByCardFrom).Column("payment_by_card_from_id");
 			References(x => x.LoadAllowedBy).Column("load_allowed_employee_id");
@@ -82,6 +85,7 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.EShopOrder).Column("e_shop_order");
 			Map(x => x.OrderNumberFromOnlineStore).Column("order_number_from_online_store");
 			Map(x => x.Trifle).Column("trifle");
+			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
 
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
 			References(x => x.PaymentByCardFrom).Column("payment_by_card_from_id");
@@ -98,6 +102,7 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.EShopOrder).Column("e_shop_order");
 			Map(x => x.OrderNumberFromOnlineStore).Column("order_number_from_online_store");
 			Map(x => x.Trifle).Column("trifle");
+			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
 
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
 			References(x => x.PaymentByCardFrom).Column("payment_by_card_from_id");
@@ -111,6 +116,7 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.EShopOrder).Column("e_shop_order");
 			Map(x => x.OrderNumberFromOnlineStore).Column("order_number_from_online_store");
 			Map(x => x.IsContractCloser).Column("is_contract_closer");
+			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
 
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
 			References(x => x.PaymentByCardFrom).Column("payment_by_card_from_id");
