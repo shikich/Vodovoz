@@ -1,6 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Orders {
+    [Appellative(Gender = GrammaticalGender.Masculine,
+        NominativePlural = "заказы из 1с",
+        Nominative = "заказ из 1с",
+        Prepositional = "заказе из 1с",
+        PrepositionalPlural = "заказах из 1с"
+    )]
+    [HistoryTrace]
+    [EntityPermission]
     public class OrderFrom1c : OrderBase {
         int? returnedTare;
         [Display(Name = "Возвратная тара")]

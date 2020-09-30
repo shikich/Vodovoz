@@ -319,7 +319,7 @@ namespace Vodovoz.Domain.Orders {
 			       (observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments));
 		}
 
-		IList<DepositOperation> depositOperations;
+		IList<DepositOperation> depositOperations = new List<DepositOperation>();
 		public virtual IList<DepositOperation> DepositOperations {
 			get => depositOperations;
 			set => SetField(ref depositOperations, value);

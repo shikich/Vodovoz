@@ -1,8 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "заказы-самовыввозы",
+		Nominative = "заказ-самовывоз",
+		Prepositional = "заказе-самовывозе",
+		PrepositionalPlural = "заказах-самовывозах"
+	)]
+	[HistoryTrace]
+	[EntityPermission]
     public class SelfDeliveryOrder : OrderBase {
         
 	    int? bottlesReturn;

@@ -1,8 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Orders {
+    [Appellative(Gender = GrammaticalGender.Masculine,
+        NominativePlural = "заказы-закрытие документов",
+        Nominative = "заказ-закрытие документов",
+        Prepositional = "заказе-закрытии документов",
+        PrepositionalPlural = "заказах-закрытии документов"
+    )]
+    [HistoryTrace]
+    [EntityPermission]
     public class ClosingDocOrder : OrderBase {
         private int? eShopOrder;
         [Display(Name = "Заказ из интернет магазина")]

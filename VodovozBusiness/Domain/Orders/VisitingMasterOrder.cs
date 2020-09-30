@@ -1,8 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Orders {
+    [Appellative(Gender = GrammaticalGender.Masculine,
+        NominativePlural = "сервисные заказы",
+        Nominative = "сервисный заказ",
+        Prepositional = "сервисном заказе",
+        PrepositionalPlural = "сервисных заказах"
+    )]
+    [HistoryTrace]
+    [EntityPermission]
     public class VisitingMasterOrder : OrderBase {
         string commentForLogist;
         [Display(Name = "Комментарий логиста")]
