@@ -7,7 +7,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "заказы-самовыввозы",
+		NominativePlural = "заказы-самовывозы",
 		Nominative = "заказ-самовывоз",
 		Prepositional = "заказе-самовывозе",
 		PrepositionalPlural = "заказах-самовывозах"
