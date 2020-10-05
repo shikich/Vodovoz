@@ -22,13 +22,6 @@ namespace Vodovoz.Domain.Orders {
             set => SetField(ref eShopOrder, value);
         }
 	    
-        DeliverySchedule deliverySchedule;
-        [Display(Name = "Время доставки")]
-        public virtual DeliverySchedule DeliverySchedule {
-            get => deliverySchedule;
-            set => SetField(ref deliverySchedule, value);
-        }
-
         PaymentFrom paymentByCardFrom;
         [Display(Name = "Место, откуда проведена оплата")]
         public virtual PaymentFrom PaymentByCardFrom {

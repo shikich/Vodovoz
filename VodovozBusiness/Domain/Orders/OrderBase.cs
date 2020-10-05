@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -330,6 +331,27 @@ namespace Vodovoz.Domain.Orders {
 		public virtual GenericObservableList<DepositOperation> ObservableDepositOperations {
 			get => observableDepositOperations ??
 			       (observableDepositOperations = new GenericObservableList<DepositOperation>(DepositOperations));
+		}
+		
+		public virtual decimal GetFixedPrice(OrderItem item) => item.GetWaterFixedPrice() ?? default(decimal);
+		
+		public virtual decimal GetNomenclaturePrice(OrderItem item)
+		{
+			decimal nomenclaturePrice = 0M;
+			if(item.Nomenclature.IsWater19L) {
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount());
+			} else {
+				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count);
+			}
+			return nomenclaturePrice;
+		}
+		
+		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false)
+		{
+			var water19L = ObservableOrderItems.Where(x => x.Nomenclature.IsWater19L);
+			if(doNotCountWaterFromPromoSets)
+				water19L = water19L.Where(x => x.PromoSet == null);
+			return water19L.Sum(x => x.Count);
 		}
     }
 

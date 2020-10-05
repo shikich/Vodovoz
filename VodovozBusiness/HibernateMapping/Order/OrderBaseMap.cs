@@ -117,8 +117,7 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.OrderNumberFromOnlineStore).Column("order_number_from_online_store");
 			Map(x => x.IsContractCloser).Column("is_contract_closer");
 			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
-
-			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
+			
 			References(x => x.PaymentByCardFrom).Column("payment_by_card_from_id");
 		}
 	}
