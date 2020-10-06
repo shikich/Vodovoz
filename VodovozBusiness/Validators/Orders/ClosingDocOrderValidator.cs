@@ -67,7 +67,7 @@ namespace Vodovoz.Validators.Orders {
                 );
             }
 
-            if ((validateParameters.AcceptedOrder || validateParameters.WaitingForPayment) && order.Counterparty != null) {
+            if ((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
                 //если ни у точки доставки, ни у контрагента нет ни одного номера телефона
                 if(!((order.DeliveryPoint != null && order.DeliveryPoint.Phones.Any()) || order.Counterparty.Phones.Any()))
                     yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
@@ -81,31 +81,6 @@ namespace Vodovoz.Validators.Orders {
                     }
                     if(string.IsNullOrWhiteSpace(order.DeliveryPoint.Room)) {
                         yield return new ValidationResult("Не заполнен номер помещения в точке доставки");
-                    }
-                }
-            }
-        }
-        
-        public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
-            IEnumerable<ValidationResult> result;
-	        
-            if (validationContext.Items.ContainsKey("OrderValidateParameters")) {
-                OrderValidateParameters orderValidateParameters =
-                    (OrderValidateParameters) validationContext.Items["OrderValidateParameters"];
-                result = Validate(orderValidateParameters);
-		        
-                if (result.Any()) {
-                    foreach (var validationResult in result) {
-                        yield return validationResult;
-                    }
-                }
-            }
-            else {
-                result = Validate();
-
-                if (result.Any()) {
-                    foreach (var validationResult in result) {
-                        yield return validationResult;
                     }
                 }
             }

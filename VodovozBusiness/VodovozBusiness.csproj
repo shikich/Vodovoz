@@ -63,6 +63,7 @@
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\OrderBase.cs" />
     <Compile Include="Domain\Orders\OrderFrom1c.cs" />
+    <Compile Include="Domain\Orders\OrderType.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Orders\SelfDeliveryOrder.cs" />

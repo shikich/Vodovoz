@@ -19,6 +19,7 @@ namespace Vodovoz.HibernateMapping.Order {
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.DeliveryDate).Column("delivery_date");
 			Map(x => x.OrderCashSum).Column("order_cash_sum");
+			Map(x => x.TotalSum).Column("total_sum");
 			Map(x => x.DailyNumber).Column("daily_number").ReadOnly();
 			Map(x => x.Status).Column("status");
 			Map(x => x.LastEditedTime).Column("last_edited_time");

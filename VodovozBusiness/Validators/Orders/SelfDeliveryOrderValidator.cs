@@ -64,7 +64,8 @@ namespace Vodovoz.Validators.Orders {
                 }
             }
             
-            if ((validateParameters.AcceptedOrder || validateParameters.WaitingForPayment) && order.Counterparty != null) {
+            if ((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
+                
                 #region OrderStateKey
                 
                 var hasOrderItems = false;
@@ -120,31 +121,6 @@ namespace Vodovoz.Validators.Orders {
                     }
                     if(string.IsNullOrWhiteSpace(order.DeliveryPoint.Room)) {
                         yield return new ValidationResult("Не заполнен номер помещения в точке доставки");
-                    }
-                }
-            }
-        }
-        
-        public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
-            IEnumerable<ValidationResult> result;
-	        
-            if (validationContext.Items.ContainsKey("OrderValidateParameters")) {
-                OrderValidateParameters orderValidateParameters =
-                    (OrderValidateParameters) validationContext.Items["OrderValidateParameters"];
-                result = Validate(orderValidateParameters);
-		        
-                if (result.Any()) {
-                    foreach (var validationResult in result) {
-                        yield return validationResult;
-                    }
-                }
-            }
-            else {
-                result = Validate();
-
-                if (result.Any()) {
-                    foreach (var validationResult in result) {
-                        yield return validationResult;
                     }
                 }
             }

@@ -64,7 +64,7 @@ namespace Vodovoz.Validators.Orders {
             }
 
             if(order.PaymentType == PaymentType.cashless
-                && validateParameters.AcceptedOrder
+                && validateParameters.OrderAction == OrderValidateAction.Accept
                 && !currentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
                 yield return new ValidationResult(
                     "Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
@@ -72,7 +72,7 @@ namespace Vodovoz.Validators.Orders {
                 );
             }
 
-            if ((validateParameters.AcceptedOrder || validateParameters.WaitingForPayment) && order.Counterparty != null) {
+            if ((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
                 if (order.DeliverySchedule == null)
                     yield return new ValidationResult("В заказе не указано время доставки.",
                         new[] {nameof(order.DeliverySchedule)});
@@ -99,31 +99,6 @@ namespace Vodovoz.Validators.Orders {
                 }
             }
             
-        }
-
-        public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
-            IEnumerable<ValidationResult> result;
-	        
-            if (validationContext.Items.ContainsKey("OrderValidateParameters")) {
-                OrderValidateParameters orderValidateParameters =
-                    (OrderValidateParameters) validationContext.Items["OrderValidateParameters"];
-                result = Validate(orderValidateParameters);
-		        
-                if (result.Any()) {
-                    foreach (var validationResult in result) {
-                        yield return validationResult;
-                    }
-                }
-            }
-            else {
-                result = Validate();
-
-                if (result.Any()) {
-                    foreach (var validationResult in result) {
-                        yield return validationResult;
-                    }
-                }
-            }
         }
     }
 }

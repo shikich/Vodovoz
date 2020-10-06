@@ -195,6 +195,13 @@ namespace Vodovoz.Domain.Orders {
 			set => SetField(ref orderCashSum, value);
 		}
 		
+		private decimal totalSum;
+		[Display(Name = "Сумма заказа")]
+		public virtual decimal TotalSum {
+			get => totalSum;
+			set => SetField(ref totalSum, value);
+		}
+		
 		private Employee acceptedOrderEmployee;
 		[Display(Name = "Заказ подтвердил")]
 		public virtual Employee AcceptedOrderEmployee {
@@ -353,13 +360,5 @@ namespace Vodovoz.Domain.Orders {
 				water19L = water19L.Where(x => x.PromoSet == null);
 			return water19L.Sum(x => x.Count);
 		}
-    }
-
-    public enum OrderType {
-	    SelfDeliveryOrder,
-	    DeliveryOrder,
-	    VisitingMasterOrder,
-	    ClosingDocOrder,
-	    OrderFrom1c
     }
 }

@@ -83,7 +83,7 @@ namespace Vodovoz.Validators.Orders {
 		        }
 	        }
 	        
-			if(validateParameters.ClosingOrder) {
+			if(validateParameters.OrderAction == OrderValidateAction.Close) {
 				foreach(var equipment in order.OrderEquipments.Where(x => x.Direction == Direction.PickUp)) {
 					if(!equipment.Confirmed && string.IsNullOrWhiteSpace(equipment.ConfirmedComment))
 						yield return new ValidationResult(
@@ -92,7 +92,7 @@ namespace Vodovoz.Validators.Orders {
 				}
 			}
 			
-			if((validateParameters.AcceptedOrder || validateParameters.WaitingForPayment) && order.Counterparty != null) {
+			if((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
 
 				#region OrderStateKey
 
@@ -160,14 +160,7 @@ namespace Vodovoz.Validators.Orders {
 					);
 
 
-				/*
-				// Вопрос ??? Вообще не надо?
-				if(!order.IsLoadedFrom1C && order.PaymentType == PaymentType.cashless && order.Counterparty.TypeOfOwnership != "ИП" && !order.SignatureType.HasValue)
-					yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
-						new[] { nameof(order.SignatureType) });
-				*/
 				
-
 				/*
 				//создание нескольких заказов на одну дату и точку доставки
 				if(!order.SelfDelivery && order.DeliveryPoint != null) {

@@ -1,8 +1,12 @@
 namespace Vodovoz.Validators.Orders {
     public class OrderValidateParameters {
         public bool CreatedFromUndeliveryOrder { get; set; }
-        public bool AcceptedOrder { get; set; }
-        public bool WaitingForPayment { get; set; }
-        public bool ClosingOrder { get; set; }
+        public OrderValidateAction OrderAction { get; set; }
+    }
+
+    public enum OrderValidateAction{
+        None,
+        Accept,
+        Close
     }
 }
