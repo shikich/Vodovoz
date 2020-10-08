@@ -34,7 +34,7 @@ namespace Vodovoz.Validators.Orders {
 	        
 	        if(order.DeliveryPoint != null && (!order.DeliveryPoint.Latitude.HasValue || !order.DeliveryPoint.Longitude.HasValue)) {
 		        yield return new ValidationResult("В точке доставки необходимо указать координаты.",
-			        new[] { nameof(DeliveryPoint) });
+			        new[] { nameof(order.DeliveryPoint) });
 	        }
 	       
 	        if(order.Counterparty == null)
@@ -126,16 +126,10 @@ namespace Vodovoz.Validators.Orders {
 					decimal nomenclaturePrice = order.GetNomenclaturePrice(item);
 					if(fixedPrice > 0m) {
 						if(item.Price < fixedPrice) {
-							incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-								item.NomenclatureString,
-								item.Price,
-								fixedPrice));
+							incorrectPriceItems.Add($"{item.NomenclatureString} - цена: {item.Price}, должна быть: {fixedPrice}\n");
 						}
 					} else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice) {
-						incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-							item.NomenclatureString,
-							item.Price,
-							nomenclaturePrice));
+						incorrectPriceItems.Add($"{item.NomenclatureString} - цена: {item.Price}, должна быть: {nomenclaturePrice}\n");
 					}
 				}
 				if(incorrectPriceItems.Any()) {
@@ -156,59 +150,26 @@ namespace Vodovoz.Validators.Orders {
 				if(order.DeliveryPoint != null && !order.DeliveryPoint.FindAndAssociateDistrict(uow))
 					yield return new ValidationResult(
 						"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
-						new[] { nameof(DeliveryPoint) }
+						new[] { nameof(order.DeliveryPoint) }
 					);
-
-
-				
-				/*
-				//создание нескольких заказов на одну дату и точку доставки
-				if(!order.SelfDelivery && order.DeliveryPoint != null) {
-					var ordersForDeliveryPoints = orderRepository.GetLatestOrdersForDeliveryPoint(uow, order.DeliveryPoint)
-																 .Where(
-																	 o => o.Id != order.Id
-																	 && o.DeliveryDate == order.DeliveryDate
-																	 && !orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-																	 && !o.IsService
-																	);
-
-					bool hasMaster = order.ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
-
-					if(!hasMaster
-					   && !currentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-					   && ordersForDeliveryPoints.Any()
-					   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
-						yield return new ValidationResult(
-							string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
-							new[] { nameof(order.OrderEquipments) });
-					}
-				}*/
 			}
         }
 
         public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
 	        IEnumerable<ValidationResult> result;
 	        
-	        if (validationContext.Items.ContainsKey("OrderValidateParameters")) {
-		        OrderValidateParameters orderValidateParameters =
-			        (OrderValidateParameters) validationContext.Items["OrderValidateParameters"];
+	        var orderValidateParameters =
+		        validationContext.Items.Select(x => x.Value)
+		                         .SingleOrDefault(x => x.GetType() == typeof(OrderValidateParameters));
+
+	        if (orderValidateParameters != null) {
 		        result = Validate(orderValidateParameters);
-		        
-		        if (result.Any()) {
-			        foreach (var validationResult in result) {
-				        yield return validationResult;
-			        }
-		        }
 	        }
 	        else {
 		        result = Validate();
-
-		        if (result.Any()) {
-			        foreach (var validationResult in result) {
-				        yield return validationResult;
-			        }
-		        }
 	        }
+
+	        return result;
         }
     }
 }

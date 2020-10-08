@@ -169,6 +169,10 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterTest.cs" />
     <Compile Include="ErrorReporting\DefaultErrorMessageModelTest.cs" />
     <Compile Include="ErrorReporting\SingletonErrorReporterTest.cs" />
+    <Compile Include="Validators\Orders\ClosingDocOrderValidatorTests.cs" />
+    <Compile Include="Validators\Orders\DeliveryOrderValidatorTests.cs" />
+    <Compile Include="Validators\Orders\SelfDeliveryOrderValidatorTests.cs" />
+    <Compile Include="Validators\Orders\VisitingMasterOrderValidatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

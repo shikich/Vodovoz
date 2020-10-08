@@ -47,7 +47,7 @@ namespace Vodovoz.Validators.Orders {
                        .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
                        .Any(x => x.Id == nomenclatureParametersProvider.RootProductGroupForOnlineStoreNomenclatures))
                 yield return new ValidationResult(
-                    "При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
+                    "При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
                     new[] { nameof(order.EShopOrder) });
             
             if(order.PaymentType == PaymentType.ByCard && order.PaymentByCardFrom == null)
@@ -58,15 +58,26 @@ namespace Vodovoz.Validators.Orders {
         }
 
         public override IEnumerable<ValidationResult> Validate(OrderValidateParameters validateParameters) {
-            var result = Validate();
+            IEnumerable<ValidationResult> result;
+            
+            result = Validate();
             
             if (result.Any()) {
                 foreach (var validationResult in result) {
                     yield return validationResult;
                 }
             }
+            
+            result = base.Validate(validateParameters);
 
-            if ((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
+            if (result.Any()) {
+                foreach (var validationResult in result) {
+                    yield return validationResult;
+                }
+            }
+
+            if ((validateParameters.OrderAction == OrderValidateAction.Accept || 
+                 validateParameters.OrderAction == OrderValidateAction.WaitForPayment) && order.Counterparty != null) {
                 if (order.BottlesReturn.HasValue && order.BottlesReturn > 0 && order.GetTotalWater19LCount() == 0 &&
                     order.ReturnTareReason == null)
                     yield return new ValidationResult("Необходимо указать причину забора тары.",
@@ -134,6 +145,7 @@ namespace Vodovoz.Validators.Orders {
                     }
                 }
                 
+                //FIXME Исправить проверку
                 //создание нескольких заказов на одну дату и точку доставки
                 if(order.DeliveryPoint != null) {
                     var ordersForDeliveryPoints = orderRepository.GetLatestOrdersForDeliveryPoint(uow, order.DeliveryPoint)
@@ -143,8 +155,6 @@ namespace Vodovoz.Validators.Orders {
                                                                           && !orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
                                                                           && !o.IsService
                                                                  );
-
-                    //bool hasMaster = order.ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
                     if(!currentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
                        && ordersForDeliveryPoints.Any()

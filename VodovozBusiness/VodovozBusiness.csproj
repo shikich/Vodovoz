@@ -519,6 +519,7 @@
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
     <Compile Include="Validators\Orders\ClosingDocOrderValidator.cs" />
     <Compile Include="Validators\Orders\DeliveryOrderValidator.cs" />
+    <Compile Include="Validators\Orders\OrderValidateAction.cs" />
     <Compile Include="Validators\Orders\OrderValidateParameters.cs" />
     <Compile Include="Validators\Orders\OrderValidator.cs" />
     <Compile Include="Validators\Orders\SelfDeliveryOrderValidator.cs" />

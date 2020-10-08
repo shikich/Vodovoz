@@ -52,22 +52,34 @@ namespace Vodovoz.Validators.Orders {
         }
 
         public override IEnumerable<ValidationResult> Validate(OrderValidateParameters validateParameters) {
-            var result = Validate();
+            IEnumerable<ValidationResult> result;
+            
+            result = Validate();
             
             if (result.Any()) {
                 foreach (var validationResult in result) {
                     yield return validationResult;
                 }
             }
+            
+            result = base.Validate(validateParameters);
 
-            if(order.IsContractCloser && !currentPermissionService.ValidatePresetPermission("can_set_contract_closer")) {
+            if (result.Any()) {
+                foreach (var validationResult in result) {
+                    yield return validationResult;
+                }
+            }
+
+            if(order.IsContractCloser && 
+               !currentPermissionService.ValidatePresetPermission("can_set_contract_closer")) {
                 yield return new ValidationResult(
                     "Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
                     new[] { nameof(order.IsContractCloser) }
                 );
             }
 
-            if ((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
+            if ((validateParameters.OrderAction == OrderValidateAction.Accept || 
+                 validateParameters.OrderAction == OrderValidateAction.WaitForPayment) && order.Counterparty != null) {
                 //если ни у точки доставки, ни у контрагента нет ни одного номера телефона
                 if(!((order.DeliveryPoint != null && order.DeliveryPoint.Phones.Any()) || order.Counterparty.Phones.Any()))
                     yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");

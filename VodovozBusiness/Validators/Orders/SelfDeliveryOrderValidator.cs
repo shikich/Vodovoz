@@ -38,7 +38,7 @@ namespace Vodovoz.Validators.Orders {
                        .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
                        .Any(x => x.Id == nomenclatureParametersProvider.RootProductGroupForOnlineStoreNomenclatures))
                 yield return new ValidationResult(
-                    "При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
+                    "При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
                     new[] { nameof(order.EShopOrder) });
             
             if(order.PaymentType == PaymentType.ByCard && order.PaymentByCardFrom == null)
@@ -50,14 +50,24 @@ namespace Vodovoz.Validators.Orders {
             if(order.PaymentType == PaymentType.ContractDoc) {
                 yield return new ValidationResult(
                     "Тип оплаты - контрактная документация невозможен для самовывоза",
-                    new[] { nameof(PaymentType) }
+                    new[] { nameof(order.PaymentType) }
                 );
             }
         }
 
         public override IEnumerable<ValidationResult> Validate(OrderValidateParameters validateParameters) {
-            var result = Validate();
+            IEnumerable<ValidationResult> result;
             
+            result = Validate();
+            
+            if (result.Any()) {
+                foreach (var validationResult in result) {
+                    yield return validationResult;
+                }
+            }
+            
+            result = base.Validate(validateParameters);
+
             if (result.Any()) {
                 foreach (var validationResult in result) {
                     yield return validationResult;
@@ -111,18 +121,6 @@ namespace Vodovoz.Validators.Orders {
                 //если ни у точки доставки, ни у контрагента нет ни одного номера телефона
                 if(!((order.DeliveryPoint != null && order.DeliveryPoint.Phones.Any()) || order.Counterparty.Phones.Any()))
                     yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
-                
-                if(order.DeliveryPoint != null) {
-                    if(string.IsNullOrWhiteSpace(order.DeliveryPoint.Entrance)) {
-                        yield return new ValidationResult("Не заполнена парадная в точке доставки");
-                    }
-                    if(string.IsNullOrWhiteSpace(order.DeliveryPoint.Floor)) {
-                        yield return new ValidationResult("Не заполнен этаж в точке доставки");
-                    }
-                    if(string.IsNullOrWhiteSpace(order.DeliveryPoint.Room)) {
-                        yield return new ValidationResult("Не заполнен номер помещения в точке доставки");
-                    }
-                }
             }
         }
     }

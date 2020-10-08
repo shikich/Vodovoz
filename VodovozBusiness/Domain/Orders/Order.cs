@@ -4087,7 +4087,7 @@ namespace Vodovoz.Domain.Orders
 				   .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
 				   .Any(x => x.Id == new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures))
 				yield return new ValidationResult(
-					"При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
+					"При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
 					new[] { nameof(EShopOrder) });
 
 			if(PaymentType == PaymentType.ByCard && PaymentByCardFrom == null)

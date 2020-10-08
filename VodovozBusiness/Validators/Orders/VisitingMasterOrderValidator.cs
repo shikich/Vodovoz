@@ -43,7 +43,7 @@ namespace Vodovoz.Validators.Orders {
                        .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
                        .Any(x => x.Id == nomenclatureParametersProvider.RootProductGroupForOnlineStoreNomenclatures))
                 yield return new ValidationResult(
-                    "При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
+                    "При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
                     new[] { nameof(order.EShopOrder) });
             
             if(order.PaymentType == PaymentType.ByCard && order.PaymentByCardFrom == null)
@@ -55,8 +55,18 @@ namespace Vodovoz.Validators.Orders {
 
         public override IEnumerable<ValidationResult> Validate(OrderValidateParameters validateParameters)
         {
-            var result = Validate();
+            IEnumerable<ValidationResult> result;
             
+            result = Validate();
+            
+            if (result.Any()) {
+                foreach (var validationResult in result) {
+                    yield return validationResult;
+                }
+            }
+            
+            result = base.Validate(validateParameters);
+
             if (result.Any()) {
                 foreach (var validationResult in result) {
                     yield return validationResult;
@@ -64,15 +74,16 @@ namespace Vodovoz.Validators.Orders {
             }
 
             if(order.PaymentType == PaymentType.cashless
-                && validateParameters.OrderAction == OrderValidateAction.Accept
-                && !currentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
+               && validateParameters.OrderAction == OrderValidateAction.Accept
+               && !currentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
                 yield return new ValidationResult(
                     "Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
                     new[] { nameof(order.Status) }
                 );
             }
 
-            if ((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
+            if ((validateParameters.OrderAction == OrderValidateAction.Accept || 
+                 validateParameters.OrderAction == OrderValidateAction.WaitForPayment) && order.Counterparty != null) {
                 if (order.DeliverySchedule == null)
                     yield return new ValidationResult("В заказе не указано время доставки.",
                         new[] {nameof(order.DeliverySchedule)});
@@ -98,7 +109,6 @@ namespace Vodovoz.Validators.Orders {
                     }
                 }
             }
-            
         }
     }
 }
