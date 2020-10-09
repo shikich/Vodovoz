@@ -9,6 +9,12 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.Bill;
+using Vodovoz.Domain.Orders.Documents.Equipment;
+using Vodovoz.Domain.Orders.Documents.Invoice;
+using Vodovoz.Domain.Orders.Documents.ShetFactura;
+using Vodovoz.Domain.Orders.Documents.Torg12;
+using Vodovoz.Domain.Orders.Documents.UPD;
 
 namespace Vodovoz.JournalViewers
 {
@@ -91,7 +97,7 @@ namespace Vodovoz.JournalViewers
 					   || orderDocumentAlias.GetType() == typeof(EquipmentTransferDocument)
 					   || orderDocumentAlias.GetType() == typeof(InvoiceBarterDocument)
 					   || orderDocumentAlias.GetType() == typeof(InvoiceDocument)
-				       || orderDocumentAlias.GetType() == typeof(InvoiceContractDoc)
+				       || orderDocumentAlias.GetType() == typeof(InvoiceContractDocument)
 					   || orderDocumentAlias.GetType() == typeof(UPDDocument)
 					   || orderDocumentAlias.GetType() == typeof(DriverTicketDocument)
 					   || orderDocumentAlias.GetType() == typeof(Torg12Document)

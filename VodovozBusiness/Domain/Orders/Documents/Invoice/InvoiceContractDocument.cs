@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using QS.Print;
 using QS.Report;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.Invoice
 {
-	public class InvoiceContractDoc : OrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
+	public class InvoiceContractDocument : OrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.InvoiceContractDoc;

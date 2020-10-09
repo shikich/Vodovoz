@@ -12,6 +12,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.OrderContract;
 
 namespace Vodovoz.Additions.Printing
 {

@@ -22,6 +22,16 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.AssemblyList;
+using Vodovoz.Domain.Orders.Documents.Bill;
+using Vodovoz.Domain.Orders.Documents.Equipment;
+using Vodovoz.Domain.Orders.Documents.Invoice;
+using Vodovoz.Domain.Orders.Documents.OrderContract;
+using Vodovoz.Domain.Orders.Documents.ShetFactura;
+using Vodovoz.Domain.Orders.Documents.Torg12;
+using Vodovoz.Domain.Orders.Documents.Torg2;
+using Vodovoz.Domain.Orders.Documents.TransportInvoice;
+using Vodovoz.Domain.Orders.Documents.UPD;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
@@ -2220,10 +2230,10 @@ namespace Vodovoz.Domain.Orders
 						break;
 					case OrderDocumentType.InvoiceContractDoc:
 						if(observableOrderDocuments
-						   .OfType<InvoiceContractDoc>()
+						   .OfType<InvoiceContractDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
-							ObservableOrderDocuments.Add(new InvoiceContractDoc {
+							ObservableOrderDocuments.Add(new InvoiceContractDocument {
 								Order = item.Order,
 								AttachedToOrder = this
 							});
@@ -3526,7 +3536,7 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new InvoiceBarterDocument();
 					break;
 				case OrderDocumentType.InvoiceContractDoc:
-					newDoc = new InvoiceContractDoc();
+					newDoc = new InvoiceContractDocument();
 					break;
 				case OrderDocumentType.Torg12:
 					newDoc = new Torg12Document();

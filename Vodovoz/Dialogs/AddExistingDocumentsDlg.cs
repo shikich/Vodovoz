@@ -8,6 +8,7 @@ using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.OrderContract;
 
 namespace Vodovoz.Dialogs
 {

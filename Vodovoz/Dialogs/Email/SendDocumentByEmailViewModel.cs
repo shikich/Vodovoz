@@ -19,6 +19,7 @@ using QS.Dialog;
 using QS.Project.Services;
 using QS.Services;
 using RdlEngine;
+using Vodovoz.Domain.Orders.Documents.Bill;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Dialogs.Email

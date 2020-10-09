@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.Equipment
 {
-	public class EquipmentReturnDocument:OrderDocument, IPrintableRDLDocument
+	public class EquipmentTransferDocument:OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public override OrderDocumentType Type => OrderDocumentType.EquipmentReturn;
+		public override OrderDocumentType Type => OrderDocumentType.EquipmentTransfer;
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
@@ -16,7 +16,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new ReportInfo {
 				Title = Name,
-				Identifier = "Documents.EquipmentReturn",
+				//Identifier = "Documents.EquipmentMovement",
+				//FIXME Когда доделаем навороченый акт I-1200 вернуть
+				Identifier = "Documents.EquipmentTransfer",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id }
 				}
@@ -25,7 +27,11 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format("Акт закрытия аренды");
+		public override string Name {
+			get { return String.Format("Акт приемо-передачи оборудования"); }
+			//FIXME Когда доделаем навороченый акт I-1200 вернуть
+			//get { return String.Format ("Акт движения оборудования"); }
+		}
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 

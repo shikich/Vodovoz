@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.Bill;
 using Vodovoz.Domain.StoredEmails;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 

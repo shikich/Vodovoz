@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.Print;
 using QS.Report;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.Invoice
 {
 	public class InvoiceDocument : OrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
 	{

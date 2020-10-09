@@ -98,7 +98,7 @@ namespace Vodovoz.Tools.Orders
 
 		#endregion
 
-		public IEnumerable<OrderEquipment> OnlyEquipments => Order.OrderEquipments.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.equipment);
+		public IEnumerable<OrderEquipment> OnlyEquipments => Order.OrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment);
 
 		void InitializeFields()
 		{

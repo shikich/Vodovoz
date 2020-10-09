@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.OrderContract
 {
 	public class OrderContract : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{

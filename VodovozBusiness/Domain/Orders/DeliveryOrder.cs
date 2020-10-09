@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Orders {
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-    public class DeliveryOrder : OrderBase {
+    public class DeliveryOrder : OrderBase, IEShopOrder {
 	    int? bottlesReturn;
 	    [Display(Name = "Бутылей на возврат")]
 	    public virtual int? BottlesReturn {

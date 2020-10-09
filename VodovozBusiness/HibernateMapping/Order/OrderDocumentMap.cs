@@ -1,5 +1,15 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.AssemblyList;
+using Vodovoz.Domain.Orders.Documents.Bill;
+using Vodovoz.Domain.Orders.Documents.Equipment;
+using Vodovoz.Domain.Orders.Documents.Invoice;
+using Vodovoz.Domain.Orders.Documents.OrderContract;
+using Vodovoz.Domain.Orders.Documents.ShetFactura;
+using Vodovoz.Domain.Orders.Documents.Torg12;
+using Vodovoz.Domain.Orders.Documents.Torg2;
+using Vodovoz.Domain.Orders.Documents.TransportInvoice;
+using Vodovoz.Domain.Orders.Documents.UPD;
 
 namespace Vodovoz.HibernateMapping
 {
@@ -108,7 +118,7 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
-	public class InvoiceContractDocMap : SubclassMap<InvoiceContractDoc>
+	public class InvoiceContractDocMap : SubclassMap<InvoiceContractDocument>
 	{
 		public InvoiceContractDocMap()
 		{

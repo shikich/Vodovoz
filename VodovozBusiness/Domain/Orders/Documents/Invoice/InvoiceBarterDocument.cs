@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.Invoice
 {
 	public class InvoiceBarterDocument : OrderDocument, IPrintableRDLDocument
 	{

@@ -7,12 +7,12 @@ using QS.Report;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.StoredEmails;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.Bill
 {
-	public class SpecialBillDocument : OrderDocument, IPrintableRDLDocument
+    public class BillDocument : OrderDocument, IPrintableRDLDocument, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public override OrderDocumentType Type => OrderDocumentType.SpecialBill;
+		public override OrderDocumentType Type => OrderDocumentType.Bill;
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
@@ -20,22 +20,21 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new ReportInfo {
 				Title = this.Title,
-				//печатная форма идентична основному счету
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
-					{ "special", true }
+					{ "special", false }
 				}
 			};
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => String.Format("Особый счет №{0} от {1:d}", Order.Id, Order.BillDate);
+		public virtual string Title => String.Format("Счет №{0} от {1:d}", Order.Id, Order.BillDate);
 
-		public override string Name => String.Format("Особый счет №{0}", Order.Id);
+		public override string Name => String.Format("Счет №{0}", Order.Id);
 
 		public override DateTime? DocumentDate => Order?.BillDate;
 
@@ -50,7 +49,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region Свои свойства
 
 		private bool hideSignature = true;
-
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
 			get => hideSignature;
@@ -115,7 +113,5 @@ namespace Vodovoz.Domain.Orders.Documents
 
 			return template;
 		}
-
 	}
 }
-

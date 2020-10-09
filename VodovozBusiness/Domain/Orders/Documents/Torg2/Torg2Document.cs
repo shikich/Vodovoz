@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.Torg2
 {
 	public class Torg2Document: OrderDocument, IPrintableRDLDocument
 	{

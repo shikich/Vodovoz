@@ -5,7 +5,7 @@ using QS.Print;
 using QS.Report;
 using Vodovoz.EntityRepositories.Goods;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.AssemblyList
 {
 	public class AssemblyListDocument : OrderDocument, IPrintableRDLDocument
 	{

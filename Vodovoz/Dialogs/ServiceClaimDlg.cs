@@ -13,6 +13,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.OrderContract;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories;

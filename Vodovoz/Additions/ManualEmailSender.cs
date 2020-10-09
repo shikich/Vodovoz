@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using fyiReporting.RdlGtkViewer;
 using RdlEngine;
+using Vodovoz.Domain.Orders.Documents.Bill;
 
 namespace Vodovoz.Additions
 {

@@ -16,6 +16,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.EntityRepositories;
 using NHibernate.Criterion;
 using RdlEngine;
+using Vodovoz.Domain.Orders.Documents.Bill;
 
 namespace Vodovoz.ViewWidgets
 {
