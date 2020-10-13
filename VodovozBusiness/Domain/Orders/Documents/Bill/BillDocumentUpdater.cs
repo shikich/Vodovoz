@@ -25,26 +25,19 @@ namespace Vodovoz.Domain.Orders.Documents.Bill {
         
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                if (order.ObservableOrderDocuments.All(x => x.Type != DocumentType)) {
-                    AddExistingDocument(order, CreateNewDocument());
-                }
+                AddDocument(order, CreateNewDocument());
             }
             else {
-                var doc = order.ObservableOrderDocuments.SingleOrDefault(
-                    x => x.Type == DocumentType);
-
-                if (doc != null) {
-                    RemoveExistingDocument(order, doc);
-                }
+                RemoveDocument(order);
             }
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.AddDocument(existingDocument);
+            AddDocument(order, existingDocument);
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.RemoveDocument(existingDocument);
+            RemoveDocument(order, existingDocument);
         }
     }
 }

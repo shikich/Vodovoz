@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Orders {
     )]
     [HistoryTrace]
     [EntityPermission]
-    public class ClosingDocOrder : OrderBase, IEShopOrder {
+    public class ClosingDocOrder : OrderBase, IEShopOrder, IDefaultOrderDocumentType {
         private int? eShopOrder;
         [Display(Name = "Заказ из интернет магазина")]
         public virtual int? EShopOrder {

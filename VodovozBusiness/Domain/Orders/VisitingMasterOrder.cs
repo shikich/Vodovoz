@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Orders {
     )]
     [HistoryTrace]
     [EntityPermission]
-    public class VisitingMasterOrder : OrderBase, IEShopOrder {
+    public class VisitingMasterOrder : OrderBase, IEShopOrder, IDefaultOrderDocumentType {
         string commentForLogist;
         [Display(Name = "Комментарий логиста")]
         public virtual string CommentForLogist {

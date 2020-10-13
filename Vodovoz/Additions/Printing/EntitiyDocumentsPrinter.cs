@@ -13,6 +13,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.Documents.OrderContract;
+using Vodovoz.Domain.Orders.Documents.OrderM2Proxy;
 
 namespace Vodovoz.Additions.Printing
 {

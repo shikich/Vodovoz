@@ -360,14 +360,5 @@ namespace Vodovoz.Domain.Orders {
 				water19L = water19L.Where(x => x.PromoSet == null);
 			return water19L.Sum(x => x.Count);
 		}
-
-		public virtual void AddDocument(OrderDocument document) {
-			document.Order = document.AttachedToOrder = this;
-			ObservableOrderDocuments.Add(document);
-		}
-		
-		public virtual void RemoveDocument(OrderDocument document) {
-			ObservableOrderDocuments.Remove(document);
-		}
     }
 }

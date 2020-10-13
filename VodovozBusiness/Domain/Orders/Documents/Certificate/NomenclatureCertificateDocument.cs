@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using QS.Print;
 using QS.Report;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.Certificate
 {
 	public class NomenclatureCertificateDocument : OrderDocument, IPrintableRDLDocument
 	{
-		Certificate certificate;
+		Domain.Certificate certificate;
 		[Display(Name = "Сертификат продукции")]
-		public virtual Certificate Certificate {
+		public virtual Domain.Certificate Certificate {
 			get => certificate;
 			set => SetField(ref certificate, value, () => Certificate);
 		}

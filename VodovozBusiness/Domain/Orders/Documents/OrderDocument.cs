@@ -40,6 +40,30 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => SetField(ref attachedToOrder, value, () => AttachedToOrder);
 		}
 
+		OrderBase newOrder;
+		/// <summary>
+		/// Заказ для которого создавался документ
+		/// </summary>
+		/// <value>The order.</value>
+		[Display(Name = "Заказ")]
+		public virtual OrderBase NewOrder {
+			get => newOrder;
+			set => SetField(ref newOrder, value);
+		}
+
+		OrderBase attachedToNewOrder;
+
+		/// <summary>
+		/// Заказ в котором будет отображатся этот документ. 
+		/// (в котором везется этот документ клиенту, может не совпадать с заказом
+		/// для которого создавался)
+		/// </summary>
+		[Display(Name = "Заказ")]
+		public virtual OrderBase AttachedToNewOrder {
+			get => attachedToNewOrder;
+			set => SetField(ref attachedToNewOrder, value);
+		}
+		
 		public abstract OrderDocumentType Type { get; }
 
 		public virtual string Name => "Не указан";

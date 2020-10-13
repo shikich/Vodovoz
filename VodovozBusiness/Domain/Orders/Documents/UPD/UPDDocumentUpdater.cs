@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Vodovoz.Domain.Orders.Documents.Bill;
 
 namespace Vodovoz.Domain.Orders.Documents.UPD {
@@ -27,40 +26,34 @@ namespace Vodovoz.Domain.Orders.Documents.UPD {
                 case OrderType.VisitingMasterOrder:
                 case OrderType.ClosingDocOrder:
                 case OrderType.OrderFrom1c:
-                    return billDocumentUpdater.NeedCreateDocument(order) && order.Status >= OrderStatus.Accepted;
+                    return billDocumentUpdater.NeedCreateDocument(order) &&
+                           order.Status >= OrderStatus.Accepted;
                 case OrderType.SelfDeliveryOrder:
                     var selfDeliveryOrder = order as SelfDeliveryOrder;
-                    return billDocumentUpdater.NeedCreateDocument(order) && selfDeliveryOrder.PayAfterShipment;
+                    return billDocumentUpdater.NeedCreateDocument(order) &&
+                           (order.Status >= OrderStatus.Accepted ||
+                           (order.Status == OrderStatus.WaitForPayment &&
+                           selfDeliveryOrder.PayAfterShipment));
             }
 
             return false;
-            /*return billDocumentUpdater.NeedCreateDocument(order) && 
-                   (order.Status >= OrderStatus.Accepted || 
-                   (order.Status == OrderStatus.WaitForPayment && order.IsSelfDelivery && order.PayAfterShipment));*/
         }
         
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                if (order.ObservableOrderDocuments.All(x => x.Type != DocumentType)) {
-                    AddExistingDocument(order, CreateNewDocument());
-                }
+                AddDocument(order, CreateNewDocument());
             }
             else {
-                var doc = order.ObservableOrderDocuments.SingleOrDefault(
-                    x => x.Type == DocumentType);
-
-                if (doc != null) {
-                    RemoveExistingDocument(order, doc);
-                }
+                RemoveDocument(order);
             }
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.AddDocument(existingDocument);
+            AddDocument(order, existingDocument);
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.RemoveDocument(existingDocument);
+            RemoveDocument(order, existingDocument);
         }
     }
 }

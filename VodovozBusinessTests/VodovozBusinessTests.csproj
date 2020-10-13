@@ -169,6 +169,16 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterTest.cs" />
     <Compile Include="ErrorReporting\DefaultErrorMessageModelTest.cs" />
     <Compile Include="ErrorReporting\SingletonErrorReporterTest.cs" />
+    <Compile Include="Updaters\AssemblyListDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\BillDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\DoneWorkDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\DriverTicketDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\EquipmentReturnDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\EquipmentTransferDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\InvoiceBarterDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\InvoiceContractDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\SpecialBillDocumentUpdaterTests.cs" />
+    <Compile Include="Updaters\Torg2DocumentUpdaterTests.cs" />
     <Compile Include="Validators\Orders\ClosingDocOrderValidatorTests.cs" />
     <Compile Include="Validators\Orders\DeliveryOrderValidatorTests.cs" />
     <Compile Include="Validators\Orders\SelfDeliveryOrderValidatorTests.cs" />

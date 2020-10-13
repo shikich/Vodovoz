@@ -1,17 +1,17 @@
 using System.Linq;
 
-namespace Vodovoz.Domain.Orders.Documents.OrderContract {
-    public class OrderContractDocumentUpdater : OrderDocumentUpdaterBase {
+namespace Vodovoz.Domain.Orders.Documents.OrderM2Proxy {
+    public class OrderM2ProxyDocumentUpdater : OrderDocumentUpdaterBase {
 
-        private readonly OrderContractDocumentFactory documentFactory;
+        private readonly OrderM2ProxyDocumentFactory documentFactory;
         
-        public override OrderDocumentType DocumentType => OrderDocumentType.Contract;
+        public override OrderDocumentType DocumentType => OrderDocumentType.M2Proxy;
 
-        public OrderContractDocumentUpdater(OrderContractDocumentFactory documentFactory) {
+        public OrderM2ProxyDocumentUpdater(OrderM2ProxyDocumentFactory documentFactory) {
             this.documentFactory = documentFactory;
         }
 
-        private OrderContract CreateNewDocument() {
+        private OrderM2Proxy CreateNewDocument() {
             return documentFactory.Create();
         }
 
@@ -25,29 +25,31 @@ namespace Vodovoz.Domain.Orders.Documents.OrderContract {
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
                 var contract =
-                    order.ObservableOrderDocuments.OfType<OrderContract>().SingleOrDefault();
+                    order.ObservableOrderDocuments.OfType<OrderContract.OrderContract>().SingleOrDefault();
                 
                 if(contract == null)
-                    AddDocument(order, CreateNewDocument());
+                    AddExistingDocument(order, CreateNewDocument());
                 else if (contract.Contract.Id != order.Contract.Id)
                     contract.Contract = order.Contract;
             }
             else {
                 var contract =
-                    order.ObservableOrderDocuments.OfType<OrderContract>().SingleOrDefault();
+                    order.ObservableOrderDocuments.OfType<OrderContract.OrderContract>().SingleOrDefault();
 
                 if (contract != null) {
-                    RemoveDocument(order, contract);
+                    RemoveExistingDocument(order, contract);
                 }
             }
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            AddDocument(order, existingDocument);
+            if (order.ObservableOrderDocuments.All(x => x.Type != DocumentType)) {
+                //order.AddDocument(existingDocument);
+            }
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            RemoveDocument(order, existingDocument);
+            //order.RemoveDocument(existingDocument);
         }
     }
 }

@@ -69,6 +69,15 @@
     <Compile Include="Domain\Orders\Documents\Bill\SpecialBill.cs" />
     <Compile Include="Domain\Orders\Documents\Bill\SpecialBillDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\Bill\SpecialBillDocumentUpdater.cs" />
+    <Compile Include="Domain\Orders\Documents\Certificate\NomenclatureCertificateDocument.cs" />
+    <Compile Include="Domain\Orders\Documents\Certificate\NomenclatureCertificateDocumentFactory.cs" />
+    <Compile Include="Domain\Orders\Documents\Certificate\NomenclatureCertificateDocumentUpdater.cs" />
+    <Compile Include="Domain\Orders\Documents\DoneWork\DoneWorkDocument.cs" />
+    <Compile Include="Domain\Orders\Documents\DoneWork\DoneWorkDocumentFactory.cs" />
+    <Compile Include="Domain\Orders\Documents\DoneWork\DoneWorkDocumentUpdater.cs" />
+    <Compile Include="Domain\Orders\Documents\DriverTicket\DriverTicketDocument.cs" />
+    <Compile Include="Domain\Orders\Documents\DriverTicket\DriverTicketDocumentFactory.cs" />
+    <Compile Include="Domain\Orders\Documents\DriverTicket\DriverTicketDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\Equipment\EquipmentReturnDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\Equipment\EquipmentReturnDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\Equipment\EquipmentTransferDocumentFactory.cs" />
@@ -90,6 +99,9 @@
     <Compile Include="Domain\Orders\Documents\OrderDocumentsModel.cs" />
     <Compile Include="Domain\Orders\Documents\OrderDocumentUpdaterBase.cs" />
     <Compile Include="Domain\Orders\Documents\OrderDocumentUpdatersFactory.cs" />
+    <Compile Include="Domain\Orders\Documents\OrderM2Proxy\OrderM2ProxyDocumentFactory.cs" />
+    <Compile Include="Domain\Orders\Documents\OrderM2Proxy\OrderM2ProxyDocumentUpdater.cs" />
+    <Compile Include="Domain\Orders\Documents\OrderM2Proxy\OrderM2Proxy.cs" />
     <Compile Include="Domain\Orders\Documents\ShetFactura\ShetFacturaDocument.cs" />
     <Compile Include="Domain\Orders\Documents\ShetFactura\ShetFacturaDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\ShetFactura\ShetFacturaDocumentUpdater.cs" />
@@ -108,6 +120,7 @@
     <Compile Include="Domain\Orders\Documents\UPD\UPDDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\UPD\UPDDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\UPD\UPDDocument.cs" />
+    <Compile Include="Domain\Orders\IDefaultOrderDocumentType.cs" />
     <Compile Include="Domain\Orders\IEShopOrder.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\OrderBase.cs" />
@@ -224,8 +237,6 @@
     <Compile Include="Domain\Operations\OperationBase.cs" />
     <Compile Include="Domain\Operations\WarehouseMovementOperation.cs" />
     <Compile Include="Domain\Orders\Documents\CoolerWarrantyDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\DoneWorkDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\DriverTicketDocument.cs" />
     <Compile Include="Domain\Orders\Documents\OrderAgreement.cs" />
     <Compile Include="Domain\Orders\Documents\OrderDocument.cs" />
     <Compile Include="Domain\Orders\Documents\PumpWarrantyDocument.cs" />
@@ -456,7 +467,6 @@
     <Compile Include="Domain\Employees\ProxyDocument.cs" />
     <Compile Include="Domain\Employees\M2ProxyDocument.cs" />
     <Compile Include="DocTemplates\M2ProxyDocumentParser.cs" />
-    <Compile Include="Domain\Orders\Documents\OrderM2Proxy.cs" />
     <Compile Include="Domain\Goods\Folder1c.cs" />
     <Compile Include="HibernateMapping\Goods\Folder1cMap.cs" />
     <Compile Include="Domain\Orders\UndeliveredOrder.cs" />
@@ -535,7 +545,6 @@
     <Compile Include="Repositories\Store\CarLoadRepository.cs" />
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
-    <Compile Include="Domain\Orders\Documents\NomenclatureCertificateDocument.cs" />
     <Compile Include="Domain\StoredResources\StoredResource.cs" />
     <Compile Include="HibernateMapping\StoredResourceMap.cs" />
     <Compile Include="Domain\StoredResources\StoredImageResource.cs" />

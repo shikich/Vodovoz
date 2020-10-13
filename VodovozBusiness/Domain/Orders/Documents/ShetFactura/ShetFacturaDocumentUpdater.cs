@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents.UPD;
 
@@ -11,7 +10,8 @@ namespace Vodovoz.Domain.Orders.Documents.ShetFactura {
         
         public override OrderDocumentType DocumentType => OrderDocumentType.ShetFactura;
 
-        public ShetFacturaDocumentUpdater(ShetFacturaDocumentFactory documentFactory) {
+        public ShetFacturaDocumentUpdater(ShetFacturaDocumentFactory documentFactory, 
+                                          UPDDocumentUpdater updDocumentUpdater) {
             this.documentFactory = documentFactory;
             this.updDocumentUpdater =
                 updDocumentUpdater ?? throw new ArgumentNullException(nameof(updDocumentUpdater));
@@ -22,36 +22,30 @@ namespace Vodovoz.Domain.Orders.Documents.ShetFactura {
         }
 
         private bool NeedCreateDocument(OrderBase order) {
-            return updDocumentUpdater.NeedCreateDocument(order) &&
-                   order.DocumentType == DefaultDocumentType.torg12;
+            if (order is IDefaultOrderDocumentType defaultDoc) {
+                return updDocumentUpdater.NeedCreateDocument(order) && 
+                       defaultDoc.DefaultDocumentType.HasValue &&
+                       defaultDoc.DefaultDocumentType == DefaultDocumentType.torg12;
+            }
+
+            return false;
         }
         
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                if (order.ObservableOrderDocuments.All(x => x.Type != DocumentType)) {
-                    AddExistingDocument(order, CreateNewDocument());
-                }
+                AddDocument(order, CreateNewDocument());
             }
             else {
-                var doc = order.ObservableOrderDocuments.SingleOrDefault(
-                    x => x.Type == DocumentType);
-
-                if (doc != null) {
-                    RemoveExistingDocument(order, doc);
-                }
+                RemoveDocument(order);
             }
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.AddDocument(existingDocument);
+            AddDocument(order, existingDocument);
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.RemoveDocument(existingDocument);
+            RemoveDocument(order, existingDocument);
         }
-    }
-
-    public interface IDefaultOrderDocumentType {
-        DefaultDocumentType? DocumentType { get; set; }
     }
 }

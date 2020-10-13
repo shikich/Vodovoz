@@ -11,6 +11,7 @@ using Vodovoz.Additions.Printing;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.DriverTicket;
 using Vodovoz.Domain.Orders.Documents.Invoice;
 
 namespace Vodovoz.Dialogs

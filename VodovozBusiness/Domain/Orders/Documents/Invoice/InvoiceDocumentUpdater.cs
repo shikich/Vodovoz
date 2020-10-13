@@ -19,10 +19,42 @@ namespace Vodovoz.Domain.Orders.Documents.Invoice {
         private bool NeedCreateDocument(OrderBase order) {
             var accepted = order.Status >= OrderStatus.Accepted;
             var waitForPayment = order.Status >= OrderStatus.WaitForPayment;
+            
+            var byCard = order.PaymentType == PaymentType.ByCard && order.ObservableOrderItems.Any();
+            var cash = (order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.BeveragesWorld);
+            var cashlessWithoutBottlesReturn = order.PaymentType == PaymentType.cashless &&
+                                               (order.ObservableOrderItems.Sum(i => i.Sum) <= 0m) &&
+                                               !order.ObservableOrderDepositItems.Any();
+
+            switch (order.Type) {
+                case OrderType.SelfDeliveryOrder:
+                    var selfDeliveryOrder = order as SelfDeliveryOrder;
+                    return (selfDeliveryOrder.PaymentType == PaymentType.cashless &&
+                           (selfDeliveryOrder.ObservableOrderItems.Sum(i => i.Sum) <= 0m) &&
+                           (!selfDeliveryOrder.ObservableOrderDepositItems.Any() || selfDeliveryOrder.BottlesReturn > 0) ||
+                           byCard || cash) && waitForPayment;
+                case OrderType.DeliveryOrder:
+                    var deliveryOrder = order as DeliveryOrder;
+                    return (deliveryOrder.PaymentType == PaymentType.cashless &&
+                           (deliveryOrder.ObservableOrderItems.Sum(i => i.Sum) <= 0m) &&
+                           (!deliveryOrder.ObservableOrderDepositItems.Any() || deliveryOrder.BottlesReturn > 0) ||
+                           byCard || cash) && accepted;
+                case OrderType.VisitingMasterOrder:
+                case OrderType.ClosingDocOrder:
+                case OrderType.OrderFrom1c:
+                    return (cashlessWithoutBottlesReturn || byCard || cash) && accepted;
+                default:
+                    return false;
+            }
+            
+            
+            /*var accepted = order.Status >= OrderStatus.Accepted;
+            var waitForPayment = order.Status >= OrderStatus.WaitForPayment;
 
             var cashless = (order.PaymentType == PaymentType.cashless && 
                                 (order.ObservableOrderItems.Sum(i => i.Sum) <= 0m)) &&
                                 (!order.ObservableOrderDepositItems.Any() || order.BottlesReturn > 0);
+            
             var byCard = order.PaymentType == PaymentType.ByCard && order.ObservableOrderItems.Any();
             var cash = (order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.BeveragesWorld);
 
@@ -30,31 +62,24 @@ namespace Vodovoz.Domain.Orders.Documents.Invoice {
                 return (cashless || byCard || cash) && waitForPayment;
             } else {
                 return (cashless || byCard || cash ) && accepted;
-            }
+            }*/
         }
         
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                if (order.ObservableOrderDocuments.All(x => x.Type != DocumentType)) {
-                    AddExistingDocument(order, CreateNewDocument());
-                }
+                AddDocument(order, CreateNewDocument());
             }
             else {
-                var doc = order.ObservableOrderDocuments.SingleOrDefault(
-                    x => x.Type == DocumentType);
-
-                if (doc != null) {
-                    RemoveExistingDocument(order, doc);
-                }
+                RemoveDocument(order);
             }
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.AddDocument(existingDocument);
+            AddDocument(order, existingDocument);
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.RemoveDocument(existingDocument);
+            RemoveDocument(order, existingDocument);
         }
     }
 }

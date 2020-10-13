@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Orders {
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-    public class SelfDeliveryOrder : OrderBase, IEShopOrder {
+    public class SelfDeliveryOrder : OrderBase, IEShopOrder, IDefaultOrderDocumentType {
         
 	    int? bottlesReturn;
 	    [Display(Name = "Бутылей на возврат")]

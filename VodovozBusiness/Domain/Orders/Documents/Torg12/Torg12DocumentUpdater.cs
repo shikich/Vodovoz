@@ -23,32 +23,30 @@ namespace Vodovoz.Domain.Orders.Documents.Torg12 {
         }
 
         private bool NeedCreateDocument(OrderBase order) {
-            return updDocumentUpdater.NeedCreateDocument(order) &&
-                   order.DocumentType == DefaultDocumentType.torg12;
+            if (order is IDefaultOrderDocumentType defaultDoc) {
+                return updDocumentUpdater.NeedCreateDocument(order) && 
+                       defaultDoc.DefaultDocumentType.HasValue &&
+                       defaultDoc.DefaultDocumentType == DefaultDocumentType.torg12;
+            }
+
+            return false;
         }
         
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                if (order.ObservableOrderDocuments.All(x => x.Type != DocumentType)) {
-                    AddExistingDocument(order, CreateNewDocument());
-                }
+                AddDocument(order, CreateNewDocument());
             }
             else {
-                var doc = order.ObservableOrderDocuments.SingleOrDefault(
-                    x => x.Type == DocumentType);
-
-                if (doc != null) {
-                    RemoveExistingDocument(order, doc);
-                }
+                RemoveDocument(order);
             }
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.AddDocument(existingDocument);
+            AddDocument(order, existingDocument);
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.RemoveDocument(existingDocument);
+            RemoveDocument(order, existingDocument);
         }
     }
 }

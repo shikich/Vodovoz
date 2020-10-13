@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using QS.DomainModel.UoW;
 using QS.Permissions;
+using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Validators.Orders;
 
 namespace VodovozBusinessTests.Validators.Orders {
@@ -21,14 +24,27 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithoutCounterparty()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock = Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            
+            GenericObservableList<OrderItem> observableOrderItemsMock = Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+
+            ICurrentPermissionService defaultAllowedPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(defaultAllowedPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =  new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
-                new[] {nameof(testOrder.Counterparty)});
+                new[] {nameof(selfDeliveryOrderMock.Counterparty)});
             var vc = new ValidationContext(validator, null, null);
 
             // act

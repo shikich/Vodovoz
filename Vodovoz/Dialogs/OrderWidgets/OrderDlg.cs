@@ -70,6 +70,7 @@ using Vodovoz.Core;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Orders.Documents.Bill;
 using Vodovoz.Domain.Orders.Documents.OrderContract;
+using Vodovoz.Domain.Orders.Documents.OrderM2Proxy;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;

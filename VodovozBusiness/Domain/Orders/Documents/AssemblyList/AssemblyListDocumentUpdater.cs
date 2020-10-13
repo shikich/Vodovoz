@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Xml.XPath;
 
 namespace Vodovoz.Domain.Orders.Documents.AssemblyList {
     public class AssemblyListDocumentUpdater : OrderDocumentUpdaterBase {
@@ -17,40 +16,27 @@ namespace Vodovoz.Domain.Orders.Documents.AssemblyList {
         }
 
         private bool NeedCreateDocument(OrderBase order) {
-            switch (order.Type) {
-                case OrderType.DeliveryOrder:
-                case OrderType.SelfDeliveryOrder:
-                case OrderType.ClosingDocOrder:
-                case OrderType.VisitingMasterOrder:
-                    var eShopOrder = order as IEShopOrder;
-                    return eShopOrder.EShopOrder.HasValue;
-                default:
-                    return false;
-            }
+            if(order is IEShopOrder eShopOrder)
+               return eShopOrder.EShopOrder.HasValue;
+            
+            return false;
         }
 
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                if (order.ObservableOrderDocuments.All(x => x.Type != DocumentType)) {
-                    AddExistingDocument(order, CreateNewDocument());
-                }
+                AddDocument(order, CreateNewDocument());
             }
             else {
-                var doc = order.ObservableOrderDocuments.SingleOrDefault(
-                    x => x.Type == DocumentType);
-
-                if (doc != null) {
-                    RemoveExistingDocument(order, doc);
-                }
+                RemoveDocument(order);
             }
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.AddDocument(existingDocument);
+            AddDocument(order, existingDocument);
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            order.RemoveDocument(existingDocument);
+            RemoveDocument(order, existingDocument);
         }
     }
 }

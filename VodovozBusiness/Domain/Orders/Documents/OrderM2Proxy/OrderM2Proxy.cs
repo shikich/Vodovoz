@@ -7,7 +7,7 @@ using QS.Print;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.OrderM2Proxy
 {
 	public class OrderM2Proxy : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{

@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
 
-namespace Vodovoz.Domain.Orders.Documents
+namespace Vodovoz.Domain.Orders.Documents.DriverTicket
 {
-	public class DoneWorkDocument:OrderDocument, IPrintableRDLDocument
+	public class DriverTicketDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
-		public override OrderDocumentType Type => OrderDocumentType.DoneWorkReport;
+		public override OrderDocumentType Type => OrderDocumentType.DriverTicket;
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = Name,
-				Identifier = "Documents.DoneWorkReport",
+				Title = String.Format("Талон водителю {0} от {1:d}", Order.Id, Order.DeliveryDate),
+				Identifier = "Documents.DriverTicket",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id }
+					{ "order_id", Order.Id },
+					{ "contactless_delivery", Order.ContactlessDelivery}
 				}
 			};
 		}
@@ -26,7 +27,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format("Акт выполненных работ");
+		public override string Name => String.Format("Талон водителю №{0}", Order.Id);
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
@@ -34,7 +35,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
-		int copiesToPrint = 2;
+		int copiesToPrint = 1;
 		public override int CopiesToPrint {
 			get => copiesToPrint;
 			set => copiesToPrint = value;

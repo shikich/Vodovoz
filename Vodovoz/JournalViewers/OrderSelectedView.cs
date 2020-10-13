@@ -10,6 +10,8 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.Documents.Bill;
+using Vodovoz.Domain.Orders.Documents.DoneWork;
+using Vodovoz.Domain.Orders.Documents.DriverTicket;
 using Vodovoz.Domain.Orders.Documents.Equipment;
 using Vodovoz.Domain.Orders.Documents.Invoice;
 using Vodovoz.Domain.Orders.Documents.ShetFactura;
