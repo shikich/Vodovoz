@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders.Documents.Torg2 {
 
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                AddDocument(order, CreateNewDocument());
+                AddNewDocument(order, CreateNewDocument());
             }
             else {
                 RemoveDocument(order);
@@ -27,7 +27,12 @@ namespace Vodovoz.Domain.Orders.Documents.Torg2 {
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            AddDocument(order, existingDocument);
+            if (!order.ObservableOrderDocuments.Any(x => x.NewOrder.Id == order.Id && x.Type == existingDocument.Type)) {
+                var doc = CreateNewDocument();
+                doc.NewOrder = existingDocument.NewOrder;
+                doc.AttachedToNewOrder = order;
+                order.ObservableOrderDocuments.Add(doc);
+            }
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {

@@ -6,15 +6,17 @@ namespace Vodovoz.Domain.Orders.Documents {
         private readonly OrderBase order;
         private readonly Dictionary<OrderDocumentType, OrderDocumentUpdaterBase> documentUpdaters;
 
-        public OrderDocumentsModel(OrderBase order, OrderDocumentUpdatersFactory documentUpdatersFactory) {
+        public OrderDocumentsModel(OrderBase order, 
+                                   OrderDocumentUpdatersFactory documentUpdatersFactory) {
             this.order = order;
-
-            FillDocumentsUpdaters(documentUpdatersFactory);
+            documentUpdaters = new Dictionary<OrderDocumentType, OrderDocumentUpdaterBase>();
+            
+            FillDocumentUpdaters(documentUpdatersFactory);
         }
 
-        private void FillDocumentsUpdaters(OrderDocumentUpdatersFactory documentUpdatersFactory) {
+        private void FillDocumentUpdaters(OrderDocumentUpdatersFactory documentUpdatersFactory) {
             var updaters = documentUpdatersFactory.CreateUpdaters();
-
+            
             foreach (var updater in updaters) {
                 documentUpdaters.Add(updater.DocumentType, updater);
             }
@@ -33,11 +35,7 @@ namespace Vodovoz.Domain.Orders.Documents {
         }
         
         public void AddExistingDocuments(OrderBase fromOrder) {
-            foreach (var document in fromOrder.OrderDocuments) {
-                
-                
-                order.ObservableOrderDocuments.Add(document);
-            }
+            AddExistingDocuments(fromOrder.ObservableOrderDocuments);
         }
         
         public void RemoveExistingDocuments(IEnumerable<OrderDocument> existingDocuments) {

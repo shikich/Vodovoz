@@ -46,28 +46,11 @@ namespace Vodovoz.Domain.Orders.Documents.Invoice {
                 default:
                     return false;
             }
-            
-            
-            /*var accepted = order.Status >= OrderStatus.Accepted;
-            var waitForPayment = order.Status >= OrderStatus.WaitForPayment;
-
-            var cashless = (order.PaymentType == PaymentType.cashless && 
-                                (order.ObservableOrderItems.Sum(i => i.Sum) <= 0m)) &&
-                                (!order.ObservableOrderDepositItems.Any() || order.BottlesReturn > 0);
-            
-            var byCard = order.PaymentType == PaymentType.ByCard && order.ObservableOrderItems.Any();
-            var cash = (order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.BeveragesWorld);
-
-            if(order.IsSelfDelivery) {
-                return (cashless || byCard || cash) && waitForPayment;
-            } else {
-                return (cashless || byCard || cash ) && accepted;
-            }*/
         }
         
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                AddDocument(order, CreateNewDocument());
+                AddNewDocument(order, CreateNewDocument());
             }
             else {
                 RemoveDocument(order);
@@ -75,7 +58,12 @@ namespace Vodovoz.Domain.Orders.Documents.Invoice {
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            AddDocument(order, existingDocument);
+            if (!order.ObservableOrderDocuments.Any(x => x.NewOrder.Id == order.Id && x.Type == existingDocument.Type)) {
+                var doc = CreateNewDocument();
+                doc.NewOrder = existingDocument.NewOrder;
+                doc.AttachedToNewOrder = order;
+                order.ObservableOrderDocuments.Add(doc);
+            }
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {

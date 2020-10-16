@@ -32,7 +32,7 @@ namespace VodovozBusinessTests.Deletion
 			NhConfigered = true;
 		}
 
-		public static void ConfogureDeletion()
+		public static void ConfigureDeletion()
 		{
 			if(DeletionConfigured)
 				return;

@@ -28,26 +28,43 @@ namespace Vodovoz.Domain.Orders.Documents.OrderContract {
                     order.ObservableOrderDocuments.OfType<OrderContract>().SingleOrDefault();
                 
                 if(contract == null)
-                    AddDocument(order, CreateNewDocument());
+                    AddNewDocument(order, CreateNewDocument());
                 else if (contract.Contract.Id != order.Contract.Id)
                     contract.Contract = order.Contract;
             }
-            else {
-                var contract =
-                    order.ObservableOrderDocuments.OfType<OrderContract>().SingleOrDefault();
-
-                if (contract != null) {
-                    RemoveDocument(order, contract);
-                }
-            }
+            else 
+                RemoveDocument(order);
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            AddDocument(order, existingDocument);
+            var contractDoc = existingDocument as OrderContract;
+           
+            if (!order.ObservableOrderDocuments.OfType<OrderContract>().Any(x => 
+                x.NewOrder.Id == order.Id &&
+                x.Contract == contractDoc.Contract)) {
+                
+                var doc = CreateNewDocument();
+                doc.Contract = contractDoc.Contract;
+                doc.NewOrder = existingDocument.NewOrder;
+                doc.AttachedToNewOrder = order;
+                order.ObservableOrderDocuments.Add(doc);
+            }
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
             RemoveDocument(order, existingDocument);
+        }
+
+        protected override void AddNewDocument(OrderBase order, OrderDocument document) {
+            if (!order.ObservableOrderDocuments.Any(x => x.NewOrder.Id == order.Id && x.Type == document.Type)) {
+                
+                if(document is OrderContract contract)
+                    contract.Contract = order.Contract;
+                
+                document.NewOrder = order;
+                document.AttachedToNewOrder = order;
+                order.ObservableOrderDocuments.Add(document);
+            }
         }
     }
 }

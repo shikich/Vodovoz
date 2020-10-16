@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders.Documents.AssemblyList;
 using Vodovoz.Domain.Orders.Documents.Bill;
 using Vodovoz.Domain.Orders.Documents.Certificate;
@@ -13,6 +14,7 @@ using Vodovoz.Domain.Orders.Documents.Torg12;
 using Vodovoz.Domain.Orders.Documents.Torg2;
 using Vodovoz.Domain.Orders.Documents.TransportInvoice;
 using Vodovoz.Domain.Orders.Documents.UPD;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain.Orders.Documents {
     public class OrderDocumentUpdatersFactory {
@@ -58,8 +60,10 @@ namespace Vodovoz.Domain.Orders.Documents {
         
         private OrderDocumentUpdaterBase CreateNomenclatureCertificateDocumentUpdater() {
             var nomenclatureCertificateDocumentFactory = new NomenclatureCertificateDocumentFactory();
+            var nomenclatureRepository = new NomenclatureRepository();
+            var uow = UnitOfWorkFactory.CreateWithoutRoot();
             
-            return new NomenclatureCertificateDocumentUpdater(nomenclatureCertificateDocumentFactory);
+            return new NomenclatureCertificateDocumentUpdater(nomenclatureCertificateDocumentFactory, nomenclatureRepository, uow);
         }
         
         private OrderDocumentUpdaterBase CreateDoneWorkDocumentUpdater() {

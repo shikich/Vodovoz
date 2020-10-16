@@ -24,9 +24,11 @@ namespace Vodovoz.Domain.Orders.Documents.Torg12 {
 
         private bool NeedCreateDocument(OrderBase order) {
             if (order is IDefaultOrderDocumentType defaultDoc) {
+                var defaultDocType = 
+                    defaultDoc.DefaultDocumentType ?? order.Counterparty.DefaultDocumentType;
+                
                 return updDocumentUpdater.NeedCreateDocument(order) && 
-                       defaultDoc.DefaultDocumentType.HasValue &&
-                       defaultDoc.DefaultDocumentType == DefaultDocumentType.torg12;
+                       defaultDocType == DefaultDocumentType.torg12;
             }
 
             return false;
@@ -34,7 +36,7 @@ namespace Vodovoz.Domain.Orders.Documents.Torg12 {
         
         public override void UpdateDocument(OrderBase order) {
             if (NeedCreateDocument(order)) {
-                AddDocument(order, CreateNewDocument());
+                AddNewDocument(order, CreateNewDocument());
             }
             else {
                 RemoveDocument(order);
@@ -42,7 +44,12 @@ namespace Vodovoz.Domain.Orders.Documents.Torg12 {
         }
 
         public override void AddExistingDocument(OrderBase order, OrderDocument existingDocument) {
-            AddDocument(order, existingDocument);
+            if (!order.ObservableOrderDocuments.Any(x => x.NewOrder.Id == order.Id && x.Type == existingDocument.Type)) {
+                var doc = CreateNewDocument();
+                doc.NewOrder = existingDocument.NewOrder;
+                doc.AttachedToNewOrder = order;
+                order.ObservableOrderDocuments.Add(doc);
+            }
         }
 
         public override void RemoveExistingDocument(OrderBase order, OrderDocument existingDocument) {
