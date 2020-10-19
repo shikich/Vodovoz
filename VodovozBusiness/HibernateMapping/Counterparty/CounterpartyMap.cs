@@ -76,12 +76,14 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.SpecialNomenclatures).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
-			HasManyToMany(x => x.Tags).Table("counterparty_tags")
-									  .ParentKeyColumn("counterparty_id")
-									  .ChildKeyColumn("tag_id")
-									  .LazyLoad();
 			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
-				.KeyColumn("supplier_id");
+			    .KeyColumn("supplier_id");
+			HasMany(x => x.NomenclatureFixedPrices).Cascade.All().LazyLoad().KeyColumn("counterparty_id");
+
+			HasManyToMany(x => x.Tags).Table("counterparty_tags")
+			                          .ParentKeyColumn("counterparty_id")
+			                          .ChildKeyColumn("tag_id")
+			                          .LazyLoad();
 		}
 	}
 }

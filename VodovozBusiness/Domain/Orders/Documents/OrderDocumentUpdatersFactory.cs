@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders.Documents.Torg2;
 using Vodovoz.Domain.Orders.Documents.TransportInvoice;
 using Vodovoz.Domain.Orders.Documents.UPD;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.Documents {
     public class OrderDocumentUpdatersFactory {
@@ -60,7 +61,7 @@ namespace Vodovoz.Domain.Orders.Documents {
         
         private OrderDocumentUpdaterBase CreateNomenclatureCertificateDocumentUpdater() {
             var nomenclatureCertificateDocumentFactory = new NomenclatureCertificateDocumentFactory();
-            var nomenclatureRepository = new NomenclatureRepository();
+            var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
             var uow = UnitOfWorkFactory.CreateWithoutRoot();
             
             return new NomenclatureCertificateDocumentUpdater(nomenclatureCertificateDocumentFactory, nomenclatureRepository, uow);

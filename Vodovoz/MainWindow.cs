@@ -74,6 +74,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -381,7 +382,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	}
 
 	protected void OnActionNomenclatureActivated(object sender, EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -725,7 +726,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
 		
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory employeeSelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
@@ -1342,7 +1343,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	}
 
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
