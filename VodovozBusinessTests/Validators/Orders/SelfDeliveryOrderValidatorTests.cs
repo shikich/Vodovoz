@@ -28,7 +28,6 @@ namespace VodovozBusinessTests.Validators.Orders {
             
             GenericObservableList<OrderDepositItem> observableDepositItemsMock = Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
             selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
-            
             GenericObservableList<OrderItem> observableOrderItemsMock = Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
             selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
 
@@ -317,21 +316,31 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        //Не выставить IsDeliveriesClosed из-за protected свойства
         [Test(Description = "Проверка валидирования заказа-самовывоза для клиента с закрытыми поставками и определенными типами оплат")]
-        public void ValidateSelfDeliveryOrderForCounterpartyWithCloseddeliveries()
+        public void ValidateSelfDeliveryOrderForCounterpartyWithClosedDeliveries()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            //counterpartyMock1.IsDeliveriesClosed = true;
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            counterpartyMock.IsDeliveriesClosed.Returns(true);
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
+            selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                Counterparty = counterpartyMock1,
-                PaymentType = PaymentType.cashless
-            };
-
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,uowMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -341,7 +350,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var validationRes =
                 new ValidationResult(
                     "В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
-                    new[] { nameof(testOrder.PaymentType) });
+                    new[] { nameof(selfDeliveryOrderMock.PaymentType) });
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act

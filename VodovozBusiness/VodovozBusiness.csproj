@@ -55,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\DomainObjectBase.cs" />
-    <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
@@ -145,6 +144,7 @@
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
+    <Compile Include="EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />

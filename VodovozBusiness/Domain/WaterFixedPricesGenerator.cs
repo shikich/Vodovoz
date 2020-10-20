@@ -106,12 +106,8 @@ namespace Vodovoz.Domain {
 				KislorodnayaDeluxePrice = fixedPrice;
 			}
 			else {
-				var basedNomenclature = uow.GetById<Nomenclature>(waterNomenclature.Id);
-				
-				if (basedNomenclature != null) {
-					result.Add(basedNomenclature, fixedPrice);
-				}
-
+				result.Add(waterNomenclature, fixedPrice);
+					
 				return result;
 			}
 			

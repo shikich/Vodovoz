@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityFactories;
 
 namespace Vodovoz.Domain {
     public class NomenclatureFixedPriceController : INomenclatureFixedPriceProvider {
@@ -49,7 +49,7 @@ namespace Vodovoz.Domain {
                 }
             }
 
-            fixedPrice = default(int);
+            fixedPrice = default(decimal);
             return false;
         }
 
@@ -81,31 +81,23 @@ namespace Vodovoz.Domain {
                 return true;
             }
 
-            fixedPrice = default(int);
+            fixedPrice = default(decimal);
             return false;
         }
 
         public void AddOrUpdateFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice) {
-            if (!ContainsFixedPrice(deliveryPoint, nomenclature)) {
-                var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(nomenclature, fixedPrice);
-                nomenclatureFixedPrice.DeliveryPoint = deliveryPoint;
-                
-                deliveryPoint.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
-            }
+            if(nomenclature.Category == NomenclatureCategory.water)
+                AddOrUpdateWaterFixedPrice(deliveryPoint, nomenclature, fixedPrice);
             else {
-                UpdateFixedPrice(deliveryPoint, nomenclature, fixedPrice);
+                throw new NotSupportedException("Не поддерживается.");
             }
         }
         
         public void AddOrUpdateFixedPrice(Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice) {
-            if (!ContainsFixedPrice(counterparty, nomenclature)) {
-                var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(nomenclature, fixedPrice);
-                nomenclatureFixedPrice.Counterparty = counterparty;
-                
-                counterparty.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
-            }
+            if(nomenclature.Category == NomenclatureCategory.water)
+                AddOrUpdateWaterFixedPrice(counterparty, nomenclature, fixedPrice);
             else {
-                UpdateFixedPrice(counterparty, nomenclature, fixedPrice);
+                throw new NotSupportedException("Не поддерживается.");
             }
         }
 
