@@ -25,20 +25,24 @@ namespace VodovozBusinessTests.Validators.Orders {
         {
             // arrange
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
-            
-            GenericObservableList<OrderDepositItem> observableDepositItemsMock = Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
-            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
-            GenericObservableList<OrderItem> observableOrderItemsMock = Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
-            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            selfDeliveryOrderMock.Counterparty = null;
 
-            ICurrentPermissionService defaultAllowedPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+            
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-
             IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
-
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(defaultAllowedPermissionServiceMock, 
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
                 nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
@@ -58,14 +62,29 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithoutDeliveryDate()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes = new ValidationResult("В заказе не указана дата доставки.",
-                new[] { nameof(testOrder.DeliveryDate) });
+                new[] { nameof(selfDeliveryOrderMock.DeliveryDate) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -80,16 +99,27 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithNegativeDeposit()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
-            OrderDepositItem orderDepositItem = new OrderDepositItem {
-                Deposit = -250m,
-                Count = 1
-            };
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            OrderDepositItem orderDepositItemMock = Substitute.For<OrderDepositItem>();
+            orderDepositItemMock.Total.Returns(-250);
 
-            testOrder.ObservableOrderDepositItems.Add(orderDepositItem);
+            GenericObservableList<OrderDepositItem> observableDepositItems =
+                new GenericObservableList<OrderDepositItem> {orderDepositItemMock};
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItems);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes = new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
@@ -102,29 +132,40 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.False(isValid);
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
-        
+
         [Test(Description = "Проверка валидирования заказа-самовывоза с оборудованием, без причины забора-доставки")]
-        public void ValidateSelfDeliveryOrderWithOrderEquipmentsWithoutDirectionReason()
-        {
+        public void ValidateSelfDeliveryOrderWithOrderEquipmentsWithoutDirectionReason() {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
 
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
-            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+
             Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            nomenclatureMock1.Category.Returns(NomenclatureCategory.equipment);
             Nomenclature nomenclatureMock2 = Substitute.For<Nomenclature>();
+            nomenclatureMock2.Category.Returns(NomenclatureCategory.water);
+            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock1.Nomenclature.Returns(nomenclatureMock1);
+            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock2.Nomenclature.Returns(nomenclatureMock2);
 
-            nomenclatureMock1.Category = NomenclatureCategory.equipment;
-            nomenclatureMock2.Category = NomenclatureCategory.water;
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                    new GenericObservableList<OrderEquipment> { orderEquipmentMock1, orderEquipmentMock2 };
 
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            orderEquipmentMock2.Nomenclature = nomenclatureMock2;
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock2);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
@@ -143,24 +184,36 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithOrderEquipmentsWithoutOwnType()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
 
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
-            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+
             Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            nomenclatureMock1.Category.Returns(NomenclatureCategory.equipment);
             Nomenclature nomenclatureMock2 = Substitute.For<Nomenclature>();
+            nomenclatureMock2.Category.Returns(NomenclatureCategory.water);
+            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock1.Nomenclature.Returns(nomenclatureMock1);
+            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock2.Nomenclature.Returns(nomenclatureMock2);
 
-            nomenclatureMock1.Category = NomenclatureCategory.equipment;
-            nomenclatureMock2.Category = NomenclatureCategory.water;
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                    new GenericObservableList<OrderEquipment> { orderEquipmentMock1, orderEquipmentMock2 };
 
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            orderEquipmentMock2.Nomenclature = nomenclatureMock2;
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock2);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
@@ -175,23 +228,34 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
 
-        /*[Test(Description = "Проверка валидирования заказа-самовывоза с товарами со скидкой, без указания причины скидки")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с товарами со скидкой, без указания причины скидки")]
         public void ValidateSelfDeliveryOrderWithOrderItemsWithDiscountWithoutDisountReason()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            OrderItem orderItemMock = Substitute.For<OrderItem>();
+            orderItemMock.Discount.Returns(25m);
+            orderItemMock.IsDiscountInMoney.Returns(true);
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
 
-            OrderItem orderItemMock1 = Substitute.For<OrderItem>();
-            Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
-            
-            orderItemMock1.Discount = 25m;
-            orderItemMock1.IsDiscountInMoney = true;
-            orderItemMock1.Nomenclature = nomenclatureMock1;
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItems =
+                new GenericObservableList<OrderItem>{ orderItemMock };
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItems);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
 
-            testOrder.ObservableOrderItems.Add(orderItemMock1);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
@@ -205,7 +269,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             // assert
             Assert.False(isValid);
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
-        }*/
+        }
         
         #endregion
 
@@ -215,20 +279,33 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithOrderEquipmentsWithDirectionPickUpWithoutComment()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
-
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            
             Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            nomenclatureMock1.Category.Returns(NomenclatureCategory.equipment);
+            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock1.Nomenclature.Returns(nomenclatureMock1);
+            orderEquipmentMock1.Direction.Returns(Direction.PickUp);
             
-            nomenclatureMock1.Category = NomenclatureCategory.equipment;
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
             
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            orderEquipmentMock1.Direction = Direction.PickUp;
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                new GenericObservableList<OrderEquipment> { orderEquipmentMock1 };
+
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Close } }
@@ -237,8 +314,8 @@ namespace VodovozBusinessTests.Validators.Orders {
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult(
-                    $"Забор оборудования {orderEquipmentMock1.NameString} по заказу {testOrder.Id} не произведен, а в комментарии не указана причина.",
-                    new[] { nameof(testOrder.OrderEquipments) });
+                    $"Забор оборудования {orderEquipmentMock1.NameString} по заказу {selfDeliveryOrderMock.Id} не произведен, а в комментарии не указана причина.",
+                    new[] { nameof(selfDeliveryOrderMock.OrderEquipments) });
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -253,16 +330,29 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithOrderDepositItemsAndPaymentTypeCashless()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder { PaymentType = PaymentType.cashless };
-
             Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            OrderDepositItem orderDepositItemMock1 = Substitute.For<OrderDepositItem>();
+            OrderDepositItem orderDepositItemMock = Substitute.For<OrderDepositItem>();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock1);
+        
+            GenericObservableList<OrderDepositItem> observableDepositItems =
+                new GenericObservableList<OrderDepositItem> {orderDepositItemMock};
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItems);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
 
-            testOrder.ObservableOrderDepositItems.Add(orderDepositItemMock1);
-            testOrder.Counterparty = counterpartyMock1;
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -285,19 +375,31 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithOrderItemsCountOrOrderEquipmentsCountEqualsZero()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
-            Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            OrderEquipment orderEquipmentMock = Substitute.For<OrderEquipment>();
+            orderEquipmentMock.Nomenclature.Returns(nomenclatureMock);
 
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                Counterparty = counterpartyMock1
-            };
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
 
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                new GenericObservableList<OrderEquipment> { orderEquipmentMock };
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -324,11 +426,13 @@ namespace VodovozBusinessTests.Validators.Orders {
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+            
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             counterpartyMock.IsDeliveriesClosed.Returns(true);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
             selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
+            
             GenericObservableList<OrderDepositItem> observableDepositItemsMock =
                 Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
             selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
@@ -365,16 +469,30 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithDeliveryPointWithoutDistrict()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            DeliveryPoint deliveryPointMock1 = Substitute.For<DeliveryPoint>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                DeliveryPoint = deliveryPointMock1,
-                Counterparty = counterpartyMock1
-            };
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.DeliveryPoint.Returns(deliveryPointMock);
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
+            
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
 
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -403,17 +521,31 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithPaymentTypeByCardWithoutOrderNumberFromOnlineStore()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                PaymentType = PaymentType.ByCard
-            };
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.PaymentType.Returns(PaymentType.ByCard);
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+            
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
-                    new[] { nameof(testOrder.OrderNumberFromOnlineStore) });
+                    new[] { nameof(selfDeliveryOrderMock.OrderNumberFromOnlineStore) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -428,18 +560,33 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithPaymentTypeByCardWithoutPaymentFrom()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                PaymentType = PaymentType.ByCard
-            };
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.PaymentType.Returns(PaymentType.ByCard);
+            selfDeliveryOrderMock.PaymentByCardFrom = null;
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+            
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult(
                     "Выбран тип оплаты по карте. Необходимо указать откуда произведена оплата.",
-                    new[] { nameof(testOrder.PaymentByCardFrom) });
+                    new[] { nameof(selfDeliveryOrderMock.PaymentByCardFrom) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -450,30 +597,44 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        /*[Test(Description = "Проверка валидирования заказа-самовывоза с номенклатурой из интернет-магазина, без указания номера заказа ИМ")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с номенклатурой из интернет-магазина, без указания номера заказа ИМ")]
         public void ValidateSelfDeliveryOrderWithOrderItemsFromWebStoreWithoutEShopOrder()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.EShopOrder = null;
+            ProductGroup productGroupMock = Substitute.For<ProductGroup>();
+            productGroupMock.IsOnlineStore.Returns(true);
+            productGroupMock.Id.Returns(5);
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            nomenclatureMock.ProductGroup.Returns(productGroupMock);
+            OrderItem orderItemMock = Substitute.For<OrderItem>();
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
 
-            OrderItem orderItemMock1 = Substitute.For<OrderItem>();
-            Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
-            ProductGroup productGroupMock1 = Substitute.For<ProductGroup>();
-
-            productGroupMock1.IsOnlineStore = true;
-            nomenclatureMock1.ProductGroup = productGroupMock1;
-            orderItemMock1.Nomenclature = nomenclatureMock1;
-
-            testOrder.ObservableOrderItems.Add(orderItemMock1);
-            
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItems =
+                new GenericObservableList<OrderItem>{ orderItemMock };
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItems);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+        
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.RootProductGroupForOnlineStoreNomenclatures.Returns(5);
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+        
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult(
                     "При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
-                    new[] { nameof(testOrder.EShopOrder) });
+                    new[] { nameof(selfDeliveryOrderMock.EShopOrder) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -482,24 +643,38 @@ namespace VodovozBusinessTests.Validators.Orders {
             // assert
             Assert.False(isValid);
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
-        }*/
+        }
         
         [Test(Description = "Проверка валидирования заказа-самовывоза с контрактной документацией")]
         public void ValidateSelfDeliveryOrderWithPaymentTypeContractDoc()
         {
             // arrange
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                PaymentType = PaymentType.ContractDoc
-            };
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.PaymentType.Returns(PaymentType.ContractDoc);
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult(
                     "Тип оплаты - контрактная документация невозможен для самовывоза",
-                    new[] { nameof(testOrder.PaymentType) });
+                    new[] { nameof(selfDeliveryOrderMock.PaymentType) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -518,16 +693,29 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderOrderStateKey2()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.PaymentType.Returns(PaymentType.ByCard);
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
+            selfDeliveryOrderMock.BottlesReturn.Returns(5);
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                PaymentType = PaymentType.ByCard,
-                Counterparty = counterpartyMock1,
-                BottlesReturn = 5
-            };
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -550,15 +738,28 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderOrderStateKey3()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
+            selfDeliveryOrderMock.BottlesReturn.Returns(5);
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                Counterparty = counterpartyMock1,
-                BottlesReturn = 5
-            };
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -581,15 +782,29 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithBottlesReturnWithoutReturnTareReason()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                Counterparty = counterpartyMock1,
-                BottlesReturn = 5
-            };
-            
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
+            selfDeliveryOrderMock.BottlesReturn.Returns(5);
+            selfDeliveryOrderMock.ReturnTareReason = null;
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+            Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+            Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+            Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+        
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+            Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+        
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+            nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -598,7 +813,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult("Необходимо указать причину забора тары.",
-                    new[] {nameof(testOrder.ReturnTareReason)});
+                    new[] {nameof(selfDeliveryOrderMock.ReturnTareReason)});
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -613,15 +828,29 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithBottlesReturnWithoutReturnTareReasonCategory()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                Counterparty = counterpartyMock1,
-                BottlesReturn = 5
-            };
-            
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
+            selfDeliveryOrderMock.BottlesReturn.Returns(5);
+            selfDeliveryOrderMock.ReturnTareReasonCategory = null;
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+        
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+        
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -630,7 +859,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult("Необходимо указать категорию причины забора тары.",
-                    new[] {nameof(testOrder.ReturnTareReasonCategory)});
+                    new[] {nameof(selfDeliveryOrderMock.ReturnTareReasonCategory)});
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -645,21 +874,35 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithWaterAndWithoutBottlesReturn()
         {
             // arrange
-            OrderItem orderItemMock1 = Substitute.For<OrderItem>();
-            Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            nomenclatureMock.Category.Returns(NomenclatureCategory.water);
+            nomenclatureMock.ProductGroup = null;
+            OrderItem orderItemMock = Substitute.For<OrderItem>();
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            ParametersProvider parametersProviderMock = Substitute.For<ParametersProvider>();
+            parametersProviderMock.GetParameterValue("paid_delivery_nomenclature_id").Returns("159");
             
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                Counterparty = counterpartyMock1,
-            };
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
 
-            nomenclatureMock1.Category = NomenclatureCategory.water;
-            nomenclatureMock1.ProductGroup = null;
-            orderItemMock1.Nomenclature = nomenclatureMock1;
-            testOrder.ObservableOrderItems.Add(orderItemMock1);
-            
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItems =
+                new GenericObservableList<OrderItem>{ orderItemMock };
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItems);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+        
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+        
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -668,7 +911,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult("В заказе не указана планируемая тара.",
-                    new[] { nameof(testOrder.Contract) });
+                    new[] { nameof(selfDeliveryOrderMock.Contract) });
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -683,14 +926,27 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateSelfDeliveryOrderWithCounterpartyWithoutPhones()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
             
-            SelfDeliveryOrder testOrder = new SelfDeliveryOrder {
-                Counterparty = counterpartyMock1
-            };
-            
-            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
+            selfDeliveryOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(selfDeliveryOrderMock.OrderItems);
+            selfDeliveryOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(selfDeliveryOrderMock.OrderEquipments);
+            selfDeliveryOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+        
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+        
+            SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }

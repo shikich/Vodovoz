@@ -33,7 +33,7 @@ namespace Vodovoz.Validators.Orders {
                     new[] { nameof(order.OrderNumberFromOnlineStore) });
             
             if(!order.EShopOrder.HasValue
-               && order.OrderItems
+               && order.ObservableOrderItems
                        .Where(x => x.Nomenclature.ProductGroup != null)
                        .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
                        .Any(x => x.Id == nomenclatureParametersProvider.RootProductGroupForOnlineStoreNomenclatures))
@@ -74,7 +74,8 @@ namespace Vodovoz.Validators.Orders {
                 }
             }
             
-            if ((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
+            if ((validateParameters.OrderAction == OrderValidateAction.Accept || 
+                 validateParameters.OrderAction == OrderValidateAction.WaitForPayment) && order.Counterparty != null) {
                 
                 #region OrderStateKey
                 

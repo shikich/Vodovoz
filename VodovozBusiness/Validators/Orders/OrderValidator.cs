@@ -84,15 +84,16 @@ namespace Vodovoz.Validators.Orders {
 	        }
 	        
 			if(validateParameters.OrderAction == OrderValidateAction.Close) {
-				foreach(var equipment in order.OrderEquipments.Where(x => x.Direction == Direction.PickUp)) {
+				foreach(var equipment in order.ObservableOrderEquipments.Where(x => x.Direction == Direction.PickUp)) {
 					if(!equipment.Confirmed && string.IsNullOrWhiteSpace(equipment.ConfirmedComment))
 						yield return new ValidationResult(
 							$"Забор оборудования {equipment.NameString} по заказу {order.Id} не произведен, а в комментарии не указана причина.",
-							new[] { nameof(order.OrderEquipments) });
+							new[] { nameof(order.ObservableOrderEquipments) });
 				}
 			}
 			
-			if((validateParameters.OrderAction == OrderValidateAction.Accept /*|| validateParameters.WaitingForPayment*/) && order.Counterparty != null) {
+			if((validateParameters.OrderAction == OrderValidateAction.Accept || 
+			    validateParameters.OrderAction == OrderValidateAction.WaitForPayment) && order.Counterparty != null) {
 
 				#region OrderStateKey
 

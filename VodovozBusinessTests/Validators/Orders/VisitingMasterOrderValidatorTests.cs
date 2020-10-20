@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using QS.DomainModel.UoW;
 using QS.Permissions;
+using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Validators.Orders;
 
 namespace VodovozBusinessTests.Validators.Orders {
@@ -17,44 +20,34 @@ namespace VodovozBusinessTests.Validators.Orders {
         
         #region OrderValidator без параметров
         
-        [Test(Description = "Проверка валидирования сервисного заказа с точкой доставки без координат")]
-        public void ValidateVisitingMasterOrderWithDeliveryPointWithoutCoordinates()
-        {
-            // arrange
-            DeliveryPoint deliveryPointMock1 = Substitute.For<DeliveryPoint>();
-            
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                DeliveryPoint = deliveryPointMock1
-            };
-            
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
-            
-            var results = new List<ValidationResult>();
-            var validationRes =  new ValidationResult("В точке доставки необходимо указать координаты.",
-                new[] { nameof(testOrder.DeliveryPoint) });
-            var vc = new ValidationContext(validator, null, null);
-
-            // act
-            var isValid = Validator.TryValidateObject(validator, vc, results, true);
-            
-            // assert
-            Assert.False(isValid);
-            Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
-        }
-        
-        [Test(Description = "Проверка валидирования сервисного заказа без контрагента")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза без контрагента")]
         public void ValidateVisitingMasterOrderWithoutCounterparty()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.Counterparty = null;
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() ,UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =  new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
-                new[] {nameof(testOrder.Counterparty)});
+                new[] {nameof(visitingMasterOrderMock.Counterparty)});
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -65,18 +58,33 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования сервисного заказа без даты доставки")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза без даты доставки")]
         public void ValidateVisitingMasterOrderWithoutDeliveryDate()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes = new ValidationResult("В заказе не указана дата доставки.",
-                new[] { nameof(testOrder.DeliveryDate) });
+                new[] { nameof(visitingMasterOrderMock.DeliveryDate) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -87,20 +95,31 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования сервисного заказа с отрицательным залогом")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с отрицательным залогом")]
         public void ValidateVisitingMasterOrderWithNegativeDeposit()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
-            OrderDepositItem orderDepositItem = new OrderDepositItem {
-                Deposit = -250m,
-                Count = 1
-            };
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            OrderDepositItem orderDepositItemMock = Substitute.For<OrderDepositItem>();
+            orderDepositItemMock.Total.Returns(-250);
 
-            testOrder.ObservableOrderDepositItems.Add(orderDepositItem);
+            GenericObservableList<OrderDepositItem> observableDepositItems =
+                new GenericObservableList<OrderDepositItem> {orderDepositItemMock};
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItems);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes = new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
@@ -113,29 +132,40 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.False(isValid);
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
-        
-        [Test(Description = "Проверка валидирования сервисного заказа с оборудованием, без причины забора-доставки")]
-        public void ValidateVisitingMasterOrderWithOrderEquipmentsWithoutDirectionReason()
-        {
+
+        [Test(Description = "Проверка валидирования заказа-самовывоза с оборудованием, без причины забора-доставки")]
+        public void ValidateVisitingMasterOrderWithOrderEquipmentsWithoutDirectionReason() {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
 
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
-            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+
             Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            nomenclatureMock1.Category.Returns(NomenclatureCategory.equipment);
             Nomenclature nomenclatureMock2 = Substitute.For<Nomenclature>();
+            nomenclatureMock2.Category.Returns(NomenclatureCategory.water);
+            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock1.Nomenclature.Returns(nomenclatureMock1);
+            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock2.Nomenclature.Returns(nomenclatureMock2);
 
-            nomenclatureMock1.Category = NomenclatureCategory.equipment;
-            nomenclatureMock2.Category = NomenclatureCategory.water;
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                    new GenericObservableList<OrderEquipment> { orderEquipmentMock1, orderEquipmentMock2 };
 
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            orderEquipmentMock2.Nomenclature = nomenclatureMock2;
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock2);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
@@ -150,28 +180,40 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования сервисного заказа с оборудованием, без принадлежности")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с оборудованием, без принадлежности")]
         public void ValidateVisitingMasterOrderWithOrderEquipmentsWithoutOwnType()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
 
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
-            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+
             Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            nomenclatureMock1.Category.Returns(NomenclatureCategory.equipment);
             Nomenclature nomenclatureMock2 = Substitute.For<Nomenclature>();
+            nomenclatureMock2.Category.Returns(NomenclatureCategory.water);
+            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock1.Nomenclature.Returns(nomenclatureMock1);
+            OrderEquipment orderEquipmentMock2 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock2.Nomenclature.Returns(nomenclatureMock2);
 
-            nomenclatureMock1.Category = NomenclatureCategory.equipment;
-            nomenclatureMock2.Category = NomenclatureCategory.water;
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                    new GenericObservableList<OrderEquipment> { orderEquipmentMock1, orderEquipmentMock2 };
 
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            orderEquipmentMock2.Nomenclature = nomenclatureMock2;
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock2);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
@@ -186,23 +228,34 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
 
-        /*[Test(Description = "Проверка валидирования сервисного заказа с товарами со скидкой, без указания причины скидки")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с товарами со скидкой, без указания причины скидки")]
         public void ValidateVisitingMasterOrderWithOrderItemsWithDiscountWithoutDisountReason()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            OrderItem orderItemMock = Substitute.For<OrderItem>();
+            orderItemMock.Discount.Returns(25m);
+            orderItemMock.IsDiscountInMoney.Returns(true);
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
 
-            OrderItem orderItemMock1 = Substitute.For<OrderItem>();
-            Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
-            
-            orderItemMock1.Discount = 25m;
-            orderItemMock1.IsDiscountInMoney = true;
-            orderItemMock1.Nomenclature = nomenclatureMock1;
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItems =
+                new GenericObservableList<OrderItem>{ orderItemMock };
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItems);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
 
-            testOrder.ObservableOrderItems.Add(orderItemMock1);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
@@ -216,30 +269,43 @@ namespace VodovozBusinessTests.Validators.Orders {
             // assert
             Assert.False(isValid);
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
-        }*/
+        }
         
         #endregion
 
         #region OrderValidator с параметрами
 
-        [Test(Description = "Проверка валидирования сервисного заказа с забором оборудования, без указания причины не забора в комментарии")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с забором оборудования, без указания причины не забора в комментарии")]
         public void ValidateVisitingMasterOrderWithOrderEquipmentsWithDirectionPickUpWithoutComment()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
-
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            
             Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            nomenclatureMock1.Category.Returns(NomenclatureCategory.equipment);
+            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
+            orderEquipmentMock1.Nomenclature.Returns(nomenclatureMock1);
+            orderEquipmentMock1.Direction.Returns(Direction.PickUp);
             
-            nomenclatureMock1.Category = NomenclatureCategory.equipment;
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
             
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            orderEquipmentMock1.Direction = Direction.PickUp;
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                new GenericObservableList<OrderEquipment> { orderEquipmentMock1 };
+
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Close } }
@@ -248,8 +314,8 @@ namespace VodovozBusinessTests.Validators.Orders {
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult(
-                    $"Забор оборудования {orderEquipmentMock1.NameString} по заказу {testOrder.Id} не произведен, а в комментарии не указана причина.",
-                    new[] { nameof(testOrder.OrderEquipments) });
+                    $"Забор оборудования {orderEquipmentMock1.NameString} по заказу {visitingMasterOrderMock.Id} не произведен, а в комментарии не указана причина.",
+                    new[] { nameof(visitingMasterOrderMock.OrderEquipments) });
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -260,20 +326,33 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования сервисного заказа с залогами, для типа оплаты cashless")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с залогами, для типа оплаты cashless")]
         public void ValidateVisitingMasterOrderWithOrderDepositItemsAndPaymentTypeCashless()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder { PaymentType = PaymentType.cashless };
-
             Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            OrderDepositItem orderDepositItemMock1 = Substitute.For<OrderDepositItem>();
+            OrderDepositItem orderDepositItemMock = Substitute.For<OrderDepositItem>();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.PaymentType.Returns(PaymentType.cashless);
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock1);
+        
+            GenericObservableList<OrderDepositItem> observableDepositItems =
+                new GenericObservableList<OrderDepositItem> {orderDepositItemMock};
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItems);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
 
-            testOrder.ObservableOrderDepositItems.Add(orderDepositItemMock1);
-            testOrder.Counterparty = counterpartyMock1;
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -292,23 +371,35 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
 
-        [Test(Description = "Проверка валидирования сервисного заказа с товарами или оборудованием с количеством <= 0")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с товарами или оборудованием с количеством <= 0")]
         public void ValidateVisitingMasterOrderWithOrderItemsCountOrOrderEquipmentsCountEqualsZero()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            OrderEquipment orderEquipmentMock1 = Substitute.For<OrderEquipment>();
-            Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            OrderEquipment orderEquipmentMock = Substitute.For<OrderEquipment>();
+            orderEquipmentMock.Nomenclature.Returns(nomenclatureMock);
 
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                Counterparty = counterpartyMock1
-            };
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock);
 
-            orderEquipmentMock1.Nomenclature = nomenclatureMock1;
-            testOrder.ObservableOrderEquipments.Add(orderEquipmentMock1);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                new GenericObservableList<OrderEquipment> { orderEquipmentMock };
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -327,21 +418,33 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        //Не выставить IsDeliveriesClosed из-за protected свойства
-        [Test(Description = "Проверка валидирования сервисного заказа для клиента с закрытыми поставками и определенными типами оплат")]
-        public void ValidateVisitingMasterOrderForCounterpartyWithCloseddeliveries()
+        [Test(Description = "Проверка валидирования заказа-самовывоза для клиента с закрытыми поставками и определенными типами оплат")]
+        public void ValidateVisitingMasterOrderForCounterpartyWithClosedDeliveries()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            //counterpartyMock1.IsDeliveriesClosed = true;
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                Counterparty = counterpartyMock1,
-                PaymentType = PaymentType.cashless
-            };
-
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            counterpartyMock.IsDeliveriesClosed.Returns(true);
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock);
+            visitingMasterOrderMock.PaymentType.Returns(PaymentType.cashless);
+            
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,uowMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -351,7 +454,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var validationRes =
                 new ValidationResult(
                     "В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
-                    new[] { nameof(testOrder.PaymentType) });
+                    new[] { nameof(visitingMasterOrderMock.PaymentType) });
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -362,20 +465,34 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования сервисного заказа с точкой доставки без района")]
+        [Test(Description = "Проверка валидирования заказа-самовывоза с точкой доставки без района")]
         public void ValidateVisitingMasterOrderWithDeliveryPointWithoutDistrict()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            DeliveryPoint deliveryPointMock1 = Substitute.For<DeliveryPoint>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                DeliveryPoint = deliveryPointMock1,
-                Counterparty = counterpartyMock1
-            };
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.DeliveryPoint.Returns(deliveryPointMock);
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock);
+            
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
 
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -404,14 +521,30 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateVisitingMasterOrderWithoutDeliveryPoint()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.DeliveryPoint = null;
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =  new ValidationResult("В заказе необходимо заполнить точку доставки.",
-                new[] { nameof(testOrder.DeliveryPoint) });
+                new[] { nameof(visitingMasterOrderMock.DeliveryPoint) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -426,17 +559,31 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateVisitingMasterOrderWithPaymentTypeByCardWithoutOrderNumberFromOnlineStore()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                PaymentType = PaymentType.ByCard
-            };
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.PaymentType.Returns(PaymentType.ByCard);
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
-                    new[] { nameof(testOrder.OrderNumberFromOnlineStore) });
+                    new[] { nameof(visitingMasterOrderMock.OrderNumberFromOnlineStore) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -451,18 +598,33 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateVisitingMasterOrderWithPaymentTypeByCardWithoutPaymentFrom()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                PaymentType = PaymentType.ByCard
-            };
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.PaymentType.Returns(PaymentType.ByCard);
+            visitingMasterOrderMock.PaymentByCardFrom = null;
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult(
                     "Выбран тип оплаты по карте. Необходимо указать откуда произведена оплата.",
-                    new[] { nameof(testOrder.PaymentByCardFrom) });
+                    new[] { nameof(visitingMasterOrderMock.PaymentByCardFrom) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -515,12 +677,26 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateVisitingMasterOrderWithPaymentTypeCashlessWithoutRule()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                PaymentType = PaymentType.cashless
-            };
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.PaymentType.Returns(PaymentType.cashless);
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -530,7 +706,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var validationRes =
                 new ValidationResult(
                     "Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
-                    new[] {nameof(testOrder.Status)});
+                    new[] {nameof(visitingMasterOrderMock.Status)});
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -545,14 +721,28 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateVisitingMasterOrderWithoutDeliverySchedule()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock);
+            visitingMasterOrderMock.DeliverySchedule = null;
             
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                Counterparty = counterpartyMock1
-            };
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -561,7 +751,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult("В заказе не указано время доставки.",
-                    new[] { nameof(testOrder.DeliverySchedule) });
+                    new[] { nameof(visitingMasterOrderMock.DeliverySchedule) });
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -576,16 +766,29 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateVisitingMasterOrderWithWithPaymentTypeCashWithoutTrifle()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock);
+            visitingMasterOrderMock.PaymentType.Returns(PaymentType.cash);
+            visitingMasterOrderMock.TotalSum.Returns(5m);
             
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                Counterparty = counterpartyMock1,
-                PaymentType = PaymentType.cash,
-                TotalSum = 5m
-            };
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -594,7 +797,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult("В заказе не указана сдача.",
-                    new[] { nameof(testOrder.Trifle) });
+                    new[] { nameof(visitingMasterOrderMock.Trifle) });
             var vc = new ValidationContext(validator, null, contextItems);
 
             // act
@@ -609,14 +812,27 @@ namespace VodovozBusinessTests.Validators.Orders {
         public void ValidateVisitingMasterOrderWithCounterpartyWithoutPhones()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock);
 
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                Counterparty = counterpartyMock1
-            };
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
@@ -636,19 +852,32 @@ namespace VodovozBusinessTests.Validators.Orders {
         }
         
         [Test(Description = "Проверка валидирования сервисного заказа с точкой доставки без: парадной, этажа, номера помещения")]
-        public void ValidateVisitingMasterOrderWithDeliveryPoint()
+        public void ValidateVisitingMasterOrderWithDeliveryPointWithoutFloor()
         {
             // arrange
-            Counterparty counterpartyMock1 = Substitute.For<Counterparty>();
-            DeliveryPoint deliveryPointMock1 = Substitute.For<DeliveryPoint>();
-
-            VisitingMasterOrder testOrder = new VisitingMasterOrder {
-                Counterparty = counterpartyMock1,
-                DeliveryPoint = deliveryPointMock1
-            };
+            Counterparty counterpartyMock = Substitute.For<Counterparty>();
+            DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.Counterparty.Returns(counterpartyMock);
+            visitingMasterOrderMock.DeliveryPoint.Returns(deliveryPointMock);
             
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItemsMock =
+                Substitute.For<GenericObservableList<OrderItem>>(visitingMasterOrderMock.OrderItems);
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItemsMock);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+            
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var contextItems = new Dictionary<object, object> {
                 { nameof(OrderValidateParameters), new OrderValidateParameters { OrderAction = OrderValidateAction.Accept } }
