@@ -42,7 +42,7 @@ namespace Vodovoz.Validators.Orders {
                     new[] { nameof(order.OrderNumberFromOnlineStore) });
             
             if(!order.EShopOrder.HasValue
-               && order.OrderItems
+               && order.ObservableOrderItems
                        .Where(x => x.Nomenclature.ProductGroup != null)
                        .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
                        .Any(x => x.Id == nomenclatureParametersProvider.RootProductGroupForOnlineStoreNomenclatures))
@@ -94,7 +94,7 @@ namespace Vodovoz.Validators.Orders {
                 var hasOrderItems = false;
                 if(!order.ObservableOrderItems.Any() || 
                    (order.ObservableOrderItems.Count == 1 && order.ObservableOrderItems.Any(x => 
-                       x.Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
+                       x.Nomenclature.Id == nomenclatureParametersProvider.GetPaidDeliveryNomenclatureId))) 
                 {
                     hasOrderItems = false;
                 }
@@ -125,7 +125,7 @@ namespace Vodovoz.Validators.Orders {
                         new[] { nameof(order.Trifle) });
                 
                 if(order.BottlesReturn == null && 
-                   order.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
+                   order.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
                     yield return new ValidationResult("В заказе не указана планируемая тара.",
                     new[] { nameof(order.Contract) });
                 

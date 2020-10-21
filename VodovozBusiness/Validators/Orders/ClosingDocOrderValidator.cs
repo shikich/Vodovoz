@@ -36,12 +36,12 @@ namespace Vodovoz.Validators.Orders {
                     new[] { nameof(order.OrderNumberFromOnlineStore) });
             
             if(!order.EShopOrder.HasValue
-               && order.OrderItems
+               && order.ObservableOrderItems
                        .Where(x => x.Nomenclature.ProductGroup != null)
                        .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
                        .Any(x => x.Id == nomenclatureParametersProvider.RootProductGroupForOnlineStoreNomenclatures))
                 yield return new ValidationResult(
-                    "При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
+                    "При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
                     new[] { nameof(order.EShopOrder) });
             
             if(order.PaymentType == PaymentType.ByCard && order.PaymentByCardFrom == null)

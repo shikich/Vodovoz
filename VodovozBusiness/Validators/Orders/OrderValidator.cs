@@ -100,7 +100,7 @@ namespace Vodovoz.Validators.Orders {
 				var hasOrderItems = false;
 				if(!order.ObservableOrderItems.Any() || 
 				   (order.ObservableOrderItems.Count == 1 && order.ObservableOrderItems.Any(x => 
-					   x.Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
+					   x.Nomenclature.Id == nomenclatureParametersProvider.GetPaidDeliveryNomenclatureId))) 
 				{
 					hasOrderItems = false;
 				}

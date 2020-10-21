@@ -5,7 +5,6 @@ using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using QS.DomainModel.UoW;
-using QS.Permissions;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -213,7 +212,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
             SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
-                nomenclatureParametersProviderMock ,unitOfWorkMock, selfDeliveryOrderMock);
+                nomenclatureParametersProviderMock, unitOfWorkMock, selfDeliveryOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
@@ -233,11 +232,14 @@ namespace VodovozBusinessTests.Validators.Orders {
         {
             // arrange
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
+            ProductGroup productGroup = new ProductGroup {IsOnlineStore = true, Id = 5};
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            nomenclatureMock.ProductGroup.Returns(productGroup);
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Discount.Returns(25m);
             orderItemMock.IsDiscountInMoney.Returns(true);
             orderItemMock.Nomenclature.Returns(nomenclatureMock);
+            orderItemMock.DiscountReason = null;
 
             GenericObservableList<OrderDepositItem> observableDepositItemsMock =
                 Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
@@ -252,6 +254,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(154);
             IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
             SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
@@ -603,11 +606,9 @@ namespace VodovozBusinessTests.Validators.Orders {
             // arrange
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.EShopOrder = null;
-            ProductGroup productGroupMock = Substitute.For<ProductGroup>();
-            productGroupMock.IsOnlineStore.Returns(true);
-            productGroupMock.Id.Returns(5);
+            ProductGroup productGroup = new ProductGroup {IsOnlineStore = true, Id = 5};
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
-            nomenclatureMock.ProductGroup.Returns(productGroupMock);
+            nomenclatureMock.ProductGroup.Returns(productGroup);
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Nomenclature.Returns(nomenclatureMock);
 
@@ -880,11 +881,10 @@ namespace VodovozBusinessTests.Validators.Orders {
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Nomenclature.Returns(nomenclatureMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
-            ParametersProvider parametersProviderMock = Substitute.For<ParametersProvider>();
-            parametersProviderMock.GetParameterValue("paid_delivery_nomenclature_id").Returns("159");
-            
+
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
+            selfDeliveryOrderMock.BottlesReturn = null;
 
             GenericObservableList<OrderDepositItem> observableDepositItemsMock =
                 Substitute.For<GenericObservableList<OrderDepositItem>>(selfDeliveryOrderMock.OrderDepositItems);
@@ -899,6 +899,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(154);
             IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
         
             SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 

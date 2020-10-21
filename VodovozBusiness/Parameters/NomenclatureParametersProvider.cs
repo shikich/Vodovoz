@@ -158,6 +158,13 @@ namespace Vodovoz.Parameters
 
 		#endregion
 
+		public int GetPaidDeliveryNomenclatureId {
+			get {
+				string parameterId = "paid_delivery_nomenclature_id";
+				return GetIntValue(parameterId);
+			}
+		}
+
         #endregion INomenclatureParametersProvider implementation
     }
 }

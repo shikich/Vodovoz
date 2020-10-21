@@ -5,12 +5,10 @@ using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using QS.DomainModel.UoW;
-using QS.Permissions;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Validators.Orders;
 
@@ -20,7 +18,7 @@ namespace VodovozBusinessTests.Validators.Orders {
         
         #region OrderValidator без параметров
         
-        [Test(Description = "Проверка валидирования заказа-самовывоза без контрагента")]
+        [Test(Description = "Проверка валидирования сервисного заказа без контрагента")]
         public void ValidateVisitingMasterOrderWithoutCounterparty()
         {
             // arrange
@@ -58,7 +56,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования заказа-самовывоза без даты доставки")]
+        [Test(Description = "Проверка валидирования сервисного заказа без даты доставки")]
         public void ValidateVisitingMasterOrderWithoutDeliveryDate()
         {
             // arrange
@@ -95,7 +93,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования заказа-самовывоза с отрицательным залогом")]
+        [Test(Description = "Проверка валидирования сервисного заказа с отрицательным залогом")]
         public void ValidateVisitingMasterOrderWithNegativeDeposit()
         {
             // arrange
@@ -133,7 +131,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
 
-        [Test(Description = "Проверка валидирования заказа-самовывоза с оборудованием, без причины забора-доставки")]
+        [Test(Description = "Проверка валидирования сервисного заказа с оборудованием, без причины забора-доставки")]
         public void ValidateVisitingMasterOrderWithOrderEquipmentsWithoutDirectionReason() {
             // arrange
             VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
@@ -180,7 +178,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования заказа-самовывоза с оборудованием, без принадлежности")]
+        [Test(Description = "Проверка валидирования сервисного заказа с оборудованием, без принадлежности")]
         public void ValidateVisitingMasterOrderWithOrderEquipmentsWithoutOwnType()
         {
             // arrange
@@ -228,16 +226,19 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
 
-        [Test(Description = "Проверка валидирования заказа-самовывоза с товарами со скидкой, без указания причины скидки")]
+        [Test(Description = "Проверка валидирования сервисного заказа с товарами со скидкой, без указания причины скидки")]
         public void ValidateVisitingMasterOrderWithOrderItemsWithDiscountWithoutDisountReason()
         {
             // arrange
             VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            ProductGroup productGroup = new ProductGroup {IsOnlineStore = true, Id = 5};
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            nomenclatureMock.ProductGroup.Returns(productGroup);
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Discount.Returns(25m);
             orderItemMock.IsDiscountInMoney.Returns(true);
             orderItemMock.Nomenclature.Returns(nomenclatureMock);
+            orderItemMock.DiscountReason = null;
 
             GenericObservableList<OrderDepositItem> observableDepositItemsMock =
                 Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
@@ -275,7 +276,7 @@ namespace VodovozBusinessTests.Validators.Orders {
 
         #region OrderValidator с параметрами
 
-        [Test(Description = "Проверка валидирования заказа-самовывоза с забором оборудования, без указания причины не забора в комментарии")]
+        [Test(Description = "Проверка валидирования сервисного заказа с забором оборудования, без указания причины не забора в комментарии")]
         public void ValidateVisitingMasterOrderWithOrderEquipmentsWithDirectionPickUpWithoutComment()
         {
             // arrange
@@ -326,7 +327,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования заказа-самовывоза с залогами, для типа оплаты cashless")]
+        [Test(Description = "Проверка валидирования сервисного заказа с залогами, для типа оплаты cashless")]
         public void ValidateVisitingMasterOrderWithOrderDepositItemsAndPaymentTypeCashless()
         {
             // arrange
@@ -371,7 +372,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
 
-        [Test(Description = "Проверка валидирования заказа-самовывоза с товарами или оборудованием с количеством <= 0")]
+        [Test(Description = "Проверка валидирования сервисного заказа с товарами или оборудованием с количеством <= 0")]
         public void ValidateVisitingMasterOrderWithOrderItemsCountOrOrderEquipmentsCountEqualsZero()
         {
             // arrange
@@ -418,7 +419,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования заказа-самовывоза для клиента с закрытыми поставками и определенными типами оплат")]
+        [Test(Description = "Проверка валидирования сервисного заказа для клиента с закрытыми поставками и определенными типами оплат")]
         public void ValidateVisitingMasterOrderForCounterpartyWithClosedDeliveries()
         {
             // arrange
@@ -465,7 +466,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        [Test(Description = "Проверка валидирования заказа-самовывоза с точкой доставки без района")]
+        [Test(Description = "Проверка валидирования сервисного заказа с точкой доставки без района")]
         public void ValidateVisitingMasterOrderWithDeliveryPointWithoutDistrict()
         {
             // arrange
@@ -515,7 +516,7 @@ namespace VodovozBusinessTests.Validators.Orders {
         
         #endregion
 
-        #region DeliveryOrderValidator без параметров
+        #region VisitingMasterOrderValidator без параметров
 
         [Test(Description = "Проверка валидирования сервисного заказа без точки доставки")]
         public void ValidateVisitingMasterOrderWithoutDeliveryPoint()
@@ -635,30 +636,42 @@ namespace VodovozBusinessTests.Validators.Orders {
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
         }
         
-        /*[Test(Description = "Проверка валидирования сервисного заказа с номенклатурой из интернет-магазина, без указания номера заказа ИМ")]
+        [Test(Description = "Проверка валидирования сервисного заказа с номенклатурой из интернет-магазина, без указания номера заказа ИМ")]
         public void ValidateVisitingMasterOrderWithOrderItemsFromWebStoreWithoutEShopOrder()
         {
             // arrange
-            VisitingMasterOrder testOrder = new VisitingMasterOrder();
+            VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
+            visitingMasterOrderMock.EShopOrder = null;
+            ProductGroup productGroup = new ProductGroup {IsOnlineStore = true, Id = 5};
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            nomenclatureMock.ProductGroup.Returns(productGroup);
+            OrderItem orderItemMock = Substitute.For<OrderItem>();
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
 
-            OrderItem orderItemMock1 = Substitute.For<OrderItem>();
-            Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
-            ProductGroup productGroupMock1 = Substitute.For<ProductGroup>();
-
-            productGroupMock1.IsOnlineStore = true;
-            nomenclatureMock1.ProductGroup = productGroupMock1;
-            orderItemMock1.Nomenclature = nomenclatureMock1;
-
-            testOrder.ObservableOrderItems.Add(orderItemMock1);
-            
-            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(new DefaultAllowedPermissionService(), 
-                new NomenclatureParametersProvider() , UnitOfWorkFactory.CreateWithoutRoot(), testOrder);
+            GenericObservableList<OrderDepositItem> observableDepositItemsMock =
+                Substitute.For<GenericObservableList<OrderDepositItem>>(visitingMasterOrderMock.OrderDepositItems);
+            visitingMasterOrderMock.ObservableOrderDepositItems.Returns(observableDepositItemsMock);
+            GenericObservableList<OrderItem> observableOrderItems =
+                new GenericObservableList<OrderItem>{ orderItemMock };
+            visitingMasterOrderMock.ObservableOrderItems.Returns(observableOrderItems);
+            GenericObservableList<OrderEquipment> observableEquipmentsMock =
+                Substitute.For<GenericObservableList<OrderEquipment>>(visitingMasterOrderMock.OrderEquipments);
+            visitingMasterOrderMock.ObservableOrderEquipments.Returns(observableEquipmentsMock);
+        
+            ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.RootProductGroupForOnlineStoreNomenclatures.Returns(5);
+            IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
+        
+            VisitingMasterOrderValidator validator = new VisitingMasterOrderValidator(currentPermissionServiceMock, 
+                nomenclatureParametersProviderMock ,unitOfWorkMock, visitingMasterOrderMock);
             
             var results = new List<ValidationResult>();
             var validationRes =
                 new ValidationResult(
                     "При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
-                    new[] { nameof(testOrder.EShopOrder) });
+                    new[] { nameof(visitingMasterOrderMock.EShopOrder) });
             var vc = new ValidationContext(validator, null, null);
 
             // act
@@ -667,7 +680,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             // assert
             Assert.False(isValid);
             Assert.True(results.Any(x => x.ErrorMessage == validationRes.ErrorMessage));
-        }*/
+        }
         
         #endregion
 

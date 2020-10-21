@@ -35,8 +35,8 @@ namespace VodovozBusinessTests.Updaters {
             };
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             nomenclatureMock.Id.Returns(1);
-            nomenclatureRepositoryMock.GetDictionaryWithCertificatesForNomenclatures(uowMock, new Nomenclature[]{nomenclatureMock})
-                                      .Returns(dictionaryCertsMock);
+            nomenclatureRepositoryMock.GetDictionaryWithCertificatesForNomenclatures(uowMock, new []{nomenclatureMock})
+                                      .ReturnsForAnyArgs(dictionaryCertsMock);
             NomenclatureCertificateDocumentUpdater certificateDocumentUpdater = 
                 new NomenclatureCertificateDocumentUpdater(assemblyDocumentFactoryMock, nomenclatureRepositoryMock, uowMock);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
