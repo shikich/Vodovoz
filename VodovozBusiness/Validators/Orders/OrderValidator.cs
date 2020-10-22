@@ -7,7 +7,6 @@ using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using VodovozInfrastructure.Validators;
 

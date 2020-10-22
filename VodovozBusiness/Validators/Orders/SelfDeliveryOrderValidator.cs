@@ -6,7 +6,6 @@ using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.Validators.Orders {
@@ -117,7 +116,7 @@ namespace Vodovoz.Validators.Orders {
                 if(order.BottlesReturn == null && 
                    order.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
                     yield return new ValidationResult("В заказе не указана планируемая тара.",
-                        new[] { nameof(order.Contract) });
+                        new[] { nameof(order.BottlesReturn) });
                 
                 //если ни у точки доставки, ни у контрагента нет ни одного номера телефона
                 if(!((order.DeliveryPoint != null && order.DeliveryPoint.Phones.Any()) || order.Counterparty.Phones.Any()))
