@@ -1,15 +1,21 @@
+using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders.Documents.Invoice {
     public class InvoiceDocumentUpdater : OrderDocumentUpdaterBase {
 
         private readonly InvoiceDocumentFactory documentFactory;
-        
+        private readonly INomenclatureParametersProvider nomenclatureParametersProvider;
+
         public override OrderDocumentType DocumentType => OrderDocumentType.Invoice;
 
-        public InvoiceDocumentUpdater(InvoiceDocumentFactory documentFactory) {
+        public InvoiceDocumentUpdater(InvoiceDocumentFactory documentFactory,
+                                      INomenclatureParametersProvider nomenclatureParametersProvider) {
             this.documentFactory = documentFactory;
+            this.nomenclatureParametersProvider = nomenclatureParametersProvider ??
+                                                  throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
         }
 
         private InvoiceDocument CreateNewDocument() {
@@ -17,10 +23,23 @@ namespace Vodovoz.Domain.Orders.Documents.Invoice {
         }
 
         private bool NeedCreateDocument(OrderBase order) {
+            bool hasOrderItems;
+            
+            if(!order.ObservableOrderItems.Any() || 
+               (order.ObservableOrderItems.Count == 1 && order.ObservableOrderItems.Any(x => 
+                   x.Nomenclature.Id == nomenclatureParametersProvider.GetPaidDeliveryNomenclatureId))) 
+            {
+                hasOrderItems = false;
+            }
+            else
+            {
+                hasOrderItems = true;
+            }
+            
             var accepted = order.Status >= OrderStatus.Accepted;
             var waitForPayment = order.Status >= OrderStatus.WaitForPayment;
             
-            var byCard = order.PaymentType == PaymentType.ByCard && order.ObservableOrderItems.Any();
+            var byCard = order.PaymentType == PaymentType.ByCard && hasOrderItems;
             var cash = (order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.BeveragesWorld);
             var cashlessWithoutBottlesReturn = order.PaymentType == PaymentType.cashless &&
                                                (order.ObservableOrderItems.Sum(i => i.Sum) <= 0m) &&
@@ -35,7 +54,7 @@ namespace Vodovoz.Domain.Orders.Documents.Invoice {
                            byCard || cash) && waitForPayment;
                 case OrderType.DeliveryOrder:
                     var deliveryOrder = order as DeliveryOrder;
-                    return (deliveryOrder.PaymentType == PaymentType.cashless &&
+                    return (deliveryOrder.PaymentType == PaymentType.cashless && 
                            (deliveryOrder.ObservableOrderItems.Sum(i => i.Sum) <= 0m) &&
                            (!deliveryOrder.ObservableOrderDepositItems.Any() || deliveryOrder.BottlesReturn > 0) ||
                            byCard || cash) && accepted;

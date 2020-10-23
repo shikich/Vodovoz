@@ -4,11 +4,12 @@ using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.Documents.Bill;
 using Vodovoz.Domain.Orders.Documents.DriverTicket;
 using Vodovoz.Domain.Orders.Documents.Invoice;
+using Vodovoz.Services;
 
 namespace VodovozBusinessTests.Updaters {
     [TestFixture]
@@ -18,12 +19,17 @@ namespace VodovozBusinessTests.Updaters {
         public void TestUpdateDocumentsMethod()
         {
             // arrange
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
             OrderDocumentUpdatersFactory orderDocumentUpdatersFactoryMock = Substitute.For<OrderDocumentUpdatersFactory>();
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
             selfDeliveryOrderMock.Status.Returns(OrderStatus.Accepted);
             OrderDocumentsModel orderDocumentsModel = new OrderDocumentsModel(selfDeliveryOrderMock, orderDocumentUpdatersFactoryMock);
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             OrderItem orderItemMock = Substitute.For<OrderItem>();
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
             orderItemMock.Sum.Returns(500);
             GenericObservableList<OrderDocument> observableDocuments = new GenericObservableList<OrderDocument>();
             selfDeliveryOrderMock.ObservableOrderDocuments.Returns(observableDocuments);

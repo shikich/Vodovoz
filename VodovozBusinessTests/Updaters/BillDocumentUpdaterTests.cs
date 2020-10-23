@@ -3,9 +3,11 @@ using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.Documents.Bill;
+using Vodovoz.Services;
 
 namespace VodovozBusinessTests.Updaters {
     [TestFixture]
@@ -17,12 +19,17 @@ namespace VodovozBusinessTests.Updaters {
         public void TestUpdateMethodIfNeedCreateDocumentOrderWithoutDocument()
         {
             // arrange
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
             BillDocumentFactory billDocumentFactoryMock = Substitute.For<BillDocumentFactory>();
-            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock);
+            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock, nomenclatureParametersProviderMock);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Sum.Returns(500);
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
             GenericObservableList<OrderDocument> observableDocuments = new GenericObservableList<OrderDocument>();
             selfDeliveryOrderMock.ObservableOrderDocuments.Returns(observableDocuments);
             GenericObservableList<OrderDepositItem> observableDeposits = new GenericObservableList<OrderDepositItem>();
@@ -42,8 +49,11 @@ namespace VodovozBusinessTests.Updaters {
         public void TestUpdateMethodIfNeedCreateDocumentAndOrderWithOrderDocument()
         {
             // arrange
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
             BillDocumentFactory billDocumentFactoryMock = Substitute.For<BillDocumentFactory>();
-            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock);
+            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock, nomenclatureParametersProviderMock);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
             BillDocument billDocumentMock = Substitute.For<BillDocument>();
@@ -55,9 +65,11 @@ namespace VodovozBusinessTests.Updaters {
             GenericObservableList<OrderDocument> observableDocuments = new GenericObservableList<OrderDocument>();
             selfDeliveryOrderMock.ObservableOrderDocuments.Returns(observableDocuments);
             selfDeliveryOrderMock.ObservableOrderDocuments.Add(billDocumentMock);
-            
+
+            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Sum.Returns(500);
+            orderItemMock.Nomenclature.Returns(nomenclatureMock);
 
             selfDeliveryOrderMock.ObservableOrderItems.Add(orderItemMock);
 
@@ -72,8 +84,11 @@ namespace VodovozBusinessTests.Updaters {
         public void TestUpdateMethodIfDoNotNeedCreateDocumentAndOrderWithOrderDocument()
         {
             // arrange
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
             BillDocumentFactory billDocumentFactoryMock = Substitute.For<BillDocumentFactory>();
-            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock);
+            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock, nomenclatureParametersProviderMock);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
             BillDocument billDocumentMock = Substitute.For<BillDocument>();
@@ -101,8 +116,11 @@ namespace VodovozBusinessTests.Updaters {
         public void TestAddExistingDocumentMethodWithoutDocument()
         {
             // arrange
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
             BillDocumentFactory billDocumentFactoryMock = Substitute.For<BillDocumentFactory>();
-            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock);
+            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock, nomenclatureParametersProviderMock);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             BillDocument billDocumentMock = Substitute.For<BillDocument>();
             billDocumentMock.Type.Returns(OrderDocumentType.Bill);
@@ -120,8 +138,11 @@ namespace VodovozBusinessTests.Updaters {
         public void TestAddExistingDocumentMethodAndOrderWithOrderDocument()
         {
             // arrange
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
             BillDocumentFactory billDocumentFactoryMock = Substitute.For<BillDocumentFactory>();
-            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock);
+            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock, nomenclatureParametersProviderMock);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             BillDocument billDocumentMock1 = Substitute.For<BillDocument>();
             billDocumentMock1.Type.Returns(OrderDocumentType.Bill);
@@ -146,8 +167,11 @@ namespace VodovozBusinessTests.Updaters {
         public void TestRemoveExistingDocumentMethodAndOrderWithOrderDocument()
         {
             // arrange
+            INomenclatureParametersProvider nomenclatureParametersProviderMock =
+                Substitute.For<INomenclatureParametersProvider>();
+            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
             BillDocumentFactory billDocumentFactoryMock = Substitute.For<BillDocumentFactory>();
-            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock);
+            BillDocumentUpdater billDocumentUpdater = new BillDocumentUpdater(billDocumentFactoryMock, nomenclatureParametersProviderMock);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             BillDocument billDocumentMock1 = Substitute.For<BillDocument>();
             billDocumentMock1.Type.Returns(OrderDocumentType.Bill);

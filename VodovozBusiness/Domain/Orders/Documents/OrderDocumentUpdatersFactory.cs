@@ -49,8 +49,9 @@ namespace Vodovoz.Domain.Orders.Documents {
         
         private OrderDocumentUpdaterBase CreateBillDocumentUpdater() {
             var billDocumentFactory = new BillDocumentFactory();
+            var nomemnclatureParametersProvider = new NomenclatureParametersProvider();
             
-            return new BillDocumentUpdater(billDocumentFactory);
+            return new BillDocumentUpdater(billDocumentFactory, nomemnclatureParametersProvider);
         }
 
         private OrderDocumentUpdaterBase CreateSpecialBillDocumentUpdater() {
@@ -105,8 +106,9 @@ namespace Vodovoz.Domain.Orders.Documents {
 
         private OrderDocumentUpdaterBase CreateInvoiceDocumentUpdater() {
             var invoiceDocumentFactory = new InvoiceDocumentFactory();
-            
-            return new InvoiceDocumentUpdater(invoiceDocumentFactory);
+            var nomemnclatureParametersProvider = new NomenclatureParametersProvider();
+
+            return new InvoiceDocumentUpdater(invoiceDocumentFactory, nomemnclatureParametersProvider);
         }
 
         private OrderDocumentUpdaterBase CreateOrderContractDocumentUpdater() {
@@ -141,8 +143,9 @@ namespace Vodovoz.Domain.Orders.Documents {
 
         private OrderDocumentUpdaterBase CreateTransportInvoiceDocumentUpdater() {
             var transportInvoiceDocumentFactory = new TransportInvoiceDocumentFactory();
-            
-            return new TransportInvoiceDocumentUpdater(transportInvoiceDocumentFactory);
+            var nomemnclatureParametersProvider = new NomenclatureParametersProvider();
+
+            return new TransportInvoiceDocumentUpdater(transportInvoiceDocumentFactory, nomemnclatureParametersProvider);
         }
 
         private OrderDocumentUpdaterBase CreateUPDDocumentUpdater() {

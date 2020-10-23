@@ -1,14 +1,20 @@
+using System;
 using System.Linq;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders.Documents.TransportInvoice {
     public class TransportInvoiceDocumentUpdater : OrderDocumentUpdaterBase {
 
         private readonly TransportInvoiceDocumentFactory documentFactory;
-        
+        private readonly INomenclatureParametersProvider nomenclatureParametersProvider;
+
         public override OrderDocumentType DocumentType => OrderDocumentType.TransportInvoice;
 
-        public TransportInvoiceDocumentUpdater(TransportInvoiceDocumentFactory documentFactory) {
+        public TransportInvoiceDocumentUpdater(TransportInvoiceDocumentFactory documentFactory,
+                                               INomenclatureParametersProvider nomenclatureParametersProvider) {
             this.documentFactory = documentFactory;
+            this.nomenclatureParametersProvider = nomenclatureParametersProvider ??
+                                                  throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
         }
 
         private TransportInvoiceDocument CreateNewDocument() {
@@ -16,8 +22,20 @@ namespace Vodovoz.Domain.Orders.Documents.TransportInvoice {
         }
 
         private bool NeedCreateDocument(OrderBase order) {
-            return order.Counterparty.TTNCount.HasValue && 
-                   order.ObservableOrderItems.Any();
+            bool hasOrderItems;
+            
+            if(!order.ObservableOrderItems.Any() || 
+               (order.ObservableOrderItems.Count == 1 && order.ObservableOrderItems.Any(x => 
+                   x.Nomenclature.Id == nomenclatureParametersProvider.GetPaidDeliveryNomenclatureId))) 
+            {
+                hasOrderItems = false;
+            }
+            else
+            {
+                hasOrderItems = true;
+            }
+            
+            return order.Counterparty.TTNCount.HasValue && hasOrderItems;
         }
         
         public override void UpdateDocument(OrderBase order) {
