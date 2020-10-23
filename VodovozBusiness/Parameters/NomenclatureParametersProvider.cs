@@ -101,52 +101,48 @@ namespace Vodovoz.Parameters
         
         #region Получение номенклатур воды
 
-		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_semiozerie_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Семиозерье");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
+		public int GetWaterSemiozerieId {
+			get {
+				string parameterId = "nomenclature_semiozerie_id";
+				return GetIntValue(parameterId);
+			}
 		}
 
-		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_kislorodnaya_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Кислородная");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
+		public int GetWaterKislorodnayaId {
+			get {
+				string parameterId = "nomenclature_kislorodnaya_id";
+				return GetIntValue(parameterId);
+			}
 		}
 
-		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_snyatogorskaya_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Снятогорская");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
+		public int GetWaterSnyatogorskayaId {
+			get {
+				string parameterId = "nomenclature_snyatogorskaya_id";
+				return GetIntValue(parameterId);
+			}
 		}
 
-		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow)
+		public int GetWaterKislorodnayaDeluxeId
 		{
-			var bottleDepositParameter = "nomenclature_kislorodnaya_deluxe_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Кислородная Deluxe");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
+			get {
+				string parameterId = "nomenclature_kislorodnaya_deluxe_id";
+				return GetIntValue(parameterId);
+			}
 		}
 
-		public Nomenclature GetWaterStroika(IUnitOfWork uow)
+		public int GetWaterStroikaId
 		{
-			var bottleDepositParameter = "nomenclature_stroika_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Стройка");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
+			get {
+				string parameterId = "nomenclature_stroika_id";
+				return GetIntValue(parameterId);
+			}
 		}
 
-		public Nomenclature GetWaterRuchki(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_ruchki_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды С ручками");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
+		public int GetWaterRuchkiId {
+			get {
+				string parameterId = "nomenclature_ruchki_id";
+				return GetIntValue(parameterId);
+			}
 		}
 		
 		public decimal GetWaterPriceIncrement {

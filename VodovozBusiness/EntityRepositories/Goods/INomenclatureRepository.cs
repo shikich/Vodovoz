@@ -67,5 +67,6 @@ namespace Vodovoz.EntityRepositories.Goods
 		/// </summary>
 		int GetIdentifierOfOnlineShopGroup();
 		decimal GetWaterPriceIncrement { get; }
+		Nomenclature GetPaidDeliveryNomenclature(IUnitOfWork uow);
 	}
 }

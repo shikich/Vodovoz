@@ -129,12 +129,15 @@
     <Compile Include="Domain\Orders\OrderBase.cs" />
     <Compile Include="Domain\Orders\OrderFrom1c.cs" />
     <Compile Include="Domain\Orders\OrderType.cs" />
+    <Compile Include="Domain\Orders\PaidDelivery\DeliveryPriceCalculator.cs" />
+    <Compile Include="Domain\Orders\PaidDelivery\PaidDeliveryUpdater.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Orders\SelfDeliveryOrder.cs" />
     <Compile Include="Domain\Orders\VisitingMasterOrder.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
+    <Compile Include="Domain\Sale\IDistrictRuleItem.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
@@ -145,6 +148,7 @@
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityFactories\NomenclatureFixedPriceFactory.cs" />
+    <Compile Include="EntityFactories\OrderItemFactory.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />

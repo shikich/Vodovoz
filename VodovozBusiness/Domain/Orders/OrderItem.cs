@@ -34,6 +34,13 @@ namespace Vodovoz.Domain.Orders
 					RecalculateNDS();
 			}
 		}
+		
+		OrderBase newOrder;
+		[Display(Name = "Заказ")]
+		public virtual OrderBase NewOrder {
+			get => newOrder;
+			set => SetField(ref newOrder, value);
+		}
 
 		AdditionalAgreement additionalAgreement;
 

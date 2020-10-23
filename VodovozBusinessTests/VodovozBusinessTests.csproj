@@ -142,6 +142,8 @@
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceControllerTests.cs" />
+    <Compile Include="Domain\Orders\PaidDelivery\DeliveryPriceCalculatorTests.cs" />
+    <Compile Include="Domain\Orders\PaidDelivery\PaidDeliveryUpdaterTests.cs" />
     <Compile Include="Domain\WaterFixedPricesGeneratorTests.cs" />
     <Compile Include="Employees\PersonnelTests.cs" />
     <Compile Include="Goods\NomenclaturePropertiesTest.cs" />

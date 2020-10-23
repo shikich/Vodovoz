@@ -14,12 +14,12 @@ namespace Vodovoz.Services
         
         string OnlineStoreExportFileUrl { get; }
 
-        Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
-        Nomenclature GetWaterKislorodnaya(IUnitOfWork uow);
-        Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow);
-        Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow);
-        Nomenclature GetWaterStroika(IUnitOfWork uow);
-        Nomenclature GetWaterRuchki(IUnitOfWork uow);
+        int GetWaterSemiozerieId { get; }
+        int GetWaterKislorodnayaId { get; }
+        int GetWaterSnyatogorskayaId { get; }
+        int GetWaterKislorodnayaDeluxeId { get; }
+        int GetWaterStroikaId { get; }
+        int GetWaterRuchkiId { get; }
         decimal GetWaterPriceIncrement { get; }
         int GetPaidDeliveryNomenclatureId { get; }
     }
