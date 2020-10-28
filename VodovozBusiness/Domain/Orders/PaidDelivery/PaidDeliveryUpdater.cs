@@ -33,12 +33,15 @@ namespace Vodovoz.Domain.Orders.PaidDelivery {
             }
             
             var paidDeliveryItem =
-                order.ObservableOrderItems.SingleOrDefault(x => x.Nomenclature == paidDelivery.Nomenclature);
+                order.ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == paidDelivery.Nomenclature.Id);
             
             var isFreeDelivery = HasFreeDelivery(paidDelivery.Nomenclature.Id);
 
-            if (paidDeliveryItem != null && isFreeDelivery) {
-                order.ObservableOrderItems.Remove(paidDeliveryItem);
+            if (isFreeDelivery) {
+                if (paidDeliveryItem != null) {
+                    order.ObservableOrderItems.Remove(paidDeliveryItem);
+                }
+                
                 return;
             }
 
@@ -49,25 +52,14 @@ namespace Vodovoz.Domain.Orders.PaidDelivery {
                     paidDeliveryItem = paidDelivery;
                     paidDeliveryItem.Price = price;
                     paidDeliveryItem.NewOrder = order;
-                }
-                else if (paidDeliveryItem.Price != price) {
-                    paidDeliveryItem.Price = price;
-                }
-                /*if (paidDeliveryItem == null) {
-                    paidDeliveryItem = orderItemFactory.Create();
-                    paidDeliveryItem.Nomenclature = nomenclatureRepository.GetPaidDeliveryNomenclature(uow);
-                    paidDeliveryItem.Order = order;
-                    paidDeliveryItem.Price = price;
-                    paidDeliveryItem.Count = 1;
                     
                     order.ObservableOrderItems.Add(paidDeliveryItem);
                 }
                 else if (paidDeliveryItem.Price != price) {
                     paidDeliveryItem.Price = price;
-                }*/
+                }
             }
-
-            if(paidDeliveryItem != null)
+            else if(paidDeliveryItem != null)
                 order.ObservableOrderItems.Remove(paidDeliveryItem);
         }
 
