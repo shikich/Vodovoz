@@ -69,11 +69,28 @@ namespace Vodovoz.Domain.Logistic
             get => comment;
             set => SetField(ref comment, value, () => Comment);
         }
+        
+        private Decimal onlineStoreOrderSumForFreeDelivery;
+        [Display(Name = "Минимальная сумма заказа для бесплатной доставки")]
+        public virtual Decimal OnlineStoreOrderSumForFreeDelivery
+        {
+            get => onlineStoreOrderSumForFreeDelivery;
+            set => SetField(ref onlineStoreOrderSumForFreeDelivery, value);
+        }
 
         private IList<District> districts = new List<District>();
         public virtual IList<District> Districts {
             get => districts;
             set => SetField(ref districts, value, () => Districts);
+        }
+
+        private Decimal onlineStoreOrderSumForFreeDelivery;
+
+        [Display(Name = "Минимальная сумма заказа для бесплатной доставки")]
+        public virtual Decimal OnlineStoreOrderSumForFreeDelivery
+        {
+            get => onlineStoreOrderSumForFreeDelivery;
+            set => SetField(ref onlineStoreOrderSumForFreeDelivery, value);
         }
 
         private GenericObservableList<District> observableDistricts;
