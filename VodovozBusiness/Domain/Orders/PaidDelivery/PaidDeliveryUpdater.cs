@@ -76,7 +76,8 @@ namespace Vodovoz.Domain.Orders.PaidDelivery {
                            || !deliveryOrder.ObservableOrderItems.Any(
                                n => n.Nomenclature.Id != paidDeliveryNomenclatureId)
                            && (deliveryOrder.BottlesReturn > 0 || deliveryOrder.ObservableOrderEquipments.Any() ||
-                               deliveryOrder.ObservableOrderDepositItems.Any());
+                               deliveryOrder.ObservableOrderDepositItems.Any())
+                           || deliveryPriceCalculator.IsOnlineStoreFreeDeliverySumReached(order);
                 case OrderType.OrderFrom1c:
                 case OrderType.ClosingDocOrder:
                     return order.DeliveryPoint.AlwaysFreeDelivery
@@ -84,7 +85,8 @@ namespace Vodovoz.Domain.Orders.PaidDelivery {
                                n.Nomenclature.Category == NomenclatureCategory.spare_parts)
                            || !order.ObservableOrderItems.Any(
                                n => n.Nomenclature.Id != paidDeliveryNomenclatureId)
-                           && (order.ObservableOrderEquipments.Any() || order.ObservableOrderDepositItems.Any());
+                           && (order.ObservableOrderEquipments.Any() || order.ObservableOrderDepositItems.Any())
+                           || deliveryPriceCalculator.IsOnlineStoreFreeDeliverySumReached(order);
             }
 
             return false;

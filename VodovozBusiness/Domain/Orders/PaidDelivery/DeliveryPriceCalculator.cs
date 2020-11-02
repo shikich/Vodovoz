@@ -30,6 +30,16 @@ namespace Vodovoz.Domain.Orders.PaidDelivery {
             return 0m;
         }
         
+        public bool IsOnlineStoreFreeDeliverySumReached(OrderBase order)
+        {
+            var SumToFreeDelivery = 
+                order.DeliveryPoint?.District?.DistrictsSet.OnlineStoreOrderSumForFreeDelivery ?? 0m;
+            var OnlineStoreItemsSum = 
+                order.ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m );
+            
+            return SumToFreeDelivery < OnlineStoreItemsSum;
+        }
+        
         private decimal GetDeliveryPrice<TRule>(IList<TRule> list, OrderBase order)
             where TRule : IDistrictRuleItem
         {
