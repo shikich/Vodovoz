@@ -284,6 +284,20 @@ namespace Vodovoz.Domain.Orders {
 			get => observableOrderItems ??
 			       (observableOrderItems = new GenericObservableList<OrderItem>(OrderItems));
 		}
+		
+		IList<OrderSalesItem> orderSalesItems = new List<OrderSalesItem>();
+		[Display(Name = "Строки заказа")]
+		public virtual IList<OrderSalesItem> OrderSalesItems {
+			get => orderSalesItems;
+			set => SetField(ref orderSalesItems, value);
+		}
+
+		GenericObservableList<OrderSalesItem> observableOrderSalesItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<OrderSalesItem> ObservableOrderSalesItems {
+			get => observableOrderSalesItems ??
+			       (observableOrderSalesItems = new GenericObservableList<OrderSalesItem>(OrderSalesItems));
+		}
 
 		IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 		[Display(Name = "Список оборудования")]
@@ -299,6 +313,20 @@ namespace Vodovoz.Domain.Orders {
 					new GenericObservableList<OrderEquipment>(OrderEquipments));
 		}
 		
+		IList<OrderMovementItem> orderMovements = new List<OrderMovementItem>();
+		[Display(Name = "Список оборудования")]
+		public virtual IList<OrderMovementItem> OrderMovements {
+			get => orderMovements;
+			set => SetField(ref orderMovements, value);
+		}
+
+		GenericObservableList<OrderMovementItem> observableOrderMovements;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<OrderMovementItem> ObservableOrderMovements {
+			get => observableOrderMovements ?? (observableOrderMovements =
+				new GenericObservableList<OrderMovementItem>(OrderMovements));
+		}
+		
 		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 		[Display(Name = "Залоги заказа")]
 		public virtual IList<OrderDepositItem> OrderDepositItems {
@@ -311,6 +339,20 @@ namespace Vodovoz.Domain.Orders {
 		public virtual GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
 			get => observableOrderDepositItems ?? (observableOrderDepositItems =
 					new GenericObservableList<OrderDepositItem>(OrderDepositItems));
+		}
+		
+		IList<OrderDepositReturnsItem> orderDepositReturnsItems = new List<OrderDepositReturnsItem>();
+		[Display(Name = "Залоги заказа")]
+		public virtual IList<OrderDepositReturnsItem> OrderDepositReturnsItems {
+			get => orderDepositReturnsItems;
+			set => SetField(ref orderDepositReturnsItems, value);
+		}
+
+		GenericObservableList<OrderDepositReturnsItem> observableOrderDepositReturnsItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<OrderDepositReturnsItem> ObservableOrderDepositReturnsItems {
+			get => observableOrderDepositReturnsItems ?? (observableOrderDepositReturnsItems =
+				new GenericObservableList<OrderDepositReturnsItem>(OrderDepositReturnsItems));
 		}
 
 		IList<OrderDocument> orderDocuments = new List<OrderDocument>();

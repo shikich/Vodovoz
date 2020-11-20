@@ -4,7 +4,7 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Sale
 {
-    public abstract class DistrictRuleItemBase : PropertyChangedBase, IDomainObject, ICloneable, IDistrictRuleItem
+    public abstract class DistrictRuleItemBase : PropertyChangedBase, IDomainObject, ICloneable
     {
         public virtual int Id { get; set; }
 

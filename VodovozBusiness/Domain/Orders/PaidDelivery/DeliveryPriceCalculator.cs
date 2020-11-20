@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Orders.PaidDelivery {
         }
         
         private decimal GetDeliveryPrice<TRule>(IList<TRule> list, OrderBase order)
-            where TRule : IDistrictRuleItem
+            where TRule : DistrictRuleItemBase
         {
             var result = list.Where(x => CompareWithDeliveryPriceRule(x.DeliveryPriceRule, order)).ToList();
             

@@ -123,11 +123,19 @@
     <Compile Include="Domain\Orders\Documents\UPD\UPDDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\UPD\UPDDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\UPD\UPDDocument.cs" />
+    <Compile Include="Domain\Orders\EquipmentMovementReason.cs" />
+    <Compile Include="Domain\Orders\EquipmentOwnType.cs" />
     <Compile Include="Domain\Orders\IDefaultOrderDocumentType.cs" />
     <Compile Include="Domain\Orders\IEShopOrder.cs" />
+    <Compile Include="Domain\Orders\MovementDirection.cs" />
+    <Compile Include="Domain\Orders\MovementReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\OrderBase.cs" />
+    <Compile Include="Domain\Orders\OrderDepositReturnsItem.cs" />
     <Compile Include="Domain\Orders\OrderFrom1c.cs" />
+    <Compile Include="Domain\Orders\OrderItemBase.cs" />
+    <Compile Include="Domain\Orders\OrderMovementItem.cs" />
+    <Compile Include="Domain\Orders\OrderSalesItem.cs" />
     <Compile Include="Domain\Orders\OrderType.cs" />
     <Compile Include="Domain\Orders\PaidDelivery\DeliveryPriceCalculator.cs" />
     <Compile Include="Domain\Orders\PaidDelivery\PaidDeliveryUpdater.cs" />
@@ -137,7 +145,6 @@
     <Compile Include="Domain\Orders\VisitingMasterOrder.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
-    <Compile Include="Domain\Sale\IDistrictRuleItem.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
@@ -159,6 +166,9 @@
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderBaseMap.cs" />
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderDepositReturnsItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderMovementItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderSalesItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
