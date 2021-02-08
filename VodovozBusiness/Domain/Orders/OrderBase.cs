@@ -400,7 +400,7 @@ namespace Vodovoz.Domain.Orders {
 			var water19L = ObservableOrderItems.Where(x => x.Nomenclature.IsWater19L);
 			if(doNotCountWaterFromPromoSets)
 				water19L = water19L.Where(x => x.PromoSet == null);
-			return water19L.Sum(x => x.Count);
+			return (int)water19L.Sum(x => x.Count);
 		}
     }
 }

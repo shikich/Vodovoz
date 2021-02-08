@@ -33,6 +33,7 @@ using Vodovoz.Domain.Orders.Documents.OrderM2Proxy;
 using Vodovoz.Domain.Orders.Documents.ShetFactura;
 using Vodovoz.Domain.Orders.Documents.Torg12;
 using Vodovoz.Domain.Orders.Documents.UPD;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Proposal;

@@ -71,7 +71,7 @@ namespace Vodovoz.Domain.Orders.PaidDelivery {
         }
 
         private int GetDisposableWaterCount(OrderBase order, TareVolume tareVolume) {
-            return order.ObservableOrderItems.
+            return (int)order.ObservableOrderItems.
                          Where(x => x.Nomenclature != null
                                              && x.Nomenclature.Category == NomenclatureCategory.water
                                              && x.Nomenclature.IsDisposableTare

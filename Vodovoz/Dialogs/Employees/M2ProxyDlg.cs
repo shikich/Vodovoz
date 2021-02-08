@@ -18,6 +18,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.Documents.OrderM2Proxy;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModelBased;
 

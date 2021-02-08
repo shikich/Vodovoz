@@ -3265,7 +3265,7 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new InvoiceBarterDocument();
 					break;
 				case OrderDocumentType.InvoiceContractDoc:
-					newDoc = new InvoiceContractDoc();
+					newDoc = new InvoiceContractDocument();
 					break;
 				case OrderDocumentType.Torg12:
 					newDoc = new Torg12Document();

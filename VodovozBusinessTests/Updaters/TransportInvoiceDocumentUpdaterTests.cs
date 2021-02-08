@@ -21,7 +21,7 @@ namespace VodovozBusinessTests.Updaters {
             // arrange
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
             TransportInvoiceDocumentFactory invoiceContractDocumentFactoryMock = Substitute.For<TransportInvoiceDocumentFactory>();
             TransportInvoiceDocumentUpdater invoiceContractDocumentUpdater = 
                 new TransportInvoiceDocumentUpdater(invoiceContractDocumentFactoryMock, nomenclatureParametersProviderMock);
@@ -52,7 +52,7 @@ namespace VodovozBusinessTests.Updaters {
             // arrange
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
             TransportInvoiceDocumentFactory invoiceContractDocumentFactoryMock = Substitute.For<TransportInvoiceDocumentFactory>();
             TransportInvoiceDocumentUpdater invoiceContractDocumentUpdater = 
                 new TransportInvoiceDocumentUpdater(invoiceContractDocumentFactoryMock, nomenclatureParametersProviderMock);
@@ -86,7 +86,7 @@ namespace VodovozBusinessTests.Updaters {
             // arrange
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
             TransportInvoiceDocumentFactory invoiceContractDocumentFactoryMock = Substitute.For<TransportInvoiceDocumentFactory>();
             TransportInvoiceDocumentUpdater invoiceContractDocumentUpdater = 
                 new TransportInvoiceDocumentUpdater(invoiceContractDocumentFactoryMock, nomenclatureParametersProviderMock);
@@ -116,7 +116,7 @@ namespace VodovozBusinessTests.Updaters {
             // arrange
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
             TransportInvoiceDocumentFactory invoiceContractDocumentFactoryMock = Substitute.For<TransportInvoiceDocumentFactory>();
             TransportInvoiceDocumentUpdater invoiceContractDocumentUpdater = 
                 new TransportInvoiceDocumentUpdater(invoiceContractDocumentFactoryMock, nomenclatureParametersProviderMock);
@@ -139,7 +139,7 @@ namespace VodovozBusinessTests.Updaters {
             // arrange
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
             TransportInvoiceDocumentFactory invoiceContractDocumentFactoryMock = Substitute.For<TransportInvoiceDocumentFactory>();
             TransportInvoiceDocumentUpdater invoiceContractDocumentUpdater = 
                 new TransportInvoiceDocumentUpdater(invoiceContractDocumentFactoryMock, nomenclatureParametersProviderMock);
@@ -169,7 +169,7 @@ namespace VodovozBusinessTests.Updaters {
             // arrange
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
             TransportInvoiceDocumentFactory invoiceContractDocumentFactoryMock = Substitute.For<TransportInvoiceDocumentFactory>();
             TransportInvoiceDocumentUpdater invoiceContractDocumentUpdater = 
                 new TransportInvoiceDocumentUpdater(invoiceContractDocumentFactoryMock, nomenclatureParametersProviderMock);

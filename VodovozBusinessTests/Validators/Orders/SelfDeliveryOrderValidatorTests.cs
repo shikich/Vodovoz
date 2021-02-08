@@ -253,7 +253,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(154);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(154);
             IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
             SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 
@@ -898,7 +898,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             ICurrentPermissionService currentPermissionServiceMock = Substitute.For<ICurrentPermissionService>();
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(154);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(154);
             IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
         
             SelfDeliveryOrderValidator validator = new SelfDeliveryOrderValidator(currentPermissionServiceMock, 

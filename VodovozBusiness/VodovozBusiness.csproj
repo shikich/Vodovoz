@@ -88,6 +88,7 @@
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
+    <Compile Include="Domain\EntityFactories\OrderItemFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
@@ -150,7 +151,7 @@
     <Compile Include="Domain\Orders\Documents\TransportInvoice\TransportInvoiceDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\TransportInvoice\TransportInvoiceDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\TransportInvoice\TransportInvoiceDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\UPD\SpecialUPD.cs" />
+    <Compile Include="Domain\Orders\Documents\UPD\SpecialUPDDocument.cs" />
     <Compile Include="Domain\Orders\Documents\UPD\SpecialUPDDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\UPD\SpecialUPDDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\UPD\UPDDocumentFactory.cs" />

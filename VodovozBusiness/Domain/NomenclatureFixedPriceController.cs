@@ -39,7 +39,7 @@ namespace Vodovoz.Domain {
                         x.Nomenclature.Id == nomenclature.Id);
 
                 if (nomenclatureFixedPrice != null) {
-                    fixedPrice = nomenclatureFixedPrice.FixedPrice;
+                    fixedPrice = nomenclatureFixedPrice.Price;
                     return true;
                 }
             }
@@ -49,7 +49,7 @@ namespace Vodovoz.Domain {
                         x.Nomenclature.Id == nomenclature.Id);
                 
                 if (nomenclatureFixedPrice != null) {
-                    fixedPrice = nomenclatureFixedPrice.FixedPrice;
+                    fixedPrice = nomenclatureFixedPrice.Price;
                     return true;
                 }
             }

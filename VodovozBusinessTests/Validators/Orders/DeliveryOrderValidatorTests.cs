@@ -1008,7 +1008,7 @@ namespace VodovozBusinessTests.Validators.Orders {
             IOrderRepository orderRepositoryMock = Substitute.For<IOrderRepository>();
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(154);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(154);
             IUnitOfWork unitOfWorkMock = Substitute.For<IUnitOfWork>();
             
             DeliveryOrderValidator validator = new DeliveryOrderValidator(currentPermissionServiceMock, 

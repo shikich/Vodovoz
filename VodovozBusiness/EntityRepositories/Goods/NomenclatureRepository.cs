@@ -232,29 +232,29 @@ namespace Vodovoz.EntityRepositories.Goods
 		#region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => 
-			uow.GetById<Nomenclature>(nomenclatureParametersProvider.GetWaterSemiozerieId);
+			uow.GetById<Nomenclature>(nomenclatureParametersProvider.WaterSemiozerieId);
 
 		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => 
-			uow.GetById<Nomenclature>(nomenclatureParametersProvider.GetWaterKislorodnayaId);
+			uow.GetById<Nomenclature>(nomenclatureParametersProvider.WaterKislorodnayaId);
 
 		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => 
-			uow.GetById<Nomenclature>(nomenclatureParametersProvider.GetWaterSnyatogorskayaId);
+			uow.GetById<Nomenclature>(nomenclatureParametersProvider.WaterSnyatogorskayaId);
 
 		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => 
-			uow.GetById<Nomenclature>(nomenclatureParametersProvider.GetWaterKislorodnayaDeluxeId);
+			uow.GetById<Nomenclature>(nomenclatureParametersProvider.WaterKislorodnayaDeluxeId);
 
 		public Nomenclature GetWaterStroika(IUnitOfWork uow) => 
-			uow.GetById<Nomenclature>(nomenclatureParametersProvider.GetWaterStroikaId);
+			uow.GetById<Nomenclature>(nomenclatureParametersProvider.WaterStroikaId);
 
 		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => 
-			uow.GetById<Nomenclature>(nomenclatureParametersProvider.GetWaterRuchkiId);
+			uow.GetById<Nomenclature>(nomenclatureParametersProvider.WaterRuchkiId);
 
 		#endregion
 
-		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.GetWaterPriceIncrement;
+		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.WaterPriceIncrement;
 
 		public Nomenclature GetPaidDeliveryNomenclature(IUnitOfWork uow) =>
-			uow.GetById<Nomenclature>(nomenclatureParametersProvider.GetPaidDeliveryNomenclatureId);
+			uow.GetById<Nomenclature>(nomenclatureParametersProvider.PaidDeliveryNomenclatureId);
 
 		public int GetIdentifierOfOnlineShopGroup()
 		{

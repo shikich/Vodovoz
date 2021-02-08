@@ -15,6 +15,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.Documents.OrderContract;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Models;

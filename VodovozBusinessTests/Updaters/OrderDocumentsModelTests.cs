@@ -21,7 +21,7 @@ namespace VodovozBusinessTests.Updaters {
             // arrange
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
-            nomenclatureParametersProviderMock.GetPaidDeliveryNomenclatureId.Returns(5);
+            nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
             OrderDocumentUpdatersFactory orderDocumentUpdatersFactoryMock = Substitute.For<OrderDocumentUpdatersFactory>();
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);

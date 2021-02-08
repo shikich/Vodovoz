@@ -68,7 +68,7 @@ namespace Vodovoz.Repositories
 
 		[Obsolete]
 		public static IList<Nomenclature> NomenclatureOfDefectiveGoods(IUnitOfWork uow) => 
-			new NewNomenclatureRepository(nomenclatureParametersProvider).NomenclatureOfDefectiveGoods(uow);
+			new NewNomenclatureRepository(nomenclatureParametersProvider).GetNomenclatureOfDefectiveGoods(uow);
 
 		[Obsolete]
 		public static string GetNextCode1c(IUnitOfWork uow) => 
