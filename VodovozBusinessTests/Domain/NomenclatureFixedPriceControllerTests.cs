@@ -5,9 +5,9 @@ using NUnit.Framework;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityFactories;
 using Vodovoz.EntityRepositories.Goods;
 
 namespace VodovozBusinessTests.Domain {
@@ -198,7 +198,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(250);
+            nomenclatureFixedPriceMock.Price.Returns(250);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.DeliveryPoint.Returns(deliveryPointMock);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
@@ -227,7 +227,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(300);
+            nomenclatureFixedPriceMock.Price.Returns(300);
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.Counterparty.Returns(counterpartyMock);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
@@ -281,7 +281,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(300);
+            nomenclatureFixedPriceMock.Price.Returns(300);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();
@@ -331,7 +331,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(250);
+            nomenclatureFixedPriceMock.Price.Returns(250);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();
@@ -381,7 +381,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(250);
+            nomenclatureFixedPriceMock.Price.Returns(250);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();
@@ -390,10 +390,10 @@ namespace VodovozBusinessTests.Domain {
             
             // act
             decimal fixedPrice = 300;
-            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(deliveryPointMock, nomenclatureMock, fixedPrice);
+            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, deliveryPointMock, nomenclatureMock, fixedPrice);
             
             // assert
-            Assert.AreEqual(300, nomenclatureFixedPriceMock.FixedPrice);
+            Assert.AreEqual(300, nomenclatureFixedPriceMock.Price);
         }
         
         [Test(Description = "Проверка метода AddOrUpdateFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice) без фиксы")]
@@ -431,11 +431,11 @@ namespace VodovozBusinessTests.Domain {
 
             // act
             decimal fixedPrice = 250;
-            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(deliveryPointMock, kislorodnayaMock, fixedPrice);
+            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, deliveryPointMock, kislorodnayaMock, fixedPrice);
             
             // assert
             Assert.True(deliveryPointMock.ObservableNomenclatureFixedPrices.Any(x =>
-                x.FixedPrice == fixedPrice && x.Nomenclature.Id == kislorodnayaMock.Id));
+                x.Price == fixedPrice && x.Nomenclature.Id == kislorodnayaMock.Id));
         }
         
         [Test(Description = "Проверка метода AddOrUpdateFixedPrice(Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice) с фиксой")]
@@ -450,7 +450,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(300);
+            nomenclatureFixedPriceMock.Price.Returns(300);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();
@@ -459,10 +459,10 @@ namespace VodovozBusinessTests.Domain {
             
             // act
             decimal fixedPrice = 500;
-            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(counterpartyMock, nomenclatureMock, fixedPrice);
+            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, counterpartyMock, nomenclatureMock, fixedPrice);
             
             // assert
-            Assert.AreEqual(fixedPrice, nomenclatureFixedPriceMock.FixedPrice);
+            Assert.AreEqual(fixedPrice, nomenclatureFixedPriceMock.Price);
         }
         
         [Test(Description = "Проверка метода AddOrUpdateFixedPrice(Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice) без фиксы")]
@@ -500,11 +500,11 @@ namespace VodovozBusinessTests.Domain {
 
             // act
             decimal fixedPrice = 200;
-            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(counterpartyMock, semiozerieMock, fixedPrice);
+            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, counterpartyMock, semiozerieMock, fixedPrice);
             
             // assert
             Assert.True(counterpartyMock.ObservableNomenclatureFixedPrices.Any(x =>
-                x.FixedPrice == fixedPrice && x.Nomenclature.Id == semiozerieMock.Id));
+                x.Price == fixedPrice && x.Nomenclature.Id == semiozerieMock.Id));
         }
 
         [Test(Description = "Проверка метода DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice)")]
@@ -519,7 +519,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(250);
+            nomenclatureFixedPriceMock.Price.Returns(250);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();
@@ -545,7 +545,7 @@ namespace VodovozBusinessTests.Domain {
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
             nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
-            nomenclatureFixedPriceMock.FixedPrice.Returns(300);
+            nomenclatureFixedPriceMock.Price.Returns(300);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();

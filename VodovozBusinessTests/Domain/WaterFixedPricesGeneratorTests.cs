@@ -34,11 +34,11 @@ namespace VodovozBusinessTests.Domain {
             nomenclatureRepositoryMock.GetWaterKislorodnayaDeluxe(uowMock).Returns(kislorodnayaDeluxMock);
             nomenclatureRepositoryMock.GetWaterRuchki(uowMock).Returns(ruchkiMock);
             nomenclatureRepositoryMock.GetWaterPriceIncrement.Returns(20);
-            WaterFixedPricesGenerator waterFixedPricesGeneratorMock = new WaterFixedPricesGenerator(uowMock, nomenclatureRepositoryMock);
+            WaterFixedPricesGenerator waterFixedPricesGeneratorMock = new WaterFixedPricesGenerator(nomenclatureRepositoryMock);
 
             // act
             decimal fixedPrice = 200;
-            var dict = waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(semiozerieMock, fixedPrice);
+            var dict = waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(semiozerieMock.Id, fixedPrice);
             
             // assert
             Assert.AreEqual(5, dict.Count);
@@ -68,15 +68,15 @@ namespace VodovozBusinessTests.Domain {
             nomenclatureRepositoryMock.GetWaterKislorodnayaDeluxe(uowMock).Returns(kislorodnayaDeluxMock);
             nomenclatureRepositoryMock.GetWaterRuchki(uowMock).Returns(ruchkiMock);
             nomenclatureRepositoryMock.GetWaterPriceIncrement.Returns(20);
-            WaterFixedPricesGenerator waterFixedPricesGeneratorMock = new WaterFixedPricesGenerator(uowMock, nomenclatureRepositoryMock);
+            WaterFixedPricesGenerator waterFixedPricesGeneratorMock = new WaterFixedPricesGenerator(nomenclatureRepositoryMock);
 
             // act
             decimal fixedPrice = 200;
-            var dict = waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(stroykaMock, fixedPrice);
+            var dict = waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(stroykaMock.Id, fixedPrice);
             
             // assert
             Assert.AreEqual(1, dict.Count);
-            Assert.True(dict.Any(x => x.Key.Id == stroykaMock.Id));
+            Assert.True(dict.Any(x => x.Key == stroykaMock.Id));
         }
     }
 }

@@ -330,10 +330,8 @@
     <Compile Include="Domain\Operations\MoneyMovementOperation.cs" />
     <Compile Include="Domain\Operations\OperationBase.cs" />
     <Compile Include="Domain\Operations\WarehouseMovementOperation.cs" />
-    <Compile Include="Domain\Orders\Documents\CoolerWarrantyDocument.cs" />
     <Compile Include="Domain\Orders\Documents\OrderAgreement.cs" />
     <Compile Include="Domain\Orders\Documents\OrderDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\PumpWarrantyDocument.cs" />
     <Compile Include="Domain\Orders\Order.cs" />
     <Compile Include="Domain\Orders\OrderDepositItem.cs" />
     <Compile Include="Domain\Orders\OrderEnums.cs" />
@@ -632,7 +630,6 @@
     <Compile Include="Repositories\Store\CarLoadRepository.cs" />
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
-    <Compile Include="Domain\Orders\Documents\NomenclatureCertificateDocument.cs" />
     <Compile Include="Domain\StoredResources\StoredResource.cs" />
     <Compile Include="HibernateMapping\StoredResourceMap.cs" />
     <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
