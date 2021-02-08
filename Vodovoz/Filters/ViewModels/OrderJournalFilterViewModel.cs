@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Project.Filter;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
-using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
@@ -15,10 +17,17 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			DaysToBack = -CurrentUserSettings.Settings.JournalDaysToAft;
 			DaysToForward = CurrentUserSettings.Settings.JournalDaysToFwd;
+			Organisations = UoW.GetAll<Organization>();
+			PaymentsFrom = UoW.GetAll<PaymentFrom>();
 		}
 
 		public int DaysToBack { get; }
 		public int DaysToForward { get; }
+		public int[] IncludeDistrictsIds { get; set; }
+		public int[] ExceptIds { get; set; }
+
+		public IEnumerable<Organization> Organisations { get; }
+		public IEnumerable<PaymentFrom> PaymentsFrom { get; }
 
 		IRepresentationModel counterpartyRepresentationModel;
 		public IRepresentationModel CounterpartyRepresentationModel {
@@ -36,7 +45,38 @@ namespace Vodovoz.Filters.ViewModels
 			get => deliveryPointRepresentationModel;
 			private set => SetField(ref deliveryPointRepresentationModel, value, () => DeliveryPointRepresentationModel);
 		}
+		
+		private Organization organisation;
+		public virtual Organization Organisation {
+			get => organisation;
+			set {
+				if(SetField(ref organisation, value)) {
+					Update();
+					CanChangeOrganisation = false;
+				}
+			}
+		}
+		public bool CanChangeOrganisation { get; private set; } = true;
+		
+		private PaymentFrom paymentByCardFrom;
+		public virtual PaymentFrom PaymentByCardFrom {
+			get => paymentByCardFrom;
+			set {
+				if(SetField(ref paymentByCardFrom, value)) {
+					Update();
+					CanChangePaymentFrom = false;
+				}
+			}
+		}
+		public bool CanChangePaymentFrom { get; private set; } = true;
 
+		private bool paymentsFromVisibility;
+		public bool PaymentsFromVisibility
+		{
+			get => paymentsFromVisibility;
+			set => SetField(ref paymentsFromVisibility, value);
+		}
+		
 		private OrderStatus? restrictStatus;
 		public virtual OrderStatus? RestrictStatus {
 			get => restrictStatus;
@@ -74,8 +114,13 @@ namespace Vodovoz.Filters.ViewModels
 			get => restrictPaymentType;
 			set {
 				if(SetField(ref restrictPaymentType, value, () => RestrictPaymentType)) {
+					if (restrictPaymentType != PaymentType.ByCard && PaymentByCardFrom != null) {
+						PaymentByCardFrom = null;
+					}
+					
 					Update();
 					CanChangePaymentType = false;
+					PaymentsFromVisibility = restrictPaymentType == PaymentType.ByCard;
 				}
 			}
 		}
@@ -227,7 +272,6 @@ namespace Vodovoz.Filters.ViewModels
 						RestrictOnlyService = false;
 					}
 					Update();
-					CanChangeHideService = false;
 				}
 			}
 		}

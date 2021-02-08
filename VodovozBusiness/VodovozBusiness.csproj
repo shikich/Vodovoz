@@ -54,11 +54,44 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\DomainObjectBase.cs" />
+  	<Compile Include="Domain\DomainObjectBase.cs" />
+    <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
+    <Compile Include="Domain\Documents\WayBillDocument.cs" />
+    <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
+    <Compile Include="Controllers\AddressTransferDocumentController.cs" />
+    <Compile Include="Controllers\RouteListClosingDocumentsController.cs" />
+    <Compile Include="Controllers\IRouteListClosingDocumentsController.cs" />
+    <Compile Include="Domain\Cash\CashRequest.cs" />
+    <Compile Include="Domain\Cash\CashRequestSumItem.cs" />
+    <Compile Include="Domain\Cash\AdvanceCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\ExpenseCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\FuelCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\IncomeCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\RouteListCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\SelfDeliveryCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Documents\AddressTransferDocument.cs" />
+    <Compile Include="Domain\Documents\AddressTransferDocumentItem.cs" />
+    <Compile Include="Domain\Documents\AdvanceExpenseCashDistributionDocument.cs" />
+    <Compile Include="Domain\Documents\AdvanceIncomeCashDistributionDocument.cs" />
+    <Compile Include="Domain\Documents\CashOrganisationDistributionDocument.cs" />
+    <Compile Include="Domain\Documents\DeliveryDocument.cs" />
+    <Compile Include="Domain\Documents\DeliveryDocumentItem.cs" />
+    <Compile Include="Domain\Documents\DriverDiscrepancyDocument.cs" />
+    <Compile Include="Domain\Documents\DriverDiscrepancyDocumentItem.cs" />
+    <Compile Include="Domain\Documents\DriverNomenclatureTransferItem.cs" />
+    <Compile Include="Domain\Documents\ExpenseCashDistributionDocument.cs" />
+    <Compile Include="Domain\Documents\FuelExpenseCashDistributionDocument.cs" />
+    <Compile Include="Domain\Documents\IncomeCashDistributionDocument.cs" />
+    <Compile Include="Domain\Documents\RouteListItemCashDistributionDocument.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryCashDistributionDocument.cs" />
+    <Compile Include="Domain\FinancialDistrict.cs" />
+    <Compile Include="Domain\FinancialDistrictsSet.cs" />
+    <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
+    <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
-    <Compile Include="Domain\NomenclatureFixedPrice.cs" />
+    <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
     <Compile Include="Domain\Orders\ClosingDocOrder.cs" />
@@ -139,10 +172,15 @@
     <Compile Include="Domain\Orders\OrderType.cs" />
     <Compile Include="Domain\Orders\PaidDelivery\DeliveryPriceCalculator.cs" />
     <Compile Include="Domain\Orders\PaidDelivery\PaidDeliveryUpdater.cs" />
+    <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Orders\SelfDeliveryOrder.cs" />
     <Compile Include="Domain\Orders\VisitingMasterOrder.cs" />
+    <Compile Include="Domain\Organizations\Organization.cs" />
+    <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
+    <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
+    <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
@@ -153,16 +191,39 @@
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
+    <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\WayBillDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\IRouteListItemCashDistributionDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
+    <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
-    <Compile Include="EntityFactories\NomenclatureFixedPriceFactory.cs" />
-    <Compile Include="EntityFactories\OrderItemFactory.cs" />
+    <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\Requests\ICashRequestRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparty\CounterpartyContractRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparty\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
+    <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
+    <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
+    <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
+    <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
+    <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
-    <Compile Include="HibernateMapping\NomenclatureFixedPriceMap.cs" />
+    <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderBaseMap.cs" />
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
@@ -174,13 +235,26 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="Models\FinancialDistrictProvider.cs" />
+    <Compile Include="Models\IFinancialDistrictProvider.cs" />
+    <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
+    <Compile Include="Models\IOrganizationProvider.cs" />
+    <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
+    <Compile Include="Models\Stage1OrganizationProvider.cs" />
+    <Compile Include="Models\Stage2OrganizationProvider.cs" />
+    <Compile Include="NhibernateExtensions\CustomProjections.cs" />
+    <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
+    <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\OrderParametersProvider.cs" />
+    <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -197,7 +271,6 @@
     <Compile Include="Domain\Cash\ExpenseCategory.cs" />
     <Compile Include="Domain\Cash\Income.cs" />
     <Compile Include="Domain\Cash\IncomeCategory.cs" />
-    <Compile Include="Domain\Client\AdditionalAgreement.cs" />
     <Compile Include="Domain\Client\Contact.cs" />
     <Compile Include="Domain\Client\Counterparty.cs" />
     <Compile Include="Domain\Client\CounterpartyContract.cs" />
@@ -265,7 +338,6 @@
     <Compile Include="Domain\Orders\OrderEnums.cs" />
     <Compile Include="Domain\Orders\OrderEquipment.cs" />
     <Compile Include="Domain\Orders\OrderItem.cs" />
-    <Compile Include="Domain\Organization.cs" />
     <Compile Include="Domain\PaidRentPackage.cs" />
     <Compile Include="Domain\Service\ServiceClaim.cs" />
     <Compile Include="Domain\Service\ServiceClaimHistory.cs" />
@@ -288,7 +360,6 @@
     <Compile Include="HibernateMapping\Contracts\CounterpartyContractMap.cs" />
     <Compile Include="HibernateMapping\Contracts\FreeRentPackageMap.cs" />
     <Compile Include="HibernateMapping\Contracts\PaidRentPackageMap.cs" />
-    <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\ContactMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointMap.cs" />
@@ -361,7 +432,6 @@
     <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
     <Compile Include="Repositories\Cash\CashRepository.cs" />
     <Compile Include="Repositories\Cash\CategoryRepository.cs" />
-    <Compile Include="Repositories\CounterpartyContractRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentTypeRepository.cs" />
@@ -405,8 +475,6 @@
     <Compile Include="DocTemplates\FreeRentAgreementParser.cs" />
     <Compile Include="DocTemplates\DailyRentAgreementParser.cs" />
     <Compile Include="DocTemplates\RepairAgreementParser.cs" />
-    <Compile Include="Domain\Client\WaterSalesAgreementFixedPrice.cs" />
-    <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\Operations\FuelOperationMap.cs" />
     <Compile Include="Domain\Operations\FuelOperation.cs" />
     <Compile Include="Repositories\Operations\FuelRepository.cs" />
@@ -433,10 +501,12 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
+    <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
-    <Compile Include="Services\IOrganisationParametersProvider.cs" />
-    <Compile Include="Services\ISmsPaymentServiceParametersProvider.cs" />
+    <Compile Include="Services\IOrderParametersProvider.cs" />
+    <Compile Include="Services\IOrganizationParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
+    <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
@@ -463,11 +533,7 @@
     <Compile Include="Domain\Client\SalesEquipment.cs" />
     <Compile Include="DocTemplates\EquipmentAgreementParser.cs" />
     <Compile Include="HibernateMapping\Counterparty\SalesEquipmentMap.cs" />
-    <Compile Include="Repositories\Client\AdditionalAgreementRepository.cs" />
-    <Compile Include="Domain\Orders\Documents\RefundBottleDepositDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\RefundEquipmentDepositDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\BottleTransferDocument.cs" />
-    <Compile Include="Repositories\Client\ClientDocumentsRepository.cs" />
+    <Compile Include="Repositories\Client\CounterpartyContractFactory.cs" />
 	<Compile Include="Domain\Client\Tag.cs" />
     <Compile Include="HibernateMapping\Counterparty\TagMap.cs" />
 	<Compile Include="Tools\Logistic\DeliveryPriceCalculator.cs" />	
@@ -536,8 +602,8 @@
     <Compile Include="Domain\Sale\IDeliveryPriceRule.cs" />
     <Compile Include="Domain\Sale\CommonDistrictRuleItem.cs" />
     <Compile Include="Repositories\Sale\DistrictRuleRepository.cs" />
-    <Compile Include="Domain\Payments\PaymentFromTinkoff.cs" />
-    <Compile Include="HibernateMapping\Payments\PaymentFromTinkoffMap.cs" />
+    <Compile Include="Domain\Payments\PaymentByCardOnline.cs" />
+    <Compile Include="HibernateMapping\Payments\PaymentByCardOnlineMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
     <Compile Include="Repositories\HumanResourses\EmployeeRepository.cs" />
     <Compile Include="Repositories\HumanResourses\SubdivisionsRepository.cs" />
@@ -565,6 +631,7 @@
     <Compile Include="Repositories\Store\CarLoadRepository.cs" />
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
+    <Compile Include="Domain\Orders\Documents\NomenclatureCertificateDocument.cs" />
     <Compile Include="Domain\StoredResources\StoredResource.cs" />
     <Compile Include="HibernateMapping\StoredResourceMap.cs" />
     <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
@@ -849,7 +916,6 @@
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\CategoryProfit.cs" />
     <Compile Include="Domain\Payments\CategoryExpense.cs" />
-    <Compile Include="Services\IOrganizationProvider.cs" />
     <Compile Include="HibernateMapping\Accounting\CategoryProfitMap.cs" />
     <Compile Include="HibernateMapping\Accounting\PaymentMap.cs" />
     <Compile Include="Services\IProfitCategoryProvider.cs" />
@@ -876,6 +942,16 @@
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
     <Compile Include="Domain\Logistic\LateArrivalReason.cs" />
+    <Compile Include="Services\IVpbxSettings.cs" />
+    <Compile Include="Domain\Client\AdditionalAgreement.cs" />
+    <Compile Include="Models\IFixedPricesModel.cs" />
+    <Compile Include="Models\CounterpartyFixedPricesModel.cs" />
+    <Compile Include="Journal\INodeAutocompleteSelector.cs" />
+    <Compile Include="Journal\INodeSelector.cs" />
+    <Compile Include="Journal\JournalSelectedNodesNodesEventArgs.cs" />
+    <Compile Include="Journal\INodeSelectorFactory.cs" />
+    <Compile Include="Journal\INodeAutocompleteSelectorFactory.cs" />
+    <Compile Include="Journal\NodeAutocompleteSelectorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -960,11 +1036,13 @@
     <Folder Include="Domain\BusinessTasks\" />
     <Folder Include="HibernateMapping\BusinessTasks\" />
     <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
+    <Folder Include="Models\" />
+    <Folder Include="Journal\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
-      <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
-      <Name>GammaBinding</Name>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
+      <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{f22749b2-e35b-455d-bd8d-081373b16fc7}</Project>
@@ -1030,33 +1108,36 @@
     <PackageReference Include="BouncyCastle" Version="1.8.6.1" />
     <PackageReference Include="CommonServiceLocator" Version="2.0.5" />
     <PackageReference Include="DataAnnotationsExtensions" Version="5.0.1.27" />
-    <PackageReference Include="FluentNHibernate" Version="2.1.2" />
+    <PackageReference Include="FluentNHibernate" Version="3.0.1" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.12.3" />
+    <PackageReference Include="Google.Protobuf" Version="3.13.0" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
-    <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.1.11" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.20" />
+    <PackageReference Include="MySql.Data" Version="8.0.19" />
     <PackageReference Include="NetTopologySuite" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.IO" Version="1.14.0.1" />
-    <PackageReference Include="NHibernate" Version="5.2.7" />
+    <PackageReference Include="NHibernate" Version="5.3.4" />
     <PackageReference Include="NHibernate.Spatial" Version="5.3.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="5.3.0" />
-    <PackageReference Include="NLog" Version="4.7.2" />
+    <PackageReference Include="NLog" Version="4.7.5" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
-    <PackageReference Include="RestSharp" Version="106.11.4" />
+    <PackageReference Include="RestSharp" Version="106.11.7" />
     <PackageReference Include="SSH.NET" Version="2016.1.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
+    <PackageReference Include="Dapper">
+      <Version>2.0.35</Version>
+    </PackageReference>
   </ItemGroup>
 </Project>

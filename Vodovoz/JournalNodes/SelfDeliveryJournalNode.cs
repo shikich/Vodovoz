@@ -11,7 +11,7 @@ namespace Vodovoz.JournalNodes
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
-		public int BottleAmount { get; set; }
+		public decimal BottleAmount { get; set; }
 
 		public string Counterparty { get; set; }
 
@@ -22,8 +22,11 @@ namespace Vodovoz.JournalNodes
 		//заказ
 		public decimal OrderSum { get; set; }
 		public decimal OrderReturnSum { get; set; }
-		public decimal OrderCashSumTotal => PaymentTypeEnum == PaymentType.cash || PaymentTypeEnum == PaymentType.BeveragesWorld ? OrderSum - OrderReturnSum : 0;
-		public decimal OrderCashlessSumTotal => PaymentTypeEnum == PaymentType.cashless || PaymentTypeEnum == PaymentType.ByCard ? OrderReturnSum - OrderReturnSum : 0;
+		public decimal OrderCashSumTotal => PaymentTypeEnum == PaymentType.cash || 
+		                                    PaymentTypeEnum == PaymentType.BeveragesWorld ? OrderSum - OrderReturnSum : 0;
+		public decimal OrderCashlessSumTotal => PaymentTypeEnum == PaymentType.cashless || 
+		                                        PaymentTypeEnum == PaymentType.ByCard ||
+		                                        PaymentTypeEnum == PaymentType.Terminal ? OrderReturnSum - OrderReturnSum : 0;
 
 		//наличные по кассе
 		public decimal CashPaid { get; set; }

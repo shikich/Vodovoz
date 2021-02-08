@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.Warehouses
         
         private void ReloadAllowedWarehousesFrom()
         {
-            var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissions.MovementEdit);
+            var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(isNew? WarehousePermissions.IncomingInvoiceCreate: WarehousePermissions.IncomingInvoiceEdit);
             allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
                 .Where(x => !x.IsArchive)
                 .WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
@@ -117,7 +117,9 @@ namespace Vodovoz.ViewModels.Warehouses
         
         
         #region Properties
-        
+
+        public bool isNew => Entity.Id == 0;
+
         private readonly bool canEditRectroactively;
         public bool CanEdit => 
             (UoW.IsNew && PermissionResult.CanCreate) 
@@ -212,15 +214,11 @@ namespace Vodovoz.ViewModels.Warehouses
                                 if(!selectedNodes.Any()) {
                                     return;
                                 }
-                                var existedItems = Entity.Items.Select(x => x.Nomenclature.Id);
-                                //Исключение из полученных уже добавленных в список
-                                var selectedNomenclatures = UoW.GetById<Nomenclature>
-                                    (
-                                        selectedNodes
-                                            .Select(x => x.Id))
-                                            .Where(x => existedItems.All(y => y != x.Id)
-                                    );
-        
+                                
+                                var selectedNomenclatures = UoW.GetById<Nomenclature>(
+                                    selectedNodes.Select(x => x.Id)
+                                );
+                                
                                 foreach(var nomenclature in selectedNomenclatures) {
                                     Entity.AddItem(new IncomingInvoiceItem(){Nomenclature = nomenclature, Amount = 1});
                                     OnPropertyChanged(nameof(TotalSum));
@@ -244,7 +242,7 @@ namespace Vodovoz.ViewModels.Warehouses
 					fillFromOrdersCommand = new DelegateCommand(
 						() => {
 							bool IsOnlineStoreOrders = true;
-							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted };
+							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
 							var orderSelector = orderSelectorFactory.CreateOrderSelectorForDocument(IsOnlineStoreOrders, orderStatuses);
 							orderSelector.OnEntitySelectedResult += (sender, e) => {
 								IEnumerable<OrderForMovDocJournalNode> selectedNodes = e.SelectedNodes.Cast<OrderForMovDocJournalNode>();
@@ -269,7 +267,7 @@ namespace Vodovoz.ViewModels.Warehouses
                                         var count = item.Count > nomsAmount[item.Nomenclature.Id]
                                             ? nomsAmount[item.Nomenclature.Id]
                                             : item.Count;
-                                        if (count == 0)
+                                        if ((count == 0) && item.Nomenclature.OnlineStore == null)
                                             continue;
                                         
                                         if (item.Nomenclature.Category == NomenclatureCategory.service || item.Nomenclature.Category == NomenclatureCategory.master)

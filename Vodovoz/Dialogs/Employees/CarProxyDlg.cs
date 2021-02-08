@@ -15,6 +15,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Dialogs.Employees
@@ -62,11 +63,17 @@ namespace Vodovoz.Dialogs.Employees
 			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
+			yentryDriver.Changed += (sender, e) => {
+				UpdateStates();
+			};
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			entityviewmodelentryCar.Changed += (sender, e) => {
+				UpdateStates();
+			};
 
 			RefreshParserRootObject();
 
@@ -93,6 +100,7 @@ namespace Vodovoz.Dialogs.Employees
 				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();
 					RefreshParserRootObject();
+					UpdateStates();
 				} else {
 					templatewidget.CanOpenDocument = false;
 				}
@@ -111,7 +119,10 @@ namespace Vodovoz.Dialogs.Employees
 			yentryOrganization.Sensitive = isNewDoc;
 			yentryDriver.Sensitive = isNewDoc;
 			entityviewmodelentryCar.Sensitive = isNewDoc;
-			if(Entity.Organization == null || !isNewDoc) {
+			if(Entity.Organization == null 
+				|| Entity.Car == null 
+				|| Entity.Driver == null
+				|| !isNewDoc) {
 				return;
 			}
 			templatewidget.AvailableTemplates = Repository.Client.DocTemplateRepository.GetAvailableTemplates(UoW, TemplateType.CarProxy, Entity.Organization);

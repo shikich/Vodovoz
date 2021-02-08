@@ -128,12 +128,20 @@ namespace Vodovoz.Tools.Orders
 					}
 				)
 			);
-			//TORG12+SF
+			//TORG12
 			rules.Add(
 				new Rule(
-					key => GetConditionForTORG12(key),
+					key => GetConditionForTorg12(key),
 					new[] {
-						OrderDocumentType.Torg12,
+						OrderDocumentType.Torg12
+					}
+				)
+			);
+			//ShetFactura
+			rules.Add(
+				new Rule(
+					key => GetConditionForShetFactura(key),
+					new[] {
 						OrderDocumentType.ShetFactura
 					}
 				)
@@ -181,7 +189,7 @@ namespace Vodovoz.Tools.Orders
 
 			var cashless = (key.PaymentType == PaymentType.cashless && key.IsPriceOfAllOrderItemsZero)
 				&& (!key.NeedToRefundDepositToClient || key.NeedToReturnBottles);
-			var byCard = key.PaymentType == PaymentType.ByCard && key.HasOrderItems;
+			var byCard = (key.PaymentType == PaymentType.ByCard || key.PaymentType == PaymentType.Terminal) && key.HasOrderItems;
 			var cash = (key.PaymentType == PaymentType.cash || key.PaymentType == PaymentType.BeveragesWorld);
 
 			if(key.IsSelfDelivery) {
@@ -244,37 +252,58 @@ namespace Vodovoz.Tools.Orders
 			GetConditionForBill(key)
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
+		
+		static bool ConditionForUPD(OrderStateKey key) => (
+			(GetConditionForBill(key) ||
+				(key.Order.Client.UPDCount.HasValue &&
+					key.Order.PaymentType == PaymentType.BeveragesWorld &&
+					IsOrderWithOrderItemsAndWithoutDeposits(key)))
+			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
+		);
 
 		static bool GetConditionForUPD(OrderStateKey key) =>
 		(
-			GetConditionForBill(key)
-			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
+			!key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
+			&& ConditionForUPD(key)
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
 		(
-			GetConditionForUPD(key)
+			ConditionForUPD(key)
 			&& key.HaveSpecialFields
 		);
 
 		static bool GetConditionForBill(OrderStateKey key) =>
 		(
 			key.PaymentType == PaymentType.cashless
-			&& !key.IsPriceOfAllOrderItemsZero
-			&& !key.NeedToRefundDepositToClient
-			&& key.HasOrderItems
+			&& IsOrderWithOrderItemsAndWithoutDeposits(key)
 		);
 
 		static bool GetConditionForSpecialBill(OrderStateKey key) =>
-	(
-		GetConditionForBill(key)
-		&& key.HaveSpecialFields
-	);
-
-		static bool GetConditionForTORG12(OrderStateKey key) =>
 		(
-			GetConditionForUPD(key)
+			GetConditionForBill(key)
+			&& key.HaveSpecialFields
+		);
+
+		static bool GetConditionForTorg12(OrderStateKey key) =>
+		(
+			key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
+			|| ConditionForUPD(key)
 			&& key.DefaultDocumentType == DefaultDocumentType.torg12
+		);
+		
+		static bool GetConditionForShetFactura(OrderStateKey key) =>
+		(
+			!key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
+			&& ConditionForUPD(key)
+			&& key.DefaultDocumentType == DefaultDocumentType.torg12
+		);
+
+		static bool IsOrderWithOrderItemsAndWithoutDeposits(OrderStateKey key) =>
+		(
+			!key.IsPriceOfAllOrderItemsZero
+			&& !key.NeedToRefundDepositToClient
+			&& key.HasOrderItems
 		);
 	}
 
@@ -325,8 +354,9 @@ namespace Vodovoz.Tools.Orders
 				result = true;
 			}
 
-			if((key.PaymentType == PaymentType.cashless || key.PaymentType == PaymentType.ByCard)
-			   && !key.HasOrderItems) {
+			if((key.PaymentType == PaymentType.cashless || 
+			    key.PaymentType == PaymentType.ByCard || 
+			    key.PaymentType == PaymentType.Terminal) && !key.HasOrderItems) {
 				result = true;
 			}
 			return result;
@@ -343,7 +373,7 @@ namespace Vodovoz.Tools.Orders
 				return false;
 			}
 
-			if(key.PaymentType == PaymentType.ByCard &&
+			if((key.PaymentType == PaymentType.ByCard || key.PaymentType == PaymentType.Terminal) &&
 			   (key.HasOrderEquipment || (!key.HasOrderEquipment && key.NeedToReturnBottles))) {
 				result = true;
 			}

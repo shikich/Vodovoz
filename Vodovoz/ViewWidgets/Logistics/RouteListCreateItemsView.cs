@@ -20,8 +20,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalViewModels;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -49,17 +51,28 @@ namespace Vodovoz
 				if(RouteListUoW.Root.Addresses == null)
 					RouteListUoW.Root.Addresses = new List<RouteListItem>();
 				items = RouteListUoW.Root.ObservableAddresses;
-				items.ElementChanged += Items_ElementChanged;
-				items.ListChanged += Items_ListChanged;
-				items.ElementAdded += Items_ElementAdded;
 
-				UpdateColumns();
+                SubscribeOnChanges();
+
+                UpdateColumns();
 
 				ytreeviewItems.ItemsDataSource = items;
 				ytreeviewItems.Reorderable = true;
 				CalculateTotal();
 			}
 		}
+
+        public void SubscribeOnChanges()
+        {
+            RouteListUoW.Root.ObservableAddresses.ElementChanged += Items_ElementChanged;
+            RouteListUoW.Root.ObservableAddresses.ListChanged += Items_ListChanged;
+            RouteListUoW.Root.ObservableAddresses.ElementAdded += Items_ElementAdded;
+
+            items = RouteListUoW.Root.ObservableAddresses;
+            ytreeviewItems.ItemsDataSource = items;
+            ytreeviewItems.Reorderable = true;
+            ytreeviewItems?.YTreeModel?.EmitModelChanged();
+        }
 
 		private bool CanEditRows => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican")
 										&& RouteListUoW.Root.Status != RouteListStatus.Closed
@@ -83,9 +96,9 @@ namespace Vodovoz
 		{
 			UpdateColumns();
 			CalculateTotal();
-		}
+        }
 
-		void Items_ListChanged(object aList)
+        void Items_ListChanged(object aList)
 		{
 			UpdateColumns();
 		}
@@ -113,7 +126,7 @@ namespace Vodovoz
 					if(!goodsColumns.Contains(column.Id))
 						continue;
 					int id = column.Id;
-					config = config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString());
+					config = config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString("N0"));
 				}
 			}
 			if(RouteListUoW.Root.Forwarder != null) {
@@ -143,8 +156,11 @@ namespace Vodovoz
 								&& x.Nomenclature.Category != NomenclatureCategory.deposit
 								&& x.Nomenclature.Category != NomenclatureCategory.master
 					);
-			foreach(var item in additionalItems)
-				stringParts.Add($"{item.Nomenclature.Name}: {item.Count}");
+			foreach (var item in additionalItems)
+			{
+				var nomCount = item.Count.ToString($"N{item.Nomenclature.Unit.Digits}");
+				stringParts.Add($"{item.Nomenclature.Name}: {nomCount}");
+			}
 
 			return string.Join("\n", stringParts);
 		}
@@ -206,7 +222,8 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrdersFilter(RouteListUoW) {
+			var filter = new OrderJournalFilterViewModel
+			{
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};
 
@@ -214,43 +231,51 @@ namespace Vodovoz
 			if(geoGrpIds.Any()) {
 				GeographicGroup geographicGroupAlias = null;
 				var districtIds = RouteListUoW.Session.QueryOver<District>()
-													  .Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
-													  .Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
-													  .Select(
-															  Projections.Distinct(
-															  Projections.Property<District>(x => x.Id)
-														  )
-													  )
-													  .List<int>()
-													  .ToArray();
+					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
+					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
+					.Select
+					  (
+						  Projections.Distinct(
+						  Projections.Property<District>(x => x.Id)
+					  )
+					)
+					.List<int>()
+					.ToArray();
 
 				filter.IncludeDistrictsIds = districtIds;
 			}
 
+			//Filter Creating
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictStatus = OrderStatus.Accepted,
-				x => x.RestrictSelfDelivery = false
+				x => x.RestrictWithoutSelfDelivery = true,
+				x => x.RestrictOnlySelfDelivery = false,
+				x => x.RestrictHideService = true
 			);
+			
 
-			ViewModel.OrdersVM vm = new ViewModel.OrdersVM(filter) {
-				CanToggleVisibilityOfColumns = true
-			};
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(vm, Buttons.None) {
-				Mode = JournalSelectMode.Multiple
-			};
-			SelectDialog.ObjectSelected += (s, ea) => {
-				var selectedIds = ea.GetSelectedIds();
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Multiple};
+			
+			//Selected Callback
+			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
+			{
+				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
 				if(!selectedIds.Any()) {
 					return;
 				}
 				foreach(var selectedId in selectedIds) {
 					var order = RouteListUoW.GetById<Order>(selectedId);
+					if(order == null) {
+						return;
+					}
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
+
+			//OpenTab
+			MyTab.TabParent.AddSlaveTab(MyTab, orderSelectDialog);
 		}
 
 		protected void AddOrdersFromRegion()
@@ -276,7 +301,7 @@ namespace Vodovoz
 				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(i => i.Count);
 
-			labelSum.LabelProp = $"Всего бутылей: {total}";
+			labelSum.LabelProp = $"Всего бутылей: {total:N0}";
 			UpdateWeightInfo();
 			UpdateVolumeInfo();
 		}

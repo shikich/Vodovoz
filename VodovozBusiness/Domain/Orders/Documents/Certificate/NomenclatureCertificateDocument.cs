@@ -6,7 +6,7 @@ using QS.Report;
 
 namespace Vodovoz.Domain.Orders.Documents.Certificate
 {
-	public class NomenclatureCertificateDocument : OrderDocument, IPrintableRDLDocument
+	public class NomenclatureCertificateDocument : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		Domain.Certificate certificate;
 		[Display(Name = "Сертификат продукции")]

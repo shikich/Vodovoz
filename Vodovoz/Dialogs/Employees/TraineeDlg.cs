@@ -11,7 +11,9 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSOrmProject;
 using QS.Validation;
+using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Services;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -27,14 +29,14 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(int id)
+		public TraineeDlg(int id, IAuthorizationService authorizationService)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Trainee>(id);
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(Trainee sub) : this(sub.Id)
+		public TraineeDlg(Trainee sub, IAuthorizationService authorizationService) : this(sub.Id, authorizationService)
 		{
 		}
 
@@ -58,7 +60,7 @@ namespace Vodovoz.Dialogs.Employees
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
 			entryInn.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
 			dataentryDrivingNumber.MaxLength = 20;
-			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
+			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingLicense, w => w.Text).InitializeFromSource();
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding.AddBinding(Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();
 			referenceCitizenship.SubjectType = typeof(Citizenship);

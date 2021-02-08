@@ -13,7 +13,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
@@ -28,13 +27,13 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
 {
@@ -201,24 +200,50 @@ namespace Vodovoz
 			ytreeviewAddresses.Sensitive = allEditing;
 			ytreeviewAddresses.RowActivated += YtreeviewAddresses_RowActivated;
 
+			//Point!
 			//Заполняем телефоны
-			string phones = null;
+
 			if(Entity.Driver != null && Entity.Driver.Phones.Count > 0) {
-				phones = string.Format("<b>Водитель {0}:</b>\n{1}",
-										Entity.Driver.FullName,
-										string.Join("\n", Entity.Driver.Phones));
+				uint rows = Convert.ToUInt32(Entity.Driver.Phones.Count + 1);
+				PhonesTable1.Resize(rows, 2);
+				Label label = new Label();
+				label.LabelProp = $"{Entity.Driver.FullName}";
+				PhonesTable1.Attach(label, 0, 2, 0, 1);
+
+				for(uint i = 1; i < rows; i++) {
+					Label l = new Label();
+					l.LabelProp = "+7 " + Entity.Driver.Phones[Convert.ToInt32(i-1)].Number;
+					PhonesTable1.Attach(l, 0, 1, i, i + 1);
+
+					HandsetView h = new HandsetView(Entity.Driver.Phones[Convert.ToInt32(i-1)].DigitsNumber);
+					PhonesTable1.Attach(h, 1, 2, i, i + 1);
+				}
 			}
 			if(Entity.Forwarder != null && Entity.Forwarder.Phones.Count > 0) {
-				if(!string.IsNullOrWhiteSpace(phones))
-					phones += "\n";
-				phones += string.Format("<b>Экспедитор {0}:</b>\n{1}",
-										 Entity.Forwarder.FullName,
-										 string.Join("\n", Entity.Forwarder.Phones));
+				uint rows = Convert.ToUInt32(Entity.Forwarder.Phones.Count + 1);
+				PhonesTable2.Resize(rows, 2);
+				Label label = new Label();
+				label.LabelProp = $"{Entity.Forwarder.FullName}";
+				PhonesTable2.Attach(label, 0, 2, 0, 1);
+
+				for(uint i = 1; i < rows; i++) {
+					Label l = new Label();
+					l.LabelProp = "+7 " + Entity.Forwarder.Phones[Convert.ToInt32(i-1)].Number;
+					PhonesTable2.Attach(l, 0, 1, i, i + 1);
+
+					HandsetView h = new HandsetView(Entity.Forwarder.Phones[Convert.ToInt32(i-1)].DigitsNumber);
+					PhonesTable2.Attach(h, 1, 2, i, i + 1);
+				}
 			}
 
-			if(string.IsNullOrWhiteSpace(phones))
-				phones = "Нет телефонов";
-			labelPhonesInfo.Markup = phones;
+			//Телефон
+			PhonesTable1.ShowAll();
+			PhonesTable2.ShowAll();
+
+			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
+			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
+			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
+			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
 			//Заполняем информацию о бутылях
 			UpdateBottlesSummaryInfo();
@@ -241,13 +266,18 @@ namespace Vodovoz
 		private void UpdateBottlesSummaryInfo()
 		{
 			string bottles = null;
-			int completedBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.Completed).Sum(x => x.Order.TotalWaterBottles);
+			int completedBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.Completed)
+												   .Sum(x => x.Order.Total19LBottlesToDeliver);
+			
 			int canceledBottles = Entity.Addresses.Where(
 				  x => x != null && (x.Status == RouteListItemStatus.Canceled
 					|| x.Status == RouteListItemStatus.Overdue
 					|| x.Status == RouteListItemStatus.Transfered)
-				).Sum(x => x.Order.TotalWaterBottles);
-			int enrouteBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.EnRoute).Sum(x => x.Order.TotalWaterBottles);
+				).Sum(x => x.Order.Total19LBottlesToDeliver);
+			
+			int enrouteBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.EnRoute)
+												 .Sum(x => x.Order.Total19LBottlesToDeliver);
+			
 			bottles = string.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
 			bottles += string.Format("Выполнено: <b>{0}</b>\n", completedBottles);
 			bottles += string.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
@@ -358,10 +388,9 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
-				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
-					if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-						Entity.CompleteRoute(wageParameterService, CallTaskWorker);
-					}
+				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
+				{
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.Delivered, CallTaskWorker);
 				}
 
 				UoWGeneric.Save();
@@ -447,7 +476,7 @@ namespace Vodovoz
 			foreach(RouteListKeepingItemNode item in selectedObjects) {
 				if(item.Status == RouteListItemStatus.Transfered)
 					continue;
-				item.RouteListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
+				item.RouteListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			}
 		}
 
@@ -455,7 +484,7 @@ namespace Vodovoz
 		{
 			this.TabParent.AddSlaveTab(
 				this,
-				new FineDlg(default(decimal), Entity)
+				new FineDlg(Entity)
 			);
 		}
 
@@ -537,7 +566,7 @@ namespace Vodovoz
 		public void UpdateStatus(RouteListItemStatus value, CallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			RouteListItem.UpdateStatus(uow, value, callTaskWorker);
+			RouteListItem.UpdateStatusAndCreateTask(uow, value, callTaskWorker);
 			HasChanged = true;
 			OnPropertyChanged<RouteListItemStatus>(() => Status);
 		}

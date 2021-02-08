@@ -2,12 +2,21 @@
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.JournalFilters;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using VodovozInfrastructure.Interfaces;
+using QS.Project.Services;
+using Vodovoz.Repository.Cash;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz
 {
@@ -18,11 +27,92 @@ namespace Vodovoz
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
 			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM();
-			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery();
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
+
+			ConfigureEntityViewModelEntry();
+
 			//Последние 30 дней.
 			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
 			dateperiodDocs.EndDateOrNull = DateTime.Today.AddDays(1);
+		}
+
+		private void ConfigureEntityViewModelEntry()
+		{
+			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
+			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel {
+				ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+				HidenByDefault = true
+			};
+			
+			var commonServices = ServicesConfig.CommonServices;
+			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
+			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
+			
+			var incomeCategoryAutocompleteSelectorFactory =
+				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
+					() =>
+					{
+						var incomeCategoryJournalViewModel =
+							new SimpleEntityJournalViewModel<IncomeCategory, IncomeCategoryViewModel>(
+								x => x.Name,
+								() => new IncomeCategoryViewModel(
+									EntityUoWBuilder.ForCreate(),
+									UnitOfWorkFactory.GetDefaultFactory,
+									commonServices,
+									chooserIncomeProvider,
+									incomeCategoryFilter
+								),
+								node => new IncomeCategoryViewModel(
+									EntityUoWBuilder.ForOpen(node.Id),
+									UnitOfWorkFactory.GetDefaultFactory,
+									commonServices,
+									chooserIncomeProvider,
+									incomeCategoryFilter
+								),
+								UnitOfWorkFactory.GetDefaultFactory,
+								commonServices
+							)
+							{
+								SelectionMode = JournalSelectionMode.Single
+							};
+						return incomeCategoryJournalViewModel;
+					});
+			
+
+			var expenseCategoryAutocompleteSelectorFactory =
+				new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
+					() =>
+					{
+						var expenseCategoryJournalViewModel =
+							new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+								x => x.Name,
+								() => new ExpenseCategoryViewModel(
+									EntityUoWBuilder.ForCreate(),
+									UnitOfWorkFactory.GetDefaultFactory,
+									ServicesConfig.CommonServices,
+									chooserExpenseProvider,
+									expenseCategoryFilter
+								),
+								node => new ExpenseCategoryViewModel(
+									EntityUoWBuilder.ForOpen(node.Id),
+									UnitOfWorkFactory.GetDefaultFactory,
+									ServicesConfig.CommonServices,
+									chooserExpenseProvider,
+									expenseCategoryFilter
+								),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices
+							)
+							{
+								SelectionMode = JournalSelectionMode.Single
+							};
+						expenseCategoryJournalViewModel.SetFilter(expenseCategoryFilter,
+							filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
+
+						return expenseCategoryJournalViewModel;
+					});
+			
+			entityVMEntryCashIncomeCategory.SetEntityAutocompleteSelectorFactory(incomeCategoryAutocompleteSelectorFactory);
+			entityVMEntryCashExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategoryAutocompleteSelectorFactory);
 		}
 
 		public CashDocumentsFilter(IUnitOfWork uow) : this()
@@ -77,18 +167,18 @@ namespace Vodovoz
 		}
 
 		public ExpenseCategory RestrictExpenseCategory {
-			get { return yentryExpense.Subject as ExpenseCategory; }
+			get => entityVMEntryCashExpenseCategory.Subject as ExpenseCategory;
 			set {
-				yentryExpense.Subject = value;
-				yentryExpense.Sensitive = false;
+				entityVMEntryCashExpenseCategory.Subject = value;
+				entityVMEntryCashExpenseCategory.Sensitive = false;
 			}
 		}
 
 		public IncomeCategory RestrictIncomeCategory {
-			get { return yentryIncome.Subject as IncomeCategory; }
+			get => entityVMEntryCashIncomeCategory.Subject as IncomeCategory;
 			set {
-				yentryIncome.Subject = value;
-				yentryIncome.Sensitive = false;
+				entityVMEntryCashIncomeCategory.Subject = value;
+				entityVMEntryCashIncomeCategory.Sensitive = false;
 			}
 		}
 
@@ -126,16 +216,6 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		protected void OnYentryExpenseChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYentryIncomeChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		protected void OnEntryEmployeeChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
@@ -146,6 +226,15 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
+		protected void OnEntityVMEntryCashIncomeCategoryChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnEntityVMEntryCashExpenseCategoryChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
 	}
 }
 

@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Payments
 {
@@ -287,7 +288,7 @@ namespace Vodovoz.Domain.Payments
 				Organization = this.Organization,
 				Counterparty = this.Counterparty,
 				CounterpartyName = this.counterpartyName,
-				Status = PaymentState.completed
+				Status = PaymentState.undistributed
 			};
 		}
 

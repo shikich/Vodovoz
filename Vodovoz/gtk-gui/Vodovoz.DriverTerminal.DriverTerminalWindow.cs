@@ -30,10 +30,6 @@ namespace Vodovoz.DriverTerminal
 
 		private global::Gtk.Label labelUser;
 
-		private global::Gtk.Label labelStatus;
-
-		private global::Gtk.ProgressBar progressStatus;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -149,27 +145,11 @@ namespace Vodovoz.DriverTerminal
 			w11.Position = 0;
 			w11.Expand = false;
 			w11.Fill = false;
-			// Container child statusbarMain.Gtk.Box+BoxChild
-			this.labelStatus = new global::Gtk.Label();
-			this.labelStatus.Name = "labelStatus";
-			this.statusbarMain.Add(this.labelStatus);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelStatus]));
-			w12.PackType = ((global::Gtk.PackType)(1));
+			this.vbox1.Add(this.statusbarMain);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
 			w12.Position = 2;
 			w12.Expand = false;
 			w12.Fill = false;
-			// Container child statusbarMain.Gtk.Box+BoxChild
-			this.progressStatus = new global::Gtk.ProgressBar();
-			this.progressStatus.Name = "progressStatus";
-			this.statusbarMain.Add(this.progressStatus);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.progressStatus]));
-			w13.PackType = ((global::Gtk.PackType)(1));
-			w13.Position = 3;
-			this.vbox1.Add(this.statusbarMain);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
-			w14.Position = 2;
-			w14.Expand = false;
-			w14.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -177,7 +157,6 @@ namespace Vodovoz.DriverTerminal
 			}
 			this.DefaultWidth = 790;
 			this.DefaultHeight = 396;
-			this.progressStatus.Hide();
 			this.Show();
 			this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);
 			this.btnPrintRouteList.Clicked += new global::System.EventHandler(this.OnBtnPrintRouteListClicked);

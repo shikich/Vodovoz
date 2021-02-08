@@ -17,6 +17,12 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Models;
+using Vodovoz.Repositories.Client;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using QS.Project.Services;
+using QS.Project.Journal;
 
 namespace Vodovoz.Dialogs
 {
@@ -30,7 +36,13 @@ namespace Vodovoz.Dialogs
 		private IBottlesRepository bottleRepository { get; set; } = new BottlesRepository();
 		private ICallTaskRepository callTaskRepository { get; set; } = new CallTaskRepository();
 		private IPhoneRepository phoneRepository { get; set; } = new PhoneRepository();
+		private DeliveryPointJournalFilterViewModel DeliveryPointJournalFilterViewModel { get; set; } = 
+			new DeliveryPointJournalFilterViewModel();
 
+		private IOrganizationProvider organizationProvider;
+		private ICounterpartyContractRepository counterpartyContractRepository;
+		private CounterpartyContractFactory counterpartyContractFactory;
+		
 		public CallTaskDlg()
 		{
 			this.Build();
@@ -63,6 +75,11 @@ namespace Vodovoz.Dialogs
 
 		private void ConfigureDlg()
 		{
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
+			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
+			
 			buttonReportByClient.Sensitive = Entity.Counterparty != null;
 			buttonReportByDP.Sensitive = Entity.DeliveryPoint != null;
 
@@ -85,11 +102,16 @@ namespace Vodovoz.Dialogs
 
 			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
-			deliveryPointYentryreferencevm.RepresentationModel = new DeliveryPointsVM();
-			deliveryPointYentryreferencevm.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
+							() => new DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel,
+							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+								SelectionMode = JournalSelectionMode.Single
+							}));
+			entityVMEntryDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
-			counterpartyYentryreferencevm.RepresentationModel = new CounterpartyVM();
-			counterpartyYentryreferencevm.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
+			entityVMEntryCounterparty.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
 			employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
@@ -99,8 +121,11 @@ namespace Vodovoz.Dialogs
 			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
-			if(Entity.Counterparty != null)
-				(deliveryPointYentryreferencevm.RepresentationModel.JournalFilter as DeliveryPointFilter).Client = Entity.Counterparty;
+			if(Entity.Counterparty != null) {
+				if(DeliveryPointJournalFilterViewModel != null) {
+					DeliveryPointJournalFilterViewModel.Counterparty = Entity.Counterparty;
+				}
+			}
 
 			UpdateAddressFields();
 		}
@@ -140,29 +165,6 @@ namespace Vodovoz.Dialogs
 			}
 		}
 
-		protected void OnDeliveryPointYentryreferencevmChangedByUser(object sender, EventArgs e) 
-		{
-			if(Entity.DeliveryPoint != null && Entity.Counterparty == null)
-				Entity.Counterparty = Entity.DeliveryPoint.Counterparty;
-			UpdateAddressFields();
-		}
-
-		protected void OnCounterpartyYentryreferencevmChangedByUser(object sender, EventArgs e)
-		{
-			if(Entity.Counterparty == null)
-				(deliveryPointYentryreferencevm.RepresentationModel.JournalFilter as DeliveryPointFilter).Client = null;
-			else {
-				(deliveryPointYentryreferencevm.RepresentationModel.JournalFilter as DeliveryPointFilter).Client = Entity.Counterparty;
-				if(Entity.Counterparty.Id != Entity.DeliveryPoint?.Counterparty.Id) {
-					if(Entity.Counterparty.DeliveryPoints.Count == 1)
-						Entity.DeliveryPoint = Entity.Counterparty.DeliveryPoints[0];
-					else
-						Entity.DeliveryPoint = null;
-				}
-			}
-			UpdateAddressFields();
-		}
-
 		protected void OnButtonSplitClicked(object sender, EventArgs e)
 		{
 			vboxOldComments.Visible = !vboxOldComments.Visible;
@@ -194,7 +196,7 @@ namespace Vodovoz.Dialogs
 
 			OrderDlg orderDlg = new OrderDlg();
 			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
-			orderDlg.Entity.UpdateClientDefaultParam();
+			orderDlg.Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
 
 			orderDlg.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
@@ -228,14 +230,41 @@ namespace Vodovoz.Dialogs
 			TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByClient()),this);
 		}
 
-		protected void OnDeliveryPointYentryreferencevmChanged(object sender, EventArgs e)
+		protected void OnEntityVMEntryDeliveryPointChanged(object sender, EventArgs e)
 		{
 			buttonReportByDP.Sensitive = Entity.DeliveryPoint != null;
 		}
 
-		protected void OnCounterpartyYentryreferencevmChanged(object sender, EventArgs e)
+		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.DeliveryPoint != null && Entity.Counterparty == null)
+				Entity.Counterparty = Entity.DeliveryPoint.Counterparty;
+			UpdateAddressFields();
+		}
+
+		protected void OnEntityVMEntryCounterpartyChanged(object sender, EventArgs e)
 		{
 			buttonReportByClient.Sensitive = Entity.Counterparty != null;
+		}
+
+		protected void OnEntityVMEntryCounterpartyChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Counterparty == null) {
+				if(DeliveryPointJournalFilterViewModel != null) {
+					DeliveryPointJournalFilterViewModel.Counterparty = null;
+				}
+			} else {
+				if(DeliveryPointJournalFilterViewModel != null) {
+					DeliveryPointJournalFilterViewModel.Counterparty = Entity.Counterparty;
+				}
+				if(Entity.Counterparty.Id != Entity.DeliveryPoint?.Counterparty.Id) {
+					if(Entity.Counterparty.DeliveryPoints.Count == 1)
+						Entity.DeliveryPoint = Entity.Counterparty.DeliveryPoints[0];
+					else
+						Entity.DeliveryPoint = null;
+				}
+			}
+			UpdateAddressFields();
 		}
 	}
 }

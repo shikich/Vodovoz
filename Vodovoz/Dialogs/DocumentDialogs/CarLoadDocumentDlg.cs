@@ -111,7 +111,7 @@ namespace Vodovoz
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.InLoading);
+			filter.SetAndRefilterAtOnce(x => x.RestrictedStatuses = new[] { RouteListStatus.InLoading });
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 			yentryrefRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
@@ -140,7 +140,6 @@ namespace Vodovoz
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				carloaddocumentview1.Sensitive = false;
 
-
 				buttonSave.Sensitive = false;
 			} else {
 				Entity.CanEdit = true;
@@ -165,11 +164,11 @@ namespace Vodovoz
 			}
 
 			if(Entity.Items.Any(x => x.Amount == 0)) {
-				if(MessageDialogHelper.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
+				if(MessageDialogHelper.RunQuestionDialog("<span foreground=\"red\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>"))
 					Entity.ClearItemsFromZero();
 			}
 
-			Entity.UpdateOperations(UoW, new BaseParametersProvider().GetNomenclatureIdForTerminal);
+			Entity.UpdateOperations(UoW);
 
 			logger.Info("Сохраняем погрузочный талон...");
 			UoWGeneric.Save();
@@ -222,7 +221,7 @@ namespace Vodovoz
 
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
-				Identifier = CarLoadPrintableDocuments.Common.Equals(e.ItemEnum) ? "Store.CarLoadDoc" : "Store.CarLoadDocPallets",
+				Identifier = "Store.CarLoadDocument",
 				Parameters = new System.Collections.Generic.Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }
@@ -238,10 +237,8 @@ namespace Vodovoz
 
 	public enum CarLoadPrintableDocuments
 	{
-		[Display(Name = "Универсальная")]
-		Common,
-		[Display(Name = "С разбивной на поддоны")]
-		WithPallets
+		[Display(Name = "Документ погрузки")]
+		LoadDocument
 	}
 }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
@@ -12,6 +11,8 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 using Gamma.ColumnConfig;
+using System.ComponentModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -22,12 +23,12 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			SetAndRefilterAtOnce(
-				x => x.enumcomboStatus.ItemsEnum = typeof(RouteListStatus),
 				x => x.yentryreferenceShift.SubjectType = typeof(DeliveryShift),
 				x => x.yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport),
 				x => x.ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeographicGroup>().List()
 			);
 			LoadAddressesTypesDefaults();
+			LoadRouteListStatusesDefaults();
 		}
 
 		public RouteListsFilter(IUnitOfWork uow) : this()
@@ -40,11 +41,11 @@ namespace Vodovoz
 			this.Build();
 		}
 
-		public RouteListStatus? RestrictStatus {
-			get { return enumcomboStatus.SelectedItem as RouteListStatus?; }
+		public RouteListStatus[] RestrictedStatuses {
+			get { return OnlyStatuses; }
 			set {
-				enumcomboStatus.SelectedItemOrNull = value;
-				enumcomboStatus.Sensitive = false;
+				OnlyStatuses = value;
+				ytreeviewRouteListStatuses.Sensitive = OnlyStatuses.Length > 0;
 			}
 		}
 
@@ -90,15 +91,23 @@ namespace Vodovoz
 			get => onlyStatuses;
 			set{
 				onlyStatuses = value;
-				var hideList = new List<object>();
-				foreach(RouteListStatus status in Enum.GetValues(typeof(RouteListStatus))) {
-					if(!onlyStatuses.Contains(status))
-						hideList.Add(status);
-				}
-				if(hideList.Any())
-					enumcomboStatus.AddEnumToHideList(hideList.ToArray());
+				UpdateAvailableStatuses();
+				SelectedStatuses = value;
 			}
 		}
+
+		public RouteListStatus[] SelectedStatuses {
+			get => RouteListStatuses.Where(x => x.Selected).Select(x => x.RouteListStatus).ToArray();
+			set{
+				UnsubscribeOnStatusesChandged();
+				foreach(var status in RouteListStatuses) {
+					if(value.Contains(status.RouteListStatus)) { status.Selected = true; }
+                    else { status.Selected = false; }
+                }
+                SubscribeOnStatusesChandged();
+                ytreeviewRouteListStatuses.YTreeModel?.EmitModelChanged();
+            }
+        }
 
 		public IEnumerable<AddressTypeNode> AddressTypes { get; } = new[] {
 			new AddressTypeNode(AddressType.Delivery),
@@ -133,6 +142,55 @@ namespace Vodovoz
 			}
 		}
 
+		public List<RouteListStatusNode> RouteListStatuses { get; private set; } = new List<RouteListStatusNode>();
+
+		private void UpdateAvailableStatuses()
+		{
+			bool onlyStatus = OnlyStatuses?.Length > 0;
+
+			UnsubscribeOnStatusesChandged();
+			RouteListStatuses.Clear();
+
+			foreach(RouteListStatus status in Enum.GetValues(typeof(RouteListStatus))) {
+				if(!onlyStatus || onlyStatuses.Contains(status)) {
+					RouteListStatuses.Add(new RouteListStatusNode(status));
+				}
+			}
+
+			ytreeviewRouteListStatuses.YTreeModel?.EmitModelChanged();
+
+			SubscribeOnStatusesChandged();
+		}
+
+		private void SubscribeOnStatusesChandged()
+		{
+			foreach(var status in RouteListStatuses) {
+				status.PropertyChanged += OnStatusCheckChanged;
+			}
+		}
+
+		private void UnsubscribeOnStatusesChandged()
+		{
+			foreach(var status in RouteListStatuses) {
+				status.PropertyChanged -= OnStatusCheckChanged;
+			}
+		}
+
+		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		private void LoadRouteListStatusesDefaults()
+		{
+			UpdateAvailableStatuses();
+			ytreeviewRouteListStatuses.ColumnsConfig = FluentColumnsConfig<RouteListStatusNode>.Create()
+				.AddColumn("Статус").AddTextRenderer(x => x.Title)
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.Finish();
+			ytreeviewRouteListStatuses.ItemsDataSource = RouteListStatuses;
+		}
+
 		public bool WithDeliveryAddresses => AddressTypes.Any(x => x.AddressType == AddressType.Delivery && x.Selected);
 
 		public bool WithServiceAddresses => AddressTypes.Any(x => x.AddressType == AddressType.Service && x.Selected);
@@ -160,11 +218,6 @@ namespace Vodovoz
 			dateperiodOrders.EndDateOrNull = endDate;
 		}
 
-		public void SetFilterStatus(RouteListStatus? status)
-		{
-			enumcomboStatus.SelectedItem = status;
-		}
-
 		//возврат выбранного значения в списке ТС и засерение списка в случае программной установки значения
 		public RLFilterTransport? RestrictTransport {
 			get { return yEnumCmbTransport.SelectedItem as RLFilterTransport?; }
@@ -183,23 +236,18 @@ namespace Vodovoz
 		{
 			OnRefiltered();
 		}
-	}
 
-	//значения для списка ТС
-	public enum RLFilterTransport
-	{
-		[Display(Name = "Наёмники")]
-		Mercenaries,
-		[Display(Name = "Раскат")]
-		Raskat,
-		[Display(Name = "Ларгус")]
-		Largus,
-		[Display(Name = "ГАЗель")]
-		GAZelle,
-		[Display(Name = "Фура")]
-		Waggon,
-		[Display(Name = "Прочее")]
-		Others
-	}
+        protected void OnButtonStatusAllClicked(object sender, EventArgs e)
+        {
+            SelectedStatuses = Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().ToArray();
+            OnRefiltered();
+        }
+
+        protected void OnButtonStatusNoneClicked(object sender, EventArgs e)
+        {
+            SelectedStatuses = new RouteListStatus[] { };
+            OnRefiltered();
+        }
+    }
 }
 

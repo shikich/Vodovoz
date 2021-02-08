@@ -31,10 +31,14 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Converters;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Filters.ViewModels;
+using QS.Project.Journal;
 
 namespace Vodovoz
 {
-	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
+    public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
 	{
 		class OrderNode : PropertyChangedBase
 		{
@@ -74,7 +78,7 @@ namespace Vodovoz
 					if(Client.Id == BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
 						return ChangedType.DeliveryPoint;
 					}
-					if(Client.Id != BaseOrder.Client.Id/* && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id*/) {
+					if(Client.Id != BaseOrder.Client.Id) {
 						return ChangedType.Both;
 					}
 					return ChangedType.None;
@@ -182,7 +186,6 @@ namespace Vodovoz
 			}
 			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedIds.First());
 			CounterpartyContract contract = routeListItem.Order.Contract;
-			WaterSalesAgreement wsa = null;
 			if(routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null) {
 				return;
 			}
@@ -200,11 +203,7 @@ namespace Vodovoz
 			}
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
-					wsa = contract.GetWaterSalesAgreement(routeListItem.Order.DeliveryPoint);
-					if(wsa == null) {
-						MessageDialogHelper.RunErrorDialog("Невозможно добавить воду, потому что нет дополнительного соглашения о продаже воды");
-					}
-					routeListItem.Order.AddWaterForSale(nomenclature, wsa, 0, 0);
+					routeListItem.Order.AddWaterForSale(nomenclature, 0, 0);
 					break;
 				case NomenclatureCategory.master:
 					routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
@@ -262,7 +261,7 @@ namespace Vodovoz
 					.AddSetter((cell, node) => cell.Editable = canEditPrices)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)n.Price * n.ActualCount, 1, 100, 1)
+									? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
 					.Digits(2)
@@ -353,12 +352,15 @@ namespace Vodovoz
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
 		{
-			var deliveryPointFilter = new DeliveryPointFilter(UoW) {
-				Client = client
+			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel {
+				Counterparty = client
 			};
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM(deliveryPointFilter);
-			referenceDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPoint.CanEditReference = false;
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
+							() => new DeliveryPointJournalViewModel(deliveryPointFilter,
+							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+								SelectionMode = JournalSelectionMode.Single
+							}));
+			entityVMEntryDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
@@ -366,19 +368,19 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
+				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
 			};
 		}
 
-		protected void OnButtonDeliveryCanseledClicked(object sender, EventArgs e)
+		protected void OnButtonDeliveryCanceledClicked(object sender, EventArgs e)
 		{
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
+				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
@@ -387,7 +389,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
+			routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			routeListItem.RestoreOrder();
 			routeListItem.FirstFillClosing(UoW, wageParameterService);
 			UpdateListsSentivity();
@@ -404,7 +406,6 @@ namespace Vodovoz
 
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)
 		{
-			routeListItem.Order.ChangeOrderContract();
 			routeListItem.RecalculateTotalCash();
 		}
 
@@ -433,7 +434,7 @@ namespace Vodovoz
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
 		{
 			ConfigureDeliveryPointRefference(orderNode.Client);
-			referenceDeliveryPoint.OpenSelectDialog();
+			entityVMEntryDeliveryPoint.OpenSelectDialog();
 		}
 
 		protected void OnReferenceClientChanged(object sender, EventArgs e)
@@ -452,11 +453,6 @@ namespace Vodovoz
 				else
 					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
 			}
-		}
-
-		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
-		{
-			AcceptOrderChange();
 		}
 
 		protected void OnButtonAddOrderItemClicked(object sender, EventArgs e)
@@ -483,7 +479,10 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			var orderValidator = new QSValidator<Order>(routeListItem.Order);
+			var orderValidator = new QSValidator<Order>(routeListItem.Order,
+				new Dictionary<object, object> {
+				{ "NewStatus", OrderStatus.Closed },
+				{ "AddressStatus", routeListItem.Status }});
 			routeListItem.AddressIsValid = orderValidator.IsValid;
 			orderValidator.RunDlgIfNotValid((Window)this.Toplevel);
 			routeListItem.Order.CheckAndSetOrderIsService();
@@ -497,15 +496,21 @@ namespace Vodovoz
 			OnlineOrderVisible();
 		}
 
-		private void OnlineOrderVisible()
-		{
-			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (routeListItem.Order.PaymentType == PaymentType.ByCard);
+		private void OnlineOrderVisible() {
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible =
+				(routeListItem.Order.PaymentType == PaymentType.ByCard 
+				 || routeListItem.Order.PaymentType == PaymentType.Terminal);
 		}
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
 			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
 			routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
+		}
+
+		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)
+		{
+			AcceptOrderChange();
 		}
 	}
 
@@ -545,7 +550,7 @@ namespace Vodovoz
 			}
 		}
 
-		public int ActualCount {
+		public decimal ActualCount {
 			get {
 				if(IsEquipment) {
 					if(IsSerialEquipment)
@@ -558,7 +563,7 @@ namespace Vodovoz
 				if(IsEquipment) {
 					if(IsSerialEquipment)
 						orderEquipment.ActualCount = value > 0 ? 1 : 0;
-					orderEquipment.ActualCount = value;
+					orderEquipment.ActualCount = (int?)value;
 				} else {
 					orderItem.ActualCount = value;
 				}
@@ -577,7 +582,7 @@ namespace Vodovoz
 			}
 		}
 
-		public int Count => IsEquipment ? 1 : orderItem.Count;
+		public decimal Count => IsEquipment ? 1 : orderItem.Count;
 
 		public string Name => IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
 

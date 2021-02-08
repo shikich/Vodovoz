@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents.Invoice
 {
-	public class InvoiceDocument : OrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
+	public class InvoiceDocument : PrintableOrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Invoice;
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Orders.Documents.Invoice
 					{ "hide_signature", HideSignature },
 					{ "contactless_delivery", Order.ContactlessDelivery },
 					{ "payment_by_sms", Order.PaymentBySms },
-					{ "need_terminal", Order.NeedTerminal }
+					{ "need_terminal", Order.PaymentType == PaymentType.Terminal }
 			}
 			};
 		}

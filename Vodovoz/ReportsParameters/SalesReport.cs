@@ -11,7 +11,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using QS.Dialog.GtkUI;
-using NHibernate.Util;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
@@ -19,6 +18,7 @@ using NHibernate.Transform;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Reports
 {
@@ -37,7 +37,7 @@ namespace Vodovoz.Reports
 		private void ConfigureDlg()
 		{
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
-
+			
 			var nomenclatureTypeParam = filter.CreateParameterSet(
 				"Типы номенклатур",
 				"nomenclature_type",
@@ -189,8 +189,7 @@ namespace Vodovoz.Reports
 				"order_author",
 				new ParametersFactory(UoW, (filters) => {
 					SelectableEntityParameter<Employee> resultAlias = null;
-					var query = UoW.Session.QueryOver<Employee>()
-						.Where(x => x.Status != EmployeeStatus.IsFired);
+					var query = UoW.Session.QueryOver<Employee>();
 
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {
@@ -299,13 +298,6 @@ namespace Vodovoz.Reports
 
 			}
 
-			if (yNeedTerminalCheckButton.Active) {
-				parameters["need_terminal"] = true;
-			}
-			else {
-				parameters["need_terminal"] = false;
-			}
-			
 			return new ReportInfo {
 				Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport",
 				Parameters = parameters
@@ -314,7 +306,10 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			OnUpdate(true);
+			if(dateperiodpicker.StartDate != default(DateTime))
+				OnUpdate(true);
+			else
+				MessageDialogHelper.RunWarningDialog("Заполните дату.");
 		}
 
 		void OnUpdate(bool hide = false)

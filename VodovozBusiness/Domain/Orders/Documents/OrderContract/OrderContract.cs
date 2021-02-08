@@ -7,7 +7,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents.OrderContract
 {
-	public class OrderContract : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
+	public class OrderContract : PrintableOrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Orders.Documents.OrderContract
 				Contract.DocumentTemplate.DocParser.SetDocObject(Contract);
 		}
 
-		public virtual IDocTemplate GetTemplate() => Contract.DocumentTemplate;
+		public virtual IDocTemplate GetTemplate() => Contract?.DocumentTemplate;
 
 		public override PrinterType PrintType => PrinterType.ODT;
 

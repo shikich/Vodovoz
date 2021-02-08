@@ -6,7 +6,6 @@ using NLog;
 using QS.Banks.Domain;
 using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -15,7 +14,6 @@ using QS.Project.Journal.EntitySelector;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Validation;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
@@ -34,7 +32,12 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.TempAdapters;
+using Vodovoz.Models;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz
 {
@@ -117,6 +120,13 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public CounterpartyDlg(Phone phone)
+		{
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			Entity.Phones.Add(phone);
+			ConfigureDlg();
+		}
 		void ConfigureDlg()
 		{
 			notebook1.CurrentPage = 0;
@@ -177,7 +187,15 @@ namespace Vodovoz
 
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
+			ycheckExpirationDateControl.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active).InitializeFromSource();
+			yspinExpirationDatePercent.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Visible).InitializeFromSource();
+			yspinExpirationDatePercent.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal).InitializeFromSource();
+
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
+
+            DelayDaysForBuyerValue.Binding.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt).InitializeFromSource();
+			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
+			
 			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
@@ -198,26 +216,28 @@ namespace Vodovoz
 			);
 
 			ySpecCmbCameFrom.Binding.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem).InitializeFromSource();
-			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
-			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
+
 			var filterAccountant = new EmployeeFilterViewModel();
 			filterAccountant.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
+			referenceAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
 			var filterSalesManager = new EmployeeFilterViewModel();
 			filterSalesManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
+			referenceSalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
 			var filterBottleManager = new EmployeeFilterViewModel();
 			filterBottleManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
+			referenceBottleManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
 			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
@@ -250,14 +270,26 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
 			YEnumCounterpartyType_Changed(this, new EventArgs());
 
+			checkIsChainStore.Toggled += CheckIsChainStoreOnToggled;
 			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
-
-
+			
+			if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				"can_change_delay_days_for_buyers_and_chain_store")) {
+				checkIsChainStore.Sensitive = false;
+				DelayDaysForBuyerValue.Sensitive = false;
+			}
+			
 			//make actions menu
 			var menu = new Gtk.Menu();
+			
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
 			menuItem.Activated += AllOrders_Activated;
 			menu.Add(menuItem);
+			
+			var menuItemFixedPrices = new Gtk.MenuItem("Фикс. цены для самовывоза");
+			menuItemFixedPrices.Activated += (s, e) => OpenFixedPrices();
+			menu.Add(menuItemFixedPrices);
+			
 			menuActions.Menu = menu;
 			menu.ShowAll();
 
@@ -275,7 +307,20 @@ namespace Vodovoz
 			datatable4.Sensitive = canEditCounterpartyDetails;
 			entryFullName.Sensitive = canEditCounterpartyDetails;
 
+			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(NomenclatureRepository);
+			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
+			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
+			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
+			var nomSelectorFactory = new NomenclatureSelectorFactory();
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
+			fixedpricesview.ViewModel = fixedPricesViewModel;
+
 			//accountsView.
+
+			ycheckAlwaysSendReceitps.Binding.AddBinding(Entity, e => e.AlwaysSendReceitps, w => w.Active).InitializeFromSource();
+            ycheckAlwaysSendReceitps.Visible =
+                ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
+            
 			#region Особая печать
 
 			ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()
@@ -300,15 +345,40 @@ namespace Vodovoz
 			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 			yspeccomboboxTTNCount.ItemsList = docCount;
 			yspeccomboboxTorg2Count.ItemsList = docCount;
+			yspeccomboboxUPDForNonCashlessCount.ItemsList = docCount;
 			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxUPDForNonCashlessCount.Binding.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem).InitializeFromSource();
 
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
 			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();
 
+			lblTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
+			enumTax.ItemsEnum = typeof(TaxType);
+			
+			if (Entity.CreateDate != null)
+			{
+				Enum[] hideEnums = { TaxType.None };
+				enumTax.AddEnumToHideList(hideEnums);
+			}
+			
+			enumTax.Binding.AddBinding(Entity, e => e.TaxType, w => w.SelectedItem).InitializeFromSource();
+			enumTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
+			
 			UpdateCargoReceiver();
 
 			#endregion Особая печать
+		}
+
+		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
+		{
+			if (Entity.IsChainStore) {
+				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
+			}
+			else {
+                lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
+				Entity.DelayDaysForBuyers = 0;
+			}
 		}
 
 		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
@@ -464,6 +534,11 @@ namespace Vodovoz
 				notebook1.CurrentPage = 10;
 		}
 
+		public void OpenFixedPrices()
+		{
+			notebook1.CurrentPage = 11;
+		}
+
 		void YEnumCounterpartyType_Changed(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
@@ -492,6 +567,9 @@ namespace Vodovoz
 					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
 							enumPayment.Visible = (Entity.PersonType == PersonType.legal);
+
+			if (Entity.PersonType != PersonType.legal && Entity.TaxType != TaxType.None)
+				Entity.TaxType = TaxType.None;
 		}
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)

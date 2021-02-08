@@ -106,7 +106,7 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Правило")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(p => p.DeliveryPriceRule.ToString())
+					.AddTextRenderer(p => p.DeliveryPriceRule.Title)
 					.WrapMode(Pango.WrapMode.WordChar)
 					.WrapWidth(500)
 				.Finish();

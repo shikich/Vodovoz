@@ -24,12 +24,8 @@ using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using QS.Osm;
 using QS.Osm.Osrm;
-using QS.Tdi;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Parameters;
-using RouteListRepository = Vodovoz.EntityRepositories.Logistic.RouteListRepository;
 
 namespace Vodovoz
 {
@@ -42,22 +38,15 @@ namespace Vodovoz
 		List<RouteListKeepingItemNode> items;
 
 		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
-						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
-				}
-				return callTaskWorker;
-			}
-			set { callTaskWorker = value; }
-		}
+		public virtual CallTaskWorker CallTaskWorker =>
+			callTaskWorker ?? (callTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				OrderSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance));
 
 		#endregion
 
@@ -66,7 +55,7 @@ namespace Vodovoz
 			this.Build();
 			editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = string.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
+			TabName = string.Format("Контроль за километражем маршрутного листа №{0}", Entity.Id);
 			var canConfirmMileage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyCar && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
 
@@ -77,6 +66,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			HasChanges = true;
 			if(!editing) {
 				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
 				HasChanges = false;
@@ -142,16 +132,12 @@ namespace Vodovoz
 			}
 			else
 				RecountMileage();
-		}
 
-		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
-		{
-			string fineReason = "Перерасход топлива";
-
-			var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
-			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
-			
-			TabParent.AddSlaveTab(this, fineDlg);
+			//Телефон
+			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
+			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
+			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
+			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 		}
 
 		#endregion
@@ -167,6 +153,10 @@ namespace Vodovoz
 					}
 				}
 				Entity.UpdateFuelOperation();
+			}
+			
+			if(Entity.Status == RouteListStatus.Delivered) {
+				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 			}
 
 			UoWGeneric.Save();
@@ -188,10 +178,12 @@ namespace Vodovoz
 				return;
 			}
 
+			if(Entity.Status == RouteListStatus.Delivered) {
+				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+			}
 			Entity.AcceptMileage(CallTaskWorker);
 
 			UpdateStates();
-
 			SaveAndClose();
 		}
 
@@ -215,8 +207,28 @@ namespace Vodovoz
 			}
 			Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
 		}
+		
+		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
+		{
+			string fineReason = "Перерасход топлива";
+
+			var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
+			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
+			fineDlg.EntitySaved += OnFinesAdded;
+			
+			TabParent.AddSlaveTab(this, fineDlg);
+		}
 
 		#endregion
+
+        #region Обработка добавления долгов
+
+        protected void OnFinesAdded(object sender, EventArgs e)
+        {
+	        HasChanges = true;
+        }
+        
+        #endregion
 
 		private void RecountMileage()
 		{

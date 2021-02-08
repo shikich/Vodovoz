@@ -11,9 +11,23 @@ using Vodovoz.Repositories.HumanResources;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using System.Linq;
+using NHibernate.Criterion;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.ViewModels.Cash;
+using VodovozInfrastructure.Interfaces;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz
 {
@@ -24,10 +38,26 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private readonly bool canEditDate = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+
+		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
+			new RouteListCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)),
+				new RouteListItemCashDistributionDocumentRepository(),
+				OrderSingletonRepository.GetInstance());
+		
+		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
+			new ExpenseCashOrganisationDistributor();
+		
+		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor = 
+			new FuelCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)));
 
 		public CashExpenseDlg (IPermissionService permissionService)
 		{
-			this.Build ();
+			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
 			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
@@ -40,25 +70,24 @@ namespace Vodovoz
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
 			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание расходного ордера");
 				FailInitialize = true;
 				return;
 			}
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false,  typeof(Expense))) {
-
 				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
 				FailInitialize = true;
 				return;
 			}
 
 			Entity.Date = DateTime.Now;
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		public CashExpenseDlg (int id, IPermissionService permissionService)
 		{
-			this.Build ();
+			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Expense))) {
@@ -70,7 +99,7 @@ namespace Vodovoz
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
 			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр расходного ордера");
 				FailInitialize = true;
 				return;
 			}
@@ -79,7 +108,7 @@ namespace Vodovoz
 			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
 			canEditRectroactively = permmissionValidator.Validate(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		public CashExpenseDlg (Expense sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
@@ -90,6 +119,11 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			if (!UoW.IsNew) {
+				enumcomboOperation.Sensitive = false;
+				specialListCmbOrganisation.Sensitive = false;
+			}
+			
 			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
 			if(Entity.RelatedToSubdivision != null) {
 				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
@@ -98,22 +132,59 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(ExpenseType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.Status = EmployeeStatus.IsWorking;
+			var filterCasher = new EmployeeFilterViewModel {Status = EmployeeStatus.IsWorking};
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filterEmployee = new EmployeeFilterViewModel();
-			filterEmployee.Status = EmployeeStatus.IsWorking;
+			var filterEmployee = new EmployeeFilterViewModel {Status = EmployeeStatus.IsWorking};
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 			yentryEmployee.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
+			ydateDocument.Sensitive = canEditDate;
 
-			OrmMain.GetObjectDescription<ExpenseCategory> ().ObjectUpdated += OnExpenseCategoryUpdated;
-			OnExpenseCategoryUpdated (null, null);
-			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
+			IFileChooserProvider fileChooserProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
+			var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
+				ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+				HidenByDefault = true
+			};
+			
+			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
+				() => {
+					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+						x => x.Name,
+						() => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							fileChooserProvider,
+							filterViewModel
+						),
+						node => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							fileChooserProvider,
+							filterViewModel
+						),
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices
+					) {
+						SelectionMode = JournalSelectionMode.Single
+					};
+					expenseCategoryJournalViewModel.SetFilter(filterViewModel,
+						filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
+					
+					return expenseCategoryJournalViewModel;
+				}
+			);
+			entityVMEntryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
+			entityVMEntryExpenseCategory.Binding.AddBinding(Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
+
+			specialListCmbOrganisation.ShowSpecialStateNot = true;
+			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
@@ -134,9 +205,14 @@ namespace Vodovoz
 			}
 		}
 
-		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		public void CopyExpenseFrom(Expense doc)
 		{
-			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
+			Entity.TypeOperation = doc.TypeOperation;
+			Entity.ExpenseCategory = doc.ExpenseCategory;
+			Entity.Description = doc.Description;
+			Entity.RelatedToSubdivision = doc.RelatedToSubdivision;
+			accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
+			UpdateSubdivision();
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
@@ -159,15 +235,67 @@ namespace Vodovoz
 
 			Entity.UpdateWagesOperations(UoW);
 
+			if (UoW.IsNew) {
+				DistributeCash();
+			}
+			else {
+				UpdateCashDistributionsDocuments();
+			}
+			
 			logger.Info ("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
 			logger.Info ("Ok");
 			return true;
+		}
 
+		private void DistributeCash()
+		{
+			if (Entity.TypeOperation == ExpenseType.Expense && 
+			    Entity.ExpenseCategory.Id == CategoryRepository.RouteListClosingExpenseCategory(UoW)?.Id) {
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
+			}
+			else if (Entity.TypeOperation == ExpenseType.EmployeeAdvance
+			         || Entity.TypeOperation == ExpenseType.Salary) {
+				expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
+			}
+			else {
+				expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity);
+			}
+		}
+		
+		private void UpdateCashDistributionsDocuments()
+		{
+			var editor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			var document = UoW.Session.QueryOver<CashOrganisationDistributionDocument>()
+				.Where(x => x.Expense.Id == Entity.Id).List().FirstOrDefault();
+
+			if (document != null)
+			{
+				switch (document.Type)
+				{
+					case CashOrganisationDistributionDocType.ExpenseCashDistributionDoc:
+						expenseCashOrganisationDistributor.UpdateRecords(UoW, (ExpenseCashDistributionDocument)document, Entity, editor);
+						break;
+					case CashOrganisationDistributionDocType.FuelExpenseCashOrgDistributionDoc:
+						fuelCashOrganisationDistributor.UpdateRecords(UoW, (FuelExpenseCashDistributionDocument)document, Entity, editor);
+						break;
+				}
+			}
 		}
 
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
+			if (Entity.TypeOperation == ExpenseType.Salary || Entity.TypeOperation == ExpenseType.EmployeeAdvance) {
+				if (Entity.Organisation != null) {
+					Entity.Organisation = null;
+				}
+
+				ylabel1.Visible = specialListCmbOrganisation.Visible = false;
+			}
+			else {
+				ylabel1.Visible = specialListCmbOrganisation.Visible = true;
+			}
+
 			UpdateEmployeeBalaceInfo();
 		}
 
@@ -225,6 +353,12 @@ namespace Vodovoz
 				
 			var report = new QSReport.ReportViewDlg (reportInfo);
 			TabParent.AddTab (report, this, false);
+		}
+
+		protected void OnYspinMoneyFocusInEvent(object o, Gtk.FocusInEventArgs args)
+		{
+			if(yspinMoney.ValueAsDecimal == Decimal.Zero)
+				yspinMoney.Text = "";
 		}
 	}
 }

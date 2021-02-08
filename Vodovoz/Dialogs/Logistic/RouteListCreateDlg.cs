@@ -18,7 +18,9 @@ using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -29,7 +31,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -187,9 +188,18 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed));
+			bool IsLoadDocumentPrintable = ServicesConfig.CommonServices.CurrentPermissionService
+											.ValidatePresetPermission("can_print_car_load_document");
+			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, IsLoadDocumentPrintable
+																			  && !(Entity.Status == RouteListStatus.Confirmed));
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
 			CheckCarLoadDocuments();
+
+			//Телефон
+			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
+			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
+			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
+			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 		}
 
 		void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -343,7 +353,7 @@ namespace Vodovoz
 						return;
 					}
 
-					Entity.ChangeStatus(RouteListStatus.Confirmed, callTaskWorker);
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
 					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
@@ -368,13 +378,14 @@ namespace Vodovoz
 
 					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
 						if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
-							Entity.CompleteRoute(wageParameterService, callTaskWorker);
+							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-						var forShipment = warehouseRepository.WarehouseForShipment(UoW, Entity.Id);
-						if(!forShipment.Any()) {
-							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
+						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+						if(!Entity.NeedToLoad && !needTerminal) {
+							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 								valid = new QSValidator<RouteList>(
 									Entity,
 									new Dictionary<object, object> {
@@ -383,21 +394,23 @@ namespace Vodovoz
 									});
 								if(!valid.IsValid)
 									return;
-								Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
+								Entity.ChangeStatusAndCreateTask(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
 							} else {
-								Entity.ChangeStatus(RouteListStatus.New, callTaskWorker);
+								Entity.ChangeStatusAndCreateTask(RouteListStatus.New, callTaskWorker);
 							}
 						}
 					}
 					Save();
 					UpdateButtonStatus();
-					return;
+                    createroutelistitemsview1.SubscribeOnChanges();
+
+                    return;
 				}
 				if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
 					if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 						MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 					} else {
-						Entity.ChangeStatus(RouteListStatus.New, callTaskWorker);
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.New, callTaskWorker);
 					}
 					UpdateButtonStatus();
 					return;

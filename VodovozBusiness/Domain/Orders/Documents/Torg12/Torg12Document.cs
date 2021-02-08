@@ -5,7 +5,7 @@ using QS.Report;
 
 namespace Vodovoz.Domain.Orders.Documents.Torg12
 {
-	public class Torg12Document:OrderDocument, IPrintableRDLDocument
+	public class Torg12Document : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Torg12;
@@ -18,7 +18,8 @@ namespace Vodovoz.Domain.Orders.Documents.Torg12
 				Title = String.Format("ТОРГ-12 {0} от {1:d}", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.Torg12",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id.ToString() }
+					{ "order_id", Order.Id.ToString() },
+					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
 				}
 			};
 		}

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents.UPD
 {
-	public class UPDDocument:OrderDocument, IPrintableRDLDocument, ISignableDocument
+	public class UPDDocument : PrintableOrderDocument, IPrintableRDLDocument, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.UPD;
@@ -21,7 +22,8 @@ namespace Vodovoz.Domain.Orders.Documents.UPD
 					{ "order_id", Order.Id },
 					{ "special", false },
 					{ "hide_signature", HideSignature}
-				}
+				},
+				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
 			};
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
@@ -36,6 +38,23 @@ namespace Vodovoz.Domain.Orders.Documents.UPD
 		public override DocumentOrientation Orientation => DocumentOrientation.Landscape;
 
 		public virtual bool HideSignature { get; set; } = true;
+
+		private int copiesToPrint = -1;
+		public override int CopiesToPrint
+		{
+			get {
+				if (copiesToPrint < 0)
+				{
+					if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Client.UPDCount.HasValue)
+						return Order.Client.UPDCount.Value;
+					
+					return Order.DocumentType.HasValue && Order.DocumentType.Value == DefaultDocumentType.torg12 ? 1 : 2;
+				}
+
+				return copiesToPrint;
+			}
+			set => copiesToPrint = value;
+		}
 	}
 }
 

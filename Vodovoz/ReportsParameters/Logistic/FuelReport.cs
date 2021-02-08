@@ -39,6 +39,7 @@ namespace Vodovoz.Reports
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yentryAuthor.RepresentationModel = new EmployeesVM(filter);
+			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 		}
 
 		#region IParametersWidget implementation
@@ -76,7 +77,7 @@ namespace Vodovoz.Reports
 				parameters.Add("author", yentryAuthor.Subject == null ? -1 : (yentryAuthor.Subject as Employee).Id);
 
 				return new ReportInfo {
-					Identifier = "Logistic.FuelReportSummary",
+					Identifier = yCheckButtonDatailedSummary.Active?"Logistic.FuelReportSummaryDetailed":"Logistic.FuelReportSummaryBasic",
 					UseUserVariables = true,
 					Parameters = parameters
 				};
@@ -121,6 +122,8 @@ namespace Vodovoz.Reports
 			hboxCar.Visible = false;
 			hboxAuthor.Visible = false;
 
+			yCheckButtonDatailedSummary.Hide();
+
 			entityviewmodelentryCar.Subject = null;
 			yentryAuthor.Subject = null;
 		}
@@ -131,6 +134,8 @@ namespace Vodovoz.Reports
 			hboxCar.Visible = true;
 			hboxAuthor.Visible = false;
 
+			yCheckButtonDatailedSummary.Hide();
+
 			yentryAuthor.Subject = null;
 			yentryreferenceDriver.Subject = null;
 		}
@@ -140,6 +145,8 @@ namespace Vodovoz.Reports
 			hboxDriver.Visible = false;
 			hboxCar.Visible = false;
 			hboxAuthor.Visible = true;
+
+			yCheckButtonDatailedSummary.Show();
 
 			entityviewmodelentryCar.Subject = null;
 			yentryreferenceDriver.Subject = null;

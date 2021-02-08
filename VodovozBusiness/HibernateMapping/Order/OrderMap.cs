@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id(x => x.Id)								.Column("id").GeneratedBy.Native();
 
-			Map(x => x.CreateDate)						.Column("create_date");
+			Map(x => x.CreateDate)					.Column("create_date").ReadOnly();
 			Map(x => x.IsFirstOrder)					.Column("is_first_order");
 			Map(x => x.Comment)							.Column("comment");
 			Map(x => x.CommentLogist)					.Column("comment_logist");
@@ -57,8 +57,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.EShopOrder)						.Column("e_shop_order");
 			Map(x => x.ContactlessDelivery)				.Column("contactless_delivery");
 			Map(x => x.PaymentBySms)				    .Column("payment_by_sms");
-			Map(x => x.NeedTerminal).Column("need_terminal");
-
+			Map(x => x.ODZComment)						.Column("odz_comment");
+			Map(x => x.OPComment)						.Column("op_comment");
+			
 			Map(x => x.OrderStatus)						.Column("order_status").CustomType<OrderStatusStringType> ();
 			Map(x => x.SignatureType)					.Column("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map(x => x.PaymentType)						.Column("payment_type").CustomType<PaymentTypeStringType> ();
@@ -68,7 +69,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OrderPaymentStatus)				.Column("order_payment_status").CustomType<OrderPaymentStatusStringType>();
 
 			References(x => x.Client)					.Column("client_id");
-			References(x => x.Contract)					.Column("counterparty_contract_id");
+			References(x => x.Contract)					.Column("counterparty_contract_id").Cascade.SaveUpdate();
 			References(x => x.Author)					.Column("author_employee_id");
 			References(x => x.AcceptedOrderEmployee)	.Column("accepted_order_employee");
 			References(x => x.DeliveryPoint)			.Column("delivery_point_id");

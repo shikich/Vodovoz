@@ -408,6 +408,8 @@
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Fields!name.Value</Value>
+                          <CanGrow >true</CanGrow>
+                          <CanShrink >true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -497,7 +499,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Nomenclatures">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	o.create_date AS order_create_date,
@@ -528,11 +530,12 @@
 		)
 	) AS author,
 	n.name AS name,
-	IFNULL(i.actual_count, i.count) AS count,
-	i.price * IFNULL(i.actual_count, i.count) - discount_money AS sum
+	FORMAT(IFNULL(i.actual_count, i.count), mu.digits) AS count,
+	CAST(i.price * IFNULL(i.actual_count, i.count) - discount_money AS DECIMAL(11,2)) AS sum
 FROM order_items i
 LEFT JOIN orders o ON i.order_id = o.id
 LEFT JOIN nomenclature n ON i.nomenclature_id = n.id
+LEFT JOIN measurement_units mu on n.unit_id = mu.id
 LEFT JOIN employees author ON o.author_employee_id = author.id
 WHERE o.order_status IN(
 	#'NewOrder',
@@ -563,7 +566,7 @@ WHERE o.order_status IN(
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_create_date">
           <DataField>order_create_date</DataField>
           <TypeName>System.DateTime</TypeName>

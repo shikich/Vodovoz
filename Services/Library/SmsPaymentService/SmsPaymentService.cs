@@ -20,21 +20,22 @@ namespace SmsPaymentService
         public SmsPaymentService(
             IPaymentController paymentController, 
             IDriverPaymentService androidDriverService, 
-            ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider,
+            IOrderParametersProvider orderParametersProvider,
             SmsPaymentFileCache smsPaymentFileCache
         )
         {
             this.paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
             this.androidDriverService = androidDriverService ?? throw new ArgumentNullException(nameof(androidDriverService));
-            this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
         }
         
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IPaymentController paymentController;
 		private readonly IDriverPaymentService androidDriverService;
-        private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
+        private readonly IOrderParametersProvider orderParametersProvider;
         private readonly SmsPaymentFileCache smsPaymentFileCache;
+        private readonly SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
 
         public PaymentResult SendPayment(int orderId, string phoneNumber)
         {
@@ -67,18 +68,32 @@ namespace SmsPaymentService
                         return new PaymentResult($"Заказ с номером {orderId} не существующет в базе");
                     }
                     var newPayment = new SmsPayment {
-                        Amount = order.OrderTotalSum,
+                        Amount = order.TotalSum,
                         Order = order,
                         Recepient = order.Client,
                         CreationDate = DateTime.Now,
                         PhoneNumber = phoneNumber
                     };
+
+                    if(order.OrderDepositItems.Any()) {
+                        logger.Error("Запрос на отправку платежа пришёл с возвратами залогов");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, в котором есть возврат залогов");
+                    }
+                    if(!order.OrderItems.Any()) {
+                        logger.Error("Запрос на отправку платежа пришёл без товаров на продажу");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, в котором нет товаров на продажу");
+                    }
+                    if(newPayment.Amount <= 1) {
+                        logger.Error("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля");
+                    }
+                    
                     newPayment.SetReadyToSend();
+                    var paymentDto = smsPaymentDTOFactory.CreateSmsPaymentDTO(newPayment, order);
+                    
                     uow.Save(newPayment);
                     uow.Commit();
-                    
-                    var paymentDto = CreateSmsPaymentDTOFromSmsPayment(newPayment);
-                    
+
                     var sendResponse = paymentController.SendPayment(paymentDto);
 
                     if (sendResponse.HttpStatusCode == HttpStatusCode.OK && sendResponse.ExternalId.HasValue) {
@@ -128,7 +143,18 @@ namespace SmsPaymentService
                 }
                 
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-                    var payment = uow.Session.QueryOver<SmsPayment>().Where(x => x.ExternalId == externalId).Take(1).SingleOrDefault();
+
+                    SmsPayment payment;
+
+                    try {
+                        payment = uow.Session.QueryOver<SmsPayment>().Where(x => x.ExternalId == externalId).Take(1).SingleOrDefault();
+                    }
+                    catch (Exception e) {
+                        logger.Error(e, "При загрузке платежа по externalId произошла ошибка, записываю данные файл...");
+                        smsPaymentFileCache.WritePaymentCache(null, externalId);
+                        return new StatusCode(HttpStatusCode.OK);
+                    }
+                    
                     if (payment == null) {
                         logger.Error($"Запрос на изменение статуса платежа указывает на несуществующий платеж (externalId: {externalId})"); 
                         return new StatusCode(HttpStatusCode.UnsupportedMediaType);
@@ -143,7 +169,7 @@ namespace SmsPaymentService
 
                     switch (status) {
                         case SmsPaymentStatus.Paid:
-                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(orderParametersProvider.PaymentByCardFromSmsId));
                             break;
                         case SmsPaymentStatus.Cancelled:
                             payment.SetCancelled();
@@ -158,8 +184,15 @@ namespace SmsPaymentService
                         
                         orderId = payment.Order.Id;
                         logger.Info($"Статус платежа с externalId: {payment.ExternalId} изменён c {oldStatus} на {status}");
+
+                        #region OrderStatusChanged
                         if(oldPaymentType != payment.Order.PaymentType)
-                            logger.Info($"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {payment.Order.PaymentType}");
+                        {
+                            logger.Info(
+                                $"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {payment.Order.PaymentType}");
+                        }
+                        #endregion
+                        
                     }
                     catch (Exception e) {
                         logger.Error(e, "При сохранении платежа произошла ошибка, записываю в файл...");
@@ -210,7 +243,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(orderParametersProvider.PaymentByCardFromSmsId));
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
@@ -328,7 +361,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(orderParametersProvider.PaymentByCardFromSmsId));
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
@@ -354,20 +387,6 @@ namespace SmsPaymentService
             catch (Exception ex) {
                 logger.Error(ex,"При синхронизации произошла ошибка");
             }
-        }
-
-        private SmsPaymentDTO CreateSmsPaymentDTOFromSmsPayment(SmsPayment smsPayment)
-        {
-            return new SmsPaymentDTO {
-                Recepient = smsPayment.Recepient.Name,
-                RecepientId = smsPayment.Recepient.Id,
-                PhoneNumber = smsPayment.PhoneNumber,
-                PaymentStatus = SmsPaymentStatus.WaitingForPayment,
-                OrderId = smsPayment.Order.Id,
-                PaymentCreationDate = smsPayment.CreationDate,
-                Amount = smsPayment.Amount,
-                RecepientType = smsPayment.Recepient.PersonType
-            };
         }
     }
 }

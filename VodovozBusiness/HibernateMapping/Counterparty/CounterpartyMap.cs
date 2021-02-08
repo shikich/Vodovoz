@@ -37,6 +37,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
 			Map(x => x.SpecialCustomer).Column("special_customer");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");
+			Map(x => x.SpecialExpireDatePercent).Column("special_expire_date_percent");
+			Map(x => x.SpecialExpireDatePercentCheck).Column("special_expire_date_percent_check");
 			Map(x => x.PayerSpecialKPP).Column("payer_special_kpp");
 			Map(x => x.GovContract).Column("special_gov_contract");
 			Map(x => x.SpecialDeliveryAddress).Column("special_delivery_address");
@@ -45,10 +47,15 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.RingUpPhone).Column("ringup_phone");
 			Map(x => x.Torg2Count).Column("torg2_count");
 			Map(x => x.TTNCount).Column("ttn_count");
+			Map(x => x.UPDCount).Column("upd_count");
 			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
 			Map(x => x.IsChainStore).Column("is_chain_store");
 			Map(x => x.CargoReceiverSource).Column("cargo_receiver_source").CustomType<CargoReceiverTypeStringType>();
-			Map(x => x.DelayDays).Column("delay_days");
+			Map(x => x.DelayDaysForProviders).Column("delay_days");
+			Map(x => x.DelayDaysForBuyers).Column("delay_days_for_buyers");
+			Map(x => x.TaxType).Column("tax_type").CustomType<TaxTypeStringType>();
+			Map(x => x.CreateDate).Column("create_date");
+			Map(x => x.AlwaysSendReceitps).Column("always_send_receipts");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");
@@ -76,14 +83,14 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.SpecialNomenclatures).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
+			HasMany(x => x.NomenclatureFixedPrices).Cascade.AllDeleteOrphan().LazyLoad()
+				.KeyColumn("counterparty_id");
+			HasManyToMany(x => x.Tags).Table("counterparty_tags")
+									  .ParentKeyColumn("counterparty_id")
+									  .ChildKeyColumn("tag_id")
+									  .LazyLoad();
 			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
 			    .KeyColumn("supplier_id");
-			HasMany(x => x.NomenclatureFixedPrices).Cascade.All().LazyLoad().KeyColumn("counterparty_id");
-
-			HasManyToMany(x => x.Tags).Table("counterparty_tags")
-			                          .ParentKeyColumn("counterparty_id")
-			                          .ChildKeyColumn("tag_id")
-			                          .LazyLoad();
 		}
 	}
 }

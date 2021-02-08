@@ -29,7 +29,6 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
-		public static IProgressBarDisplayable progressBarWin;
 
 		[STAThread]
 		public static void Main (string[] args)
@@ -104,6 +103,8 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeout);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuth);
+			
 			#endregion
 
 			//Настройка карты
@@ -130,6 +131,9 @@ namespace Vodovoz
 			QSMain.CheckServer(null); // Проверяем настройки сервера
 
 			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
+
+			AutofacClassConfig();
+			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
 
 			if(QSMain.User.Login == "root") {
 				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
@@ -216,7 +220,6 @@ namespace Vodovoz
 
 			//Запускаем программу
 			MainWin = new MainWindow();
-			progressBarWin = MainWin;
 			MainWin.Title += string.Format(" (БД: {0})", loginDialogName);
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();

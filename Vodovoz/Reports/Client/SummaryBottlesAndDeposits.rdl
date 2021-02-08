@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -51,7 +51,7 @@
        IF(forfeits.forfeitCount = 0, null, forfeits.forfeitCount) ,
        NULL) AS forfeitCount,
     IF(docs.doc_name = 'Заказ',
-       IF(empty_bottles.bottles_count = 0, null, empty_bottles.bottles_count) ,
+       IF(empty_bottles.bottles_count = 0, null, CAST(empty_bottles.bottles_count AS SIGNED)) ,
        NULL) AS empty_bottles_count,
     IF(docs.doc_name = 'Заказ',
        IFNULL(bottles_movement_operations.delivered, IF(docs.doc_status = 'Closed',0,NULL)),
@@ -270,7 +270,7 @@
                                                    ), ''
                                             ),
                                             ': ',
-                                            ROUND(warehouse_movement_operations.amount),
+                                            ROUND(cmo.amount),
                                             ' шт'
                                         )
                                         SEPARATOR ',\n'
@@ -281,10 +281,10 @@
                                 store_self_delivery_document ON orders.id = store_self_delivery_document.order_id
                                     LEFT JOIN
                                 store_self_delivery_document_returned ON store_self_delivery_document.id = store_self_delivery_document_returned.store_self_delivery_document_id
+                                    LEFT JOIN counterparty_movement_operations cmo ON
+                                cmo.id = store_self_delivery_document_returned.counterparty_movement_operation_id 
                                     LEFT JOIN
-                                warehouse_movement_operations ON warehouse_movement_operations.id = store_self_delivery_document_returned.warehouse_movement_operation_id
-                                    LEFT JOIN
-                                nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+                                nomenclature ON nomenclature.id = cmo.nomenclature_id
                                     LEFT JOIN
                                 delivery_points ON delivery_points.id = orders.delivery_point_id
                                     LEFT JOIN
@@ -380,7 +380,7 @@ FROM
            CONCAT(
                    'Перенесено от клиента ',
                    out_counterparty.name,
-                   ' с адреса ',
+                   ' на адрес ',
                    COMPILE_ADDRESS(inc_delivery_point.id)) AS doc_name,
            '' AS doc_status,
            transfer_operations.to_client_id AS doc_client_id,
@@ -447,7 +447,7 @@ ORDER BY docs.doc_date;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -763,8 +763,8 @@ FROM
 			SELECT
 				nomenclature.id as id,
                 nomenclature.name as name,
-				IF(doc_residue_equipment_deposit_items.direction = 'ToClient', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-				IF(doc_residue_equipment_deposit_items.direction = 'FromClient', counterparty_movement_operations.amount, 0) as duty_and_rent_amount_delivered
+				IF(doc_residue_equipment_deposit_items.direction = 'FromClient', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+				IF(doc_residue_equipment_deposit_items.direction = 'ToClient', counterparty_movement_operations.amount, 0) as duty_and_rent_amount_delivered
 			FROM
 				counterparty_movement_operations
 			LEFT JOIN
@@ -1230,6 +1230,7 @@ WHERE
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format >#,##0.00</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1700,6 +1701,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1725,7 +1727,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="returned">
-                      <Value>=Fields!returned.Value - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount})</Value>
+                      <Value>=Iif({returned} = null and {forfeitCount} = null, "", {returned} - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1922,6 +1924,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

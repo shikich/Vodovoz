@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Tools;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -23,7 +24,7 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "адреса маршрутного листа",
 		Nominative = "адрес маршрутного листа")]
 	[HistoryTrace]
-	public class RouteListItem : PropertyChangedBase, IDomainObject
+	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -167,7 +168,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal BottleDepositsCollected {
 			get {
-				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+				if(Order.PaymentType == PaymentType.ContractDoc || Order.PaymentType == PaymentType.cashless) {
 					return 0;
 				}
 
@@ -192,7 +193,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal EquipmentDepositsCollected {
 			get {
-				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+				if(Order.PaymentType == PaymentType.ContractDoc || Order.PaymentType == PaymentType.cashless) {
 					return 0;
 				}
 
@@ -228,14 +229,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal ExtraCash {
 			get => extraCash;
 			set => SetField(ref extraCash, value, () => ExtraCash);
-		}
-
-		private string terminalPaymentNumber;
-
-		[Display(Name = "№ оплаты(по терминалу)")]
-		public virtual string TerminalPaymentNumber {
-			get { return terminalPaymentNumber; }
-			set { SetField(ref terminalPaymentNumber, value, () => TerminalPaymentNumber); }
 		}
 
 		decimal driverWage;
@@ -450,14 +443,14 @@ namespace Vodovoz.Domain.Logistic
 								Environment.NewLine,
 								Order.OrderEquipments
 									.Where(x => x.Direction == Direction.Deliver)
-								    .Select(x => $"{x.NameString}: {x.Count}")
+								    .Select(x => $"{x.NameString}: {x.Count:N0}")
 				);
 
 				var orderItemEquipment = string.Join(
 								Environment.NewLine,
 								Order.OrderItems
 									.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-							  		.Select(x => $"{x.Nomenclature.Name}: {x.Count}")
+							  		.Select(x => $"{x.Nomenclature.Name}: {x.Count:N0}")
 				);
 
 				if(String.IsNullOrWhiteSpace(orderItemEquipment))
@@ -484,6 +477,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual WageDistrictLevelRate ForwarderWageCalcMethodicTemporaryStore { get; set; }
 
+		public virtual bool NeedToLoad => Order.HasItemsNeededToLoad;
+
 		#endregion
 
 		public RouteListItem() { }
@@ -501,7 +496,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
+		public virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
 		{
 			if(Status == status)
 				return;
@@ -511,22 +506,55 @@ namespace Vodovoz.Domain.Logistic
 
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
-					Order.ChangeStatus(OrderStatus.DeliveryCanceled, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
 					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
-					Order.ChangeStatus(OrderStatus.Shipped, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
 					Order.TimeDelivered = DateTime.Now;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
-					Order.ChangeStatus(OrderStatus.OnTheWay, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
-					Order.ChangeStatus(OrderStatus.NotDelivered, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+					Order.TimeDelivered = null;
+					FillCountsOnCanceled();
+					break;
+			}
+			uow.Save(Order);
+		}
+		
+		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
+		{
+			if(Status == status)
+				return;
+
+			Status = status;
+			StatusLastUpdate = DateTime.Now;
+
+			switch(Status) {
+				case RouteListItemStatus.Canceled:
+					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+					Order.TimeDelivered = null;
+					FillCountsOnCanceled();
+					break;
+				case RouteListItemStatus.Completed:
+					Order.ChangeStatus(OrderStatus.Shipped);
+					Order.TimeDelivered = DateTime.Now;
+					RestoreOrder();
+					break;
+				case RouteListItemStatus.EnRoute:
+					Order.ChangeStatus(OrderStatus.OnTheWay);
+					Order.TimeDelivered = null;
+					RestoreOrder();
+					break;
+				case RouteListItemStatus.Overdue:
+					Order.ChangeStatus(OrderStatus.NotDelivered);
 					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
@@ -546,13 +574,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int GetFullBottlesDeliveredCount()
 		{
-			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
+			return (int)Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 								   .Sum(item => item.ActualCount ?? 0);
 		}
 
 		public virtual int GetFullBottlesToDeliverCount()
 		{
-			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
+			return (int)Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 								   .Sum(item => item.Count);
 		}
 
@@ -596,7 +624,7 @@ namespace Vodovoz.Domain.Logistic
 					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
 					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
 				}
-				item.ActualCount = 0;
+				item.ActualCount = 0m;
 			}
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = 0;
@@ -624,9 +652,9 @@ namespace Vodovoz.Domain.Logistic
 				deposit.ActualCount = deposit.Count;
 		}
 
-		private Dictionary<int, int> goodsByRouteColumns;
+		private Dictionary<int, decimal> goodsByRouteColumns;
 
-		public virtual Dictionary<int, int> GoodsByRouteColumns {
+		public virtual Dictionary<int, decimal> GoodsByRouteColumns {
 			get {
 				if(goodsByRouteColumns == null) {
 					goodsByRouteColumns = Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
@@ -637,9 +665,9 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual int GetGoodsAmountForColumn(int columnId) => GoodsByRouteColumns.ContainsKey(columnId) ? GoodsByRouteColumns[columnId] : 0;
+		public virtual decimal GetGoodsAmountForColumn(int columnId) => GoodsByRouteColumns.ContainsKey(columnId) ? GoodsByRouteColumns[columnId] : 0;
 
-		public virtual int GetGoodsActualAmountForColumn(int columnId)
+		public virtual decimal GetGoodsActualAmountForColumn(int columnId)
 		{
 			if(Status == RouteListItemStatus.Transfered)
 				return 0;
@@ -759,6 +787,14 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion Зарплата
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (CommentForFine?.Length > 1000)
+			{
+				yield return new ValidationResult($"В адресе: '{Title}' превышена максимально допустимая длина комментария по штрафу ({CommentForFine.Length}/1000)");
+			}
+		}
 	}
 
 	public enum RouteListItemStatus

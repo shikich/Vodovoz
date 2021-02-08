@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters
@@ -9,58 +8,49 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderStatisticByWeekReport : Gtk.Bin, IParametersWidget
 	{
-		public OrderStatisticByWeekReport()
+        public OrderStatisticByWeekReport()
 		{
 			this.Build();
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
 			dateperiodpicker.EndDate = DateTime.Today;
-		}
+
+            new List<string>() {
+                "План",
+                "Факт"
+            }.ForEach(comboboxReportMode.AppendText);
+
+            comboboxReportMode.Active = 0;
+        }
 
 		#region IParametersWidget implementation
 
-		public string Title {
-			get {
-				return "Статистика заказов по дням недели";
-			}
-		}
+		public string Title => "Статистика заказов по дням недели";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
 
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
+		public object EntityObject => null;
 
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
+		void OnUpdate(bool hide = false) => 
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
+		protected void OnButtonRunClicked(object sender, EventArgs e) => OnUpdate(true);
 
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
 				Identifier = "Logistic.OrderStatisticByWeek",
-				Parameters = new Dictionary<string, object>
+                Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate },
+					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
+                    { "report_mode", comboboxReportMode.Active },
 				}
 			};
 		}
 
-		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
-		{
+		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e) => 
 			buttonRun.Sensitive = dateperiodpicker.StartDateOrNull.HasValue && dateperiodpicker.EndDateOrNull.HasValue;
-		}
 	}
 }

@@ -872,7 +872,7 @@ namespace Vodovoz.ViewModels.Logistic
 											 .And(o => !o.IsService)
 											 .SingleOrDefault<int>();
 
-			int totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -880,9 +880,9 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
 											  .And(o => !o.IsService)
-											  .SingleOrDefault<int>();
+											  .SingleOrDefault<decimal>();
 												
-			int total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -890,9 +890,9 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
 											  .And(o => !o.IsService)
-											  .SingleOrDefault<int>();
+											  .SingleOrDefault<decimal>();
 
-			int total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -900,13 +900,13 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
 											  .And(o => !o.IsService)
-											  .SingleOrDefault<int>();
+											  .SingleOrDefault<decimal>();
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
-				$"19л - {totalBottles}",
-				$"6л - {total6LBottles}",
-				$"0,6л - {total600mlBottles}"
+				$"19л - {totalBottles:N0}",
+				$"6л - {total6LBottles:N0}",
+				$"0,6л - {total600mlBottles:N0}"
 			};
 
 			return string.Join("\n", text);
@@ -1074,7 +1074,7 @@ namespace Vodovoz.ViewModels.Logistic
 				ShowWarningMessage(string.Join("\n", warnings));
 		}
 
-		public void InitializeData(IProgressBarDisplayable progressBar = null)
+		public void InitializeData()
 		{
 			UoW.Session.Clear();
 			if(OrdersOnDay == null) {
@@ -1183,7 +1183,6 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
-			progressBar?.ProgressAdd();
 
 			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(DateForRouting)
 														.GetExecutableQueryOver(UoW.Session);
@@ -1206,15 +1205,12 @@ namespace Vodovoz.ViewModels.Logistic
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
 			RoutesOnDay.ToList().ForEach(rl => rl.CheckAddressOrder());
 
-			progressBar?.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", DateForRouting);
 			ObservableDriversOnDay.Clear();
 			atWorkRepository.GetDriversAtDay(UoW, DateForRouting, AtWorkDriver.DriverStatus.IsWorking).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
-			progressBar?.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", DateForRouting);
 			ObservableForwardersOnDay.Clear();
 			atWorkRepository.GetForwardersAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableForwardersOnDay.Add(x));
-			progressBar?.ProgressAdd();
 		}
 
 		public string GetOrdersInfo(int addressesWithoutCoordinats, int addressesWithoutRoutes, int totalBottlesCountAtDay, int bottlesWithoutRL)
@@ -1249,7 +1245,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes(driverStartTime, driverEndTime);
+			Optimizer.CreateRoutes(DriverStartTime, DriverEndTime);
 
 			if(optimizer.ProposedRoutes.Any()) {
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.

@@ -35,6 +35,7 @@ using Vodovoz.Domain.Orders.Documents.Torg12;
 using Vodovoz.Domain.Orders.Documents.UPD;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Proposal;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
@@ -77,7 +78,6 @@ namespace Vodovoz
 						.AddDeleteDependence<RegradingOfGoodsTemplateItem>(x => x.NomenclatureNew)
 						.AddDeleteDependence<ProductSpecificationMaterial>(x => x.Material)
 						.AddDeleteDependence<ProductSpecification>(x => x.Product)
-						.AddDeleteDependence<WaterSalesAgreementFixedPrice>(x => x.Nomenclature)
 						.AddDeleteDependence<FineNomenclature>(x => x.Nomenclature)
 						.AddDeleteDependence<CarLoadDocumentItem>(x => x.Nomenclature)
 						.AddDeleteDependence<WarehouseMovementOperation>(item => item.Nomenclature)
@@ -87,15 +87,11 @@ namespace Vodovoz
 						.AddClearDependence<PaidRentPackage>(x => x.RentServiceDaily)
 						.AddClearDependence<PaidRentPackage>(x => x.RentServiceMonthly)
 						.AddClearDependence<PaidRentPackage>(x => x.DepositService)
-						.AddClearDependence<FreeRentPackage>(x => x.DepositService)
 						.AddClearDependence<DeliveryPoint>(x => x.DefaultWaterNomenclature)
 						.AddClearDependence<Nomenclature>(x => x.DependsOnNomenclature)
-						.AddDeleteDependence<SalesEquipment>(x => x.Nomenclature)
 						.AddDeleteDependence<ShiftChangeWarehouseDocumentItem>(x => x.Nomenclature)
-						.AddDeleteDependence<FreeRentEquipment>(x => x.Nomenclature)
 						.AddDeleteDependence<NomenclaturePrice>(x => x.Nomenclature)
 						.AddDeleteDependence<OrderDepositItem>(x => x.EquipmentNomenclature)
-						.AddDeleteDependence<PaidRentEquipment>(x => x.Nomenclature)
 						.AddRemoveFromDependence<Certificate>(x => x.Nomenclatures)
 						.AddDeleteDependence<SupplierPriceItem>(x => x.NomenclatureToBuy)
 						.AddDeleteDependence<RequestToSupplierItem>(x => x.Nomenclature)
@@ -118,7 +114,6 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "{1}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<FreeRentPackage> (item => item.EquipmentType),
 						DeleteDependenceInfo.Create<Nomenclature> (item => item.Type),
 						DeleteDependenceInfo.Create<PaidRentPackage> (item => item.EquipmentType)
 					}
@@ -126,12 +121,10 @@ namespace Vodovoz
 			);
 
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
-				.AddDeleteDependence<FreeRentEquipment>(item => item.Equipment)
 				.AddDeleteDependence<IncomingInvoiceItem>(item => item.Equipment)
 				.AddDeleteDependence<OrderEquipment>(item => item.Equipment)
 				.AddDeleteDependence<OrderItem>(item => item.Equipment)
 				.AddDeleteDependence<ServiceClaim>(x => x.Equipment)
-				.AddDeleteDependence<PaidRentEquipment>(item => item.Equipment)
 				.AddDeleteDependence<WarehouseMovementOperation>(item => item.Equipment)
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.Equipment)
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.Equipment)
@@ -201,13 +194,11 @@ namespace Vodovoz
 				.AddDeleteDependence<AccountExpense>(item => item.Organization)
 				.AddDeleteDependence<DocTemplate>(x => x.Organization)
 				.AddDeleteDependence<EmployeeContract>(x => x.Organization)
-				;
+				.AddClearDependence<Employee>(x => x.OrganisationForSalary)
+				.AddClearDependence<Expense>(x => x.Organisation)
+				.AddClearDependence<AdvanceReport>(x => x.Organisation);
 
-			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>()
-				.AddClearDependence<FreeRentEquipment>(x => x.FreeRentPackage);
-
-			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>()
-				.AddClearDependence<PaidRentEquipment>(x => x.PaidRentPackage);
+			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
 
 			#endregion
 
@@ -468,36 +459,8 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(item => item.Persons);
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyContract>()
-				.AddDeleteDependence<AdditionalAgreement>(item => item.Contract)
 				.AddDeleteDependence<OrderContract>(x => x.Contract)
 				.AddClearDependence<Order>(x => x.Contract);
-
-			DeleteConfig.AddHibernateDeleteInfo<AdditionalAgreement>().HasSubclasses()
-				.AddDeleteDependence<OrderAgreement>(x => x.AdditionalAgreement)
-				.AddDeleteDependence<WaterSalesAgreementFixedPrice>(x => x.AdditionalAgreement)
-				.AddClearDependence<OrderItem>(item => item.AdditionalAgreement);
-
-			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreement>();
-
-			DeleteConfig.AddHibernateDeleteInfo<RepairAgreement>();
-
-			DeleteConfig.AddHibernateDeleteInfo<SalesEquipmentAgreement>()
-				.AddDeleteDependenceFromCollection(x => x.SalesEqipments);
-
-			DeleteConfig.AddHibernateDeleteInfo<NonfreeRentAgreement>()
-				.AddDeleteDependenceFromCollection(x => x.PaidRentEquipments);
-
-			DeleteConfig.AddHibernateDeleteInfo<FreeRentAgreement>()
-				.AddDeleteDependenceFromCollection(x => x.Equipment);
-
-			DeleteConfig.AddHibernateDeleteInfo<DailyRentAgreement>()
-				.AddDeleteDependenceFromCollection(x => x.Equipment);
-
-			DeleteConfig.AddHibernateDeleteInfo<FreeRentEquipment>();
-
-			DeleteConfig.AddHibernateDeleteInfo<PaidRentEquipment>();
-
-			DeleteConfig.AddHibernateDeleteInfo<SalesEquipment>();
 
 			DeleteConfig.AddHibernateDeleteInfo<SupplierPriceItem>()
 						;
@@ -512,7 +475,6 @@ namespace Vodovoz
 
 			//основной класс. не удаляем. в тестах настроен игнор.
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
-				.AddDeleteDependence<AdditionalAgreement>(item => item.DeliveryPoint)
 				.AddClearDependence<BottlesMovementOperation>(item => item.DeliveryPoint)
 				.AddDeleteDependence<TransferOperationDocument>(item => item.FromDeliveryPoint)
 				.AddDeleteDependence<TransferOperationDocument>(item => item.ToDeliveryPoint)
@@ -535,12 +497,9 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(item => item.IncEquipmentDepositOperation)
 				.AddDeleteCascadeDependence(item => item.OutEquipmentDepositOperation);
 
-			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreementFixedPrice>();
-
 			DeleteConfig.AddHibernateDeleteInfo<CallTask>();
 
 			DeleteConfig.AddHibernateDeleteInfo<DocTemplate>()
-				.AddClearDependence<AdditionalAgreement>(x => x.DocumentTemplate)
 				.AddClearDependence<CounterpartyContract>(x => x.DocumentTemplate)
 				.AddClearDependence<EmployeeContract>(x => x.EmployeeContractTemplate)
 				;
@@ -581,6 +540,8 @@ namespace Vodovoz
 				.AddDeleteDependence<RouteListItem>(x => x.RouteList)
 				.AddDeleteDependence<CarLoadDocument>(x => x.RouteList)
 				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList)
+				.AddDeleteDependence<AddressTransferDocument>(x => x.RouteListFrom)
+				.AddDeleteDependence<AddressTransferDocument>(x => x.RouteListTo)
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddDeleteDependence<FuelDocument>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
@@ -596,8 +557,11 @@ namespace Vodovoz
 				.AddClearDependence<Nomenclature>(x => x.RouteListColumn);
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteListItem>()
-						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress)
-						;
+						.AddDeleteDependence<DeliveryDocument>(x => x.RouteListItem)
+						.AddDeleteDependence<RouteListItemCashDistributionDocument>(x => x.RouteListItem)
+						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.OldAddress)
+						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.NewAddress)
+						.AddRemoveFromDependence<RouteList>(x => x.Addresses);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 
@@ -626,6 +590,17 @@ namespace Vodovoz
 				//.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
 
 			#endregion
+
+			#endregion
+
+			#region Financial District
+
+			DeleteConfig.AddHibernateDeleteInfo<FinancialDistrictsSet>()
+				.AddDeleteDependence<FinancialDistrict>(x => x.FinancialDistrictsSet);
+			
+			DeleteConfig.AddHibernateDeleteInfo<FinancialDistrict>()
+				.AddClearDependence<FinancialDistrict>(i => i.CopyOf)
+				.AddRemoveFromDependence<FinancialDistrictsSet>(x => x.FinancialDistricts);
 
 			#endregion
 
@@ -757,8 +732,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<BillDocument>();
 
-			DeleteConfig.AddHibernateDeleteInfo<CoolerWarrantyDocument>();
-
 			DeleteConfig.AddHibernateDeleteInfo<DoneWorkDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentTransferDocument>();
@@ -767,11 +740,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceDocument>();
 
-			DeleteConfig.AddHibernateDeleteInfo<OrderAgreement>();
-
 			DeleteConfig.AddHibernateDeleteInfo<OrderContract>();
-
-			DeleteConfig.AddHibernateDeleteInfo<PumpWarrantyDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<UPDDocument>();
 
@@ -784,12 +753,9 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<SpecialBillDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<SpecialUPDDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<OrderM2Proxy>();
-			DeleteConfig.AddHibernateDeleteInfo<BottleTransferDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentReturnDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceContractDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<NomenclatureCertificateDocument>();
-			DeleteConfig.AddHibernateDeleteInfo<RefundBottleDepositDocument>();
-			DeleteConfig.AddHibernateDeleteInfo<RefundEquipmentDepositDocument>();
 			#endregion
 
 			//Документы
@@ -849,13 +815,13 @@ namespace Vodovoz
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.MovementOperation);
+				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocument>()
 				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.MovementOperation);
+				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<InventoryDocument>()
 				.AddDeleteDependence<InventoryDocumentItem>(x => x.Document);
@@ -914,8 +880,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<WarehouseMovementOperation>()
 				.RequiredCascadeDeletion()
-				.AddDeleteDependence<CarLoadDocumentItem>(x => x.MovementOperation)
-				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.MovementOperation)
+				.AddDeleteDependence<CarLoadDocumentItem>(x => x.WarehouseMovementOperation)
+				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.WarehouseMovementOperation)
 				.AddDeleteDependence<IncomingInvoiceItem>(x => x.IncomeGoodsOperation)
 				.AddDeleteDependence<IncomingWater>(x => x.ProduceOperation)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.ConsumptionMaterialOperation)
@@ -967,25 +933,17 @@ namespace Vodovoz
 
 			#endregion
 
-			#region Права
-
-			DeleteConfig.AddHibernateDeleteInfo<TypeOfEntity>()
-				.AddDeleteDependence<EntityUserPermission>(x => x.TypeOfEntity)
-				;
-			DeleteConfig.AddHibernateDeleteInfo<EntityUserPermission>();
-			DeleteConfig.AddHibernateDeleteInfo<PresetUserPermission>();
-
-			#endregion
-
 			#region Cash
 
 			DeleteConfig.AddHibernateDeleteInfo<Income>()
 				.AddDeleteDependence<AdvanceClosing>(x => x.Income)
-				.AddDeleteDependence<AdvanceReport>(x => x.ChangeReturn);
+				.AddDeleteDependence<AdvanceReport>(x => x.ChangeReturn)
+				.AddDeleteDependence<CashOrganisationDistributionDocument>(x => x.Income);
 
 			DeleteConfig.AddHibernateDeleteInfo<Expense>()
 				.AddDeleteDependence<AdvanceClosing>(x => x.AdvanceExpense)
 				.AddDeleteDependence<FuelDocument>(x => x.FuelCashExpense)
+				.AddDeleteDependence<CashOrganisationDistributionDocument>(x => x.Expense)
 				.AddDeleteCascadeDependence(x => x.WagesOperation);
 
 			DeleteConfig.AddDeleteInfo(
@@ -994,7 +952,9 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, date FROM @tablename ",
 					DisplayString = "Авансовый отчет №{0} от {1:d}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport) //FIXME Запустить перерасчет калки закрытия. 
+						DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport), //FIXME Запустить перерасчет калки закрытия. 
+						DeleteDependenceInfo.Create<AdvanceIncomeCashDistributionDocument> (item => item.AdvanceReport),
+						DeleteDependenceInfo.Create<AdvanceExpenseCashDistributionDocument> (item => item.AdvanceReport)
 					}
 				}.FillFromMetaInfo()
 			);
@@ -1054,13 +1014,40 @@ namespace Vodovoz
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<CashTransferDocumentBase>(item => item.CashTransferOperation);
 
+			DeleteConfig.AddHibernateDeleteInfo<CashOrganisationDistributionDocument>()
+				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<IncomeCashDistributionDocument>();
+
+			DeleteConfig.AddHibernateDeleteInfo<ExpenseCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<RouteListItemCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceIncomeCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceExpenseCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<FuelExpenseCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<OrganisationCashMovementOperation>();
+
+			DeleteConfig.AddHibernateDeleteInfo<CashRequest>()
+				.AddDeleteDependence<CashRequestSumItem>(x => x.CashRequest);
+			
+			DeleteConfig.AddHibernateDeleteInfo<CashRequestSumItem>()
+				.AddDeleteCascadeDependence(x => x.Expense);
+
+			
 			#endregion
 
 			#region Топливо
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelDocument>()
 						.AddDeleteCascadeDependence(x => x.FuelOperation)
-						.AddDeleteCascadeDependence(x => x.FuelExpenseOperation);
+						.AddDeleteCascadeDependence(x => x.FuelExpenseOperation)
+						.AddDeleteDependence<FuelExpenseCashDistributionDocument>(x => x.FuelDocument);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelOperation>()
 				.RequiredCascadeDeletion()
@@ -1099,6 +1086,30 @@ namespace Vodovoz
 
 			#endregion Топливо
 
+			#region DeliveryDocument
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryDocument>()
+				.AddDeleteDependenceFromCollection(x => x.Items);
+			
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryDocumentItem>()
+				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperation);
+
+			#endregion
+
+			#region AddressTransferDocument
+
+			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocument>()
+				.AddDeleteDependenceFromCollection(x => x.AddressTransferDocumentItems);
+			
+			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocumentItem>()
+				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems);
+
+			DeleteConfig.AddHibernateDeleteInfo<DriverNomenclatureTransferItem>()
+				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationFrom)
+				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationTo);
+
+			#endregion
+
 			#region Операции по счету
 
 			DeleteConfig.AddHibernateDeleteInfo<AccountIncome>()
@@ -1118,7 +1129,7 @@ namespace Vodovoz
 
 			#endregion
 
-			DeleteConfig.AddHibernateDeleteInfo<PaymentFromTinkoff>();
+			DeleteConfig.AddHibernateDeleteInfo<PaymentByCardOnline>();
 			DeleteConfig.AddHibernateDeleteInfo<OrderIdProviderForMobileApp>();
 
 			#region Журнал изменений
@@ -1160,6 +1171,12 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<StoredImageResource>();
 			DeleteConfig.AddHibernateDeleteInfo<StoredResource>();
+
+			#endregion
+
+			#region Предложения (ApplicationDevelopmentProposal)
+
+			DeleteConfig.AddHibernateDeleteInfo<ApplicationDevelopmentProposal>();
 
 			#endregion
 

@@ -13,6 +13,10 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Models;
+using Vodovoz.Parameters;
+using Vodovoz.Repositories.Client;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -56,17 +60,18 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false)
+		public virtual int GetTotalWater19LCount()
 		{
 			var water19L =
 				ObservableOrderWithoutDeliveryForAdvancePaymentItems.Where(x => x.Nomenclature.IsWater19L);
 
-			return water19L.Sum(x => x.Count);
+			return (int)water19L.Sum(x => x.Count);
 		}
 
 		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)
 		{
 			OrderWithoutShipmentForAdvancePaymentItem oi = new OrderWithoutShipmentForAdvancePaymentItem {
+				OrderWithoutDeliveryForAdvancePayment = this,
 				Count = count,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1),
@@ -82,8 +87,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
 			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
 				return;
-
-			orderItem.OrderWithoutDeliveryForAdvancePayment = this;
+			
 			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(orderItem);
 		}
 
@@ -103,7 +107,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Identifier = "Documents.BillWithoutShipmentForAdvancePayment",
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_advance_payment_id", Id },
-					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
+					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
 				}
@@ -170,7 +174,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 						"Спасибо, что Вы с нами.\n\n" +
 						"С Уважением,\n" +
 						"Команда компании  \"Веселый Водовоз\"\n" +
-						"тел.: +7(812) 493-50-93\n" +
+						"тел.: +7(812) 317-00-00\n" +
 						"P.S.И помни, мы тебя любим!\n\n" +
 						"Мы ВКонтакте: vk.com/vodovoz_spb\n" +
 						"Мы в Instagram: @vodovoz_lifestyle\n" +
@@ -184,7 +188,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 						"<p>Спасибо, что Вы с нами.</p>\n" +
 						"<p>С Уважением,</p>\n" +
 						"<p>Команда компании  \"Веселый Водовоз\"</p>\n" +
-						"<p>тел.: +7 (812) 493-50-93</p>\n" +
+						"<p>тел.: +7 (812) 317-00-00</p>\n" +
 						"<p>P.S. И помни, мы тебя любим!</p>\n" +
 						"<p>______________</p>\n" +
 						"<p>Мы ВКонтакте: <a href=\"https://vk.com/vodovoz_spb\" target=\"_blank\">vk.com/vodovoz_spb</a></p>\n" +

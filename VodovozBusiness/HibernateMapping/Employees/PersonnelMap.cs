@@ -17,13 +17,14 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.Name)				.Column("name");
 			Map(x => x.LastName)			.Column("last_name");
 			Map(x => x.Patronymic)			.Column("patronymic");
-			Map(x => x.DrivingNumber)		.Column("driving_number");
+			Map(x => x.DrivingLicense)		.Column("driving_number");
 			Map(x => x.Photo)				.Column("photo").CustomSqlType("BinaryBlob").LazyLoad();
 			Map(x => x.AddressRegistration)	.Column("address_registration");
 			Map(x => x.BirthdayDate)		.Column("birthday_date");
 			Map(x => x.AddressCurrent)		.Column("address_current");
 			Map(x => x.INN)					.Column("inn");
 			Map(x => x.IsRussianCitizen).Column("is_russian_citizen");
+
 
 			References(x => x.Nationality)	.Column("nationality_id");
 			References(x => x.Citizenship)	.Column("citizenship_id");
@@ -38,7 +39,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			public EmployeeMap()
 			{
 				DiscriminatorValue(EmployeeType.Employee.ToString());
-
+				Map(x => x.InnerPhone)				 .Column("inner_phone");
 				Map(x => x.Category)				 .Column("category").CustomType<EmployeeCategoryStringType>();
 				Map(x => x.Status)					 .Column("status").CustomType<EmployeeStatusStringType>();
 				Map(x => x.AndroidLogin)			 .Column("android_login");
@@ -55,6 +56,7 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.IsChainStoreDriver)		 .Column("is_chain_store_driver");
 				Map(x => x.IsDriverForOneDay)		 .Column("is_driver_for_one_day");
 				Map(x => x.DriverOf)				 .Column("driver_of").CustomType<CarTypeOfUseStringType>();
+				Map(x => x.Gender)				     .Column("gender").CustomType<GenderStringType>();
 				Map(x => x.Registration)			 .Column("registration_type").CustomType<RegistrationTypeStringType>();
 				Map(x => x.MinRouteAddresses)		 .Column("min_route_addresses");
 				Map(x => x.MaxRouteAddresses)		 .Column("max_route_addresses");
@@ -63,7 +65,8 @@ namespace Vodovoz.HibernateMapping.Employees
 				References(x => x.Subdivision)		 .Column("subdivision_id");
 				References(x => x.User)				 .Column("user_id");
 				References(x => x.DefaultForwarder)	 .Column("default_forwarder_id");
-
+				References(x => x.OrganisationForSalary).Column("organisation_for_salary_id");
+				
 				HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
 										 .KeyColumn("driver_id")
 										 .AsList(x => x.Column("priority"));

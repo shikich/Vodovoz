@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -10,21 +11,22 @@ namespace Vodovoz.Domain.Orders
 	{
 		public virtual int Id { get; set; }
 
-		Order order;
+		private Order order;
 		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get => order;
 			set => SetField(ref order, value);
 		}
 
-		bool sent;
-		[Display(Name = "Чек отправлен?")]
+		private bool sent;
+        [RestrictedHistoryProperty]
+        [Display(Name = "Чек отправлен?")]
 		public virtual bool Sent{
 			get => sent;
 			set => SetField(ref sent, value);
 		}
 
-		int? httpCode;
+		private int? httpCode;
 		[Display(Name = "HTTP код статуса отправки")]
 		public virtual int? HttpCode {
 			get => httpCode;

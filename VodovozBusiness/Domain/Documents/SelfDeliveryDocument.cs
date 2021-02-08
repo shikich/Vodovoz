@@ -137,32 +137,48 @@ namespace Vodovoz.Domain.Documents
 					continue;
 				}
 
-				if(Warehouse == null || Warehouse.Nomenclatures.Contains(orderItem.Nomenclature)) {
-					if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature))
-						ObservableItems.Add(
-							new SelfDeliveryDocumentItem {
-								Document = this,
-								Nomenclature = orderItem.Nomenclature,
-								OrderItem = orderItem,
-								OrderEquipment = null,
-								Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
-							}
-						);
+				if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature)) {
+					ObservableItems.Add(
+						new SelfDeliveryDocumentItem {
+							Document = this,
+							Nomenclature = orderItem.Nomenclature,
+							OrderItem = orderItem,
+							OrderEquipment = null,
+							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
+						}
+					);
 				}
+
 			}
 
 			foreach(var orderEquipment in Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)) {
-				if(Warehouse == null || Warehouse.Nomenclatures.Contains(orderEquipment.Nomenclature)) {
-					if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
-						ObservableItems.Add(
-							new SelfDeliveryDocumentItem {
-								Document = this,
-								Nomenclature = orderEquipment.Nomenclature,
-								OrderItem = null,
-								OrderEquipment = orderEquipment,
-								Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
-							}
-						);
+				if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature)) { 
+					ObservableItems.Add(
+						new SelfDeliveryDocumentItem {
+							Document = this,
+							Nomenclature = orderEquipment.Nomenclature,
+							OrderItem = null,
+							OrderEquipment = orderEquipment,
+							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
+						}
+					);
+				}
+			}
+
+			foreach (var orderReturnedEquipment in Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp))
+			{
+				if(!ReturnedItems.Any(i => i.Nomenclature == orderReturnedEquipment.Nomenclature)){
+					ReturnedItems.Add(
+						new SelfDeliveryDocumentReturned {
+							Document = this,
+							Nomenclature = orderReturnedEquipment.Nomenclature,
+							ActualCount = 0,
+							Amount = GetEquipmentReturnsCountInOrder(orderReturnedEquipment.Nomenclature),
+							Direction = orderReturnedEquipment.Direction,
+							DirectionReason = orderReturnedEquipment.DirectionReason,
+							OwnType = orderReturnedEquipment.OwnType
+						}
+					);
 				}
 			}
 		}
@@ -171,6 +187,12 @@ namespace Vodovoz.Domain.Documents
 		{
 			decimal cnt = Order.OrderItems.Where(i => i.Nomenclature == item).Sum(i => i.Count);
 			cnt += Order.OrderEquipments.Where(e => e.Nomenclature == item && e.Direction == Direction.Deliver).Sum(e => e.Count);
+			return cnt;
+		}
+
+		public virtual decimal GetEquipmentReturnsCountInOrder(Nomenclature item)
+		{
+			decimal cnt =  Order.OrderEquipments.Where(e => e.Nomenclature == item && e.Direction == Direction.PickUp).Sum(e => e.Count);
 			return cnt;
 		}
 
@@ -231,6 +253,8 @@ namespace Vodovoz.Domain.Documents
 					}
 				}
 			}
+
+
 		}
 
 		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
@@ -268,20 +292,24 @@ namespace Vodovoz.Domain.Documents
 					Document = this,
 					Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
 				};
-				item.CreateOperation(Warehouse, TimeStamp);
+				item.CreateOperation(Warehouse, Order.Client, TimeStamp);
 				ReturnedItems.Add(item);
 			} else if(item != null && returnedNomenclaureQuantity == 0) {
 				ReturnedItems.Remove(item);
 			} else if(item != null && returnedNomenclaureQuantity != 0) {
 				item.Amount = returnedNomenclaureQuantity;
-				item.UpdateOperation(Warehouse);
+				if(item.Id == 0) {
+					item.CreateOperation(Warehouse, Order.Client, TimeStamp);
+				} else {
+					item.UpdateOperation(Warehouse, Order.Client);
+				}
 			}
 		}
 
 		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
+			return Order.TryCloseSelfDeliveryOrderWithCallTask(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
 		}
 
 		#endregion
@@ -291,7 +319,11 @@ namespace Vodovoz.Domain.Documents
 	{
 		public int NomenclatureId { get; set; }
 		public string Name { get; set; }
-		public int Amount { get; set; }
+		public decimal Amount { get; set; }
+		public int ExpectedAmount { get; set; }
 		public NomenclatureCategory Category { get; set; }
-	}
+        public Direction? Direction { get; set; }
+        public DirectionReason DirectionReason { get; set; }
+        public OwnTypes OwnType { get; set; }
+    }
 }

@@ -127,6 +127,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -144,6 +145,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -167,6 +169,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -190,6 +193,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -213,6 +217,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -236,6 +241,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -259,6 +265,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -282,6 +289,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -300,6 +308,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -307,7 +316,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox94">
-                      <Value>=Sum({bottles_monday} + {bottles_tuesday} + {bottles_wednesday} + {bottles_thursday} + {bottles_friday} + {bottles_saturday} + {bottles_sunday})</Value>
+                      <Value>=Sum(Iif(Fields!bottles_monday.IsMissing, 0, {bottles_monday}) + Iif(Fields!bottles_tuesday.IsMissing, 0, {bottles_tuesday}) + Iif(Fields!bottles_wednesday.IsMissing, 0, {bottles_wednesday}) + Iif(Fields!bottles_thursday.IsMissing, 0, {bottles_thursday}) + Iif(Fields!bottles_friday.IsMissing, 0, {bottles_friday}) + Iif(Fields!bottles_saturday.IsMissing, 0, {bottles_saturday}) + Iif(Fields!bottles_sunday.IsMissing, 0, {bottles_sunday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -317,6 +326,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -325,7 +335,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox98">
-                      <Value>=Sum({address_monday} + {address_tuesday} + {address_wednesday} + {address_thursday} + {address_friday} + {address_saturday} + {address_sunday})</Value>
+                      <Value>=Sum(Iif(Fields!address_monday.IsMissing, 0, {address_monday}) + Iif(Fields!address_tuesday.IsMissing, 0, {address_tuesday}) + Iif(Fields!address_wednesday.IsMissing, 0, {address_wednesday}) + Iif(Fields!address_thursday.IsMissing, 0, {address_thursday}) + Iif(Fields!address_friday.IsMissing, 0, {address_friday}) + Iif(Fields!address_saturday.IsMissing, 0, {address_saturday}) + Iif(Fields!address_sunday.IsMissing, 0, {address_sunday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -335,6 +345,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -358,6 +369,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -377,6 +389,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -397,6 +410,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -417,6 +431,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -437,6 +452,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -457,6 +473,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -477,6 +494,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -497,6 +515,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -517,6 +536,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -525,7 +545,7 @@
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>11.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -540,6 +560,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -558,6 +579,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -577,6 +599,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -596,6 +619,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -615,6 +639,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -634,6 +659,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -653,6 +679,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -672,6 +699,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -691,6 +719,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -710,6 +739,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -729,6 +759,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -748,6 +779,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -767,6 +799,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -786,6 +819,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -805,6 +839,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -824,6 +859,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -840,6 +876,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -852,7 +889,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>12.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -865,8 +902,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -886,6 +924,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -904,6 +943,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -924,6 +964,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -942,6 +983,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -962,6 +1004,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -980,6 +1023,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1000,6 +1044,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1018,6 +1063,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1038,6 +1084,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1056,6 +1103,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1076,6 +1124,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1094,6 +1143,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1114,6 +1164,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1132,6 +1183,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1141,7 +1193,13 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>={bottles_monday} + {bottles_tuesday} + {bottles_wednesday} + {bottles_thursday} + {bottles_friday} + {bottles_saturday} + {bottles_sunday}</Value>
+                      <Value>=Iif(Fields!bottles_monday.IsMissing, 0, {bottles_monday}) +
+ Iif(Fields!bottles_tuesday.IsMissing, 0, {bottles_tuesday})  +
+ Iif(Fields!bottles_wednesday.IsMissing, 0, {bottles_wednesday})  +
+ Iif(Fields!bottles_thursday.IsMissing, 0, {bottles_thursday}) +
+ Iif(Fields!bottles_friday.IsMissing, 0, {bottles_friday}) +
+ Iif(Fields!bottles_saturday.IsMissing, 0, {bottles_saturday}) +
+ Iif(Fields!bottles_sunday.IsMissing, 0, {bottles_sunday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1151,6 +1209,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1158,7 +1217,13 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>={address_monday} + {address_tuesday} + {address_wednesday} + {address_thursday} + {address_friday} + {address_saturday} + {address_sunday}</Value>
+                      <Value>=Iif(Fields!address_monday.IsMissing, 0, {address_monday}) +
+ Iif(Fields!address_tuesday.IsMissing, 0, {address_tuesday})  +
+ Iif(Fields!address_wednesday.IsMissing, 0, {address_wednesday})  +
+ Iif(Fields!address_thursday.IsMissing, 0, {address_thursday}) +
+ Iif(Fields!address_friday.IsMissing, 0, {address_friday}) +
+ Iif(Fields!address_saturday.IsMissing, 0, {address_saturday}) +
+ Iif(Fields!address_sunday.IsMissing, 0, {address_sunday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1168,6 +1233,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1176,8 +1242,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>8.8pt</Left>
-        <Top>20.2pt</Top>
+        <Left>8.0pt</Left>
+        <Top>80.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1196,6 +1262,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1215,6 +1282,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1233,6 +1301,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1253,6 +1322,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1271,6 +1341,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1291,6 +1362,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1309,6 +1381,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1329,6 +1402,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1347,6 +1421,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1367,6 +1442,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1385,6 +1461,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1405,6 +1482,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1423,6 +1501,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1443,6 +1522,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1461,6 +1541,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1481,6 +1562,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1499,6 +1581,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1521,6 +1604,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1529,7 +1613,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox93">
-                      <Value>=Round(Avg({bottles_monday}))</Value>
+                      <Value>=Iif(Round(Avg({bottles_monday})) &lt; 0, ' ', Round(Avg({bottles_monday})))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1540,6 +1624,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1548,7 +1633,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox95">
-                      <Value>=Round(Avg({address_monday}))</Value>
+                      <Value>=Iif(Round(Avg({address_monday})) &lt; 0, ' ', Round(Avg({address_monday})))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1558,6 +1643,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1567,7 +1653,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox97">
-                      <Value>=Round(Avg({bottles_tuesday}))</Value>
+                      <Value>=Iif(Round(Avg({bottles_tuesday})) &lt; 0, ' ', Round(Avg({bottles_tuesday})))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1578,6 +1664,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1586,7 +1673,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox99">
-                      <Value>=Round(Avg({address_tuesday}))</Value>
+                      <Value>=Iif(Round(Avg({address_tuesday})) &lt; 0, ' ' , Round(Avg({address_tuesday})))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1596,6 +1683,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1605,7 +1693,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox101">
-                      <Value>=Round(Avg({bottles_wednesday}))</Value>
+                      <Value>=Iif(Round(Avg({bottles_wednesday})) &lt; 0, ' ' , Round(Avg({bottles_wednesday})))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1616,6 +1704,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1624,7 +1713,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox103">
-                      <Value>=Round(Avg({address_wednesday}))</Value>
+                      <Value>=Iif(Round(Avg({address_wednesday})) &lt; 0, ' ' , Round(Avg({address_wednesday})))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1634,6 +1723,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1643,7 +1733,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox105">
-                      <Value>=Round(Avg({bottles_thursday}))</Value>
+                      <Value>=Iif(Round(Avg({bottles_thursday})) &lt; 0, ' ' , Round(Avg({bottles_thursday})))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1654,6 +1744,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1662,7 +1753,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>=Round(Avg({address_thursday}))</Value>
+                      <Value>=Iif(Round(Avg({address_thursday})) &lt; 0, ' ' , Round(Avg({address_thursday})))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1672,6 +1763,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1681,7 +1773,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox109">
-                      <Value>=Round(Avg({bottles_friday}))</Value>
+                      <Value>=Iif(Round(Avg({bottles_friday})) &lt; 0, ' ' , Round(Avg({bottles_friday})))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1692,6 +1784,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1700,7 +1793,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox111">
-                      <Value>=Round(Avg({address_friday}))</Value>
+                      <Value>=Iif(Round(Avg({address_friday})) &lt; 0, ' ' , Round(Avg({address_friday})))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1710,6 +1803,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1719,7 +1813,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox113">
-                      <Value>=Round(Avg({bottles_saturday}))</Value>
+                      <Value>=Iif(Round(Avg({bottles_saturday})) &lt; 0, ' ', Round(Avg({bottles_saturday})))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1730,6 +1824,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1738,7 +1833,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox115">
-                      <Value>=Round(Avg({address_saturday}))</Value>
+                      <Value>=Iif(Round(Avg({address_saturday})) &lt; 0, ' ', Round(Avg({address_saturday})))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1748,6 +1843,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1757,7 +1853,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox117">
-                      <Value>=Round(Avg({bottles_sunday}))</Value>
+                      <Value>=Iif(Round(Avg({bottles_sunday})) &lt; 0, ' ', Round(Avg({bottles_sunday})))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1768,6 +1864,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1776,7 +1873,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox119">
-                      <Value>=Round(Avg({address_sunday}))</Value>
+                      <Value>=Iif(Round(Avg({address_sunday})) &lt; 0, ' ', Round(Avg({address_sunday})))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1786,6 +1883,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1806,6 +1904,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1824,6 +1923,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1850,6 +1950,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontSize>7pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1872,6 +1973,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1894,6 +1996,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1916,6 +2019,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1938,6 +2042,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1960,6 +2065,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1982,6 +2088,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2004,6 +2111,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2026,6 +2134,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2048,6 +2157,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2070,6 +2180,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2092,6 +2203,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2114,6 +2226,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2136,6 +2249,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2158,6 +2272,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2175,6 +2290,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2182,7 +2298,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>=First({nedovozi}, "k_nedovozam") * 100 / Sum({address_monday} + {address_tuesday} + {address_wednesday} + {address_thursday} + {address_friday} + {address_saturday} + {address_sunday})</Value>
+                      <Value>=First({undeliveries}, "Undeliveries") * 100 / Sum(Iif(Fields!address_monday.IsMissing, 0, {address_monday}) + Iif(Fields!address_tuesday.IsMissing, 0, {address_tuesday}) + Iif(Fields!address_wednesday.IsMissing, 0, {address_wednesday}) + Iif(Fields!address_thursday.IsMissing, 0, {address_thursday}) + Iif(Fields!address_friday.IsMissing, 0, {address_friday}) + Iif(Fields!address_saturday.IsMissing, 0, {address_saturday}) + Iif(Fields!address_sunday.IsMissing, 0, {address_sunday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2193,6 +2309,197 @@
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                         <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Table Name="Table2" >
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>101.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Left>7.7pt</Left>
+        <Top>14.8pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>Итого адресов:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>=Sum(Iif(Fields!address_monday.IsMissing, 0, {address_monday}) + Iif(Fields!address_tuesday.IsMissing, 0, {address_tuesday}) + Iif(Fields!address_wednesday.IsMissing, 0, {address_wednesday}) + Iif(Fields!address_thursday.IsMissing, 0, {address_thursday}) + Iif(Fields!address_friday.IsMissing, 0, {address_friday}) + Iif(Fields!address_saturday.IsMissing, 0, {address_saturday}) + Iif(Fields!address_sunday.IsMissing, 0, {address_sunday}))</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Итого бутылей 19л:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Sum(Iif(Fields!bottles_monday.IsMissing, 0, {bottles_monday}) + Iif(Fields!bottles_tuesday.IsMissing, 0, {bottles_tuesday}) + Iif(Fields!bottles_wednesday.IsMissing, 0, {bottles_wednesday}) + Iif(Fields!bottles_thursday.IsMissing, 0, {bottles_thursday}) + Iif(Fields!bottles_friday.IsMissing, 0, {bottles_friday}) + Iif(Fields!bottles_saturday.IsMissing, 0, {bottles_saturday}) + Iif(Fields!bottles_sunday.IsMissing, 0, {bottles_sunday}))</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Итого недовозов:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=First({undeliveries}, "Undeliveries")</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Показатель недовозов:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>=First({undeliveries}, "Undeliveries") / Sum(Iif(Fields!address_monday.IsMissing, 0, {address_monday}) + Iif(Fields!address_tuesday.IsMissing, 0, {address_tuesday}) + Iif(Fields!address_wednesday.IsMissing, 0, {address_wednesday}) + Iif(Fields!address_thursday.IsMissing, 0, {address_thursday}) + Iif(Fields!address_friday.IsMissing, 0, {address_friday}) + Iif(Fields!address_saturday.IsMissing, 0, {address_saturday}) + Iif(Fields!address_sunday.IsMissing, 0, {address_sunday}))</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                        <Format>0.00%</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2212,102 +2519,102 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    T.week_begin,
-    T.week_end,
-    SUM(T.bottles_monday) as bottles_monday,
-    COUNT(T.address_monday) as address_monday,
+        <CommandText>#SET @start_date = '2020-08-20';
+#SET @end_date = '2020-08-20 23:59';
 
-    SUM(T.bottles_tuesday) as bottles_tuesday,
-    COUNT(T.address_tuesday) as address_tuesday,
+SELECT
+   T.week_begin,
+   T.week_end,
+   CAST(SUM(T.bottles_monday) as SIGNED) as bottles_monday,
+   (COUNT(T.address_monday) * (SUM(T.address_monday) - SUM(T.address_monday) + 1) ) as address_monday,
 
-    SUM(T.bottles_wednesday) as bottles_wednesday,
-    COUNT(T.address_wednesday) as address_wednesday,
+   CAST(SUM(T.bottles_tuesday) as SIGNED) as bottles_tuesday,
+   (COUNT(T.address_tuesday) * (SUM(T.address_tuesday) - SUM(T.address_tuesday) + 1) ) as address_tuesday,
 
-    SUM(T.bottles_thursday) as bottles_thursday,
-    COUNT(T.address_thursday) as address_thursday,
+   CAST(SUM(T.bottles_wednesday) as SIGNED) as bottles_wednesday,
+   (COUNT(T.address_wednesday) * (SUM(T.address_wednesday) - SUM(T.address_wednesday) + 1) ) as address_wednesday,
 
-    SUM(T.bottles_friday) as bottles_friday,
-    COUNT(T.address_friday) as address_friday,
+   CAST(SUM(T.bottles_thursday) as SIGNED) as bottles_thursday,
+   (COUNT(T.address_thursday) * (SUM(T.address_thursday) - SUM(T.address_thursday) + 1) ) as address_thursday,
 
-    SUM(T.bottles_saturday) as bottles_saturday,
-    COUNT(T.address_saturday) as address_saturday,
+   CAST(SUM(T.bottles_friday) as SIGNED) as bottles_friday,
+   (COUNT(T.address_friday) * (SUM(T.address_friday) - SUM(T.address_friday) + 1) ) as address_friday,
 
-    SUM(T.bottles_sunday) as bottles_sunday,
-    COUNT(T.address_sunday) as address_sunday
+   CAST(SUM(T.bottles_saturday) as SIGNED) as bottles_saturday,
+   (COUNT(T.address_saturday) * (SUM(T.address_saturday) - SUM(T.address_saturday) + 1) ) as address_saturday,
+
+   CAST(SUM(T.bottles_sunday) as SIGNED) as bottles_sunday,
+   (COUNT(T.address_sunday) * (SUM(T.address_sunday) - SUM(T.address_sunday) + 1) ) as address_sunday
+
 FROM
     (SELECT
-         week_days.week_begin,
-         week_days.week_end,
+        week_days.week_begin,
+        week_days.week_end,
 
-         IF(dayofweek = 0, order_sum.count, 0)  AS bottles_monday,
-         IF(dayofweek = 0, compiled_address, null)  AS address_monday,
+        IF(dayofweek = 0, order_sum.count, null)  AS bottles_monday,
+        IF(dayofweek = 0, compiled_address, null)  AS address_monday,
 
-         IF(dayofweek = 1 , order_sum.count, 0)  AS bottles_tuesday,
-         IF(dayofweek = 1 , compiled_address, null)  AS address_tuesday,
+        IF(dayofweek = 1 , order_sum.count, null)  AS bottles_tuesday,
+        IF(dayofweek = 1 , compiled_address, null)  AS address_tuesday,
 
-         IF(dayofweek = 2 , order_sum.count, 0)  AS bottles_wednesday,
-         IF(dayofweek = 2 , compiled_address, null)  AS address_wednesday,
+        IF(dayofweek = 2 , order_sum.count, null)  AS bottles_wednesday,
+        IF(dayofweek = 2 , compiled_address, null)  AS address_wednesday,
 
-         IF(dayofweek = 3 , order_sum.count, 0)  AS bottles_thursday,
-         IF(dayofweek = 3 , compiled_address, null)  AS address_thursday,
+        IF(dayofweek = 3 , order_sum.count, null)  AS bottles_thursday,
+        IF(dayofweek = 3 , compiled_address, null)  AS address_thursday,
 
-         IF(dayofweek = 4 , order_sum.count, 0)  AS bottles_friday,
-         IF(dayofweek = 4 , compiled_address, null)  AS address_friday,
+        IF(dayofweek = 4 , order_sum.count, null)  AS bottles_friday,
+        IF(dayofweek = 4 , compiled_address, null)  AS address_friday,
 
-         IF(dayofweek = 5 , order_sum.count, 0)  AS bottles_saturday,
-         IF(dayofweek = 5 , compiled_address, null)  AS address_saturday,
+        IF(dayofweek = 5 , order_sum.count, null)  AS bottles_saturday,
+        IF(dayofweek = 5 , compiled_address, null)  AS address_saturday,
 
-         IF(dayofweek = 6 , order_sum.count, 0)  AS bottles_sunday,
-         IF(dayofweek = 6 , compiled_address, null)  AS address_sunday
-     FROM
-         orders
-             LEFT JOIN
-         (
-             SELECT
-                 orders.id as order_id,
-                 date_sub(delivery_date, interval (weekday(delivery_date)) day) as week_begin,
-                 date_add(delivery_date, interval (6-weekday(delivery_date)) day) as week_end,
-                 WEEKDAY(delivery_date) as dayofweek
-             FROM
-                 orders
-                     LEFT JOIN
-                 delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-         ) as week_days ON week_days.order_id = orders.id
-             LEFT JOIN
-         (
-             SELECT
-                 order_items.order_id,
-                 SUM(order_items.count) AS count
-             FROM
-                 order_items
-                     LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-             WHERE
-                     nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-             GROUP BY order_items.order_id
-         ) AS order_sum ON order_sum.order_id = orders.id
-             LEFT JOIN
-         delivery_points ON delivery_point_id = delivery_points.id
-             LEFT JOIN
-         route_list_addresses ON orders.id = route_list_addresses.order_id
-             LEFT JOIN
-         route_lists ON route_list_addresses.route_list_id = route_lists.id
-             LEFT JOIN
-         employees ON route_lists.driver_id = employees.id
-             LEFT JOIN
-         delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-     WHERE
-         (delivery_date BETWEEN @start_date AND @end_date)
-       AND route_list_addresses.status &lt;&gt; 'Transfered'
-       AND (order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled' AND order_status != 'WaitForPayment')
-       AND NOT orders.self_delivery
-       AND orders.is_contract_closer = 0
-       AND orders.service = 0) as T
+        IF(dayofweek = 6 , order_sum.count, null)  AS bottles_sunday,
+        IF(dayofweek = 6 , compiled_address, null)  AS address_sunday
+    FROM
+        orders
+            LEFT JOIN
+        (
+            SELECT
+                orders.id as order_id,
+                date_sub(delivery_date, interval (weekday(delivery_date)) day) as week_begin,
+                date_add(delivery_date, interval (6-weekday(delivery_date)) day) as week_end,
+                WEEKDAY(delivery_date) as dayofweek
+            FROM
+                orders
+                    LEFT JOIN
+                delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+        ) as week_days ON week_days.order_id = orders.id
+            LEFT JOIN
+        (
+            SELECT
+                order_items.order_id,
+                SUM(order_items.count) AS count
+            FROM
+                order_items
+                    LEFT JOIN 
+                nomenclature ON order_items.nomenclature_id = nomenclature.id
+            WHERE
+                nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
+            GROUP BY order_items.order_id
+        ) AS order_sum ON order_sum.order_id = orders.id
+            LEFT JOIN
+        delivery_points ON delivery_point_id = delivery_points.id
+            LEFT JOIN
+        delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+    WHERE
+        (orders.delivery_date BETWEEN @start_date AND @end_date)
+        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
+        AND (@report_mode = 0 OR orders.order_status NOT IN ('DeliveryCanceled', 'NotDelivered'))
+        AND !orders.self_delivery
+        AND !orders.is_contract_closer
+        AND !orders.service
+        AND delivery_schedule.id IS NOT NULL
+        AND orders.delivery_point_id IS NOT NULL) as T
 GROUP BY week_begin
-ORDER BY week_begin
-</CommandText>
+ORDER BY week_begin</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -2315,9 +2622,12 @@ ORDER BY week_begin
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="report_mode">
+            <Value>=Parameters!report_mode</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2384,28 +2694,24 @@ ORDER BY week_begin
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="k_nedovozam">
-      <Query>
+    <DataSet Name="Undeliveries">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    count(*) as nedovozi
+        <CommandText>#SET @start_date = '2020-08-17';
+#SET @end_date = '2020-08-17 23:59';
+
+SELECT
+    count(*) as undeliveries
 FROM
     undelivered_orders undeliv_orders
-        left outer join
-    guilty_in_undelivered_orders guiltyinun
-    on undeliv_orders.id=guiltyinun.undelivery_id
-        left outer join
-    subdivisions subdivisio
-    on guiltyinun.guilty_department_id=subdivisio.id
-        left outer join
-    orders oldorderal
-    on undeliv_orders.old_order_id=oldorderal.id
+        left join
+    guilty_in_undelivered_orders guilty_in on undeliv_orders.id=guilty_in.undelivery_id
+        left join
+    orders old_order on undeliv_orders.old_order_id=old_order.id
 WHERE
-        oldorderal.delivery_date &gt;= @start_date
-        and oldorderal.delivery_date &lt;= @end_date
-        and guiltyinun.guilty_side = 'Driver' 
-        and undeliv_orders.status = 'Closed'
-        and (subdivisio.id = 13 or subdivisio.id = 26);</CommandText>
+    old_order.delivery_date &gt;= @start_date
+    and old_order.delivery_date &lt;= @end_date
+    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26));</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -2415,9 +2721,9 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="nedovozi">
-          <DataField>nedovozi</DataField>
+      <Fields >
+        <Field Name="undeliveries">
+          <DataField>undeliveries</DataField>
           <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
@@ -2456,6 +2762,14 @@ WHERE
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="report_mode">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>

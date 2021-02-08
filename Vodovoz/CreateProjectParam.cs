@@ -1,27 +1,41 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using Autofac;
 using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
-using NHibernate.Cfg;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
+using QS.Deletion.Views;
+using QS.Dialog;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Navigation;
 using QS.Permissions;
 using QS.Print;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Project.Services;
+using QS.Project.Services.GtkUI;
+using QS.Services;
+using QS.Tdi;
+using QS.ViewModels;
+using QS.ViewModels.Resolve;
+using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
 using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
+using QSReport;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
@@ -29,6 +43,7 @@ using Vodovoz.Dialogs.Cash;
 using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
+using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.Goods;
@@ -39,6 +54,7 @@ using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -48,6 +64,10 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
@@ -55,52 +75,75 @@ using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
+using Vodovoz.Footers.ViewModels;
+using Vodovoz.Footers.Views;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Infrastructure.Print;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.JournalViewers;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.ReportsParameters;
 using Vodovoz.Services.Permissions;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.BusinessTasks;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.Organization;
+using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.WageCalculation;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.Views;
+using Vodovoz.Views.BusinessTasks;
+using Vodovoz.Views.Cash;
 using Vodovoz.Views.Complaints;
+using Vodovoz.Views.Contacts;
 using Vodovoz.Views.Employees;
 using Vodovoz.Views.Logistic;
+using Vodovoz.Views.Orders;
+using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
-using Vodovoz.Views.WageCalculation;
-using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
-using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
-using Vodovoz.Views.Warehouse;
-using Vodovoz.ViewModels.Orders;
-using Vodovoz.ViewWidgets.PromoSetAction;
-using Vodovoz.Views.Contacts;
-using Vodovoz.ViewModels.Users;
 using Vodovoz.Views.Users;
-using Vodovoz.ViewModels.Permissions;
+using Vodovoz.Views.WageCalculation;
+using Vodovoz.Views.Warehouse;
+using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
-using Vodovoz.ViewModels.Reports;
-using Vodovoz.ReportsParameters;
-using Vodovoz.Domain.Contacts;
-using Vodovoz.ViewModels.BusinessTasks;
-using Vodovoz.Views.BusinessTasks;
-using Vodovoz.Footers.ViewModels;
-using Vodovoz.Footers.Views;
-using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using Vodovoz.Views.Orders.OrdersWithoutShipment;
-using Vodovoz.Dialogs.Email;
-using Vodovoz.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Cash;
-using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewWidgets.PromoSetAction;
 using Vodovoz.ViewModels.Goods;
-using Vodovoz.Views.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
-using Vodovoz.Views.Orders;
+using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.NhibernateExtensions;
+using Vodovoz.Tools;
+using Vodovoz.Views.Mango.Talks;
+using Vodovoz.ViewModels.Mango.Talks;
+using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.Views.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
+using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.ViewModels.ViewModels.Proposal;
+using Vodovoz.Views.Proposal;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -136,12 +179,15 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
-				.RegisterWidgetForTabViewModel<ExpenseCategoryViewModel, ExpenseCategoryView>()
 				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
 				.RegisterWidgetForTabViewModel<FineTemplateViewModel, FineTemplateView>()
 				.RegisterWidgetForTabViewModel<ComplaintViewModel, ComplaintView>()
+				.RegisterWidgetForTabViewModel<IncomeCategoryViewModel, IncomeCategoryView>()
+				.RegisterWidgetForTabViewModel<ExpenseCategoryViewModel, ExpenseCategoryView>()
+				.RegisterWidgetForTabViewModel<CashRequestViewModel, CashRequestView>()
+				.RegisterWidgetForTabViewModel<CashRequestItemViewModel, CashRequestItemView>()
 				.RegisterWidgetForTabViewModel<CreateComplaintViewModel, CreateComplaintView>()
 				.RegisterWidgetForTabViewModel<CreateInnerComplaintViewModel, CreateInnerComplaintView>()
 				.RegisterWidgetForTabViewModel<ComplaintSourceViewModel, ComplaintSourceView>()
@@ -176,10 +222,14 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
-				;
+				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
+				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
+				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
+                .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
+                ;
 
-			//Регистрация виджетов
-			ViewModelWidgetResolver.Instance
+            //Регистрация виджетов
+            ViewModelWidgetResolver.Instance
 				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DistrictJournalFilterViewModel, DistrictJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<SelectableParameterReportFilterViewModel, SelectableParameterReportFilterView>()
@@ -190,6 +240,9 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForWidgetViewModel<IncomeCategoryJournalFilterViewModel, IncomeCategoryJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<ExpenseCategoryJournalFilterViewModel, ExpenseCategoryJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CashRequestJournalFilterViewModel, CashRequestJournalFilterView>() 
 				.RegisterWidgetForWidgetViewModel<ProductGroupFilterViewModel, ProductGroupFilterView>()
 				.RegisterWidgetForWidgetViewModel<FineFilterViewModel, FineFilterView>()
 				.RegisterWidgetForWidgetViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
@@ -209,7 +262,13 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
 				.RegisterWidgetForWidgetViewModel<SendDocumentByEmailViewModel, SendDocumentByEmailView>()
-				;
+				.RegisterWidgetForWidgetViewModel<FinancialDistrictsSetsJournalFilterViewModel, FinancialDistrictsSetsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FixedPricesViewModel, FixedPricesView>()
+				.RegisterWidgetForWidgetViewModel<MovementWagonJournalFilterViewModel, MovementWagonJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
+                ;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
@@ -226,7 +285,7 @@ namespace Vodovoz
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(QSMain.ConnectionString)
 				.AdoNetBatchSize(100)
 				.Driver<LoggedMySqlClientDriver>();
@@ -261,7 +320,7 @@ namespace Vodovoz
 				OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsView>(),
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
-				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<MovementWagon>.Create().Dialog<MovementWagonViewModel>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
 				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
 				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
@@ -285,12 +344,6 @@ namespace Vodovoz
 				OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
 					.DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString (x.PriceDaily)).SearchColumn("Цена в месяц", x => CurrencyWorks.GetShortCurrencyString (x.PriceMonthly)).End(),
 				OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).OrderAsc(x => x.Name).End(),
-				OrmObjectMapping<FreeRentAgreement>.Create().Dialog<FreeRentAgreementDlg>(),
-				OrmObjectMapping<DailyRentAgreement>.Create().Dialog<DailyRentAgreementDlg>(),
-				OrmObjectMapping<NonfreeRentAgreement>.Create().Dialog<NonFreeRentAgreementDlg>(),
-				OrmObjectMapping<SalesEquipmentAgreement>.Create().Dialog<EquipSalesAgreementDlg>(),
-				OrmObjectMapping<WaterSalesAgreement>.Create().Dialog<WaterAgreementDlg>(),
-				OrmObjectMapping<RepairAgreement>.Create().Dialog<RepairAgreementDlg>(),
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
 				OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
@@ -308,9 +361,8 @@ namespace Vodovoz
 				//Сервис
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).Column("Тип", x => x.ServiceClaimType.GetEnumTitle()).Column("Оборудование", x => x.Equipment.Title).Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет").Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
 				//Касса
-				OrmObjectMapping<IncomeCategory>.Create ().Dialog<CashIncomeCategoryDlg>().DefaultTableView ().Column("Код", x => x.Id.ToString()).Column ("Название", e => e.Name).Column ("Тип документа", e => e.IncomeDocumentType.GetEnumTitle()).End (),
-				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).Column ("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle()).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
 				OrmObjectMapping<Income>.Create ().Dialog<CashIncomeDlg> (),
+				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<ExpenseCategoryViewModel>().DefaultTableView ().Column("Код", x => x.Id.ToString()).SearchColumn ("Название", e => e.Name).Column ("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle()).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
 				OrmObjectMapping<Expense>.Create ().Dialog<CashExpenseDlg> (),
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),
 				OrmObjectMapping<Fine>.Create ().Dialog<FineDlg> (),
@@ -413,7 +465,8 @@ namespace Vodovoz
 				   .Column("< 6л б.", x => x.Water6LCount)
 				   .Column("< 1,5л б.", x => x.Water1500mlCount)
 				   .Column("< 0,6л б.", x => x.Water600mlCount)
-				   .SearchColumn("Описание правила", x => x.ToString())
+				   .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
+				   .SearchColumn("Описание правила", x => x.Title)
 				   .End();
 			OrmMain.AddObjectDescription<Car>().Dialog<CarsDlg>().DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
@@ -521,6 +574,90 @@ namespace Vodovoz
 
 				dirInfo.Delete();
 			}
+		}
+
+		public static Autofac.IContainer AppDIContainer;
+
+		static void AutofacClassConfig()
+		{
+			var builder = new ContainerBuilder();
+
+			#region База
+			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
+			builder.RegisterType<BaseParametersProvider>().AsSelf();
+			#endregion
+
+			#region Сервисы
+			#region GtkUI
+			builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
+			builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
+			builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
+			#endregion GtkUI
+			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
+			builder.RegisterType<UserService>().As<IUserService>();
+			#endregion
+
+			#region Vodovoz
+			#region Adapters
+			builder.RegisterType<UndeliveriesViewOpener>().As<IUndeliveriesViewOpener>();
+			#endregion
+			#region Services
+			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
+			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
+			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
+			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
+			#endregion
+			#region Selectors
+			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
+			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
+			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
+			#endregion
+			#region Интерфейсы репозиториев
+			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
+			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
+			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
+			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
+			#endregion
+			#region Mango
+			builder.RegisterType<MangoManager>().AsSelf();
+			#endregion
+			#endregion
+
+			#region Навигация
+			builder.RegisterType<ClassNamesHashGenerator>().As<IPageHashGenerator>();
+			builder.Register((ctx) => new AutofacViewModelsTdiPageFactory(AppDIContainer)).As<IViewModelsPageFactory>();
+			builder.Register((ctx) => new AutofacTdiPageFactory(AppDIContainer)).As<ITdiPageFactory>();
+			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
+			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>().SingleInstance();
+			builder.Register(cc => new ClassNamesBaseGtkViewResolver(typeof(InternalTalkView), typeof(DeletionView))).As<IGtkViewResolver>();
+			#endregion
+
+			#region Старые диалоги
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyDlg)))
+				.Where(t => t.IsAssignableTo<ITdiTab>())
+				.AsSelf();
+			#endregion
+
+			#region Старые общие диалоги
+			builder.RegisterType<ReportViewDlg>().AsSelf();
+			#endregion
+
+			#region ViewModels
+			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
+			builder.RegisterAssemblyTypes(
+					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
+				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
+				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
+				.AsSelf();
+			#endregion
+
+			#region Repository
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
+				.Where(t => t.Name.EndsWith("Repository"))
+				.AsSelf();
+			#endregion
+
+			AppDIContainer = builder.Build();
 		}
 	}
 }

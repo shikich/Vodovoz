@@ -11,6 +11,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
@@ -55,6 +56,7 @@ namespace Vodovoz.Additions.Logistic
 			bool isClosed = false;
 
 			switch(routeList.Status) {
+				case RouteListStatus.Delivered:
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.Closed:
@@ -82,7 +84,8 @@ namespace Vodovoz.Additions.Logistic
 			if(isClosed) {
 				numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
 			}
-			numericCellTemplate += "</Style></Textbox></ReportItems></TableCell>";
+			numericCellTemplate += "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
+			                       "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
 
 			//Расширяем требуемые колонки на нужную ширину
 			RdlText = RdlText.Replace("<!--colspan-->", String.Format("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
@@ -170,15 +173,15 @@ namespace Vodovoz.Additions.Logistic
 				else {
 					SqlSelect += String.Format(", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString());
 					SqlSelectSubquery += String.Format(
-						", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
+						", SUM(IF(nomenclature_route_column.id = {0}, cast(order_items.count as DECIMAL), 0)) AS {1}",
 						column.Id, "Water" + column.Id.ToString());
 					if (isClosed) {
 						SqlSelect +=
 							String.Format(
-								", IF(route_list_addresses.status = 'Transfered', 0, IFNULL(wt_qry.Water_fact{0}, 0)) AS Water_fact{0}",
+								", IF(route_list_addresses.status = 'Transfered', 0, cast(IFNULL(wt_qry.Water_fact{0}, 0) as DECIMAL)) AS Water_fact{0}",
 								column.Id.ToString());
 						SqlSelectSubquery += String.Format(
-							", SUM(IF(nomenclature_route_column.id = {0}, IFNULL(order_items.actual_count, 0), 0)) AS {1}",
+							", SUM(IF(nomenclature_route_column.id = {0}, cast(IFNULL(order_items.actual_count, 0) as DECIMAL), 0)) AS {1}",
 							column.Id, "Water_fact" + column.Id.ToString());
 					}
 
@@ -186,13 +189,13 @@ namespace Vodovoz.Additions.Logistic
 					Fields += String.Format("" +
 					                        "<Field Name=\"{0}\">" +
 					                        "<DataField>{0}</DataField>" +
-					                        "<TypeName>System.Int32</TypeName>" +
+					                        "<TypeName>System.Decimal</TypeName>" +
 					                        "</Field>", "Water" + column.Id.ToString());
 					if (isClosed) {
 						Fields += String.Format("" +
 						                        "<Field Name=\"{0}\">" +
 						                        "<DataField>{0}</DataField>" +
-						                        "<TypeName>System.Int32</TypeName>" +
+						                        "<TypeName>System.Decimal</TypeName>" +
 						                        "</Field>", "Water_fact" + column.Id.ToString());
 					}
 				}
@@ -222,13 +225,16 @@ namespace Vodovoz.Additions.Logistic
 #endif
 
 			string printDatestr = string.Format("Дата печати: {0}", DateTime.Now.ToString("g"));
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+			
 			return new ReportInfo {
 				Title = String.Format("Маршрутный лист № {0}", routeList.Id),
 				Path = TempFile,
 				Parameters = new Dictionary<string, object> {
 					{ "RouteListId", routeList.Id },
 					{ "Print_date", printDatestr},
-					{ "RouteListDate", routeList.Date}
+					{ "RouteListDate", routeList.Date},
+					{ "need_terminal", needTerminal }
 				}
 			};
 		}

@@ -22,6 +22,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
+using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
 {
@@ -288,7 +289,7 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref isArchive, value, () => IsArchive);
 		}
 
-		IList<Phone> phones;
+		IList<Phone> phones = new List<Phone>();
 
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
@@ -420,11 +421,24 @@ namespace Vodovoz.Domain.Client
 		}
 
 		Order firstOrder;
-
 		[Display(Name = "Первый заказ")]
 		public virtual Order FirstOrder {
 			get => firstOrder;
 			set => SetField(ref firstOrder, value, () => FirstOrder);
+		}
+		
+		TaxType taxType;
+		[Display(Name = "Налогобложение")]
+		public virtual TaxType TaxType {
+			get => taxType;
+			set => SetField(ref taxType, value);
+		}
+		
+		private DateTime? createDate = DateTime.Now;
+		[Display(Name = "Дата создания")]
+		public virtual DateTime? CreateDate {
+			get => createDate;
+			set => SetField(ref createDate, value);
 		}
 
 		#region ОсобаяПечать
@@ -435,6 +449,24 @@ namespace Vodovoz.Domain.Client
 			get => useSpecialDocFields;
 			set => SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields);
 		}
+
+		#region Особое требование срок годности
+
+		bool specialExpireDatePercentCheck;
+		public virtual bool SpecialExpireDatePercentCheck
+		{
+			get => specialExpireDatePercentCheck;
+			set => SetField(ref specialExpireDatePercentCheck, value, () => SpecialExpireDatePercentCheck);
+		}
+
+		decimal specialExpireDatePercent;
+		public virtual decimal SpecialExpireDatePercent {
+			get => specialExpireDatePercent;
+			set => SetField(ref specialExpireDatePercent, value, () => SpecialExpireDatePercent); 
+		}
+
+		#endregion Особое требование срок годности
+
 
 		string contractNumber;
 		[Display(Name = "Особый номер договора")]
@@ -492,6 +524,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref torg2Count, value, () => Torg2Count);
 		}
 
+		int? updCount;
+		[Display(Name = "Кол-во УПД(не для безнала)")]
+		public virtual int? UPDCount {
+			get => updCount;
+			set => SetField(ref updCount, value);
+		}
+
 		string okpo;
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO {
@@ -534,11 +573,18 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
-		int delayDays;
+		int delayDaysForProviders;
 		[Display(Name = "Отсрочка дней")]
-		public virtual int DelayDays {
-			get => delayDays;
-			set => SetField(ref delayDays, value);
+		public virtual int DelayDaysForProviders {
+			get => delayDaysForProviders;
+			set => SetField(ref delayDaysForProviders, value);
+		}
+		
+		int delayDaysForBuyers;
+		[Display(Name = "Отсрочка дней покупателям")]
+		public virtual int DelayDaysForBuyers {
+			get => delayDaysForBuyers;
+			set => SetField(ref delayDaysForBuyers, value);
 		}
 
 		CounterpartyType counterpartyType;
@@ -588,6 +634,29 @@ namespace Vodovoz.Domain.Client
 		}
 
 
+		private bool alwaysSendReceitps;
+        [RestrictedHistoryProperty]
+        [IgnoreHistoryTrace]
+		[Display(Name = "Всегда отправлять чеки")]
+		public virtual bool AlwaysSendReceitps {
+			get => alwaysSendReceitps;
+			set => SetField(ref alwaysSendReceitps, value);
+		}
+
+		private IList<NomenclatureFixedPrice> nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
+		[Display(Name = "Фиксированные цены")]
+		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices {
+			get => nomenclatureFixedPrices;
+			set => SetField(ref nomenclatureFixedPrices, value);
+		}
+
+		private GenericObservableList<NomenclatureFixedPrice> observableNomenclatureFixedPrices;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableNomenclatureFixedPrices {
+			get => observableNomenclatureFixedPrices ?? (observableNomenclatureFixedPrices =
+				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
+		}
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {
@@ -634,11 +703,11 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		#endregion
+        #endregion
 
-		#region CloseDelivery
+        #region CloseDelivery
 
-		public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
+        public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
 		{
 			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			CloseDeliveryComment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + comment;
@@ -843,6 +912,16 @@ namespace Vodovoz.Domain.Client
 			if(Id == 0 && CameFrom == null) {
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
 			}
+			
+			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
+				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
+
+			foreach (var fixedPrice in NomenclatureFixedPrices) {
+				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
+				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
+					yield return fixedPriceValidationResult;
+				}
+			}
 		}
 
 		#endregion
@@ -902,6 +981,21 @@ namespace Vodovoz.Domain.Client
 	public class CargoReceiverTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public CargoReceiverTypeStringType() : base(typeof(CargoReceiverSource)) { }
+	}
+
+	public enum TaxType
+	{
+		[Display(Name = "Не указано")]
+		None,
+		[Display(Name = "С НДС")]
+		WithVat,
+		[Display(Name = "Без НДС")]
+		WithoutVat
+	}
+
+	public class TaxTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public TaxTypeStringType() : base(typeof(TaxType)) { }
 	}
 
 	#region Для уровневого отображения цен поставщика

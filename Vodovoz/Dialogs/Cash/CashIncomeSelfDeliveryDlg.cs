@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
@@ -20,7 +21,9 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Documents;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Dialogs.Cash
@@ -32,6 +35,8 @@ namespace Vodovoz.Dialogs.Cash
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
+			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -158,8 +163,10 @@ namespace Vodovoz.Dialogs.Cash
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
-			OrmMain.GetObjectDescription<IncomeCategory>().ObjectUpdated += OnIncomeCategoryUpdated;
-			OnIncomeCategoryUpdated(null, null);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
+				s => comboCategory.ItemsList = CategoryRepository.SelfDeliveryIncomeCategories(UoW)
+			);
+			comboCategory.ItemsList = CategoryRepository.SelfDeliveryIncomeCategories(UoW);
 			comboCategory.Binding.AddBinding(Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
@@ -176,11 +183,6 @@ namespace Vodovoz.Dialogs.Cash
 			UpdateSubdivision();
 		}
 
-		void OnIncomeCategoryUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboCategory.ItemsList = Repository.Cash.CategoryRepository.SelfDeliveryIncomeCategories(UoW);
-		}
-
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
 		{
 			UpdateSubdivision();
@@ -193,13 +195,22 @@ namespace Vodovoz.Dialogs.Cash
 
 		public override bool Save()
 		{
-			var validationContext = new Dictionary<object, object>();
-			validationContext.Add("IsSelfDelivery", true);
+			var validationContext = new Dictionary<object, object> {{"IsSelfDelivery", true}};
 			var valid = new QSValidator<Income>(UoWGeneric.Root, validationContext);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
 			Entity.AcceptSelfDeliveryPaid(CallTaskWorker);
+
+			if (UoW.IsNew) {
+				logger.Info("Создаем документ распределения налички по юр лицу...");
+				selfDeliveryCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.Order, Entity);
+			}
+			else { 
+				logger.Info("Меняем документ распределения налички по юр лицу...");
+				selfDeliveryCashOrganisationDistributor.UpdateRecords(UoW, Entity.Order, Entity,
+					EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
+			}
 
 			logger.Info("Сохраняем Приходный ордер самовывоза...");
 			UoWGeneric.Save();
@@ -226,7 +237,16 @@ namespace Vodovoz.Dialogs.Cash
 
 		protected void OnYentryOrderChanged(object sender, EventArgs e)
 		{
-			Entity.FillFromOrder(UoW);
+			if (Entity.Order != null)
+			{
+				Entity.FillFromOrder(UoW);
+			}
+		}
+		
+		public override void Destroy()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Destroy();
 		}
 	}
 }

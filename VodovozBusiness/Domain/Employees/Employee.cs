@@ -15,6 +15,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -51,6 +52,13 @@ namespace Vodovoz.Domain.Employees
 		public virtual RegistrationType? Registration {
 			get { return registration; }
 			set { SetField(ref registration, value, () => Registration); }
+		}
+		uint? innerPhone;
+
+		[Display(Name = "Внутренний номер")]
+		public virtual uint? InnerPhone {
+			get { return innerPhone; }
+			set { SetField(ref innerPhone, value, () => InnerPhone); }
 		}
 
 		string androidLogin;
@@ -183,6 +191,13 @@ namespace Vodovoz.Domain.Employees
 			get { return driverOf; }
 			set { SetField(ref driverOf, value, () => DriverOf); }
 		}
+		
+		private Gender? gender;
+		[Display(Name = "Пол сотрудника")]
+		public virtual Gender? Gender {
+			get { return gender; }
+			set { SetField(ref gender, value); }
+		}
 
 		private float driverSpeed = 1;
 
@@ -301,6 +316,12 @@ namespace Vodovoz.Domain.Employees
 			get { return loginForNewUser; }
 			set { SetField(ref loginForNewUser, value, () => LoginForNewUser); }
 		}
+		
+		Organization organisationForSalary;
+		public virtual Organization OrganisationForSalary {
+			get => organisationForSalary;
+			set => SetField(ref organisationForSalary, value);
+		}
 
 		#endregion
 
@@ -309,7 +330,7 @@ namespace Vodovoz.Domain.Employees
 			Name = String.Empty;
 			LastName = String.Empty;
 			Patronymic = String.Empty;
-			DrivingNumber = String.Empty;
+			DrivingLicense = String.Empty;
 			Category = EmployeeCategory.office;
 			AddressRegistration = String.Empty;
 			AddressCurrent = String.Empty;
@@ -459,6 +480,7 @@ namespace Vodovoz.Domain.Employees
 			ObservableWageParameters.Add(wageParameter);
 			return;
 		}
+
 
 		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{
@@ -631,6 +653,14 @@ namespace Vodovoz.Domain.Employees
 		OnMaternityLeave,
 		[Display(Name = "Уволен")]
 		IsFired
+	}
+	
+	public enum Gender
+	{
+		[Display(Name = "М")]
+		male,
+		[Display(Name = "Ж")]
+		female
 	}
 
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType

@@ -2,8 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
@@ -59,6 +61,16 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref amount, value, () => Amount);
 		}
 
+		int? actualCount;
+		/// <summary>
+		/// Количество оборудования, которое фактически привез/забрал клиент
+		/// </summary>
+		public virtual int? ActualCount
+		{
+			get => actualCount;
+			set => SetField(ref actualCount, value);
+		}
+
 		WarehouseMovementOperation warehouseMovementOperation;
 
 		public virtual WarehouseMovementOperation WarehouseMovementOperation {
@@ -71,6 +83,33 @@ namespace Vodovoz.Domain.Documents
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
 			get => counterpartyMovementOperation;
 			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
+		}
+
+		Direction? direction;
+
+		[Display(Name = "Направление")]
+		public virtual Direction? Direction
+		{
+			get => direction;
+			set => SetField(ref direction, value, () => Direction);
+		}
+
+		DirectionReason directionReason;
+
+		[Display(Name = "Причина забор-доставки")]
+		public virtual DirectionReason DirectionReason
+		{
+			get => directionReason;
+			set => SetField(ref directionReason, value, () => DirectionReason);
+		}
+
+		OwnTypes ownType;
+
+		[Display(Name = "Принадлежность")]
+		public virtual OwnTypes OwnType
+		{
+			get => ownType;
+			set => SetField(ref ownType, value, () => OwnType);
 		}
 
 		#region Не сохраняемые
@@ -97,7 +136,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
+		public virtual void CreateOperation(Warehouse warehouse, Counterparty counterparty, DateTime time)
 		{
 			WarehouseMovementOperation = new WarehouseMovementOperation
 				{
@@ -105,16 +144,25 @@ namespace Vodovoz.Domain.Documents
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = Nomenclature,
-					Equipment = Equipment
+				};
+
+			CounterpartyMovementOperation = new CounterpartyMovementOperation 
+				{
+					WriteoffCounterparty = counterparty,
+					Amount = Amount,
+					OperationTime = time,
+					Nomenclature = Nomenclature,
 				};
 		}
 
-		public virtual void UpdateOperation(Warehouse warehouse)
+		public virtual void UpdateOperation(Warehouse warehouse, Counterparty counterparty)
 		{
 			WarehouseMovementOperation.IncomingWarehouse = warehouse;
 			WarehouseMovementOperation.WriteoffWarehouse = null;
 			WarehouseMovementOperation.Amount = Amount;
-			WarehouseMovementOperation.Equipment = Equipment;
+
+			CounterpartyMovementOperation.WriteoffCounterparty = counterparty;
+			CounterpartyMovementOperation.Amount = Amount;
 		}
 
 		#endregion

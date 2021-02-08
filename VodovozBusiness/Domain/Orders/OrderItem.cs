@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -31,7 +34,7 @@ namespace Vodovoz.Domain.Orders
 			get => order;
 			set {
 				if(SetField(ref order, value, () => Order))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 		
@@ -42,14 +45,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref newOrder, value);
 		}
 
-		AdditionalAgreement additionalAgreement;
-
-		[Display(Name = "Дополнительное соглашение")]
-		public virtual AdditionalAgreement AdditionalAgreement {
-			get => additionalAgreement;
-			set => SetField(ref additionalAgreement, value, () => AdditionalAgreement);
-		}
-
 		Nomenclature nomenclature;
 
 		[Display(Name = "Номенклатура")]
@@ -57,24 +52,7 @@ namespace Vodovoz.Domain.Orders
 			get => nomenclature;
 			set {
 				if(SetField(ref nomenclature, value, () => Nomenclature)) {
-					if(Id == 0)//ставку устанавливаем только для новых строк заказа
-						switch(value.VAT) {
-							case VAT.No:
-								ValueAddedTax = 0m;
-								break;
-							case VAT.Vat10:
-								ValueAddedTax = 0.10m;
-								break;
-							case VAT.Vat18:
-								ValueAddedTax = 0.18m;
-								break;
-							case VAT.Vat20:
-								ValueAddedTax = 0.20m;
-								break;
-							default:
-								ValueAddedTax = 0m;
-								break;
-						}
+					CalculateVATType();
 				}
 			}
 		}
@@ -100,10 +78,8 @@ namespace Vodovoz.Domain.Orders
 					IsUserPrice = value != GetPriceByTotalCount() && value != 0;
 
 				if(SetField(ref price, value, () => Price)) {
-					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
-						aa.UpdatePrice(Nomenclature, value);
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
@@ -115,38 +91,36 @@ namespace Vodovoz.Domain.Orders
 			get => isUserPrice;
 			set => SetField(ref isUserPrice, value, () => IsUserPrice);
 		}
-
-		int count = -1;
-
+		
+		decimal count = -1;
 		[Display(Name = "Количество")]
-		public virtual int Count {
+		public virtual decimal Count {
 			get => count;
 			set {
-				if(SetField(ref count, value, () => Count)) {
-					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
-						aa.UpdateCount(Nomenclature, value);
+				if(SetField(ref count, value)) {
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
+					Order?.UpdateRentsCount();
 				}
 			}
 		}
 
-		int? actualCount;
-		public virtual int? ActualCount {
+		decimal? actualCount;
+		public virtual decimal? ActualCount {
 			get => actualCount;
 			set {
-				if(SetField(ref actualCount, value, () => ActualCount)) {
+				if(SetField(ref actualCount, value)) {
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
 
-		decimal includeNDS;
+		decimal? includeNDS;
 
 		[Display(Name = "Включая НДС")]
-		public virtual decimal IncludeNDS {
+		public virtual decimal? IncludeNDS {
 			get => includeNDS;
 			set => SetField(ref includeNDS, value, () => IncludeNDS);
 		}
@@ -158,7 +132,7 @@ namespace Vodovoz.Domain.Orders
 			get => isDiscountInMoney;
 			set {
 				if(SetField(ref isDiscountInMoney, value, () => IsDiscountInMoney))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 
@@ -172,7 +146,7 @@ namespace Vodovoz.Domain.Orders
 					DiscountReason = null;
 				}
 				if(SetField(ref discount, value, () => Discount)) {
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
@@ -191,12 +165,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal DiscountMoney {
 			get => discountMoney;
 			set {
-				//value = value > Price * CurrentCount ? Price * CurrentCount : value;
 				if(value != discountMoney && value == 0) {
 					DiscountReason = null;
 				}
 				if(SetField(ref discountMoney, value, () => DiscountMoney))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 
@@ -245,20 +218,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
 		}
 
-		FreeRentEquipment freeRentEquipment;
-
-		public virtual FreeRentEquipment FreeRentEquipment {
-			get => freeRentEquipment;
-			set => SetField(ref freeRentEquipment, value, () => FreeRentEquipment);
-		}
-
-		PaidRentEquipment paidRentEquipment;
-
-		public virtual PaidRentEquipment PaidRentEquipment {
-			get => paidRentEquipment;
-			set => SetField(ref paidRentEquipment, value, () => PaidRentEquipment);
-		}
-
 		PromotionalSet promoSet;
 		[Display(Name = "Добавлено из промо-набора")]
 		public virtual PromotionalSet PromoSet {
@@ -266,65 +225,79 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref promoSet, value, () => PromoSet);
 		}
 
+		#region Аренда
+
+		OrderRentType rentType;
+		[Display(Name = "Тип аренды")]
+		public virtual OrderRentType RentType {
+			get => rentType;
+			set => SetField(ref rentType, value);
+		}
+		
+		OrderItemRentSubType orderItemRentSubType;
+		[Display(Name = "Подтип позиции аренды")]
+		public virtual OrderItemRentSubType OrderItemRentSubType {
+			get => orderItemRentSubType;
+			set => SetField(ref orderItemRentSubType, value);
+		}
+
+		int rentCount;
+		[Display(Name = "Количество аренды (дни/месяцы)")]
+		public virtual int RentCount {
+			get => rentCount;
+			set {
+				if (SetField(ref rentCount, value)) {
+					Order?.UpdateRentsCount();
+				}
+			}
+		}
+
+		int rentEquipmentCount;
+		[Display(Name = "Количество оборудования для аренды")]
+		public virtual int RentEquipmentCount {
+			get => rentEquipmentCount;
+			set => SetField(ref rentEquipmentCount, value);
+		}
+		
+		PaidRentPackage paidRentPackage;
+		[Display(Name = "Пакет платной аренды")]
+		public virtual PaidRentPackage PaidRentPackage {
+			get => paidRentPackage;
+			set => SetField(ref paidRentPackage, value);
+		}
+		
+		FreeRentPackage freeRentPackage;
+		[Display(Name = "Пакет бесплатной аренды")]
+		public virtual FreeRentPackage FreeRentPackage {
+			get => freeRentPackage;
+			set => SetField(ref freeRentPackage, value);
+		}
+		
+		public virtual void SetRentEquipmentCount(int equipmentCount)
+		{
+			RentEquipmentCount = equipmentCount;
+			switch (OrderItemRentSubType) {
+				case OrderItemRentSubType.RentServiceItem:
+					Count = RentCount * RentEquipmentCount;
+					break;
+				case OrderItemRentSubType.RentDepositItem:
+					Count = RentEquipmentCount;
+					break;
+			}
+		}
+
+		#endregion Аренда
+
 		#endregion
 
 		#region Вычисляемые
 
-		/// <summary>
-		/// Получает количество оборудования для аренды
-		/// </summary>
-		int RentEquipmentCount {
-			get {
-				if(AdditionalAgreement?.Type == AgreementType.NonfreeRent && PaidRentEquipment != null)
-					return PaidRentEquipment.Count;
-
-				if(AdditionalAgreement?.Type == AgreementType.FreeRent && FreeRentEquipment != null)
-					return FreeRentEquipment.Count;
-
-				return 0;
-			}
-		}
-
 		public virtual bool CanShowReturnedCount => Order.OrderStatus >= OrderStatus.OnTheWay && ReturnedCount > 0
 														&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
 
-		public virtual bool IsRentCategory => !IsRentRenewal() && RentEquipmentCount > 0;
-
 		public virtual bool IsDepositCategory => Nomenclature.Category == NomenclatureCategory.deposit;
 
-		int RentTime {
-			get {
-				if(AdditionalAgreement == null) {
-					return 0;
-				}
-				if(AdditionalAgreement.Self is NonfreeRentAgreement) {
-					NonfreeRentAgreement nonFreeRent = AdditionalAgreement.Self as NonfreeRentAgreement;
-					if(nonFreeRent.RentMonths.HasValue) {
-						return nonFreeRent.RentMonths.Value;
-					}
-				}
-
-				if(AdditionalAgreement.Self is DailyRentAgreement) {
-					DailyRentAgreement dailyRent = AdditionalAgreement.Self as DailyRentAgreement;
-					return dailyRent.RentDays;
-				}
-
-				return 0;
-			}
-		}
-
-		public virtual string RentString {
-			get {
-				int rentCount = RentTime;
-				int count = RentEquipmentCount;
-
-				if(rentCount != 0)
-					return string.Format("{0}*{1}", count, rentCount);
-				return string.Empty;
-			}
-		}
-
-		public virtual int ReturnedCount => Count - ActualCount ?? 0;
+		public virtual decimal ReturnedCount => Count - ActualCount ?? 0;
 
 		public virtual bool IsDelivered => ReturnedCount == 0;
 
@@ -353,7 +326,6 @@ namespace Vodovoz.Domain.Orders
 			if(!NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
 			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
 			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
-			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Count))
 			   || (Order == null || !NHibernate.NHibernateUtil.IsInitialized(Order.OrderItems))) {
 				return;
 			}
@@ -404,19 +376,13 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			decimal originalExistingPercent = existingPercent - DiscountByStock;
+			decimal originalExistingPercent = 100 * (existingPercent - DiscountByStock) / (100 - DiscountByStock);
 
-			decimal resultDiscount = originalExistingPercent + discountPercent;
-			resultDiscount = resultDiscount > 100 ? 100 : resultDiscount < 0 ? 0 : resultDiscount;
-
-			//на сколько избыточна добавляемая скидка (значение отрицательное)
-			decimal discountExcess = (originalExistingPercent + discountPercent > 100) ? (100 - (originalExistingPercent + discountPercent)) : 0;
-			decimal realDiscountByStock = discountPercent + discountExcess;
-
+			decimal resultDiscount = originalExistingPercent + (100 - originalExistingPercent) / 100 * discountPercent;
 
 			Discount = resultDiscount;
 			DiscountMoney = Price * CurrentCount * Discount / 100;
-			DiscountByStock = realDiscountByStock;
+			DiscountByStock = discountPercent;
 
 			if(Discount == 0) {
 				DiscountReason = null;
@@ -425,26 +391,21 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public int CurrentCount => ActualCount ?? Count;
+		public decimal CurrentCount => ActualCount ?? Count;
 
-		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
+		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);//FIXME Count -- CurrentCount
 
-		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
+		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 
-		public virtual decimal OriginalSum => Price * Count - (OriginalDiscountMoney ?? 0);
+		public virtual decimal OriginalSum => Math.Round(Price * Count - (OriginalDiscountMoney ?? 0), 2);
 
 		public virtual bool CanEditAmount {
 			get {
-				bool result = AdditionalAgreement == null;
+				bool result = true;
 
-				if(AdditionalAgreement?.Type == AgreementType.WaterSales)
-					result = true;
-
-				if(AdditionalAgreement?.Type == AgreementType.EquipmentSales)
-					result = true;
-
-				if(IsRentRenewal())
-					result = true;
+				if(RentType != OrderRentType.None) {
+					result = false;
+				}
 
 				if(Nomenclature.Id == PaidDeliveryNomenclatureId)
 					result = false;
@@ -461,32 +422,24 @@ namespace Vodovoz.Domain.Orders
 				if(PromoSet != null) {
 					return false;
 				}
-				if(IsRentRenewal())
-					return true;
+				
+				if(RentType != OrderRentType.None) {
+					return false;
+				}
 
 				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 			}
 		}
 
-		public virtual string NomenclatureString => Nomenclature != null ? Nomenclature.Name : string.Empty;
+		public virtual bool RentVisible => OrderItemRentSubType == OrderItemRentSubType.RentServiceItem;
 
-		public virtual string AgreementString {
-			get {
-				if(AdditionalAgreement != null) {
-					string result = string.Format("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.FullNumberText);
-					if(AdditionalAgreement.Self is FreeRentAgreement && FreeRentEquipment != null)
-						result += string.Format(" Пакет №{0}", FreeRentEquipment.FreeRentPackage.Id);
-					return result;
-				}
-				return string.Empty;
-			}
-		}
+		public virtual string NomenclatureString => Nomenclature != null ? Nomenclature.Name : string.Empty;
 
 		public virtual string Title => $"[{Order.Title}] {Nomenclature.Name} - {Count}*{Price}={Sum}";
 
 		#region IOrderItemWageCalculationSource implementation
 
-		public virtual int InitialCount => Count;
+		public virtual decimal InitialCount => Count;
 
 		public virtual decimal PercentForMaster => (decimal)Nomenclature.PercentForMaster;
 
@@ -498,18 +451,6 @@ namespace Vodovoz.Domain.Orders
 
 		#region Методы
 
-		//FIXME Для предварительной реализации продления аренды пока не решили как она будет работать
-		private bool IsRentRenewal()
-		{
-			if(Order.IsLoadedFrom1C)
-				//Так как все товары в таких заказах не будут привязаны к доп соглашениям
-				return false;
-
-			//Определяет что аренда на продажу не связана с дополнительным соглашением и таким образом является 
-			//продлением существующей аренды, на КОТОРУЮ ПОКА НЕТ ССЫЛКИ
-			return AdditionalAgreement == null;
-		}
-
 		public virtual decimal? GetWaterFixedPrice()
 		{
 			decimal? result = null;
@@ -518,16 +459,10 @@ namespace Vodovoz.Domain.Orders
 				return result;
 
 			//влияющая номенклатура
-			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
 			if(Nomenclature.Category == NomenclatureCategory.water) {
-				if(!(AdditionalAgreement.Self is WaterSalesAgreement waterSalesAgreement))
-					return result;
-
-				if(waterSalesAgreement.HasFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id
-																						   && infuentialNomenclature == null)) {
-					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == Nomenclature.Id).Price;
-				} else if(waterSalesAgreement.HasFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
-					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature.Id).Price;
+				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature);
+				if (fixedPrice != null) {
+					return fixedPrice.Price;
 				}
 			}
 			return result;
@@ -535,7 +470,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice || PromoSet != null)
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed)
 				return;
 
 			Price = GetPriceByTotalCount();
@@ -579,48 +514,118 @@ namespace Vodovoz.Domain.Orders
 			return CounterpartyMovementOperation;
 		}
 
-		public virtual void DeleteAdditionalAgreement(IUnitOfWork uow)
-		{
-			uow.Delete(this.AdditionalAgreement);
-			this.AdditionalAgreement = null;
-			uow.Save();
-		}
-
-		public virtual void DeleteFreeRentEquipment(IUnitOfWork uow)
-		{
-			if(this.AdditionalAgreement is FreeRentAgreement) {
-				((FreeRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.FreeRentEquipment);
-			}
-
-			uow.Delete(this.FreeRentEquipment);
-			this.FreeRentEquipment = null;
-			uow.Save();
-		}
-
-		public virtual void DeletePaidRentEquipment(IUnitOfWork uow)
-		{
-			if(this.AdditionalAgreement is DailyRentAgreement)
-				((DailyRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.PaidRentEquipment);
-
-			if(this.AdditionalAgreement is NonfreeRentAgreement)
-				((NonfreeRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.PaidRentEquipment);
-
-			uow.Delete(this.PaidRentEquipment);
-			this.PaidRentEquipment = null;
-			uow.Save();
-		}
-
 		#endregion
 
 		#region Внутрение
 
-		void RecalculateNDS()
+		public virtual void CalculateVATType()
 		{
-			if(ValueAddedTax.HasValue)
+			if(!NHibernateUtil.IsInitialized(Nomenclature)) {
+				NHibernateUtil.Initialize(Nomenclature);
+			}
+			
+			if(!NHibernateUtil.IsInitialized(Order)) {
+				NHibernateUtil.Initialize(Order);
+			}
+			
+			if(Order == null || Nomenclature == null) {
+				return;
+			}
+			
+			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
+			
+			switch(vat) {
+				case VAT.No:
+					ValueAddedTax = 0m;
+					break;
+				case VAT.Vat10:
+					ValueAddedTax = 0.10m;
+					break;
+				case VAT.Vat18:
+					ValueAddedTax = 0.18m;
+					break;
+				case VAT.Vat20:
+					ValueAddedTax = 0.20m;
+					break;
+				default:
+					ValueAddedTax = 0m;
+					break;
+			}
+
+			RecalculateVAT();
+		}
+		
+		private void RecalculateVAT()
+		{
+			if(Order == null) {
+				return;
+			}
+			if(!CanUseVAT()) {
+				IncludeNDS = null;
+				return;
+			}
+			
+			if(CanUseVAT() && ValueAddedTax.HasValue) {
 				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+			}
+		}
+
+		private bool CanUseVAT()
+		{
+			if(!NHibernateUtil.IsInitialized(Order)) {
+				NHibernateUtil.Initialize(Order);
+			}
+
+			bool canUseVAT = true;
+			if(Order.Contract?.Organization != null) {
+				canUseVAT = !Order.Contract.Organization.WithoutVAT;
+			}
+
+			return canUseVAT;
 		}
 
 		#endregion
+	}
+
+	public enum OrderRentType
+	{
+		[Display(Name = "Нет аренды")]
+		None,
+		
+		[Display(Name = "Долгосрочная аренда")]
+		NonFreeRent,
+		
+		[Display(Name = "Бесплатная аренда")]
+		FreeRent,
+		
+		[Display(Name = "Посуточная аренда")]
+		DailyRent
+	}
+	
+	public class OrderRentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderRentTypeStringType () : base (typeof(OrderRentType))
+		{
+		}
+	}
+	
+	public enum OrderItemRentSubType
+	{
+		[Display(Name = "Нет аренды")]
+		None,
+		
+		[Display(Name = "Услуга аренды")]
+		RentServiceItem,
+		
+		[Display(Name = "Залог за аренду")]
+		RentDepositItem
+	}
+	
+	public class OrderItemRentSubTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderItemRentSubTypeStringType () : base (typeof(OrderItemRentSubType))
+		{
+		}
 	}
 }
 
