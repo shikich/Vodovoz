@@ -20,6 +20,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Print;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
 {
@@ -31,9 +32,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
         #region Команды
         /*
-        private DelegateCommand viewDoc;
-        public DelegateCommand ViewDoc => viewDoc ?? (
-            viewDoc = new DelegateCommand(
+        private DelegateCommand viewDocCommand;
+        public DelegateCommand ViewDocCommand => viewDocCommand ?? (
+            viewDocCommand = new DelegateCommand(
                 () => 
                 {
                     if (!SelectedDocs.Any())
@@ -68,19 +69,20 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         {
                             if (doc is OrderContract contract)
                             {
-
-                                NavigationManager.OpenViewModel(
-                                        DialogHelper.GenerateDialogHashName<CounterpartyContract>(contract.Contract.Id),
-                                        () =>
-                                        {
-                                            var dialog = OrmMain.CreateObjectDialog(contract.Contract);
-                                            
-                                            if (dialog != null)
-                                                (dialog as IEditableDialog).IsEditable = false;
-                                            
-                                            return dialog;
-                                        }
-                                    );
+                                compatibilityNavigation.OpenTdiTab<CounterpartyContract, int>(null, contract.Contract.Id);
+                                /*
+                                //NavigationManager.OpenViewModel(
+                                        //DialogHelper.GenerateDialogHashName<CounterpartyContract>(contract.Contract.Id),
+                                        //() =>
+                                        //{
+                                        //    var dialog = OrmMain.CreateObjectDialog(contract.Contract);
+                                        //    
+                                        //    if (dialog != null)
+                                        //        (dialog as IEditableDialog).IsEditable = false;
+                                        //    
+                                        //    return dialog;
+                                        //}
+                                    //);
                             }
                             else if (doc is OrderM2Proxy m2Proxy)
                             {
@@ -93,19 +95,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                                     return;
                                 }
                                 
-                                compatibilityNavigation.OpenTdiTab<ITdiTab>(
-                                    DialogHelper.GenerateDialogHashName<M2ProxyDocument>(m2Proxy.M2Proxy.Id),
-                                    
-                                    () =>
-                                    {
-                                        var dialog = OrmMain.CreateObjectDialog(m2Proxy.M2Proxy);
-                                        
-                                        if (dialog != null)
-                                            (dialog as IEditableDialog).IsEditable = false;
-                                        
-                                        return dialog;
-                                    }
-                                );
+                                compatibilityNavigation.OpenTdiTab<ITdiTab, int>(null, m2Proxy.M2Proxy.Id);
                             }
                         }
 
@@ -114,25 +104,25 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             )
         );
 
-        private DelegateCommand openPrintDlg;
-        public DelegateCommand OpenPrintDlg => openPrintDlg ?? (
-            openPrintDlg = new DelegateCommand(
+        private DelegateCommand openPrintDlgCommand;
+        public DelegateCommand OpenPrintDlgCommand => openPrintDlgCommand ?? (
+            openPrintDlgCommand = new DelegateCommand(
                 () => throw new NotImplementedException(),
                 () => true
             )
         );
 
-        private DelegateCommand printSelectedDocs;
-        public DelegateCommand PrintSelectedDocs => printSelectedDocs ?? (
-            printSelectedDocs = new DelegateCommand(
+        private DelegateCommand printSelectedDocsCommand;
+        public DelegateCommand PrintSelectedDocsCommand => printSelectedDocsCommand ?? (
+            printSelectedDocsCommand = new DelegateCommand(
                 () => throw new NotImplementedException(),
                 () => true
             )
         );
 
-        private DelegateCommand addExistingDoc;
-        public DelegateCommand AddExistingDoc => addExistingDoc ?? (
-            addExistingDoc = new DelegateCommand(
+        private DelegateCommand addExistingDocCommand;
+        public DelegateCommand AddExistingDocCommand => addExistingDocCommand ?? (
+            addExistingDocCommand = new DelegateCommand(
                 () => 
                 {
                     if (Order.Counterparty == null)
@@ -144,18 +134,16 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         return;
                     }
 
-                    TabParent.OpenTab(
-                        TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
-                        () => new AddExistingDocumentsDlg(uow, Order.Counterparty)
-                    );
+                    compatibilityNavigation.OpenViewModel<AddExistingDocumentsViewModel, IUnitOfWork, OrderBase, INavigationManager>(
+                        null, uow, Order, compatibilityNavigation);
                 },
                 () => true
             )
         );
 
-        private DelegateCommand addM2Proxy;
-        public DelegateCommand AddM2Proxy => addM2Proxy ?? (
-            addM2Proxy = new DelegateCommand(
+        private DelegateCommand addM2ProxyCommand;
+        public DelegateCommand AddM2ProxyCommand => addM2ProxyCommand ?? (
+            addM2ProxyCommand = new DelegateCommand(
                 () => 
                 {
                     if (!new QSValidator<Order>(Order, new Dictionary<object, object>{
@@ -163,6 +151,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         { "IsCopiedFromUndelivery", templateOrder != null }})
                         .RunDlgIfNotValid((Window)this.Toplevel) && SaveOrderBeforeContinue<M2ProxyDocument>())
                     {
+
+                        var childUoW = EntityUoWBuilder.ForCreateInChildUoW(uow);
+                        compatibilityNavigation.OpenTdiTab<M2proxyDlg, EntityUoWBuilder>(null, childUoW);
+                        
                         TabParent.OpenTab(
                             DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
                             () => OrmMain.CreateObjectDialog(
@@ -177,23 +169,23 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             )
         );
 
-        private DelegateCommand addCurrentContract;
-        public DelegateCommand AddCurrentContract => addCurrentContract ?? (
-            addCurrentContract = new DelegateCommand(
+        private DelegateCommand addCurrentContractCommand;
+        public DelegateCommand AddCurrentContractCommand => addCurrentContractCommand ?? (
+            addCurrentContractCommand = new DelegateCommand(
                 () => Order.AddContractDocument(Order.Contract),
                 () => true
             )
         );
 
-        private DelegateCommand removeExistingDoc;
-        public DelegateCommand RemoveExistingDoc => removeExistingDoc ?? (
-            removeExistingDoc = new DelegateCommand(
-                () => 
+        private DelegateCommand<IEnumerable<OrderDocument>> removeExistingDocCommand;
+        public DelegateCommand<IEnumerable<OrderDocument>> RemoveExistingDocCommand => removeExistingDocCommand ?? (
+            removeExistingDocCommand = new DelegateCommand<IEnumerable<OrderDocument>>(
+                (docs) => 
                 {
                     if (!commonServices.InteractiveService.Question("Вы уверены, что хотите удалить выделенные документы?")) return;
                     
-                    var documents = treeDocuments.GetSelectedObjects<OrderDocument>();
-                    var notDeletedDocs = Order.RemoveAdditionalDocuments(documents);
+                    //var documents = treeDocuments.GetSelectedObjects<OrderDocument>();
+                    var notDeletedDocs = Order.RemoveAdditionalDocuments(docs);
                     
                     if (notDeletedDocs != null && notDeletedDocs.Any())
                     {
@@ -201,7 +193,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         
                         foreach (OrderDocument doc in notDeletedDocs)
                         {
-                            strDocuments += string.Format("\n\t{0}", doc.Name);
+                            strDocuments += $"\n\t{doc.Name}";
                         }
                         
                         commonServices.InteractiveService.ShowMessage(
@@ -209,7 +201,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                             $"Документы{strDocuments}\nудалены не были, так как относятся к текущему заказу.");
                     }
                 },
-                () => true
+                (docs) => docs.Any()
             )
         );
         */
@@ -218,7 +210,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private readonly IUnitOfWork uow;
         private readonly ICommonServices commonServices;
         private readonly CommonMessages commonMessages;
-        private readonly ITdiCompatibilityNavigation compatibilityNavigation;
+        public readonly ITdiCompatibilityNavigation compatibilityNavigation;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
 
         public OrderDocumentsViewModel(

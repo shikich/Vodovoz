@@ -4,9 +4,11 @@ using FluentNHibernate.Data;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModels.Dialogs.Orders;
@@ -21,20 +23,24 @@ namespace Vodovoz.ViewWidgets.Orders
             this.Build();
         }
 
-        public OrderDocumentsView(OrderDocumentsViewModel viewModel) : base(viewModel)
+        protected override void ConfigureWidget()
         {
-            this.Build();
-            Configure();
+            ConfigureTree();
+            /*
+            ybtnRemoveExistingDoc.Clicked +=
+                (sender, args) =>
+                    ViewModel.RemoveExistingDocCommand.Execute(ytreeDocuments.GetSelectedObjects<OrderDocument>());
+            */
+            ybtnAddM2ProxyForThisOrder.Clicked += YbtnAddM2ProxyForThisOrderOnClicked;
         }
 
-        private void Configure()
+        private void YbtnAddM2ProxyForThisOrderOnClicked(object sender, EventArgs e)
         {
-            ConfigureTreeView();
-            
-            
+            var childUoW = EntityUoWBuilder.ForCreateInChildUoW(ViewModel.UoW);
+            ViewModel.compatibilityNavigation.OpenTdiTab<M2ProxyDlg, EntityUoWBuilder>(null, childUoW);
         }
 
-        private void ConfigureTreeView()
+        private void ConfigureTree()
         {
             var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
             var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);

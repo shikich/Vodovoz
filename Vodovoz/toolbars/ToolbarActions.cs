@@ -867,14 +867,14 @@ public partial class MainWindow : Window
 
 	void ActionAddOrder_Activated(object sender, System.EventArgs e)
 	{
-		
+		/*
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<Order>(0),
 			() => new OrderDlg()
 		);
-		
+		*/
 
-		//NavigationManager.OpenViewModel<SelfDeliveryOrderMainViewModel, ITdiCompatibilityNavigation>(null, NavigationManager);
+		NavigationManager.OpenViewModel<SelfDeliveryOrderMainViewModel, ITdiCompatibilityNavigation>(null, NavigationManager);
 	}
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
