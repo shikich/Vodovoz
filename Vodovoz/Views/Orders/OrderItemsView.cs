@@ -15,20 +15,21 @@ namespace Vodovoz.Views.Orders
 
         private void Configure()
         {
+            ybtnAddOrderItem.Clicked += (sender, args) => ViewModel.AddSalesItemCommand.Execute();
             ychkMovementEquipments.Toggled += YchkMovementEquipmentsOnToggled;
-            ychkMovementEquipments.Binding.AddBinding(ViewModel, vm => vm.IsBtnMovementsEquipmentActive, w => w.Active).InitializeFromSource();
+            ychkMovementEquipments.Binding.AddBinding(ViewModel, vm => vm.IsMovementItemsVisible, w => w.Active).InitializeFromSource();
             ychkDeposits.Toggled += YchkDepositsOnToggled;
-            ychkDeposits.Binding.AddBinding(ViewModel, vm => vm.IsBtnDepositsActive, w => w.Active).InitializeFromSource();
+            ychkDeposits.Binding.AddBinding(ViewModel, vm => vm.IsDepositsReturnsVisible, w => w.Active).InitializeFromSource();
         }
 
         private void YchkDepositsOnToggled(object sender, EventArgs e)
         {
-            vboxDeposits.Visible = ViewModel.IsBtnDepositsActive;
+            vboxDeposits.Visible = ViewModel.IsDepositsReturnsVisible;
         }
 
         private void YchkMovementEquipmentsOnToggled(object sender, EventArgs e)
         {
-            orderEquipmentItemsView.Visible = ViewModel.IsBtnMovementsEquipmentActive;
+            orderEquipmentItemsView.Visible = ViewModel.IsMovementItemsVisible;
         }
     }
 }

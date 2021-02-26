@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
         public SelectedOrdersDocumentVMNode SelectedDoc { get; set; }
 
-        public IList<SelectedOrdersDocumentVMNode> Documents { get; set; } =
+        public IList<SelectedOrdersDocumentVMNode> Documents { get; } =
             new GenericObservableList<SelectedOrdersDocumentVMNode>();
 
         public event EventHandler<int> OrderActivated;
@@ -114,10 +114,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             }
         }
 
-        public List<SelectedOrdersDocumentVMNode> GetSelectedDocuments()
-        {
-            return Documents.Where(x => x.Selected).ToList();
-        }
+        public IEnumerable<SelectedOrdersDocumentVMNode> GetSelectedDocuments() => 
+            Documents.Where(x => x.Selected);
 
         public void TreeDocumentsRowActivated()
         {

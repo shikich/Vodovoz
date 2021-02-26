@@ -84,6 +84,7 @@ using Vodovoz.Domain.Orders.Documents.OrderM2Proxy;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz

@@ -25,6 +25,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks

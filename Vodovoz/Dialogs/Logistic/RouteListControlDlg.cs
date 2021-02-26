@@ -29,6 +29,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Dialogs.Logistic
 {

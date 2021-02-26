@@ -16,11 +16,11 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Nomenclatures;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureJournalNode, NomenclatureFilterViewModel>
 	{

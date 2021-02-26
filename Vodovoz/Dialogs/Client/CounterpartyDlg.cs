@@ -39,6 +39,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {

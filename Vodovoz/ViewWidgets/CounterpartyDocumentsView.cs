@@ -1,5 +1,4 @@
 ﻿using System;
-using Gamma.Binding;
 using Gamma.ColumnConfig;
 using QS.Dialog.Gtk;
 using QS.Report;
@@ -30,8 +29,7 @@ namespace Vodovoz.ViewWidgets
 
             ConfigureTree();
             ViewModel.LoadData();
-            CreateRecursiveTreeModel();
-		}
+        }
 
         private void ConfigureTree()
         {
@@ -52,17 +50,11 @@ namespace Vodovoz.ViewWidgets
 		        .AddColumn("Точка доставки")
 					.AddTextRenderer(x => x.DeliveryPoint != null ? x.DeliveryPoint.ShortAddress : string.Empty)
 		        .Finish();
+
+	        ytreeDocuments.ItemsDataSource = ViewModel.CounterpartyDocs;
         }
-
-        private void CreateRecursiveTreeModel() =>
-	        ytreeDocuments.YTreeModel = 
-		        new RecursiveTreeModel<CounterpartyDocumentNode>(
-			        ViewModel.CounterpartyDocs,
-			        x => x.Parent,
-			        x => x.Documents);
-		
-
-		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
+        
+        protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
 		{
 			ITdiTab mytab = DialogHelper.FindParentTab(this);
             if (mytab == null)

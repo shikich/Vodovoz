@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
