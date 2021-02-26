@@ -89,7 +89,7 @@ namespace Vodovoz.Domain.Employees
 					FineReasonString = string.Format(
 						"{0}, {1}, {2}",
 						UndeliveredOrder.Title,
-						UndeliveredOrder.OldOrder.Client.Name,
+						UndeliveredOrder.OldOrder.Counterparty.Name,
 						UndeliveredOrder.OldOrder.DeliveryPoint != null ? UndeliveredOrder.OldOrder.DeliveryPoint.ShortAddress : "Самовывоз"
 					);
 			}

@@ -1,42 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report;
 using QSReport;
-using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.Documents.OrderContract;
+using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class AddExistingDocumentsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		public IUnitOfWorkGeneric<Order> UoW { get; private set; }
+		private readonly IUnitOfWorkGeneric<Order> uow;
 
-		public AddExistingDocumentsDlg(IUnitOfWorkGeneric<Order> uow, Counterparty client)
+        public AddExistingDocumentsDlg(
+            IUnitOfWorkGeneric<Order> uow,
+            OrdersDocumentsViewModel ordersDocumentsViewModel,
+            CounterpartyDocumentsViewModel counterpartyDocumentsViewModel)
 		{
 			this.Build();
-			UoW = uow;
-			counterpartydocumentsview1.Config(uow, client, true);
-			orderselectedview1.Config(uow, client);
-			orderselectedview1.OrderActivated += Orderselectedview1_OrderActivated;
-			TabName = "Добавление документов";
+			this.uow = uow;
+            counterpartydocumentsview1.ViewModel = counterpartyDocumentsViewModel;
+            ordersdocumentsview1.ViewModel = ordersDocumentsViewModel;
+            ordersdocumentsview1.ViewModel.OrderActivated += Orderselectedview1_OrderActivated;
+            TabName = "Добавление документов";
 		}
 
-		protected void OnButtonAddSelectedDocumentsClicked(object sender, EventArgs e)
+        protected void OnButtonAddSelectedDocumentsClicked(object sender, EventArgs e)
 		{
-			Order currentOrder = UoW.Root;
-			var counterpartyDocuments = counterpartydocumentsview1.GetSelectedDocuments();
-			var orderDocuments = orderselectedview1.GetSelectedDocuments();
+			var counterpartyDocuments = counterpartydocumentsview1.ViewModel.GetSelectedDocuments();
+			var orderDocuments = ordersdocumentsview1.ViewModel.GetSelectedDocuments();
 
 			List<OrderDocument> resultList = new List<OrderDocument>();
 
 			//Контракты
 			var documentsContract = 
-				UoW.Session.QueryOver<OrderContract>()
+				uow.Session.QueryOver<OrderContract>()
                    .WhereRestrictionOn(x => x.Contract.Id)
                    .IsIn(counterpartyDocuments
 						.Select(y => y.Document)
@@ -49,28 +53,24 @@ namespace Vodovoz.Dialogs
 			resultList.AddRange(documentsContract);
 
 			//Документы заказа
-			var documentsOrder = UoW.Session.QueryOver<OrderDocument>()
-			   .WhereRestrictionOn(x => x.Id).IsIn(orderDocuments.Select(y => y.DocumentId).ToList())
+			var documentsOrder = uow.Session.QueryOver<OrderDocument>()
+			   .WhereRestrictionOn(x => x.Id)
+			   .IsIn(orderDocuments.Select(y => y.DocumentId).ToList())
 			   .List();
 			resultList.AddRange(documentsOrder);
 
-			UoW.Root.AddAdditionalDocuments(resultList);
+			uow.Root.AddAdditionalDocuments(resultList);
 
 			this.OnCloseTab(false);
 		}
 
 		void Orderselectedview1_OrderActivated(object sender, int e)
 		{
-			var doc = UoW.GetById<OrderDocument>(e) as IPrintableRDLDocument;
+			var doc = uow.GetById<OrderDocument>(e) as IPrintableRDLDocument;
 			if(doc == null) {
 				return;
 			}
 			TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false);
-		}
-
-		private void OpenOrder()
-		{
-			
 		}
 	}
 }

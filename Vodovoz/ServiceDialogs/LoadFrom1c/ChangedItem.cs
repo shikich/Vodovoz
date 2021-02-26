@@ -90,10 +90,10 @@ namespace ServiceDialogs.LoadFrom1c
 					newOrder.CommentLogist ?? noValue));
 				oldOrder.CommentLogist = newOrder.CommentLogist;
 			}
-			if (oldOrder.Client.Code1c != newOrder.Client.Code1c)
+			if (oldOrder.Counterparty.Code1c != newOrder.Counterparty.Code1c)
 			{
-				result.Add(new FieldChange("Изменен клиент", oldOrder.Client.FullName, newOrder.Client.FullName));
-				oldOrder.Client = newOrder.Client;
+				result.Add(new FieldChange("Изменен клиент", oldOrder.Counterparty.FullName, newOrder.Counterparty.FullName));
+				oldOrder.Counterparty = newOrder.Counterparty;
 			}
 			if (oldOrder.DeliveryDate != newOrder.DeliveryDate)
 			{

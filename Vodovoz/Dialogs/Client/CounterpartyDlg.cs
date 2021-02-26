@@ -38,6 +38,7 @@ using Vodovoz.Models;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using QS.DomainModel.Entity;
+using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz
 {
@@ -205,7 +206,9 @@ namespace Vodovoz
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
-			counterpartydocumentsview.Config(UoWGeneric, Entity);
+
+            var counterpartyDocumentsVM = new CounterpartyDocumentsViewModel(UoWGeneric, Entity);
+            counterpartydocumentsview.ViewModel = counterpartyDocumentsVM;
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 

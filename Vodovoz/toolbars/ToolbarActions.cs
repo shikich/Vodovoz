@@ -6,6 +6,7 @@ using InstantSmsService;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -69,6 +70,8 @@ using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.Views.Orders;
 
 public partial class MainWindow : Window
 {
@@ -864,10 +867,14 @@ public partial class MainWindow : Window
 
 	void ActionAddOrder_Activated(object sender, System.EventArgs e)
 	{
+		
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<Order>(0),
 			() => new OrderDlg()
 		);
+		
+
+		//NavigationManager.OpenViewModel<SelfDeliveryOrderMainViewModel, ITdiCompatibilityNavigation>(null, NavigationManager);
 	}
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)

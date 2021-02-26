@@ -14,7 +14,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonViewDocument;
+		private global::Gamma.GtkWidgets.yButton ybtnViewDoc;
 
 		protected virtual void Build()
 		{
@@ -54,31 +54,27 @@ namespace Vodovoz.ViewWidgets
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonViewDocument = new global::Gtk.Button();
-			this.buttonViewDocument.CanFocus = true;
-			this.buttonViewDocument.Name = "buttonViewDocument";
-			this.buttonViewDocument.UseUnderline = true;
-			this.buttonViewDocument.Label = global::Mono.Unix.Catalog.GetString("Просмотреть документ");
-			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-find", global::Gtk.IconSize.Menu);
-			this.buttonViewDocument.Image = w4;
-			this.hbox1.Add(this.buttonViewDocument);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonViewDocument]));
-			w5.Position = 0;
+			this.ybtnViewDoc = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnViewDoc.CanFocus = true;
+			this.ybtnViewDoc.Name = "ybtnViewDoc";
+			this.ybtnViewDoc.UseUnderline = true;
+			this.ybtnViewDoc.Label = global::Mono.Unix.Catalog.GetString("Просмотреть документ");
+			this.hbox1.Add(this.ybtnViewDoc);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybtnViewDoc]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w5.Position = 2;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w6.Position = 2;
-			w6.Expand = false;
-			w6.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonViewDocument.Clicked += new global::System.EventHandler(this.OnButtonViewDocumentClicked);
 		}
 	}
 }

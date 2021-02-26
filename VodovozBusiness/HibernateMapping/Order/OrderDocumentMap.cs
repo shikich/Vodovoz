@@ -28,6 +28,8 @@ namespace Vodovoz.HibernateMapping
 			DiscriminateSubClassesOnColumn ("type");
 			References (x => x.Order).Column ("order_id");
 			References (x => x.AttachedToOrder).Column ("attached_to_order_id");
+			References (x => x.NewOrder).Column ("new_order_id");
+			References (x => x.AttachedToNewOrder).Column ("attached_to_new_order_id");
 		}
 	}
 

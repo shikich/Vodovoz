@@ -87,7 +87,7 @@ namespace Vodovoz.ViewWidgets
 
 		private void SendDocument()
 		{
-			var client = document.Order.Client;
+			var client = document.Order.Counterparty;
 			var rdlDoc = (document as IPrintableRDLDocument);
 
 			if(rdlDoc == null) {

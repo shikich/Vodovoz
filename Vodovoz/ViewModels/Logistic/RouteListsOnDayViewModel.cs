@@ -1114,23 +1114,23 @@ namespace Vodovoz.ViewModels.Logistic
 					baseOrderQuery.Where(x => !x.IsService);
 				}
 				else if( deliverySelected && !chainStoreSelected &&  serviceSelected) {
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseOrderQuery.Left.JoinAlias(x => x.Counterparty, () => counterpartyAlias);
 					baseOrderQuery.Where(() => !counterpartyAlias.IsChainStore);
 				}
 				else if( deliverySelected && !chainStoreSelected && !serviceSelected) {
 					baseOrderQuery.Where(x => !x.IsService);
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseOrderQuery.Left.JoinAlias(x => x.Counterparty, () => counterpartyAlias);
 					baseOrderQuery.Where(() => !counterpartyAlias.IsChainStore);
 				}
 				else if(!deliverySelected &&  chainStoreSelected &&  serviceSelected) {
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseOrderQuery.Left.JoinAlias(x => x.Counterparty, () => counterpartyAlias);
 					baseOrderQuery.Where(Restrictions.Or(
 						Restrictions.Where<Order>(x => x.IsService), 
 						Restrictions.Where(() => counterpartyAlias.IsChainStore)
 					));
 				}
 				else if(!deliverySelected &&  chainStoreSelected && !serviceSelected) {
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseOrderQuery.Left.JoinAlias(x => x.Counterparty, () => counterpartyAlias);
 					baseOrderQuery.Where(() => counterpartyAlias.IsChainStore);
 				}
 				else if(!deliverySelected && !chainStoreSelected &&  serviceSelected) {

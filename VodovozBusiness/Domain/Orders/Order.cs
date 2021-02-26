@@ -133,26 +133,26 @@ namespace Vodovoz.Domain.Orders
 		}
 
 
-		Counterparty client;
+		Counterparty counterparty;
 		[Display(Name = "Клиент")]
-		public virtual Counterparty Client {
-			get => client;
+		public virtual Counterparty Counterparty {
+			get => counterparty;
 			set {
-				if(value == client)
+				if(value == counterparty)
 					return;
 				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
-				} else if(client != null && !CanChangeContractor()) {
-					OnPropertyChanged(nameof(Client));
+				} else if(counterparty != null && !CanChangeContractor()) {
+					OnPropertyChanged(nameof(Counterparty));
 					if(InteractiveService == null)
 						throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
 
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
-				var oldClient = client;
-				if(SetField(ref client, value, () => Client)) {
-					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
+				var oldClient = counterparty;
+				if(SetField(ref counterparty, value, () => Counterparty)) {
+					if(Counterparty == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Counterparty.DeliveryPoints) && !Counterparty.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
 						//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 						DeliveryPoint = null;
@@ -175,7 +175,7 @@ namespace Vodovoz.Domain.Orders
 						DeliverySchedule = value.DeliverySchedule;
 
 					if(Id == 0)
-						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
+						AddCertificates = DeliveryPoint.AddCertificatesAlways || Counterparty.FirstOrder == null;
 
 					UpdateContract();
 				}
@@ -854,7 +854,7 @@ namespace Vodovoz.Domain.Orders
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
 		{
 			var order = new Order {
-				client = service.Counterparty,
+				counterparty = service.Counterparty,
 				DeliveryPoint = service.DeliveryPoint,
 				DeliveryDate = service.ServiceStartDate,
 				PaymentType = service.Payment,
@@ -871,7 +871,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
-				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
+				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Counterparty != null) {
 
 					var key = new OrderStateKey(this, newStatus);
 					var messages = new List<string>();
@@ -888,7 +888,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("В заказе не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
+					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Counterparty.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
@@ -907,7 +907,7 @@ namespace Vodovoz.Domain.Orders
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
 						yield return new ValidationResult("В заказе должно быть указано количество во всех позициях товара и оборудования");
 					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
-					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Client.Phones.Any()))
+					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Counterparty.Phones.Any()))
 						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
 
 					if(!IsLoadedFrom1C && DeliveryPoint != null) {
@@ -972,7 +972,7 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					if(Client.IsDeliveriesClosed && PaymentType != PaymentType.cash && PaymentType != PaymentType.ByCard)
+					if(Counterparty.IsDeliveriesClosed && PaymentType != PaymentType.cash && PaymentType != PaymentType.ByCard)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
 							new[] { this.GetPropertyName(o => o.PaymentType) }
@@ -1026,9 +1026,9 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
-			if(Client == null)
+			if(Counterparty == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
-					new[] { this.GetPropertyName(o => o.Client) });
+					new[] { this.GetPropertyName(o => o.Counterparty) });
 
 			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
@@ -1207,7 +1207,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void OnChangeCounterparty(Counterparty newClient)
 		{
-			if(newClient == null || Client == null || newClient.Id == Client.Id) {
+			if(newClient == null || Counterparty == null || newClient.Id == Counterparty.Id) {
 				return;
 			}
 			UpdateContract();
@@ -1225,7 +1225,7 @@ namespace Vodovoz.Domain.Orders
 		
 		private void UpdateContract(bool onPaymentTypeChanged = false)
 		{
-			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
+			if(!NHibernate.NHibernateUtil.IsInitialized(Counterparty)
 			   || !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
 				return;
 			}
@@ -1241,7 +1241,7 @@ namespace Vodovoz.Domain.Orders
 			   && CreateDate <= new DateTime(2020, 12, 16) 
 			   && Contract != null 
 			   && !onPaymentTypeChanged
-			   && Contract.Counterparty == Client) {
+			   && Contract.Counterparty == Counterparty) {
 				return;
 			}
 			
@@ -1348,7 +1348,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual Email GetEmailAddressForBill()
 		{
-			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+			return Counterparty.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 		}
 
 		public virtual bool NeedSendBill(IEmailRepository emailRepository)
@@ -1414,16 +1414,16 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SetFirstOrder()
 		{
-			if(Id == 0 && Client.FirstOrder == null) {
+			if(Id == 0 && Counterparty.FirstOrder == null) {
 				IsFirstOrder = true;
-				Client.FirstOrder = this;
+				Counterparty.FirstOrder = this;
 			}
 		}
 
 		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository counterpartyContractRepository, CounterpartyContractFactory contractFactory)
 		{
-			if(!NHibernate.NHibernateUtil.IsInitialized(Client)) {
-				NHibernate.NHibernateUtil.Initialize(Client);
+			if(!NHibernate.NHibernateUtil.IsInitialized(Counterparty)) {
+				NHibernate.NHibernateUtil.Initialize(Counterparty);
 			}
 			
 			if(!NHibernate.NHibernateUtil.IsInitialized(Contract)) {
@@ -1434,7 +1434,7 @@ namespace Vodovoz.Domain.Orders
 			if(counterpartyContractRepository == null)
 				throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			if(contractFactory == null) throw new ArgumentNullException(nameof(contractFactory));
-			if(Client == null) {
+			if(Counterparty == null) {
 				return;
 			}
 
@@ -1627,8 +1627,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual IEnumerable<Nomenclature> GetNomenclaturesWithFixPrices{
 			get {
 				List<NomenclatureFixedPrice> fixedPrices = new List<NomenclatureFixedPrice>();
-				fixedPrices.AddRange(Client.NomenclatureFixedPrices);
-				fixedPrices.AddRange(Client.DeliveryPoints.SelectMany(x => x.NomenclatureFixedPrices));
+				fixedPrices.AddRange(Counterparty.NomenclatureFixedPrices);
+				fixedPrices.AddRange(Counterparty.DeliveryPoints.SelectMany(x => x.NomenclatureFixedPrices));
 				return fixedPrices.Select(x => x.Nomenclature).Distinct();
 			}
 		}
@@ -1646,7 +1646,7 @@ namespace Vodovoz.Domain.Orders
 			if(counterpartyContractFactory == null)
 				throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			
-			if(Client == null)
+			if(Counterparty == null)
 				return;
 			if(OrderStatus != OrderStatus.NewOrder)
 				return;
@@ -1655,24 +1655,24 @@ namespace Vodovoz.Domain.Orders
 			DeliveryPoint = null;
 			DeliverySchedule = null;
 			Contract = null;
-			DocumentType = Client.DefaultDocumentType ?? DefaultDocumentType.upd;
+			DocumentType = Counterparty.DefaultDocumentType ?? DefaultDocumentType.upd;
 
-			if(!SelfDelivery && Client.DeliveryPoints?.Count == 1)
-				DeliveryPoint = Client.DeliveryPoints.FirstOrDefault();
+			if(!SelfDelivery && Counterparty.DeliveryPoints?.Count == 1)
+				DeliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault();
 
-			PaymentType = Client.PaymentMethod;
+			PaymentType = Counterparty.PaymentMethod;
 		}
 
 		public virtual void SetProxyForOrder()
 		{
-			if(Client == null)
+			if(Counterparty == null)
 				return;
 			if(!DeliveryDate.HasValue)
 				return;
-			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.cashless)
+			if(Counterparty.PersonType != PersonType.legal && PaymentType != PaymentType.cashless)
 				return;
 
-			bool existProxies = Client.Proxies
+			bool existProxies = Counterparty.Proxies
 									  .Any(
 										p => p.IsActiveProxy(DeliveryDate.Value)
 										&& (
@@ -2301,7 +2301,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual int GetExpectedBottlesDepositsCount()
 		{
-			if(Client == null || Client.PersonType == PersonType.legal)
+			if(Counterparty == null || Counterparty.PersonType == PersonType.legal)
 				return 0;
 
 			var waterItemsCount = (int)ObservableOrderItems.Select(item => item)
@@ -2934,7 +2934,7 @@ namespace Vodovoz.Domain.Orders
 				title = "Внимание!";
 				string header = "Есть риск получить <span foreground=\"Red\" size=\"x-large\">ШТРАФ</span>!\n";
 				string text = string.Format("Клиент '{0}' для адреса '{1}' заказывает фиксировано воду \n'{2}'.\nВ заказе же вы указали: {3}. \nДля подтверждения что это не ошибка, нажмите 'Да'.",
-											Client.Name,
+											Counterparty.Name,
 											DeliveryPoint.ShortAddress,
 											defaultWater.ShortOrFullName,
 											waterInOrder);
@@ -3070,7 +3070,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 					};
 				}
-				BottlesMovementOperation.Counterparty = Client;
+				BottlesMovementOperation.Counterparty = Counterparty;
 				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
@@ -3318,7 +3318,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Контакт с минимальным весом.</returns>
 		public virtual string GetContact()
 		{
-			if(Client == null)
+			if(Counterparty == null)
 				return null;
 			//Dictionary<вес контакта, контакт>
 			Dictionary<int, string> contacts = new Dictionary<int, string>();
@@ -3340,35 +3340,35 @@ namespace Vodovoz.Domain.Orders
 				logger.Error(ex.Message);
 			}
 			try {
-				if(Client.Phones.Any()) {
+				if(Counterparty.Phones.Any()) {
 
-					var receiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) 
+					var receiptPhone = Counterparty.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) 
 						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
 					if(receiptPhone != null)
 						contacts[0] = receiptPhone;
 
-					var phone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+					var phone = Counterparty.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
 					if(phone != null)
 						contacts[4] = phone.DigitsNumber;
-					else if(Client.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[8] = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+					else if(Counterparty.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
+						contacts[8] = Counterparty.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
 			}
 			try {
-				if(Client.Emails.Any()) {
-					var receiptEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
+				if(Counterparty.Emails.Any()) {
+					var receiptEmail = Counterparty.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
 						 && e.EmailType?.EmailPurpose == EmailPurpose.ForReceipts)?.Address;
 					if(receiptEmail != null)
 						contacts[2] = receiptEmail;
 
-					var billsEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
+					var billsEmail = Counterparty.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
 						&& e.EmailType?.EmailPurpose == EmailPurpose.ForBills)?.Address;
 					if(billsEmail != null)
 						contacts[5] = billsEmail;
 
-					var email = Client.Emails.FirstOrDefault(e => 
+					var email = Counterparty.Emails.FirstOrDefault(e => 
 						!String.IsNullOrWhiteSpace(e.Address)
 						&& e.EmailType?.EmailPurpose != EmailPurpose.ForBills 
 						&& e.EmailType?.EmailPurpose != EmailPurpose.ForReceipts)
@@ -3731,7 +3731,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool CanAddStockBottle(IOrderRepository orderRepository)
 		{
-			bool result = Client != null && orderRepository.GetFirstRealOrderForClientForActionBottle(UoW, this,Client) == null;
+			bool result = Counterparty != null && orderRepository.GetFirstRealOrderForClientForActionBottle(UoW, this,Counterparty) == null;
 			if(result) {
 				BottlesReturn = 0;
 			}
@@ -3873,7 +3873,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						DepositType = DepositType.Bottles,
-						Counterparty = Client
+						Counterparty = Counterparty
 					};
 				}
 				bottlesOperation.DeliveryPoint = DeliveryPoint;
@@ -3894,7 +3894,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						DepositType = DepositType.Equipment,
-						Counterparty = Client
+						Counterparty = Counterparty
 					};
 				}
 				equipmentOperation.DeliveryPoint = DeliveryPoint;

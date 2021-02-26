@@ -66,7 +66,7 @@ namespace Vodovoz
 			public OrderNode(Order order)
 			{
 				DeliveryPoint = order.DeliveryPoint;
-				Client = order.Client;
+				Client = order.Counterparty;
 				BaseOrder = order;
 			}
 
@@ -75,10 +75,10 @@ namespace Vodovoz
 					if(Client == null || DeliveryPoint == null) {
 						return ChangedType.None;
 					}
-					if(Client.Id == BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
+					if(Client.Id == BaseOrder.Counterparty.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
 						return ChangedType.DeliveryPoint;
 					}
-					if(Client.Id != BaseOrder.Client.Id) {
+					if(Client.Id != BaseOrder.Counterparty.Id) {
 						return ChangedType.Both;
 					}
 					return ChangedType.None;
@@ -426,7 +426,7 @@ namespace Vodovoz
 				//изменении документов которые должны меняться при смене клиента потомучто точка 
 				//доставки будет пустая
 				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
-				routeListItem.Order.Client = orderNode.Client;
+				routeListItem.Order.Counterparty = orderNode.Client;
 				routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(), routeListItem.BottlesReturned);
 			}
 		}

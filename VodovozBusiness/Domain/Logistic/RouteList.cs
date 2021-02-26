@@ -1337,7 +1337,7 @@ namespace Vodovoz.Domain.Logistic
 					moneyMovementOperation = new MoneyMovementOperation {
 						OperationTime = order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						Order = order,
-						Counterparty = order.Client,
+						Counterparty = order.Counterparty,
 						PaymentType = order.PaymentType,
 						Debt = order.ActualGoodsTotalSum,
 						Money = money,

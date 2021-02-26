@@ -205,7 +205,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
 				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
 
 			return orderitemsQuery.SelectList(list => list

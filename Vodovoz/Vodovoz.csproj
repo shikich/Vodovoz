@@ -469,6 +469,7 @@
     <Compile Include="SidePanel\InfoProviders\IFixedPricesHolderProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
+    <Compile Include="TempAdapters\CounterpartyCommonEEVMBuilderFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
@@ -843,8 +844,8 @@
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureEquipTypeFilter.cs" />
     <Compile Include="Dialogs\AddExistingDocumentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.AddExistingDocumentsDlg.cs" />
-    <Compile Include="JournalViewers\OrderSelectedView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.OrderSelectedView.cs" />
+    <Compile Include="JournalViewers\OrdersDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.OrdersDocumentsView.cs" />
     <Compile Include="ViewWidgets\Store\NonSerialEquipmentReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Store.NonSerialEquipmentReceptionView.cs" />
     <Compile Include="ViewWidgets\DepositRefundItemsView.cs" />
@@ -1549,6 +1550,28 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
+    <Compile Include="Views\Orders\OrderMainView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderMainView.cs" />
+    <Compile Include="Views\Orders\SelfDeliveryOrderInfoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.SelfDeliveryOrderInfoView.cs" />
+    <Compile Include="Views\Orders\OrderItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderItemsView.cs" />
+    <Compile Include="ViewWidgets\Orders\OrderMovementItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.OrderMovementItemsView.cs" />
+    <Compile Include="ViewWidgets\Orders\OrderDepositReturnsItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.OrderDepositReturnsItemsView.cs" />
+    <Compile Include="ViewWidgets\Orders\OrderDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.OrderDocumentsView.cs" />
+    <Compile Include="ViewWidgets\Orders\WorkingOnOrderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.WorkingOnOrderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.AddExistingDocumentsView.cs" />
+    <Compile Include="Views\Orders\AddExistingDocumentsView.cs" />
+    <Compile Include="ViewWidgets\Orders\OrderInfoExpandedPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.OrderInfoExpandedPanelView.cs" />
+    <Compile Include="Views\Orders\SelfDeliveryOrderInfoPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.SelfDeliveryOrderInfoPanelView.cs" />
+    <Compile Include="ViewWidgets\Orders\BaseOrdersDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.BaseOrdersDocumentsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1846,6 +1869,7 @@
     <Folder Include="Views\Payments\" />
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
+    <Folder Include="ViewWidgets\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

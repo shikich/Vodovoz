@@ -10,7 +10,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.VBox vboxOrdersDocuments;
 
-		private global::Vodovoz.JournalViewers.OrderSelectedView orderselectedview1;
+		private global::Vodovoz.JournalViewers.OrdersDocumentsView ordersdocumentsview1;
 
 		private global::Gtk.HBox hbox3;
 
@@ -38,11 +38,11 @@ namespace Vodovoz.Dialogs
 			this.vboxOrdersDocuments.Name = "vboxOrdersDocuments";
 			this.vboxOrdersDocuments.Spacing = 6;
 			// Container child vboxOrdersDocuments.Gtk.Box+BoxChild
-			this.orderselectedview1 = new global::Vodovoz.JournalViewers.OrderSelectedView();
-			this.orderselectedview1.Events = ((global::Gdk.EventMask)(256));
-			this.orderselectedview1.Name = "orderselectedview1";
-			this.vboxOrdersDocuments.Add(this.orderselectedview1);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxOrdersDocuments[this.orderselectedview1]));
+			this.ordersdocumentsview1 = new global::Vodovoz.JournalViewers.OrdersDocumentsView();
+			this.ordersdocumentsview1.Events = ((global::Gdk.EventMask)(256));
+			this.ordersdocumentsview1.Name = "ordersdocumentsview1";
+			this.vboxOrdersDocuments.Add(this.ordersdocumentsview1);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxOrdersDocuments[this.ordersdocumentsview1]));
 			w2.Position = 0;
 			this.vboxMain.Add(this.vboxOrdersDocuments);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxOrdersDocuments]));
@@ -71,7 +71,8 @@ namespace Vodovoz.Dialogs
 			w6.Expand = false;
 			w6.Fill = false;
 			this.Add(this.vboxMain);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

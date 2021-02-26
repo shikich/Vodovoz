@@ -27,6 +27,10 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=5.2.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da">
+      <HintPath>..\packages\Autofac.5.2.0\lib\net461\Autofac.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="CsvHelper, Version=15.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823">
       <HintPath>..\packages\CsvHelper.15.0.8\lib\net45\CsvHelper.dll</HintPath>
       <Private>True</Private>
@@ -40,6 +44,10 @@
     </Reference>
     <Reference Include="GeoAPI.CoordinateSystems, Version=1.7.5.0, Culture=neutral, PublicKeyToken=a1a0da7def465678">
       <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NetTopologySuite, Version=1.15.3.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
@@ -58,6 +66,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="Antlr3.Runtime">
       <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
@@ -111,6 +120,8 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Dialogs\Orders\BaseOrdersDocumentsViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrderMovementItemsViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
@@ -146,6 +157,7 @@
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempAdapters\ICarJournalFactory.cs" />
+    <Compile Include="TempAdapters\ICounterpartyCommonEEVMBuilderFactory.cs" />
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
@@ -177,6 +189,10 @@
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrderInfoViewModelBase.cs" />
+    <Compile Include="ViewModels\Orders\OrderMainViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrderSalesItemsViewModel.cs" />
+    <Compile Include="ViewModels\Orders\SelfDeliveryOrderMainViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
@@ -272,6 +288,16 @@
     <Compile Include="Journals\JournalViewModels\Employees\UserJournalViewModel.cs" />
     <Compile Include="ViewModels\Users\UserViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
+    <Compile Include="ViewModels\Orders\SelfDeliveryInfoViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrderItemsViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrderDepositReturnsItemsViewModel.cs" />
+    <Compile Include="Dialogs\Orders\WorkingOnOrderViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrderDocumentsViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrdersDocumentsViewModel.cs" />
+    <Compile Include="Dialogs\Orders\CounterpartyDocumentsViewModel.cs" />
+    <Compile Include="ViewModels\Orders\AddExistingDocumentsViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrderInfoExpandedPanelViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrdersDocumentsViewModelBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -304,6 +330,7 @@
     <Folder Include="Journals\Nodes\Cash\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewModels\Payments\" />
+    <Folder Include="Dialogs\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">

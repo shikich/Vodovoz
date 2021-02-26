@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.Journal.GtkUI;
-using QS.Project.Filter;
 using QS.RepresentationModel;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.ViewModels;
+using QS.Views.Resolve;
 using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core
 {
-	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver
+	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver, IGtkViewResolver
 	{
 		private static ViewModelWidgetResolver instance;
 		public static ViewModelWidgetResolver Instance {
@@ -94,18 +93,18 @@ namespace Vodovoz.Core
 			return widget;
 		}
 
-		public virtual Widget Resolve(ViewModelBase footer)
+		public virtual Widget Resolve(ViewModelBase viewModel)
 		{
-			if(footer == null)
+			if(viewModel == null)
 				return null;
 
-			Type footerType = footer.GetType();
-			if(!viewModelWidgets.ContainsKey(footerType)) {
-				throw new WidgetResolveException($"Не настроено сопоставление для {footerType.Name}");
+			Type viewModelType = viewModel.GetType();
+			if(!viewModelWidgets.ContainsKey(viewModelType)) {
+				throw new WidgetResolveException($"Не настроено сопоставление для {viewModelType.Name}");
 			}
 
-			var widgetCtorInfo = viewModelWidgets[footerType].GetConstructor(new[] { footerType });
-			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { footer });
+			var widgetCtorInfo = viewModelWidgets[viewModelType].GetConstructor(new[] { viewModelType });
+			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { viewModel });
 			return widget;
 		}
 

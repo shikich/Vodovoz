@@ -144,6 +144,8 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewWidgets.Orders;
 
 namespace Vodovoz
 {
@@ -226,7 +228,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
                 .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
-                ;
+				;
 
             //Регистрация виджетов
             ViewModelWidgetResolver.Instance
@@ -268,7 +270,11 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
-                ;
+				.RegisterWidgetForWidgetViewModel<SelfDeliveryInfoViewModel, SelfDeliveryOrderInfoView>()
+                .RegisterWidgetForWidgetViewModel<OrderItemsViewModel, OrderItemsView>()
+				.RegisterWidgetForWidgetViewModel<AddExistingDocumentsViewModel, AddExistingDocumentsView>()
+				.RegisterWidgetForWidgetViewModel<SelfDeliveryOrderMainViewModel, OrderMainView>()
+				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
@@ -583,78 +589,120 @@ namespace Vodovoz
 			var builder = new ContainerBuilder();
 
 			#region База
+			
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
 			builder.RegisterType<BaseParametersProvider>().AsSelf();
+			
 			#endregion
 
 			#region Сервисы
+			
 			#region GtkUI
+			
 			builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 			builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 			builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
+			
 			#endregion GtkUI
+			
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 			builder.RegisterType<UserService>().As<IUserService>();
+			
 			#endregion
 
 			#region Vodovoz
+			
 			#region Adapters
+			
 			builder.RegisterType<UndeliveriesViewOpener>().As<IUndeliveriesViewOpener>();
+
 			#endregion
+			
 			#region Services
+			
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
 			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
+			
 			#endregion
+			
 			#region Selectors
+			
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
+			
 			#endregion
+			
 			#region Интерфейсы репозиториев
+			
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
 			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
 			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
+			
 			#endregion
+			
 			#region Mango
+			
 			builder.RegisterType<MangoManager>().AsSelf();
+			
 			#endregion
+			
 			#endregion
 
 			#region Навигация
+			
 			builder.RegisterType<ClassNamesHashGenerator>().As<IPageHashGenerator>();
 			builder.Register((ctx) => new AutofacViewModelsTdiPageFactory(AppDIContainer)).As<IViewModelsPageFactory>();
 			builder.Register((ctx) => new AutofacTdiPageFactory(AppDIContainer)).As<ITdiPageFactory>();
 			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
 			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>().SingleInstance();
 			builder.Register(cc => new ClassNamesBaseGtkViewResolver(typeof(InternalTalkView), typeof(DeletionView))).As<IGtkViewResolver>();
+			builder.Register(c => ViewModelWidgetResolver.Instance).As<IGtkViewResolver>();
+
 			#endregion
 
 			#region Старые диалоги
+			
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyDlg)))
 				.Where(t => t.IsAssignableTo<ITdiTab>())
 				.AsSelf();
+			
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(AddExistingDocumentsDlg)))
+				.Where(t => t.IsAssignableTo<ITdiTab>())
+				.AsSelf();
+			
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(M2ProxyDlg)))
+				.Where(t => t.IsAssignableTo<ITdiTab>())
+				.AsSelf();
+			
 			#endregion
 
 			#region Старые общие диалоги
+			
 			builder.RegisterType<ReportViewDlg>().AsSelf();
+			
 			#endregion
 
 			#region ViewModels
+			
 			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
 			builder.RegisterAssemblyTypes(
 					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
+
 			#endregion
 
 			#region Repository
+			
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
 				.Where(t => t.Name.EndsWith("Repository"))
 				.AsSelf();
+			
 			#endregion
 
 			AppDIContainer = builder.Build();

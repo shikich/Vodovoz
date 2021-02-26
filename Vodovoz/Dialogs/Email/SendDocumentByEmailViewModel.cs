@@ -225,7 +225,7 @@ namespace Vodovoz.Dialogs.Email
 
 		private void SendDocument()
 		{
-			var client = Document.Order?.Client;
+			var client = Document.Order?.Counterparty;
 			var rdlDoc = Document as IPrintableRDLDocument;
 
 			if(rdlDoc == null) {

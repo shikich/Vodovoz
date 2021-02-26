@@ -54,9 +54,9 @@ namespace Vodovoz.OldExportTo1c.Catalogs
 				return CreateReferenceTo(order.Contract);
 
 			var contract = new VirtualContract(
-				order.Client,
+				order.Counterparty,
 				order.Contract.Organization,
-				$"{order.Client.VodovozInternalId}-1"
+				$"{order.Counterparty.VodovozInternalId}-1"
 			);
 
 			return CreateReferenceTo(contract);
