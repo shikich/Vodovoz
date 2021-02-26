@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         #region Commands
 
         private DelegateCommand addSalesItemCommand;
-        public DelegateCommand AddSalesItemCommand => addSalesItemCommand ?? (
+        /*public DelegateCommand AddSalesItemCommand => addSalesItemCommand ?? (
             addSalesItemCommand = new DelegateCommand(
                 () =>
                 {
@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 },
                 () => true
             )    
-        );
+        );*/
 
         #endregion Commands
 

@@ -15,7 +15,7 @@ namespace Vodovoz.Views.Orders
 
         private void Configure()
         {
-            ybtnAddOrderItem.Clicked += (sender, args) => ViewModel.AddSalesItemCommand.Execute();
+            //ybtnAddOrderItem.Clicked += (sender, args) => ViewModel.AddSalesItemCommand.Execute();
             ychkMovementEquipments.Toggled += YchkMovementEquipmentsOnToggled;
             ychkMovementEquipments.Binding.AddBinding(ViewModel, vm => vm.IsMovementItemsVisible, w => w.Active).InitializeFromSource();
             ychkDeposits.Toggled += YchkDepositsOnToggled;
