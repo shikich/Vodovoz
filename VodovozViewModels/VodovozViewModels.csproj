@@ -293,7 +293,7 @@
     <Compile Include="Journals\JournalViewModels\Employees\UserJournalViewModel.cs" />
     <Compile Include="ViewModels\Users\UserViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
-    <Compile Include="ViewModels\Orders\SelfDeliveryInfoViewModel.cs" />
+    <Compile Include="ViewModels\Orders\SelfDeliveryOrderInfoViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderItemsViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrderDepositReturnsItemsViewModel.cs" />
     <Compile Include="Dialogs\Orders\WorkingOnOrderViewModel.cs" />
@@ -303,6 +303,7 @@
     <Compile Include="ViewModels\Orders\AddExistingDocumentsViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrderInfoExpandedPanelViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrdersDocumentsViewModelBase.cs" />
+    <Compile Include="Dialogs\Orders\SelfDeliveryOrderInfoPanelViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

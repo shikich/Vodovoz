@@ -1,21 +1,29 @@
-﻿using QS.Commands;
+﻿using System;
+using System.Linq;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public class OrderItemsViewModel : UoWWidgetViewModelBase
     {
         private bool isMovementItemsVisible;
-        private readonly IInteractiveService interactiveService;
         private OrderBase Order { get; set; }
+        public IUnitOfWork UoW { get; set; }
         
         public bool IsMovementItemsVisible
         {
@@ -33,7 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         #region Commands
 
         private DelegateCommand addSalesItemCommand;
-        /*public DelegateCommand AddSalesItemCommand => addSalesItemCommand ?? (
+        public DelegateCommand AddSalesItemCommand => addSalesItemCommand ?? (
             addSalesItemCommand = new DelegateCommand(
                 () =>
                 {
@@ -41,8 +49,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                         return;
 
                     var defaultCategory = NomenclatureCategory.water;
-                    if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
-                        defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+                    /*if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
+                        defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;*/
 
                     var nomenclatureFilter = new NomenclatureFilterViewModel();
                     nomenclatureFilter.SetAndRefilterAtOnce(
@@ -57,9 +65,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                         UnitOfWorkFactory.GetDefaultFactory,
                         ServicesConfig.CommonServices,
                         employeeService,
-                        NomenclatureSelectorFactory,
-                        CounterpartySelectorFactory,
-                        NomenclatureRepository,
+                        nomenclatureSelectorFactory,
+                        counterpartySelectorFactory,
+                        nomenclatureRepository,
                         userRepository
                     ) {
                         SelectionMode = JournalSelectionMode.Single,
@@ -70,19 +78,45 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                         var selectedNode = ea.SelectedNodes.FirstOrDefault();
                         if(selectedNode == null)
                             return;
-                        TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+                        TryAddNomenclature(UoW.Session.Get<Nomenclature>(selectedNode.Id));
                     };
-                    this.TabParent.AddSlaveTab(this, journalViewModel);
+                    //this.TabParent.AddSlaveTab(this, journalViewModel);
                 },
                 () => true
-            )    
-        );*/
+            )
+        );
 
         #endregion Commands
+        
+        private readonly IEmployeeService employeeService;
+        private readonly IUserRepository userRepository;
+        private readonly INomenclatureRepository nomenclatureRepository;
+        private readonly IInteractiveService interactiveService;
+        private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+        private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+        private readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
 
-        public OrderItemsViewModel()
+        public OrderItemsViewModel(
+            IEmployeeService employeeService,
+            IUserRepository userRepository,
+            IInteractiveService interactiveService,
+            INomenclatureRepository nomenclatureRepository,
+            IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+            IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory)
         {
+            this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            this.nomenclatureRepository = 
+                nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+            this.counterpartySelectorFactory = 
+                counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+            this.nomenclatureSelectorFactory = 
+                nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+
         }
+        
+        public OrderItemsViewModel(){}
         
         bool CanAddNomenclaturesToOrder()
         {
@@ -103,6 +137,53 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             }
 
             return true;
+        }
+        
+        private void TryAddNomenclature(
+            Nomenclature nomenclature, 
+            decimal count = 0, 
+            decimal discount = 0, 
+            DiscountReason discountReason = null)
+        {
+            if(Order is OrderFrom1c)
+                return;
+
+            if(Order.OrderSalesItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+               && nomenclature.Category == NomenclatureCategory.master) {
+                interactiveService.ShowMessage(
+                    ImportanceLevel.Info, "В не сервисный заказ нельзя добавить сервисную услугу");
+                return;
+            }
+
+            if(Order.OrderSalesItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+               && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+                interactiveService.ShowMessage(
+                    ImportanceLevel.Info, "В сервисный заказ нельзя добавить не сервисную услугу");
+                return;
+            }
+            
+            if(nomenclature.ProductGroup != null)
+                if(nomenclature.ProductGroup.IsOnlineStore && !ServicesConfig.CommonServices.CurrentPermissionService
+                    .ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
+                    interactiveService.ShowMessage(
+                        ImportanceLevel.Warning,
+                        "У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
+                    return;
+                }
+			
+            AddNomenclature(nomenclature, count, discount, false, discountReason);
+        }
+        
+        //TODO Реализовать метод
+        public virtual void AddNomenclature(
+            Nomenclature nomenclature, 
+            decimal count = 0, 
+            decimal discount = 0, 
+            bool discountInMoney = false, 
+            DiscountReason discountReason = null, 
+            PromotionalSet proSet = null)
+        {
+            
         }
     }
 }

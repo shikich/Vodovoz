@@ -4,6 +4,8 @@ namespace Vodovoz.Views.Orders
 {
 	public partial class OrderItemsView
 	{
+		private global::Gtk.HBox hboxMain;
+
 		private global::Gtk.VBox vboxMain;
 
 		private global::Gamma.GtkWidgets.yLabel ylblGoods;
@@ -64,6 +66,10 @@ namespace Vodovoz.Views.Orders
 
 		private global::Vodovoz.ViewWidgets.DepositRefundItemsView depositrefunditemsview;
 
+		private global::Gtk.VSeparator vseparator1;
+
+		private global::Gtk.HBox hboxJournals;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -71,6 +77,10 @@ namespace Vodovoz.Views.Orders
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Orders.OrderItemsView";
 			// Container child Vodovoz.Views.Orders.OrderItemsView.Gtk.Container+ContainerChild
+			this.hboxMain = new global::Gtk.HBox();
+			this.hboxMain.Name = "hboxMain";
+			this.hboxMain.Spacing = 6;
+			// Container child hboxMain.Gtk.Box+BoxChild
 			this.vboxMain = new global::Gtk.VBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
@@ -365,7 +375,25 @@ namespace Vodovoz.Views.Orders
 			this.vboxMain.Add(this.vboxDeposits);
 			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxDeposits]));
 			w30.Position = 7;
-			this.Add(this.vboxMain);
+			this.hboxMain.Add(this.vboxMain);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
+			w31.Position = 0;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hboxMain.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vseparator1]));
+			w32.Position = 1;
+			w32.Expand = false;
+			w32.Fill = false;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.hboxJournals = new global::Gtk.HBox();
+			this.hboxJournals.Name = "hboxJournals";
+			this.hboxJournals.Spacing = 6;
+			this.hboxMain.Add(this.hboxJournals);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.hboxJournals]));
+			w33.Position = 2;
+			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
@@ -374,6 +402,7 @@ namespace Vodovoz.Views.Orders
 			this.hboxReturnTareReason.Hide();
 			this.orderEquipmentItemsView.Hide();
 			this.vboxDeposits.Hide();
+			this.hboxJournals.Hide();
 			this.Hide();
 		}
 	}

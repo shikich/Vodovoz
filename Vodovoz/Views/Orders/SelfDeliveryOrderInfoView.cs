@@ -1,12 +1,14 @@
-﻿using QS.Views.GtkUI;
+﻿using Autofac;
+using QS.Views.GtkUI;
+using QS.Views.Resolve;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
     [System.ComponentModel.ToolboxItem(true)]
-    public partial class SelfDeliveryOrderInfoView : WidgetViewBase<SelfDeliveryInfoViewModel>
+    public partial class SelfDeliveryOrderInfoView : WidgetViewBase<SelfDeliveryOrderInfoViewModel>
     {
-        public SelfDeliveryOrderInfoView(SelfDeliveryInfoViewModel viewModel) : base (viewModel)
+        public SelfDeliveryOrderInfoView(SelfDeliveryOrderInfoViewModel viewModel) : base (viewModel)
         {
             this.Build();
             Configure();
@@ -15,17 +17,25 @@ namespace Vodovoz.Views.Orders
         private void Configure()
         {
             CreateOrderItemsView();
+            CreateSelfDeliveryOrderInfoPanelView();
         }
 
         private void CreateOrderItemsView()
         {
-            var orderItemsView = new OrderItemsView (new OrderItemsViewModel());
+            var orderItemsView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
+                .Resolve(ViewModel.OrderItemsViewModel);
+            
             hboxOrderItems.Add(orderItemsView);
             orderItemsView.Show();
+        }
 
-            var orderInfoView = new SelfDeliveryOrderInfoPanelView();
+        private void CreateSelfDeliveryOrderInfoPanelView()
+        {
+            var orderInfoPanelView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
+                .Resolve(ViewModel.SelfDeliveryOrderInfoPanelViewModel);
+            
             orderInfoExpandedPanelView.ViewModel = ViewModel.ExpandedPanelViewModel;
-            orderInfoExpandedPanelView.AddPanel(orderInfoView);
+            orderInfoExpandedPanelView.AddPanel(orderInfoPanelView);
         }
     }
 }

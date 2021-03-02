@@ -140,6 +140,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -269,10 +270,11 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
-				.RegisterWidgetForWidgetViewModel<SelfDeliveryInfoViewModel, SelfDeliveryOrderInfoView>()
+				.RegisterWidgetForWidgetViewModel<SelfDeliveryOrderInfoViewModel, SelfDeliveryOrderInfoView>()
                 .RegisterWidgetForWidgetViewModel<OrderItemsViewModel, OrderItemsView>()
 				.RegisterWidgetForWidgetViewModel<AddExistingDocumentsViewModel, AddExistingDocumentsView>()
 				.RegisterWidgetForWidgetViewModel<SelfDeliveryOrderMainViewModel, OrderMainView>()
+				.RegisterWidgetForWidgetViewModel<SelfDeliveryOrderInfoPanelViewModel, SelfDeliveryOrderInfoPanelView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

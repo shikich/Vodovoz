@@ -1152,7 +1152,7 @@ namespace Vodovoz
 		{
 			MainClass.MainWin.NavigationManager.OpenTdiTabOnTdi<M2ProxyDlg, EntityUoWBuilder, IUnitOfWorkFactory>(
 				this, EntityUoWBuilder.ForCreateInChildUoW(UoW), UnitOfWorkFactory.GetDefaultFactory);
-			/*
+			
 			if(!new QSValidator<Order>(
 				Entity, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
@@ -1163,7 +1163,7 @@ namespace Vodovoz
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
 					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityUoWBuilder.ForCreateInChildUoW(UoW), UnitOfWorkFactory.GetDefaultFactory)
 				);
-			}*/
+			}
 		}
 
 		protected void OnButtonAddExistingDocumentClicked(object sender, EventArgs e)
@@ -1178,35 +1178,14 @@ namespace Vodovoz
 				Entity.Counterparty);
             
             var counterpartyDocumentsVM = new CounterpartyDocumentsViewModel(UoW, Entity.Counterparty, true);
-			
-            var types = new[]
-            {
-	            typeof(IUnitOfWork),
-	            typeof(OrdersDocumentsViewModel),
-	            typeof(CounterpartyDocumentsViewModel)
-            };
-			
-            var values = new object[]
-            {
-	            UoW,
-	            selectedOrderVM,
-	            counterpartyDocumentsVM
-            };
             
-            //compatibilityNavigation.OpenTdiTabOnTdi<AddExistingDocumentsDlg>(null, types, values);
-            compatibilityNavigation.OpenViewModelOnTdi<AddExistingDocumentsViewModel, OrderBase, IUnitOfWork>(this, new SelfDeliveryOrder(), UoW);
-
-            //TabParent.AddTab(addExistingDocVM, this);
-
-            /*
             TabParent.OpenTab(
 				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
 				() => new AddExistingDocumentsDlg(
-                    UoWGeneric, 
-                    Entity.Counterparty, 
+                    UoWGeneric,
                     selectedOrderVM, 
                     counterpartyDocumentsVM)
-			);*/
+			);
 		}
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)

@@ -21,9 +21,12 @@ namespace Vodovoz.Views.Orders
 
             if (ViewModel.SelfDeliveryInfoViewModel != null)
             {
+                ViewModel.SelfDeliveryInfoViewModel.AutofacScope = ViewModel.AutofacScope;
+                ViewModel.SelfDeliveryInfoViewModel.ParentTab = ViewModel;
+
                 var infoView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
                     .Resolve(ViewModel.SelfDeliveryInfoViewModel);
-                
+
                 vboxInfo.Add(infoView);
                 infoView.Show();
             }

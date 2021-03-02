@@ -32,6 +32,8 @@ namespace Vodovoz.ViewWidgets.Orders
 
 		private global::Gamma.GtkWidgets.yButton ybtnOpenPrintDlg;
 
+		private global::Vodovoz.ViewWidgets.SendDocumentByEmailView sendDocumentByEmailView;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -184,9 +186,16 @@ namespace Vodovoz.ViewWidgets.Orders
 			this.hbox19.Add(this.vbox9);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.vbox9]));
 			w19.Position = 0;
+			// Container child hbox19.Gtk.Box+BoxChild
+			this.sendDocumentByEmailView = new global::Vodovoz.ViewWidgets.SendDocumentByEmailView();
+			this.sendDocumentByEmailView.Events = ((global::Gdk.EventMask)(256));
+			this.sendDocumentByEmailView.Name = "sendDocumentByEmailView";
+			this.hbox19.Add(this.sendDocumentByEmailView);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.sendDocumentByEmailView]));
+			w20.Position = 1;
 			this.vboxDocuments.Add(this.hbox19);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hbox19]));
-			w20.Position = 0;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hbox19]));
+			w21.Position = 0;
 			this.Add(this.vboxDocuments);
 			if ((this.Child != null))
 			{
