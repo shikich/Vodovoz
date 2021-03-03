@@ -5,7 +5,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Orders;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewWidgets.PromoSetAction

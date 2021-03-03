@@ -11,7 +11,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.FilterViewModels;

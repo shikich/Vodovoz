@@ -128,6 +128,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
@@ -140,12 +141,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Orders;
-using Vodovoz.ViewWidgets.Orders;
 
 namespace Vodovoz
 {
@@ -616,6 +618,8 @@ namespace Vodovoz
 			#region Adapters
 			
 			builder.RegisterType<UndeliveriesViewOpener>().As<IUndeliveriesViewOpener>();
+			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
+			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
 
 			#endregion
 			
@@ -625,6 +629,7 @@ namespace Vodovoz
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
 			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
+			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
 			
 			#endregion
 			
@@ -633,7 +638,7 @@ namespace Vodovoz
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
-			
+
 			#endregion
 			
 			#region Интерфейсы репозиториев
@@ -641,6 +646,10 @@ namespace Vodovoz
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
 			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
+			builder.Register(c =>
+					new NomenclatureRepository(
+						c.Resolve<INomenclatureParametersProvider>()))
+				.As<INomenclatureRepository>();
 			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
 			
 			#endregion
@@ -661,7 +670,9 @@ namespace Vodovoz
 			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
 			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>().SingleInstance();
 			builder.Register(cc => new ClassNamesBaseGtkViewResolver(typeof(InternalTalkView), typeof(DeletionView))).As<IGtkViewResolver>();
-			builder.Register(c => ViewModelWidgetResolver.Instance).As<IGtkViewResolver>();
+			builder.Register(c => ViewModelWidgetResolver.Instance)
+				.As<IGtkViewResolver>()
+				.As<ITDIWidgetResolver>();
 
 			#endregion
 
@@ -688,14 +699,14 @@ namespace Vodovoz
 			#endregion
 
 			#region ViewModels
-			
+
 			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
 			builder.RegisterAssemblyTypes(
 					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
-
+			
 			#endregion
 
 			#region Repository

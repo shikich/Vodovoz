@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using FluentNHibernate.Data;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -92,7 +91,7 @@ namespace Vodovoz.ViewWidgets.Orders
             ytreeDocuments.ItemsDataSource = ViewModel.Order.ObservableOrderDocuments;
             ytreeDocuments.Selection.Changed += TreeDocumentsSelectionOnChanged;
 
-            //ytreeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
+            ytreeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
         }
 
         private void TreeDocumentsSelectionOnChanged(object sender, EventArgs e)

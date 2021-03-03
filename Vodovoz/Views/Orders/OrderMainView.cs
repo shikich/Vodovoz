@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Navigation;
 using QS.Views;
 using QS.Views.Resolve;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -19,6 +20,13 @@ namespace Vodovoz.Views.Orders
             notebookOrder.ShowTabs = false;
             yradBtnInfo.Active = true;
 
+            ybtnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+
+            ResolveInfoView();
+        }
+
+        private void ResolveInfoView()
+        {
             if (ViewModel.SelfDeliveryInfoViewModel != null)
             {
                 ViewModel.SelfDeliveryInfoViewModel.AutofacScope = ViewModel.AutofacScope;

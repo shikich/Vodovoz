@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -19,10 +19,10 @@ namespace Vodovoz.Views.Orders
         private  void Configure()
         {
             var builder =
-                new CommonEEVMBuilderFactory<Counterparty>(ViewModel.ParentTab, ViewModel.Order.Counterparty,
+                new CommonEEVMBuilderFactory<SelfDeliveryOrder>(ViewModel.ParentTab, ViewModel.Order,
                     UnitOfWorkFactory.CreateWithoutRoot(), MainClass.MainWin.NavigationManager, ViewModel.AutofacScope);
 
-            var viewModel = builder.ForProperty(x => x.MainContact)
+            var viewModel = builder.ForProperty(x => x.Counterparty)
                 .UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
                 .Finish();
 

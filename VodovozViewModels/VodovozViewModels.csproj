@@ -147,6 +147,8 @@
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\NomenclatureAutoCompleteSelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\NomenclatureSelectorFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\CashRequestJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
@@ -163,6 +165,7 @@
     <Compile Include="TempAdapters\ICarJournalFactory.cs" />
     <Compile Include="TempAdapters\ICounterpartyCommonEEVMBuilderFactory.cs" />
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\ICurrentUserSettings.cs" />
     <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.cs" />
@@ -196,7 +199,6 @@
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderInfoViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\OrderMainViewModel.cs" />
-    <Compile Include="ViewModels\Orders\OrderSalesItemsViewModel.cs" />
     <Compile Include="ViewModels\Orders\SelfDeliveryOrderMainViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />

@@ -3,6 +3,7 @@ using Autofac;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -19,6 +20,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         public ILifetimeScope AutofacScope { get; set; }
         
         protected readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
+        protected readonly OrderDocumentsViewModel orderDocumentsViewModel;
+        protected readonly WorkingOnOrderViewModel workingOnOrderViewModel;
         
         protected OrderMainViewModel(
             ITdiCompatibilityNavigation tdiCompatibilityNavigation) : base (tdiCompatibilityNavigation)

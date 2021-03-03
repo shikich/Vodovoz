@@ -21,10 +21,10 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.Views.Mango;
 
@@ -155,9 +155,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-					nomenclatureRepository, UserSingletonRepository.GetInstance());
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+					ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
+					new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
+					UserSingletonRepository.GetInstance());
 
 			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 

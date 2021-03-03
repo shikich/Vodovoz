@@ -1,6 +1,5 @@
 using QS.Navigation;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {

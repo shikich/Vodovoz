@@ -6,19 +6,22 @@ using QS.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Services;
 
-namespace Vodovoz.JournalSelector
+namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
 	public class NomenclatureSelectorFactory<Nomenclature, NomenclaturesJournalViewModel> : IEntitySelectorFactory
 		where NomenclaturesJournalViewModel : JournalViewModelBase, IEntitySelector
 	{
-		public NomenclatureSelectorFactory(ICommonServices commonServices, 
+		public NomenclatureSelectorFactory(ICommonServices commonServices,
+										   IEmployeeService employeeService,
 		                                   NomenclatureFilterViewModel filterViewModel,
 		                                   IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 		                                   INomenclatureRepository nomenclatureRepository,
 		                                   IUserRepository userRepository)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -26,6 +29,7 @@ namespace Vodovoz.JournalSelector
 		}
 
 		protected readonly ICommonServices commonServices;
+		protected readonly IEmployeeService employeeService;
 		protected readonly INomenclatureRepository nomenclatureRepository;
 		protected readonly IUserRepository userRepository;
 		protected readonly NomenclatureFilterViewModel filter;
@@ -37,7 +41,7 @@ namespace Vodovoz.JournalSelector
 		{
 			NomenclaturesJournalViewModel selectorViewModel = (NomenclaturesJournalViewModel)Activator
 				.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, 
-					UnitOfWorkFactory.GetDefaultFactory, commonServices, VodovozGtkServicesConfig.EmployeeService, 
+					UnitOfWorkFactory.GetDefaultFactory, commonServices, employeeService, 
 					this, counterpartySelectorFactory, nomenclatureRepository, userRepository});
 			
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;

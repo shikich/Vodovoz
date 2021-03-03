@@ -391,6 +391,7 @@
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
+    <Compile Include="Core\GetCurrentUserSettings.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
@@ -1284,8 +1285,6 @@
     <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
     <Compile Include="ViewModels\Orders\ICreationControl.cs" />
     <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
-    <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
-    <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
     <Compile Include="JournalViewModels\CarJournalViewModel.cs" />
     <Compile Include="JournalNodes\CarJournalNode.cs" />
     <Compile Include="Filters\ViewModels\CarJournalFilterViewModel.cs" />
@@ -1739,6 +1738,7 @@
     <Folder Include="icons\" />
     <Folder Include="icons\menu\" />
     <Folder Include="icons\toolbar\" />
+    <Folder Include="JournalSelector" />
     <Folder Include="toolbars\" />
     <Folder Include="Dialogs\" />
     <Folder Include="Dialogs\DocumentDialogs\" />

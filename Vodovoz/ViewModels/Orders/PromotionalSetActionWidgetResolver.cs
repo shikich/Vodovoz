@@ -8,8 +8,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders
@@ -42,8 +42,8 @@ namespace Vodovoz.ViewModels.Orders
 					
 					var nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, filter, counterpartySelectorFactory,
-							 nomenclatureRepository, userRepository);
+							ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService, filter, 
+							counterpartySelectorFactory, nomenclatureRepository, userRepository);
 					
 					return new AddFixPriceActionViewModel(uow, promotionalSet, ServicesConfig.CommonServices, nomenclatureSelectorFactory);
 				default: 

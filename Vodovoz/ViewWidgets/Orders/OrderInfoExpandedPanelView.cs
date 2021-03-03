@@ -16,11 +16,12 @@ namespace Vodovoz.ViewWidgets.Orders
         protected override void ConfigureWidget()
         {
             ybtnExpander.Clicked += YbtnExpanderOnClicked;
+            ViewModel.ExpandeEvent += YbtnExpanderOnClicked;
         }
 
         private void YbtnExpanderOnClicked(object sender, EventArgs e)
         {
-            hboxPanel.Visible = !hboxPanel.Visible;
+            hboxPanel.Visible = ViewModel.IsExpanded = !hboxPanel.Visible;
             ybtnExpander.Label = hboxPanel.Visible ? "<<" : ">>";
         }
 

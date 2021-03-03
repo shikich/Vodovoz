@@ -1,12 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using QS.Dialog.Gtk;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Client;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -29,10 +26,10 @@ namespace Vodovoz.ViewWidgets.Orders
             yvalidatedOrderNum.Changed += (sender, e) => ViewModel.UpdateNodes();
 
             var builder =
-                new CommonEEVMBuilderFactory<Counterparty>(MainClass.MainWin.NavigationManager.CurrentPage.ViewModel, ViewModel.Counterparty,
+                new CommonEEVMBuilderFactory<OrdersDocumentsViewModelBase>(MainClass.MainWin.NavigationManager.CurrentPage.ViewModel, ViewModel,
                     ViewModel.UoW, MainClass.MainWin.NavigationManager, ViewModel.AutofacScope);
 
-            var viewModel = builder.ForProperty(x => x.MainContact)
+            var viewModel = builder.ForProperty(x => x.Counterparty)
                 .UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
                 .Finish();
 

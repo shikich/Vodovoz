@@ -26,32 +26,4 @@ namespace Vodovoz.TempAdapters
                 autofacScope);
         }
     }
-    
-    public interface ICounterpartyLegacyEEVMBuilderFactory
-    {
-        LegacyEEVMBuilderFactory<Counterparty> CreateCounterpartyLegacyEEVMBuilderFactory(
-            ITdiTab parentTab,
-            Counterparty source,
-            IUnitOfWork uow,
-            INavigationManager navigationManager,
-            ILifetimeScope autofacScope);
-    }
-    
-    public class CounterpartyLegacyEEVMBuilderFactory : ICounterpartyLegacyEEVMBuilderFactory
-    {
-        public LegacyEEVMBuilderFactory<Counterparty> CreateCounterpartyLegacyEEVMBuilderFactory(
-            ITdiTab parentTab,
-            Counterparty source,
-            IUnitOfWork uow,
-            INavigationManager navigationManager,
-            ILifetimeScope autofacScope)
-        {
-            return new LegacyEEVMBuilderFactory<Counterparty>(
-                parentTab, 
-                source, 
-                uow,
-                navigationManager,
-                autofacScope);
-        }
-    }
 }

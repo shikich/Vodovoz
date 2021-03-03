@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         public ILifetimeScope AutofacScope { get; set; }
         public virtual OrderItemsViewModel OrderItemsViewModel { get; }
         public DialogViewModelBase ParentTab { get; set; }
-        public OrderInfoExpandedPanelViewModel ExpandedPanelViewModel { get; set; }
+        public OrderInfoExpandedPanelViewModel ExpandedPanelViewModel { get; }
 
         protected OrderInfoViewModelBase(
             OrderInfoExpandedPanelViewModel expandedPanelViewModel)

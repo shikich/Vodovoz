@@ -1,8 +1,7 @@
-﻿using System;
-using QS.Project.Journal.EntitySelector;
+﻿using QS.Project.Journal.EntitySelector;
 using System.Collections.Generic;
-using QS.Project.Journal;
 using Vodovoz.Domain.Store;
+using Vodovoz.FilterViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
 {
@@ -11,7 +10,7 @@ namespace Vodovoz.TempAdapters
 		IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures);
 		IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures);
 		IEntitySelector CreateNomenclatureSelectorForFuelSelect();
-
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
+		IEntityAutocompleteSelectorFactory CreateNomenclatureAutocompleteSelectorFactory(NomenclatureFilterViewModel filterViewModel);
 	}
 }

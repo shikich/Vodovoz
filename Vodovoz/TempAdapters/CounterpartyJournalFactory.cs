@@ -1,5 +1,3 @@
-using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
@@ -10,9 +8,8 @@ namespace Vodovoz.TempAdapters
 {
     public class CounterpartyJournalFactory : ICounterpartyJournalFactory
     {
-        public IEntityAutocompleteSelectorFactory CreateCounterpartyAutocompleteSelectorFactory()
-        {
-            return new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-        }
+        public IEntityAutocompleteSelectorFactory CreateCounterpartyAutocompleteSelectorFactory() => 
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, 
+                CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
     }
 }

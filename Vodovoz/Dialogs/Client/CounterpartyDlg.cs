@@ -29,7 +29,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -39,6 +38,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
@@ -78,8 +78,8 @@ namespace Vodovoz
 				if(nomenclatureSelectorFactory == null) {
 					nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, userRepository);
+							ServicesConfig.CommonServices, employeeService, new NomenclatureFilterViewModel(), 
+							CounterpartySelectorFactory, NomenclatureRepository, userRepository);
 				}
 				return nomenclatureSelectorFactory;
 			}

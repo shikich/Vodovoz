@@ -35,10 +35,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             {
                 if (orderItemsViewModel == null)
                 {
-                    /*Parameter[] parameters = {
-                        new TypedParameter(typeof(SelfDeliveryOrder), Order),
-                    };*/
-                    orderItemsViewModel = AutofacScope.Resolve<OrderItemsViewModel>(/*parameters*/);
+                    Parameter[] parameters = {
+                        new TypedParameter(typeof(OrderBase), Order),
+                        new TypedParameter(typeof(OrderInfoExpandedPanelViewModel), ExpandedPanelViewModel)
+                    };
+                    orderItemsViewModel = AutofacScope.Resolve<OrderItemsViewModel>(parameters);
+                    orderItemsViewModel.AutofacScope = AutofacScope;
                 }
 
                 return orderItemsViewModel;

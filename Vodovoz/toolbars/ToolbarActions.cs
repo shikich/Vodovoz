@@ -55,7 +55,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -70,6 +69,7 @@ using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.Views.Orders;
@@ -352,7 +352,8 @@ public partial class MainWindow : Window
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(
+				ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
 		
@@ -380,7 +381,8 @@ public partial class MainWindow : Window
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(
+				ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
 		
@@ -917,7 +919,8 @@ public partial class MainWindow : Window
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(
+				ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
 		

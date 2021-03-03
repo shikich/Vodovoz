@@ -64,7 +64,6 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Models;
@@ -84,6 +83,7 @@ using Vodovoz.Domain.Orders.Documents.OrderM2Proxy;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
@@ -152,8 +152,8 @@ namespace Vodovoz
 				if(nomenclatureSelectorFactory == null) {
 					nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, userRepository);
+							ServicesConfig.CommonServices, employeeService, new NomenclatureFilterViewModel(), 
+							CounterpartySelectorFactory, NomenclatureRepository, userRepository);
 				}
 				return nomenclatureSelectorFactory;
 			}

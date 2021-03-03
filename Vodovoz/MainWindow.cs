@@ -54,7 +54,6 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
@@ -87,6 +86,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 public partial class MainWindow : Gtk.Window
@@ -376,7 +376,7 @@ public partial class MainWindow : Gtk.Window
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
             new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+                .CommonServices, VodovozGtkServicesConfig.EmployeeService, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
                 nomenclatureRepository, UserSingletonRepository.GetInstance());
 
         tdiMain.OpenTab(
@@ -731,9 +731,10 @@ public partial class MainWindow : Gtk.Window
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+                ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService, 
+                new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
+                UserSingletonRepository.GetInstance());
 
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
@@ -882,7 +883,8 @@ public partial class MainWindow : Gtk.Window
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+                ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
                 new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
                 UserSingletonRepository.GetInstance());
 
@@ -1378,8 +1380,9 @@ public partial class MainWindow : Gtk.Window
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+                ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService, 
+                new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
                 UserSingletonRepository.GetInstance());
 
         tdiMain.AddTab(

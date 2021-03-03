@@ -11,9 +11,9 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Filters.ViewModels
@@ -156,8 +156,10 @@ namespace Vodovoz.Filters.ViewModels
 				if(nomenclatureVM == null) {
 					nomenclatureVM =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartyVM,
-							new NomenclatureRepository(new NomenclatureParametersProvider()), UserSingletonRepository.GetInstance());
+							ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService, 
+							new NomenclatureFilterViewModel(), CounterpartyVM, 
+							new NomenclatureRepository(new NomenclatureParametersProvider()), 
+							UserSingletonRepository.GetInstance());
 				}
 				return nomenclatureVM;
 			}

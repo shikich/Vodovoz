@@ -10,9 +10,9 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
@@ -39,8 +39,8 @@ namespace Vodovoz.TempAdapters
 			
             var nomenclatureSelectorFactory =
                 new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-                    ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
-                    UserSingletonRepository.GetInstance());
+                    ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,nomenclatureFilter,
+                    counterpartySelectorFactory, nomenclatureRepository, UserSingletonRepository.GetInstance());
 			
             WaterJournalViewModel waterJournal = new WaterJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,

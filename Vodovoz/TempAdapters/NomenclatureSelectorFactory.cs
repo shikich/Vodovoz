@@ -12,9 +12,9 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
@@ -52,7 +52,8 @@ namespace Vodovoz.TempAdapters
 			
 			var nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
+					ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
+					nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
 					UserSingletonRepository.GetInstance());
 
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
@@ -86,7 +87,8 @@ namespace Vodovoz.TempAdapters
 			
 			var nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
+					ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
+					nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
 					UserSingletonRepository.GetInstance());
 
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
@@ -108,6 +110,24 @@ namespace Vodovoz.TempAdapters
 		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory()
 		{
 			return new WaterJournalFactory();
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateNomenclatureAutocompleteSelectorFactory(
+			NomenclatureFilterViewModel filterViewModel)
+		{
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			
+			var counterpartySelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices);
+			
+			var nomenclatureSelectorFactory =
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+					ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService,
+					filterViewModel, counterpartySelectorFactory, nomenclatureRepository,
+					UserSingletonRepository.GetInstance());
+
+			return nomenclatureSelectorFactory;
 		}
 	}
 }
