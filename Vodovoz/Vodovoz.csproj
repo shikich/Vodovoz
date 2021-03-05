@@ -953,8 +953,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderCommentsView.cs" />
     <Compile Include="ViewWidgets\GuiltyInUndeliveryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GuiltyInUndeliveryView.cs" />
-    <Compile Include="ViewWidgets\SendDocumentByEmailView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SendDocumentByEmailView.cs" />
     <Compile Include="SidePanel\InfoViews\EmailsPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EmailsPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\IEmailsInfoProvider.cs" />
@@ -1421,7 +1419,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForAdvancePaymentView.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Email.SendDocumentByEmailView.cs" />
-    <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Filters\GtkViews\DistrictJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictView.cs" />
@@ -1566,6 +1563,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.SelfDeliveryOrderInfoPanelView.cs" />
     <Compile Include="ViewWidgets\Orders\BaseOrdersDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.BaseOrdersDocumentsView.cs" />
+    <Compile Include="Views\Client\CounterpartyContractView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyContractView.cs" />
+    <Compile Include="Views\Employees\M2ProxyDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.M2ProxyDocumentView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

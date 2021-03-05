@@ -26,7 +26,7 @@ namespace Vodovoz
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
 			this.Build ();
-			UoWGeneric = CounterpartyContract.Create (counterparty);
+			UoWGeneric = CounterpartyContract.Create(counterparty);
 			TabName = "Новый договор";
 			ConfigureDlg ();
 		}

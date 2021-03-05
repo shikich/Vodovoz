@@ -32,13 +32,9 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.VBox vboxOrderDocuments;
 
-		private global::Vodovoz.ViewWidgets.Orders.OrderDocumentsView orderdocumentsview2;
-
 		private global::Gtk.Label lblDocuments;
 
 		private global::Gtk.VBox vboxWorkingOnOrder;
-
-		private global::Vodovoz.ViewWidgets.Orders.WorkingOnOrderView workingonorderview1;
 
 		private global::Gtk.Label lblWorkingOnOrder;
 
@@ -172,16 +168,9 @@ namespace Vodovoz.Views.Orders
 			this.vboxOrderDocuments = new global::Gtk.VBox();
 			this.vboxOrderDocuments.Name = "vboxOrderDocuments";
 			this.vboxOrderDocuments.Spacing = 6;
-			// Container child vboxOrderDocuments.Gtk.Box+BoxChild
-			this.orderdocumentsview2 = new global::Vodovoz.ViewWidgets.Orders.OrderDocumentsView();
-			this.orderdocumentsview2.Events = ((global::Gdk.EventMask)(256));
-			this.orderdocumentsview2.Name = "orderdocumentsview2";
-			this.vboxOrderDocuments.Add(this.orderdocumentsview2);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxOrderDocuments[this.orderdocumentsview2]));
-			w11.Position = 0;
 			this.notebookOrder.Add(this.vboxOrderDocuments);
-			global::Gtk.Notebook.NotebookChild w12 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOrder[this.vboxOrderDocuments]));
-			w12.Position = 1;
+			global::Gtk.Notebook.NotebookChild w11 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOrder[this.vboxOrderDocuments]));
+			w11.Position = 1;
 			// Notebook tab
 			this.lblDocuments = new global::Gtk.Label();
 			this.lblDocuments.Name = "lblDocuments";
@@ -192,16 +181,9 @@ namespace Vodovoz.Views.Orders
 			this.vboxWorkingOnOrder = new global::Gtk.VBox();
 			this.vboxWorkingOnOrder.Name = "vboxWorkingOnOrder";
 			this.vboxWorkingOnOrder.Spacing = 6;
-			// Container child vboxWorkingOnOrder.Gtk.Box+BoxChild
-			this.workingonorderview1 = new global::Vodovoz.ViewWidgets.Orders.WorkingOnOrderView();
-			this.workingonorderview1.Events = ((global::Gdk.EventMask)(256));
-			this.workingonorderview1.Name = "workingonorderview1";
-			this.vboxWorkingOnOrder.Add(this.workingonorderview1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxWorkingOnOrder[this.workingonorderview1]));
-			w13.Position = 0;
 			this.notebookOrder.Add(this.vboxWorkingOnOrder);
-			global::Gtk.Notebook.NotebookChild w14 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOrder[this.vboxWorkingOnOrder]));
-			w14.Position = 2;
+			global::Gtk.Notebook.NotebookChild w12 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOrder[this.vboxWorkingOnOrder]));
+			w12.Position = 2;
 			// Notebook tab
 			this.lblWorkingOnOrder = new global::Gtk.Label();
 			this.lblWorkingOnOrder.Name = "lblWorkingOnOrder";
@@ -209,8 +191,8 @@ namespace Vodovoz.Views.Orders
 			this.notebookOrder.SetTabLabel(this.vboxWorkingOnOrder, this.lblWorkingOnOrder);
 			this.lblWorkingOnOrder.ShowAll();
 			this.vboxMain.Add(this.notebookOrder);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.notebookOrder]));
-			w15.Position = 1;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.notebookOrder]));
+			w13.Position = 1;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

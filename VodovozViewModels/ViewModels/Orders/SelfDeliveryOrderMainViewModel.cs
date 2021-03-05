@@ -3,17 +3,19 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-    public class SelfDeliveryOrderMainViewModel : OrderMainViewModel<SelfDeliveryOrder>
+    public class SelfDeliveryOrderMainViewModel : OrderMainViewModelBase
     {
-        public SelfDeliveryOrderInfoViewModel SelfDeliveryInfoViewModel { get; set; }
+        //public override OrderInfoViewModelBase OrderInfoViewModelBase => selfDeliveryInfoViewModel;
+        //private readonly SelfDeliveryOrderInfoViewModel selfDeliveryInfoViewModel;
         
         public SelfDeliveryOrderMainViewModel(
             SelfDeliveryOrderInfoViewModel selfDeliveryInfoViewModel,
-            ITdiCompatibilityNavigation tdiCompatibilityNavigation) : base (tdiCompatibilityNavigation)
+            ITdiCompatibilityNavigation tdiCompatibilityNavigation) 
+            : base (selfDeliveryInfoViewModel, tdiCompatibilityNavigation)
         {
-            SelfDeliveryInfoViewModel = selfDeliveryInfoViewModel;
-            Entity = new SelfDeliveryOrder();
-            SelfDeliveryInfoViewModel.Order = Entity;
+            //this.selfDeliveryInfoViewModel = selfDeliveryInfoViewModel;
+            Order = new SelfDeliveryOrder();
+            selfDeliveryInfoViewModel.Order = Order as SelfDeliveryOrder;
         }
     }
 }

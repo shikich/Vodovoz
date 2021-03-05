@@ -61,8 +61,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                     if (NomenclaturesJournalViewModel == null)
                     {
                         var defaultCategory = NomenclatureCategory.water;
-                        if(currentUserSettings.GetUserSettings().DefaultSaleCategory.HasValue)
-                            defaultCategory = currentUserSettings.GetUserSettings().DefaultSaleCategory.Value;
+                        /*if(currentUserSettings.GetUserSettings().DefaultSaleCategory.HasValue)
+                            defaultCategory = currentUserSettings.GetUserSettings().DefaultSaleCategory.Value;*/
 
                         var nomenclatureFilter = AutofacScope.Resolve<NomenclatureFilterViewModel>();
                         nomenclatureFilter.SetAndRefilterAtOnce(

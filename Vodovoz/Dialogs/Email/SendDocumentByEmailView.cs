@@ -10,14 +10,12 @@ namespace Vodovoz.Dialogs.Email
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SendDocumentByEmailView : WidgetViewBase<SendDocumentByEmailViewModel>
 	{
-		public SendDocumentByEmailView(SendDocumentByEmailViewModel viewModel) : base(viewModel)
+		public SendDocumentByEmailView()
 		{
 			this.Build();
-
-			Configure();
 		}
 
-		private void Configure()
+		protected void ConfigureWidget()
 		{
 			buttonSendEmail.Clicked += (sender, e) => ViewModel.SendEmailCommand.Execute();
 			ViewModel.SendEmailCommand.CanExecuteChanged += (sender, args) =>

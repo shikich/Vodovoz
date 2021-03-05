@@ -6,7 +6,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents.OrderContract;
 using Vodovoz.Domain.Orders.Documents.OrderM2Proxy;
-using Vodovoz.Domain.Employees;
 using System.Linq;
 using QS.Print;
 using Gamma.Utilities;
@@ -16,10 +15,12 @@ using QS.Dialog;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
+using Vodovoz.Dialogs.Email;
 using Vodovoz.Infrastructure.Print;
+using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
@@ -27,11 +28,13 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
     public class OrderDocumentsViewModel : UoWWidgetViewModelBase
     {
         public OrderBase Order { get; set; }
+        public SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; }
+        public DialogViewModelBase ParentTab { get; set; }
 
         public object[] SelectedDocs { get; set; }
 
         #region Команды
-        /*
+        
         private DelegateCommand viewDocCommand;
         public DelegateCommand ViewDocCommand => viewDocCommand ?? (
             viewDocCommand = new DelegateCommand(
@@ -69,8 +72,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         {
                             if (doc is OrderContract contract)
                             {
-                                compatibilityNavigation.OpenTdiTab<CounterpartyContract, int>(null, contract.Contract.Id);
-                                /*
+                                compatibilityNavigation
+                                    .OpenViewModel<CounterpartyContractViewModel, int, INavigationManager>(ParentTab,
+                                        contract.Contract.Id, compatibilityNavigation);
+                                
                                 //NavigationManager.OpenViewModel(
                                         //DialogHelper.GenerateDialogHashName<CounterpartyContract>(contract.Contract.Id),
                                         //() =>
@@ -95,7 +100,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                                     return;
                                 }
                                 
-                                compatibilityNavigation.OpenTdiTab<ITdiTab, int>(null, m2Proxy.M2Proxy.Id);
+                                compatibilityNavigation.OpenViewModel<
+                                    M2ProxyDocumentViewModel, 
+                                    int, 
+                                    INavigationManager, 
+                                    ICommonServices>(ParentTab, m2Proxy.M2Proxy.Id, compatibilityNavigation, commonServices);
                             }
                         }
 
@@ -135,44 +144,56 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                     }
 
                     compatibilityNavigation.OpenViewModel<AddExistingDocumentsViewModel, IUnitOfWork, OrderBase, INavigationManager>(
-                        null, uow, Order, compatibilityNavigation);
+                        ParentTab, uow, Order, compatibilityNavigation);
                 },
                 () => true
             )
         );
-
+        
         private DelegateCommand addM2ProxyCommand;
         public DelegateCommand AddM2ProxyCommand => addM2ProxyCommand ?? (
             addM2ProxyCommand = new DelegateCommand(
                 () => 
-                {
+                /*{
+                    
                     if (!new QSValidator<Order>(Order, new Dictionary<object, object>{
                         //индикатор того, что заказ - копия, созданная из недовозов
                         { "IsCopiedFromUndelivery", templateOrder != null }})
                         .RunDlgIfNotValid((Window)this.Toplevel) && SaveOrderBeforeContinue<M2ProxyDocument>())
+                   */
                     {
-
                         var childUoW = EntityUoWBuilder.ForCreateInChildUoW(uow);
-                        compatibilityNavigation.OpenTdiTab<M2proxyDlg, EntityUoWBuilder>(null, childUoW);
+                        var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
+
+                        Type[] types = new[]
+                        {
+                            typeof(IEntityUoWBuilder),
+                            typeof(IUnitOfWorkFactory),
+                            typeof(INavigationManager),
+                            typeof(ICommonServices)
+                        };
+
+                        object[] m2ProxyViewModelCtorObjs = new[]
+                        {
+                            childUoW,
+                            (object) uowFactory,
+                            compatibilityNavigation,
+                            commonServices
+                        };
+                    
+                        compatibilityNavigation.OpenViewModelTypedArgs<M2ProxyDocumentViewModel>(ParentTab, types, m2ProxyViewModelCtorObjs);
                         
-                        TabParent.OpenTab(
-                            DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
-                            () => OrmMain.CreateObjectDialog(
-                                typeof(M2ProxyDocument), 
-                                EntityUoWBuilder.ForCreateInChildUoW(uow), 
-                                UnitOfWorkFactory.GetDefaultFactory)
-                        );
-                    }
+                    //}
 
                 },
                 () => true
             )
         );
-
+        
         private DelegateCommand addCurrentContractCommand;
         public DelegateCommand AddCurrentContractCommand => addCurrentContractCommand ?? (
             addCurrentContractCommand = new DelegateCommand(
-                () => Order.AddContractDocument(Order.Contract),
+                () => AddContractDocument(Order.Contract),
                 () => true
             )
         );
@@ -180,12 +201,12 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private DelegateCommand<IEnumerable<OrderDocument>> removeExistingDocCommand;
         public DelegateCommand<IEnumerable<OrderDocument>> RemoveExistingDocCommand => removeExistingDocCommand ?? (
             removeExistingDocCommand = new DelegateCommand<IEnumerable<OrderDocument>>(
-                (docs) => 
+                docs => 
                 {
                     if (!commonServices.InteractiveService.Question("Вы уверены, что хотите удалить выделенные документы?")) return;
                     
                     //var documents = treeDocuments.GetSelectedObjects<OrderDocument>();
-                    var notDeletedDocs = Order.RemoveAdditionalDocuments(docs);
+                    var notDeletedDocs = RemoveAdditionalDocuments(docs);
                     
                     if (notDeletedDocs != null && notDeletedDocs.Any())
                     {
@@ -201,31 +222,44 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                             $"Документы{strDocuments}\nудалены не были, так как относятся к текущему заказу.");
                     }
                 },
-                (docs) => docs.Any()
+                docs => docs.Any()
             )
         );
-        */
+        
         #endregion
         
-        private readonly IUnitOfWork uow;
+        private readonly IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
         private readonly ICommonServices commonServices;
         private readonly CommonMessages commonMessages;
-        public readonly ITdiCompatibilityNavigation compatibilityNavigation;
+        private readonly ITdiCompatibilityNavigation compatibilityNavigation;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
 
         public OrderDocumentsViewModel(
-            IUnitOfWork uow,
+            //IUnitOfWork uow,
+            OrderBase order,
             ITdiCompatibilityNavigation compatibilityNavigation,
             ICommonServices commonServices,
             IRDLPreviewOpener rdlPreviewOpener,
-            CommonMessages commonMessages)
-            : base()
+            CommonMessages commonMessages,
+            SendDocumentByEmailViewModel sendDocumentByEmailViewModel)
         {
             //this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
+            Order = order;
             this.commonServices = commonServices ?? throw new ArgumentException(nameof(commonServices));
             this.commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
             this.compatibilityNavigation = compatibilityNavigation;
             this.rdlPreviewOpener = rdlPreviewOpener;
+            SendDocumentByEmailViewModel = sendDocumentByEmailViewModel;
+        }
+        
+        private IEnumerable<OrderDocument> RemoveAdditionalDocuments(IEnumerable<OrderDocument> docs)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void AddContractDocument(CounterpartyContract contract)
+        {
+            
         }
     }
 }

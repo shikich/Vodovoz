@@ -17,26 +17,27 @@ namespace Vodovoz.ViewWidgets.Orders
     [System.ComponentModel.ToolboxItem(true)]
     public partial class OrderDocumentsView : WidgetViewBase<OrderDocumentsViewModel>
     {
-        public OrderDocumentsView()
+        public OrderDocumentsView(OrderDocumentsViewModel viewModel) : base(viewModel)
         {
             this.Build();
+            Configure();
         }
 
-        protected override void ConfigureWidget()
+        private void Configure()
         {
             ConfigureTree();
-            /*
+            
             ybtnRemoveExistingDoc.Clicked +=
                 (sender, args) =>
                     ViewModel.RemoveExistingDocCommand.Execute(ytreeDocuments.GetSelectedObjects<OrderDocument>());
-            */
-            ybtnAddM2ProxyForThisOrder.Clicked += YbtnAddM2ProxyForThisOrderOnClicked;
-        }
+            ybtnAddExistingDoc.Clicked += (sender, args) => ViewModel.AddExistingDocCommand.Execute();
+            ybtnAddM2ProxyForThisOrder.Clicked += (sender, args) => ViewModel.AddM2ProxyCommand.Execute();
+            ybtnPrintSelected.Clicked += (sender, args) => ViewModel.PrintSelectedDocsCommand.Execute();
+            ybtnViewDoc.Clicked += (sender, args) => ViewModel.ViewDocCommand.Execute();
+            ybtnAddCurrentContract.Clicked += (sender, args) => ViewModel.AddCurrentContractCommand.Execute();
+            ybtnOpenPrintDlg.Clicked += (sender, args) => ViewModel.OpenPrintDlgCommand.Execute();
 
-        private void YbtnAddM2ProxyForThisOrderOnClicked(object sender, EventArgs e)
-        {
-            var childUoW = EntityUoWBuilder.ForCreateInChildUoW(ViewModel.UoW);
-            ViewModel.compatibilityNavigation.OpenTdiTab<M2ProxyDlg, EntityUoWBuilder>(null, childUoW);
+            sendDocumentByEmailView.ViewModel = ViewModel.SendDocumentByEmailViewModel;
         }
 
         private void ConfigureTree()
@@ -91,7 +92,7 @@ namespace Vodovoz.ViewWidgets.Orders
             ytreeDocuments.ItemsDataSource = ViewModel.Order.ObservableOrderDocuments;
             ytreeDocuments.Selection.Changed += TreeDocumentsSelectionOnChanged;
 
-            ytreeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
+            //ytreeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
         }
 
         private void TreeDocumentsSelectionOnChanged(object sender, EventArgs e)

@@ -23,20 +23,48 @@ namespace Vodovoz.Views.Orders
             ybtnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 
             ResolveInfoView();
+            ResolveOrderDocumentsView();
+            ResolveWorkingOnOrderView();
         }
 
         private void ResolveInfoView()
         {
-            if (ViewModel.SelfDeliveryInfoViewModel != null)
+            if (ViewModel.OrderInfoViewModelBase != null)
             {
-                ViewModel.SelfDeliveryInfoViewModel.AutofacScope = ViewModel.AutofacScope;
-                ViewModel.SelfDeliveryInfoViewModel.ParentTab = ViewModel;
+                ViewModel.OrderInfoViewModelBase.AutofacScope = ViewModel.AutofacScope;
+                ViewModel.OrderInfoViewModelBase.ParentTab = ViewModel;
 
                 var infoView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
-                    .Resolve(ViewModel.SelfDeliveryInfoViewModel);
+                    .Resolve(ViewModel.OrderInfoViewModelBase);
 
                 vboxInfo.Add(infoView);
                 infoView.Show();
+            }
+        }
+        
+        private void ResolveOrderDocumentsView()
+        {
+            if (ViewModel.OrderDocumentsViewModel != null)
+            {
+                ViewModel.OrderDocumentsViewModel.ParentTab = ViewModel;
+
+                var documentsView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
+                    .Resolve(ViewModel.OrderDocumentsViewModel);
+
+                vboxOrderDocuments.Add(documentsView);
+                documentsView.Show();
+            }
+        }
+
+        private void ResolveWorkingOnOrderView()
+        {
+            if (ViewModel.WorkingOnOrderViewModel != null)
+            {
+                var workingOnOrderView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
+                    .Resolve(ViewModel.WorkingOnOrderViewModel);
+
+                vboxWorkingOnOrder.Add(workingOnOrderView);
+                workingOnOrderView.Show();
             }
         }
 

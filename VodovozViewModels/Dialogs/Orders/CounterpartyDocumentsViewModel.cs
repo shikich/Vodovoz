@@ -4,7 +4,6 @@ using Vodovoz.Domain.Client;
 using System.Collections.Generic;
 using System;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain.Orders.Documents;
 using System.Linq;
 using QS.Commands;
 
@@ -128,11 +127,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 if (Document is CounterpartyContract contract)
                 {
                     return contract.IssueDate.ToShortDateString();
-                }
-
-                if (Document is OrderDocument orderDoc)
-                {
-                    return orderDoc.DocumentDateText;
                 }
 
                 return "";

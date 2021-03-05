@@ -41,7 +41,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			entityViewModelEntryCounterparty.Binding.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive).InitializeFromSource();
 			entityViewModelEntryCounterparty.CanEditReference = true;
 			
-			var sendEmailView = new SendDocumentByEmailView(ViewModel.SendDocViewModel);
+			var sendEmailView = new SendDocumentByEmailView {ViewModel = ViewModel.SendDocViewModel};
 			hbox7.Add(sendEmailView);
 			sendEmailView.Show();
 

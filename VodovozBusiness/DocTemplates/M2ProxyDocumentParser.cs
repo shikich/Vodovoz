@@ -54,7 +54,7 @@ namespace Vodovoz.DocTemplates
 			SortFields();
 		}
 
-		public void AddTableEquipmentFromClient(List<OrderEquipment> list)
+		public void AddTableEquipmentFromClient(IList<OrderEquipment> list)
 		{
 			if(list == null)
 				return;

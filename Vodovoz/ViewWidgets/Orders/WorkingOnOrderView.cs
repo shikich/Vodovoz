@@ -1,14 +1,13 @@
-﻿using Vodovoz.Domain.Orders;
+﻿using QS.Views.GtkUI;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.ViewWidgets.Orders
 {
     [System.ComponentModel.ToolboxItem(true)]
-    public partial class WorkingOnOrderView : Gtk.Bin
+    public partial class WorkingOnOrderView : WidgetViewBase<WorkingOnOrderViewModel>
     {
-        private WorkingOnOrderViewModel ViewModel;
-
-        public WorkingOnOrderView()
+        public WorkingOnOrderView(WorkingOnOrderViewModel viewModel) : base(viewModel)
         {
             this.Build();
             //Configure();

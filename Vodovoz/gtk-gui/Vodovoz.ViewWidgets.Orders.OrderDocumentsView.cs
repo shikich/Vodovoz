@@ -32,7 +32,7 @@ namespace Vodovoz.ViewWidgets.Orders
 
 		private global::Gamma.GtkWidgets.yButton ybtnOpenPrintDlg;
 
-		private global::Vodovoz.ViewWidgets.SendDocumentByEmailView sendDocumentByEmailView;
+		private global::Vodovoz.Dialogs.Email.SendDocumentByEmailView sendDocumentByEmailView;
 
 		protected virtual void Build()
 		{
@@ -187,7 +187,7 @@ namespace Vodovoz.ViewWidgets.Orders
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.vbox9]));
 			w19.Position = 0;
 			// Container child hbox19.Gtk.Box+BoxChild
-			this.sendDocumentByEmailView = new global::Vodovoz.ViewWidgets.SendDocumentByEmailView();
+			this.sendDocumentByEmailView = new global::Vodovoz.Dialogs.Email.SendDocumentByEmailView();
 			this.sendDocumentByEmailView.Events = ((global::Gdk.EventMask)(256));
 			this.sendDocumentByEmailView.Name = "sendDocumentByEmailView";
 			this.hbox19.Add(this.sendDocumentByEmailView);

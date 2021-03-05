@@ -854,10 +854,8 @@ namespace Vodovoz
 		private void ConfigureSendDocumentByEmailWidget()
 		{
 			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, employeeRepository, ServicesConfig.InteractiveService);
-			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
-			hbox19.Add(sendEmailView);
-			sendEmailView.Show();
-		}
+            sendDocumentByEmailView.ViewModel = SendDocumentByEmailViewModel;
+        }
 
 		/// <summary>
 		/// Старые поля, оставлены для отображения информации в старых заказах. В новых скрыты.

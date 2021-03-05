@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Reflection;
 using Autofac;
+using Autofac.Core.Activators.Reflection;
 using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
@@ -147,7 +149,10 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.Views.Client;
+using Vodovoz.ViewWidgets.Orders;
 
 namespace Vodovoz
 {
@@ -277,6 +282,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<AddExistingDocumentsViewModel, AddExistingDocumentsView>()
 				.RegisterWidgetForWidgetViewModel<SelfDeliveryOrderMainViewModel, OrderMainView>()
 				.RegisterWidgetForWidgetViewModel<SelfDeliveryOrderInfoPanelViewModel, SelfDeliveryOrderInfoPanelView>()
+				.RegisterWidgetForWidgetViewModel<OrderDocumentsViewModel, OrderDocumentsView>()
+				.RegisterWidgetForWidgetViewModel<WorkingOnOrderViewModel, WorkingOnOrderView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyContractViewModel, CounterpartyContractView>()
+				.RegisterWidgetForWidgetViewModel<M2ProxyDocumentViewModel, M2ProxyDocumentView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -592,8 +601,14 @@ namespace Vodovoz
 			var builder = new ContainerBuilder();
 
 			#region База
-			
+
+			/*builder.RegisterType<UnitOfWork<M2ProxyDocument>>()
+				.As<IUnitOfWork>()/*.FindConstructorsWith((UnitOfWork) =>
+				{
+					return UnitOfWork.GetConstructors(BindingFlags.NonPublic);
+				})*/;
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
+			builder.RegisterType<EntityUoWBuilder>().As<IEntityUoWBuilder>();
 			builder.RegisterType<BaseParametersProvider>().AsSelf();
 			
 			#endregion
@@ -610,6 +625,7 @@ namespace Vodovoz
 			
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 			builder.RegisterType<UserService>().As<IUserService>();
+			builder.RegisterType<CommonMessages>().AsSelf();
 			
 			#endregion
 
@@ -651,6 +667,7 @@ namespace Vodovoz
 						c.Resolve<INomenclatureParametersProvider>()))
 				.As<INomenclatureRepository>();
 			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
+			builder.RegisterType<EmailRepository>().As<IEmailRepository>();
 			
 			#endregion
 			
@@ -706,6 +723,12 @@ namespace Vodovoz
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
+			builder.Register(c => 
+				new M2ProxyDocumentViewModel(
+					c.Resolve<IEntityUoWBuilder>(),
+					c.Resolve<IUnitOfWorkFactory>(),
+					c.Resolve<ITdiCompatibilityNavigation>(),
+					c.Resolve<ICommonServices>())).AsSelf();
 			
 			#endregion
 

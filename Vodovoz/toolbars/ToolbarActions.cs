@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using InstantSmsService;
@@ -68,6 +69,7 @@ using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;

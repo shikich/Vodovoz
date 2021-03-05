@@ -1,11 +1,8 @@
 ﻿using System;
 using Gamma.ColumnConfig;
 using QS.Dialog.Gtk;
-using QS.Report;
 using QS.Tdi;
-using QSReport;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.Documents;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -21,10 +18,7 @@ namespace Vodovoz.ViewWidgets
 
         protected override void ConfigureWidget()
         {
-			ytreeDocuments.Selection.Mode = Gtk.SelectionMode.Single;
-			ytreeDocuments.Selection.Changed += TreeDocumentsSelectionChanged;
-			ytreeDocuments.RowActivated += (o, args) => ybtnViewDoc.Click();
-            //ybtnViewDoc.Clicked += (sender, e) => ;
+	        ybtnViewDoc.Clicked += OnButtonViewDocumentClicked/*ViewModel.ViewDocCommand.Execute()*/;
             ybtnViewDoc.Binding.AddBinding(ViewModel, vm => vm.BtnViewDocSensitive, w => w.Sensitive).InitializeFromSource();
 
             ConfigureTree();
@@ -52,6 +46,9 @@ namespace Vodovoz.ViewWidgets
 		        .Finish();
 
 	        ytreeDocuments.ItemsDataSource = ViewModel.CounterpartyDocs;
+	        ytreeDocuments.Selection.Mode = Gtk.SelectionMode.Single;
+	        ytreeDocuments.Selection.Changed += TreeDocumentsSelectionChanged;
+	        ytreeDocuments.RowActivated += (o, args) => ybtnViewDoc.Click();
         }
         
         protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
@@ -64,13 +61,6 @@ namespace Vodovoz.ViewWidgets
 				int contractID = contract.Id;
 				ITdiDialog dlg = new CounterpartyContractDlg(contractID);
 				mytab.TabParent.AddTab(dlg, mytab);
-			}
-
-			if(ViewModel.SelectedDoc.Document is OrderDocument) {
-				var rdlDoc = (ViewModel.SelectedDoc.Document as IPrintableRDLDocument);
-				if(rdlDoc != null) {
-					mytab.TabParent.AddTab(DocumentPrinter.GetPreviewTab(rdlDoc), mytab);
-				}
 			}
 		}
 

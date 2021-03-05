@@ -150,8 +150,13 @@ namespace Vodovoz.Domain.Client
 				var contracts = counterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot("Валидация договора контрагента"), Counterparty, Organization, ContractType);
 				if(contracts.Any(c => c.Id != Id))
 					yield return new ValidationResult(
-						String.Format("У контрагента '{0}' уже есть активный договор с организацией '{1}'", Counterparty.Name, Organization.Name),
-						new[] { this.GetPropertyName(o => o.Organization) });
+						$"У контрагента '{Counterparty.Name}' уже есть активный договор с организацией '{Organization.Name}'",
+						new[] { nameof(Organization) });
+			}
+			
+			if(IssueDate == DateTime.MinValue){
+				yield return new ValidationResult("Введите дату заключения (дату доставки)",
+					new[] { nameof(IssueDate) });
 			}
 		}
 

@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.Documents.OrderContract;
-using Vodovoz.ViewModels.Dialogs.Orders;
 using System.Linq;
 using Autofac;
 using Autofac.Core;
-using QS.Report;
-using Vodovoz.Infrastructure.Print;
-using QS.Navigation;
-using QS.ViewModels.Dialog;
-using Vodovoz.Domain.Orders;
 using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Report;
+using QS.ViewModels.Dialog;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.OrderContract;
+using Vodovoz.Infrastructure.Print;
+using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {

@@ -115,6 +115,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
@@ -174,6 +175,7 @@
     <Compile Include="ViewModels\Cash\ExpenseCategoryViewModel.cs" />
     <Compile Include="ViewModels\Cash\IncomeCategoryViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
+    <Compile Include="ViewModels\Counterparties\CounterpartyContractViewModel.cs" />
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
@@ -183,6 +185,7 @@
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\GuiltyItemsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDiscussionViewModel.cs" />
+    <Compile Include="ViewModels\Employees\M2ProxyDocumentViewModel.cs" />
     <Compile Include="ViewModels\FilesViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDiscussionsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\GuiltyItemViewModel.cs" />
@@ -198,7 +201,7 @@
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderInfoViewModelBase.cs" />
-    <Compile Include="ViewModels\Orders\OrderMainViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrderMainViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\SelfDeliveryOrderMainViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
@@ -345,9 +348,17 @@
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
+      <Name>RdlEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\EmailService\EmailService.csproj">
+      <Project>{6e76a8a0-411c-4987-a77d-64b9571c7759}</Project>
+      <Name>EmailService</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
