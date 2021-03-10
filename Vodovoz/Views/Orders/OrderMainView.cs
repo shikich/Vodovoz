@@ -7,9 +7,9 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 namespace Vodovoz.Views.Orders
 {
     [System.ComponentModel.ToolboxItem(true)]
-    public partial class OrderMainView : ViewBase<SelfDeliveryOrderMainViewModel>
+    public partial class OrderMainView : ViewBase<OrderMainViewModelBase>
     {
-        public OrderMainView(SelfDeliveryOrderMainViewModel viewModel) : base(viewModel)
+        public OrderMainView(OrderMainViewModelBase viewModel) : base(viewModel)
         {
             this.Build();
             Configure();
