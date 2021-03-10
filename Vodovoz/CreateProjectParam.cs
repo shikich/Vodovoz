@@ -601,12 +601,7 @@ namespace Vodovoz
 			var builder = new ContainerBuilder();
 
 			#region База
-
-			/*builder.RegisterType<UnitOfWork<M2ProxyDocument>>()
-				.As<IUnitOfWork>()/*.FindConstructorsWith((UnitOfWork) =>
-				{
-					return UnitOfWork.GetConstructors(BindingFlags.NonPublic);
-				})*/;
+			
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
 			builder.RegisterType<EntityUoWBuilder>().As<IEntityUoWBuilder>();
 			builder.RegisterType<BaseParametersProvider>().AsSelf();
@@ -643,7 +638,11 @@ namespace Vodovoz
 			
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
-			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
+			builder.Register(c => 
+				new EntityExtendedPermissionValidator(
+					PermissionExtensionSingletonStore.GetInstance(), 
+					EmployeeSingletonRepository.GetInstance()))
+				.As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
 			
@@ -723,12 +722,6 @@ namespace Vodovoz
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
-			builder.Register(c => 
-				new M2ProxyDocumentViewModel(
-					c.Resolve<IEntityUoWBuilder>(),
-					c.Resolve<IUnitOfWorkFactory>(),
-					c.Resolve<ITdiCompatibilityNavigation>(),
-					c.Resolve<ICommonServices>())).AsSelf();
 			
 			#endregion
 

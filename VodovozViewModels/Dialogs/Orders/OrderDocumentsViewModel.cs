@@ -11,6 +11,7 @@ using QS.Print;
 using Gamma.Utilities;
 using QS.Report;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QS.Dialog;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -18,6 +19,8 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Counterparties;
@@ -27,23 +30,21 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 {
     public class OrderDocumentsViewModel : UoWWidgetViewModelBase
     {
+        private readonly ValidationContext ValidationContext;
+        private OrderBase TemplateOrder { get; set;}
+
         public OrderBase Order { get; set; }
         public SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; }
         public DialogViewModelBase ParentTab { get; set; }
 
-        public object[] SelectedDocs { get; set; }
-
         #region Команды
         
-        private DelegateCommand viewDocCommand;
-        public DelegateCommand ViewDocCommand => viewDocCommand ?? (
-            viewDocCommand = new DelegateCommand(
-                () => 
+        private DelegateCommand<object[]> viewDocCommand;
+        public DelegateCommand<object[]> ViewDocCommand => viewDocCommand ?? (
+            viewDocCommand = new DelegateCommand<object[]>(
+                docs => 
                 {
-                    if (!SelectedDocs.Any())
-                        return;
-
-                    var rdlDocs = SelectedDocs.OfType<PrintableOrderDocument>()
+                    var rdlDocs = docs.OfType<PrintableOrderDocument>()
                                                .Where(d => d.PrintType == PrinterType.RDL)
                                                .ToList();
 
@@ -64,7 +65,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         );
                     }
 
-                    var odtDocs = SelectedDocs.OfType<PrintableOrderDocument>()
+                    var odtDocs = docs.OfType<PrintableOrderDocument>()
                                                .Where(d => d.PrintType == PrinterType.ODT)
                                                .ToList();
                     if (odtDocs.Any())
@@ -74,20 +75,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                             {
                                 compatibilityNavigation
                                     .OpenViewModel<CounterpartyContractViewModel, int, INavigationManager>(ParentTab,
-                                        contract.Contract.Id, compatibilityNavigation);
-                                
-                                //NavigationManager.OpenViewModel(
-                                        //DialogHelper.GenerateDialogHashName<CounterpartyContract>(contract.Contract.Id),
-                                        //() =>
-                                        //{
-                                        //    var dialog = OrmMain.CreateObjectDialog(contract.Contract);
-                                        //    
-                                        //    if (dialog != null)
-                                        //        (dialog as IEditableDialog).IsEditable = false;
-                                        //    
-                                        //    return dialog;
-                                        //}
-                                    //);
+                                        contract.Contract.Id, compatibilityNavigation)
+                                    .ViewModel.IsEditable = false;
                             }
                             else if (doc is OrderM2Proxy m2Proxy)
                             {
@@ -99,33 +88,78 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                                     
                                     return;
                                 }
+
+                                var uowBuilder = EntityUoWBuilder.ForOpen(m2Proxy.M2Proxy.Id);
+                                var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
+
+                                Type[] types = new[]
+                                {
+                                    typeof(IEntityUoWBuilder),
+                                    typeof(IUnitOfWorkFactory),
+                                    typeof(INavigationManager),
+                                    typeof(ICommonServices)
+                                };
+
+                                object[] m2ProxyViewModelCtorObjs = new[]
+                                {
+                                    uowBuilder,
+                                    (object) uowFactory,
+                                    compatibilityNavigation,
+                                    commonServices
+                                };
                                 
-                                compatibilityNavigation.OpenViewModel<
-                                    M2ProxyDocumentViewModel, 
-                                    int, 
-                                    INavigationManager, 
-                                    ICommonServices>(ParentTab, m2Proxy.M2Proxy.Id, compatibilityNavigation, commonServices);
+                                compatibilityNavigation.OpenViewModelTypedArgs<M2ProxyDocumentViewModel>(
+                                        ParentTab, types, m2ProxyViewModelCtorObjs)
+                                    .ViewModel.IsEditable = false;
                             }
                         }
 
                 },
-                () => true
+                docs => docs.Any()
             )
         );
 
         private DelegateCommand openPrintDlgCommand;
         public DelegateCommand OpenPrintDlgCommand => openPrintDlgCommand ?? (
             openPrintDlgCommand = new DelegateCommand(
-                () => throw new NotImplementedException(),
+                () =>
+                {
+                    if(Order.OrderDocuments.OfType<PrintableOrderDocument>().Any(
+                        doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
+                        TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));
+                },
                 () => true
             )
         );
 
-        private DelegateCommand printSelectedDocsCommand;
-        public DelegateCommand PrintSelectedDocsCommand => printSelectedDocsCommand ?? (
-            printSelectedDocsCommand = new DelegateCommand(
-                () => throw new NotImplementedException(),
-                () => true
+        private DelegateCommand<object[]> printSelectedDocsCommand;
+        public DelegateCommand<object[]> PrintSelectedDocsCommand => printSelectedDocsCommand ?? (
+            printSelectedDocsCommand = new DelegateCommand<object[]>(
+                docs =>
+                {
+                    var selectedDocs = docs.Cast<OrderDocument>().ToList();
+                    selectedDocs.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
+                        
+                    string whatToPrint = selectedDocs.Count() > 1
+                        ? "документов"
+                        : "документа \"" + selectedDocs.First().Type.GetEnumTitle() + "\"";
+                    
+                    if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+                        UoWGeneric.Save();
+
+                    var selectedPrintableRDLDocuments = docs.OfType<PrintableOrderDocument>()
+                        .Where(doc => doc.PrintType == PrinterType.RDL).ToList();
+                    if(selectedPrintableRDLDocuments.Any()) {
+                        new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
+                    }
+
+                    var selectedPrintableODTDocuments = docs.OfType<IPrintableOdtDocument>().ToList();
+                    if (selectedPrintableODTDocuments.Any())
+                    {
+                        TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
+                    }
+                },
+                docs => docs.Any()
             )
         );
 
@@ -154,13 +188,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         public DelegateCommand AddM2ProxyCommand => addM2ProxyCommand ?? (
             addM2ProxyCommand = new DelegateCommand(
                 () => 
-                /*{
-                    
-                    if (!new QSValidator<Order>(Order, new Dictionary<object, object>{
-                        //индикатор того, что заказ - копия, созданная из недовозов
-                        { "IsCopiedFromUndelivery", templateOrder != null }})
-                        .RunDlgIfNotValid((Window)this.Toplevel) && SaveOrderBeforeContinue<M2ProxyDocument>())
-                   */
+                {
+                    ValidationContext.Items.Add("IsCopiedFromUndelivery", TemplateOrder != null);
+                    if (Validate() && SaveOrderBeforeContinue<M2ProxyDocument>())
                     {
                         var childUoW = EntityUoWBuilder.ForCreateInChildUoW(uow);
                         var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
@@ -182,9 +212,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         };
                     
                         compatibilityNavigation.OpenViewModelTypedArgs<M2ProxyDocumentViewModel>(ParentTab, types, m2ProxyViewModelCtorObjs);
-                        
-                    //}
-
+                    }
                 },
                 () => true
             )
@@ -225,6 +253,34 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 docs => docs.Any()
             )
         );
+
+        private DelegateCommand<OrderDocument> updateSendDocumentViewModelCommand;
+        public DelegateCommand<OrderDocument> UpdateSendDocumentViewModelCommand => updateSendDocumentViewModelCommand ?? (
+            updateSendDocumentViewModelCommand = new DelegateCommand<OrderDocument>(
+                doc =>
+                {
+                    string email = "";
+            
+                    if(!Order.Counterparty.Emails.Any()) {
+                        email = "";
+                    } else {
+                        Email clientEmail = 
+                            Order.Counterparty.Emails.FirstOrDefault(x => 
+                                (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+                
+                        if(clientEmail == null) {
+                            clientEmail = Order.Counterparty.Emails.FirstOrDefault();
+                        }
+                
+                        email = clientEmail?.Address;
+                    }
+            
+                    SendDocumentByEmailViewModel.Update(doc, email);
+                },
+                doc => doc != null
+            )     
+        );
+                                                                     
         
         #endregion
         
@@ -247,9 +303,12 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             Order = order;
             this.commonServices = commonServices ?? throw new ArgumentException(nameof(commonServices));
             this.commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
-            this.compatibilityNavigation = compatibilityNavigation;
-            this.rdlPreviewOpener = rdlPreviewOpener;
+            this.compatibilityNavigation = 
+                compatibilityNavigation ?? throw new ArgumentNullException(nameof(compatibilityNavigation));
+            this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
             SendDocumentByEmailViewModel = sendDocumentByEmailViewModel;
+
+            ValidationContext = new ValidationContext(Order);
         }
         
         private IEnumerable<OrderDocument> RemoveAdditionalDocuments(IEnumerable<OrderDocument> docs)
@@ -260,6 +319,26 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private void AddContractDocument(CounterpartyContract contract)
         {
             
+        }
+
+        private bool Validate()
+        {
+            return commonServices.ValidationService.Validate(Order, ValidationContext);
+        }
+        
+        private bool SaveOrderBeforeContinue<T>()
+        {
+            return true;
+            /*
+            if(UoWGeneric.IsNew) {
+                if(CommonDialogs.SaveBeforeCreateSlaveEntity(EntityObject.GetType(), typeof(T))) {
+                    if(!Save())
+                        return false;
+                } else
+                    return false;
+            }
+            return true;
+            */
         }
     }
 }

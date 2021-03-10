@@ -1,14 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Views.GtkUI;
-using Vodovoz.Dialogs.Email;
-using Vodovoz.Dialogs.Employees;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -32,8 +27,9 @@ namespace Vodovoz.ViewWidgets.Orders
                     ViewModel.RemoveExistingDocCommand.Execute(ytreeDocuments.GetSelectedObjects<OrderDocument>());
             ybtnAddExistingDoc.Clicked += (sender, args) => ViewModel.AddExistingDocCommand.Execute();
             ybtnAddM2ProxyForThisOrder.Clicked += (sender, args) => ViewModel.AddM2ProxyCommand.Execute();
-            ybtnPrintSelected.Clicked += (sender, args) => ViewModel.PrintSelectedDocsCommand.Execute();
-            ybtnViewDoc.Clicked += (sender, args) => ViewModel.ViewDocCommand.Execute();
+            ybtnPrintSelected.Clicked += (sender, args) => 
+                ViewModel.PrintSelectedDocsCommand.Execute(ytreeDocuments.GetSelectedObjects());
+            ybtnViewDoc.Clicked += (sender, args) => ViewModel.ViewDocCommand.Execute(ytreeDocuments.GetSelectedObjects());
             ybtnAddCurrentContract.Clicked += (sender, args) => ViewModel.AddCurrentContractCommand.Execute();
             ybtnOpenPrintDlg.Clicked += (sender, args) => ViewModel.OpenPrintDlgCommand.Execute();
 
@@ -90,36 +86,11 @@ namespace Vodovoz.ViewWidgets.Orders
             
             ytreeDocuments.Selection.Mode = SelectionMode.Multiple;
             ytreeDocuments.ItemsDataSource = ViewModel.Order.ObservableOrderDocuments;
-            ytreeDocuments.Selection.Changed += TreeDocumentsSelectionOnChanged;
-
-            //ytreeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
-        }
-
-        private void TreeDocumentsSelectionOnChanged(object sender, EventArgs e)
-        {
-            //buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
-
-            var selectedDoc = ytreeDocuments.GetSelectedObjects().Cast<OrderDocument>().FirstOrDefault();
-            
-            if(selectedDoc == null) {
-                return;
-            }
-            
-            string email = "";
-            
-            if(!ViewModel.Order.Counterparty.Emails.Any()) {
-                email = "";
-            } else {
-                Email clientEmail = ViewModel.Order.Counterparty.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-                
-                if(clientEmail == null) {
-                    clientEmail = ViewModel.Order.Counterparty.Emails.FirstOrDefault();
-                }
-                
-                email = clientEmail.Address;
-            }
-            
-            //SendDocumentByEmailViewModel.Update(selectedDoc, email);
+            ytreeDocuments.Selection.Changed += (sender, args) => 
+                ViewModel.UpdateSendDocumentViewModelCommand.Execute(
+                    ytreeDocuments.GetSelectedObjects().Cast<OrderDocument>().FirstOrDefault());
+            ytreeDocuments.RowActivated += (o, args) => 
+                ViewModel.ViewDocCommand.Execute(ytreeDocuments.GetSelectedObjects());
         }
     }
 }

@@ -29,29 +29,6 @@ namespace Vodovoz.ViewModels.Employees
         public bool IsEditable { get; set; } = true;
 
 		public M2ProxyDocumentViewModel(
-			INavigationManager navigationManager,
-			ICommonServices commonServices) : base(navigationManager)
-		{
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
-			ValidationContext = new ValidationContext(Entity);
-			Title = "Новая доверенность М-2";
-			Configure();
-		}
-
-		public M2ProxyDocumentViewModel(
-			int m2ProxyDocumentId,
-			INavigationManager navigationManager,
-			ICommonServices commonServices) : base(navigationManager)
-		{
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(m2ProxyDocumentId);
-			ValidationContext = new ValidationContext(Entity);
-			Title = "Изменение доверенности М-2";
-			Configure();
-		}
-
-		public M2ProxyDocumentViewModel(
 			IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
@@ -59,10 +36,26 @@ namespace Vodovoz.ViewModels.Employees
 		{
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			UoWGeneric = uowBuilder.CreateUoW<M2ProxyDocument>(unitOfWorkFactory);
-			UoWOrder = uowBuilder.RootUoW;
-			Entity.Order = UoWOrder.RootObject as Order;
+
+			if (uowBuilder.RootUoW != null)
+			{
+				UoWOrder = uowBuilder.RootUoW;
+				Entity.Order = UoWOrder.RootObject as Order;
+			}
+			
 			ValidationContext = new ValidationContext(Entity);
+			FillTitle(uowBuilder);
 			Configure();
+		}
+
+		private void FillTitle(IEntityUoWBuilder uowBuilder)
+		{
+			if (uowBuilder.IsNewEntity) {
+				Title = "Новая доверенность М-2";
+			}
+			else {
+				Title = "Изменение доверенности М-2";
+			}
 		}
 
 		private void Configure()
