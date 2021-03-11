@@ -1,17 +1,41 @@
-﻿using QS.Commands;
+﻿using System;
+using System.Linq;
+using QS.Commands;
+using QS.ViewModels;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+
 namespace Vodovoz.ViewModels.Dialogs.Orders
 {
-    public class OrderDepositReturnsItemsViewModel
+    public class OrderDepositReturnsItemsViewModel : UoWWidgetViewModelBase
     {
-        private OrderBase Order { get; set; }
+        public OrderBase Order { get; set; }
 
-        public object SelectedObj { get; set; }
-        /*
-        private DelegateCommand addBottleDeposit;
-        public DelegateCommand AddBottleDeposit => addBottleDeposit ?? (
-            addBottleDeposit = new DelegateCommand(
+        private object selectedDeposit;
+        public object SelectedDeposit
+        {
+            get => selectedDeposit;
+            set
+            {
+                if (SetField(ref selectedDeposit, value))
+                {
+                    OnPropertyChanged(nameof(HasSelectedDeposit));
+                }
+            }
+        }
+        
+        public NomenclaturesJournalViewModel EquipmentsJournalViewModel { get; private set; }
+
+        public event Action UpdateVisibilityEquipmentJournal;
+
+        public bool HasSelectedDeposit => SelectedDeposit != null;
+        public bool DepositsScrolled { get; } 
+        
+        private DelegateCommand addBottleDepositCommand;
+        public DelegateCommand AddBottleDepositCommand => addBottleDepositCommand ?? (
+            addBottleDepositCommand = new DelegateCommand(
                 () => 
                 {
                     var newDepositItem = new OrderDepositReturnsItem
@@ -27,38 +51,23 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             )
         );
 
-        private DelegateCommand addEquipmentDeposit;
-        public DelegateCommand AddEquipmentDeposit => addEquipmentDeposit ?? (
-            addEquipmentDeposit = new DelegateCommand(
+        private DelegateCommand addEquipmentDepositCommand;
+        public DelegateCommand AddEquipmentDepositCommand => addEquipmentDepositCommand ?? (
+            addEquipmentDepositCommand = new DelegateCommand(
                 () =>
                 {
-                    OrmReference SelectDialog =
-                new OrmReference(
-                    typeof(Nomenclature),
-                    UoW,
-                    NomenclatureRepository.NomenclatureEquipmentsQuery()
-                                          .GetExecutableQueryOver(UoW.Session)
-                                          .RootCriteria
-                    )
-                {
-                    Mode = OrmReferenceMode.Select,
-                    TabName = "Оборудование",
-                    FilterClass = typeof(NomenclatureEquipTypeFilter)
-                };
-                    SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
-                    MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
-
+                    UpdateVisibilityEquipmentJournal?.Invoke();
                 },
                 () => true
             )
         );
-
-        private DelegateCommand removeDeposit;
-        public DelegateCommand RemoveDeposit => removeDeposit ?? (
-            removeDeposit = new DelegateCommand(
+        
+        private DelegateCommand removeDepositCommand;
+        public DelegateCommand RemoveDepositCommand => removeDepositCommand ?? (
+            removeDepositCommand = new DelegateCommand(
                 () =>
                 {
-                    if (SelectedObj is OrderDepositReturnsItem depositItem)
+                    if (SelectedDeposit is OrderDepositReturnsItem depositItem)
                         if (MyTab is OrderReturnsView)
                         {
                             //Удаление только новых залогов добавленных из закрытия МЛ
@@ -71,10 +80,42 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 () => true
             )
         );
-        */
-        public OrderDepositReturnsItemsViewModel()
+        
+        public OrderDepositReturnsItemsViewModel(
+            NomenclaturesJournalViewModel equipmentsJournalViewModel,
+            OrderBase order,
+            bool depositsScrolled = false)
         {
+            ConfigureEquipmentsJournalViewModel(equipmentsJournalViewModel);
+            Order = order;
+            DepositsScrolled = depositsScrolled;
+        }
 
+        private void ConfigureEquipmentsJournalViewModel(NomenclaturesJournalViewModel equipmentsJournalViewModel)
+        {
+            EquipmentsJournalViewModel = equipmentsJournalViewModel;
+            EquipmentsJournalViewModel.OnEntitySelectedResult += (s, ea) =>
+            {
+                var selectedNode = ea.SelectedNodes.FirstOrDefault();
+                
+                if (selectedNode == null)
+                    return;
+                
+                //AddDepositEquipment(UoW.Session.Get<Nomenclature>(selectedNode.Id));
+                UpdateVisibilityEquipmentJournal?.Invoke();
+            };
+        }
+        
+        private void AddDepositEquipment(Nomenclature nomenclature)
+        {
+            var newDepositItem = new OrderDepositReturnsItem {
+                Count = 0,
+                ActualCount = null,
+                Order = Order,
+                EquipmentNomenclature = nomenclature,
+                DepositType = DepositType.Equipment
+            };
+            Order.ObservableOrderDepositReturnsItems.Add(newDepositItem);
         }
     }
 }

@@ -57,5 +57,20 @@ namespace Vodovoz.Domain.Orders
             get => freeRentItem;
             set => SetField(ref freeRentItem, value);
         }
+
+        public virtual decimal Total => CurrentCount * DepositValue;
+        
+        public virtual string DepositTypeString {
+            get { 
+                switch (DepositType) {
+                    case DepositType.Bottles:
+                        return "Возврат залога за бутыли";
+                    case DepositType.Equipment:
+                        return "Возврат залога за оборудование";
+                    default:
+                        return "Не определено";
+                }
+            } 
+        }
     }
 }

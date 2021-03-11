@@ -64,8 +64,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yLabel ylblDeposits;
 
-		private global::Vodovoz.ViewWidgets.DepositRefundItemsView depositrefunditemsview;
-
 		private global::Gtk.VSeparator vseparator1;
 
 		private global::Gtk.HBox hboxJournals;
@@ -365,34 +363,27 @@ namespace Vodovoz.Views.Orders
 			w28.Position = 0;
 			w28.Expand = false;
 			w28.Fill = false;
-			// Container child vboxDeposits.Gtk.Box+BoxChild
-			this.depositrefunditemsview = new global::Vodovoz.ViewWidgets.DepositRefundItemsView();
-			this.depositrefunditemsview.Events = ((global::Gdk.EventMask)(256));
-			this.depositrefunditemsview.Name = "depositrefunditemsview";
-			this.vboxDeposits.Add(this.depositrefunditemsview);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxDeposits[this.depositrefunditemsview]));
-			w29.Position = 1;
 			this.vboxMain.Add(this.vboxDeposits);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxDeposits]));
-			w30.Position = 7;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxDeposits]));
+			w29.Position = 7;
 			this.hboxMain.Add(this.vboxMain);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
-			w31.Position = 0;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
+			w30.Position = 0;
 			// Container child hboxMain.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
 			this.hboxMain.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vseparator1]));
-			w32.Position = 1;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vseparator1]));
+			w31.Position = 1;
+			w31.Expand = false;
+			w31.Fill = false;
 			// Container child hboxMain.Gtk.Box+BoxChild
 			this.hboxJournals = new global::Gtk.HBox();
 			this.hboxJournals.Name = "hboxJournals";
 			this.hboxJournals.Spacing = 6;
 			this.hboxMain.Add(this.hboxJournals);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.hboxJournals]));
-			w33.Position = 2;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.hboxJournals]));
+			w32.Position = 2;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{

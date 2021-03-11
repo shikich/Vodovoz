@@ -286,6 +286,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<WorkingOnOrderViewModel, WorkingOnOrderView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyContractViewModel, CounterpartyContractView>()
 				.RegisterWidgetForWidgetViewModel<M2ProxyDocumentViewModel, M2ProxyDocumentView>()
+                .RegisterWidgetForWidgetViewModel<OrderDepositReturnsItemsViewModel, OrderDepositReturnsItemsView>()
+                .RegisterWidgetForWidgetViewModel<OrderMovementItemsViewModel, OrderMovementItemsView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

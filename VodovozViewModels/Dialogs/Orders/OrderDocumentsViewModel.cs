@@ -124,9 +124,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             openPrintDlgCommand = new DelegateCommand(
                 () =>
                 {
-                    if(Order.OrderDocuments.OfType<PrintableOrderDocument>().Any(
+                    /*if(Order.OrderDocuments.OfType<PrintableOrderDocument>().Any(
                         doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
-                        TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));
+                        TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));*/
                 },
                 () => true
             )
@@ -137,7 +137,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             printSelectedDocsCommand = new DelegateCommand<object[]>(
                 docs =>
                 {
-                    var selectedDocs = docs.Cast<OrderDocument>().ToList();
+                    /*var selectedDocs = docs.Cast<OrderDocument>().ToList();
                     selectedDocs.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
                         
                     string whatToPrint = selectedDocs.Count() > 1
@@ -157,7 +157,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                     if (selectedPrintableODTDocuments.Any())
                     {
                         TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
-                    }
+                    }*/
                 },
                 docs => docs.Any()
             )

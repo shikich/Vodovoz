@@ -1,10 +1,18 @@
 ﻿using System;
+using System.Linq;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
 using Vodovoz.Domain.Orders;
 using Gtk;
+using QS.Dialog.GtkUI;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets.Orders
 {
@@ -19,11 +27,20 @@ namespace Vodovoz.ViewWidgets.Orders
 
         private void Configure()
         {
+            ybtnRemoveMovementItem.Sensitive = false;
+            Order.ObservableOrderEquipments.ElementAdded += Order_ObservableOrderEquipments_ElementAdded;
 
+            if (MyTab is OrderReturnsView)
+            {
+                SetColumnConfigForReturnView();
+                ylblTitle.Visible = false;
+            }
+            else
+                SetColumnConfigForOrderItemsView();
+
+            ytreeViewMovementItems.ItemsDataSource = ViewModel.Order.ObservableOrderMovements;
+            ytreeViewMovementItems.Selection.Changed += TreeEquipment_Selection_Changed;
         }
-
-        /*
-        public Order Order { get; set; }
 
         public event EventHandler<OrderEquipment> OnDeleteEquipment;
 
@@ -34,33 +51,12 @@ namespace Vodovoz.ViewWidgets.Orders
         /// </summary>
         int treeAnyGoodsFirstColWidth;
 
-        public void Configure(IUnitOfWork uow, Order order)
-        {
-            UoW = uow;
-            Order = order;
-
-            buttonDeleteEquipment.Sensitive = false;
-            Order.ObservableOrderEquipments.ElementAdded += Order_ObservableOrderEquipments_ElementAdded;
-
-            if (MyTab is OrderReturnsView)
-            {
-                SetColumnConfigForReturnView();
-                lblEquipment.Visible = false;
-            }
-            else
-                SetColumnConfigForOrderDlg();
-
-            treeEquipment.ItemsDataSource = Order.ObservableOrderEquipments;
-            treeEquipment.Selection.Changed += TreeEquipment_Selection_Changed;
-        }
-
         public void UnsubscribeOnEquipmentAdd()
         {
-            Order.ObservableOrderEquipments.ElementAdded -= Order_ObservableOrderEquipments_ElementAdded;
+            ViewModel.Order.ObservableOrderMovements.ElementAdded -= Order_ObservableOrderEquipments_ElementAdded;
         }
-
-
-        private void SetColumnConfigForOrderDlg()
+        
+        private void SetColumnConfigForOrderItemsView()
         {
             var colorBlack = new Gdk.Color(0, 0, 0);
             var colorBlue = new Gdk.Color(0, 0, 0xff);
@@ -69,7 +65,7 @@ namespace Vodovoz.ViewWidgets.Orders
             var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);
             var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
-            treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
+            ytreeViewMovementItems.ColumnsConfig = FluentColumnsConfig<OrderEquipment>.Create()
                 .AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
                 .AddColumn("Направление").SetDataProperty(node => node.DirectionString)
                 .AddColumn("Кол-во")
@@ -78,7 +74,7 @@ namespace Vodovoz.ViewWidgets.Orders
                 .AddSetter((cell, node) => {
                     cell.Editable = !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
                 })
-                .AddTextRenderer(node => string.Format("({0})", node.ReturnedCount))
+                .AddTextRenderer(node => $"({node.ReturnedCount})")
                 .AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
                 .AddSetter((c, n) => {
                     c.Editable = false;
@@ -136,7 +132,7 @@ namespace Vodovoz.ViewWidgets.Orders
                                 break;
                         }
                     }
-                }).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+                }).HideCondition(ViewModel.HideItemFromDirectionReasonComboInEquipment)
                 .AddSetter((c, n) => {
                     c.Editable = false;
                     c.Editable =
@@ -166,13 +162,13 @@ namespace Vodovoz.ViewWidgets.Orders
             var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);
             var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
-            treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
+            ytreeViewMovementItems.ColumnsConfig = FluentColumnsConfig<OrderEquipment>.Create()
                 .AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
                 .AddColumn("Направление").SetDataProperty(node => node.DirectionString)
                 .AddColumn("Кол-во(недовоз)")
                 .AddNumericRenderer(node => node.Count).WidthChars(10)
                 .Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(false)
-                .AddTextRenderer(node => string.Format("({0})", node.ReturnedCount))
+                .AddTextRenderer(node => $"({node.ReturnedCount})")
                 .AddColumn("Кол-во по факту")
                     .AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter(), false)
                     .AddSetter((cell, node) => {
@@ -246,7 +242,7 @@ namespace Vodovoz.ViewWidgets.Orders
                                 break;
                         }
                     }
-                }).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+                }).HideCondition(ViewModel.HideItemFromDirectionReasonComboInEquipment)
                 .AddSetter((c, n) => {
                     c.Editable = false;
                     c.Editable =
@@ -267,38 +263,22 @@ namespace Vodovoz.ViewWidgets.Orders
                 .Finish();
         }
 
-        public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
-        {
-            switch (item)
-            {
-                case DirectionReason.None:
-                    return true;
-                case DirectionReason.Rent:
-                    return node.Direction == Domain.Orders.Direction.Deliver;
-                case DirectionReason.Repair:
-                case DirectionReason.Cleaning:
-                case DirectionReason.RepairAndCleaning:
-                default:
-                    return false;
-            }
-        }
-
         void TreeEquipment_Selection_Changed(object sender, EventArgs e)
         {
-            object[] items = treeEquipment.GetSelectedObjects();
+            object[] items = ytreeViewMovementItems.GetSelectedObjects();
 
             if (!items.Any())
                 return;
 
-            buttonDeleteEquipment.Sensitive = items.Any();
+            ybtnRemoveMovementItem.Sensitive = items.Any();
         }
 
         void Order_ObservableOrderEquipments_ElementAdded(object aList, int[] aIdx)
         {
-            treeAnyGoodsFirstColWidth = treeEquipment.Columns.First(x => x.Title == "Наименование").Width;
-            treeEquipment.ExposeEvent += TreeAnyGoods_ExposeEvent;
+            treeAnyGoodsFirstColWidth = ytreeViewMovementItems.Columns.First(x => x.Title == "Наименование").Width;
+            ytreeViewMovementItems.ExposeEvent += TreeAnyGoods_ExposeEvent;
             //Выполнение в случае если размер не поменяется
-            EditGoodsCountCellOnAdd(treeEquipment);
+            EditGoodsCountCellOnAdd(ytreeViewMovementItems);
         }
 
         void TreeAnyGoods_ExposeEvent(object o, ExposeEventArgs args)
@@ -317,7 +297,7 @@ namespace Vodovoz.ViewWidgets.Orders
         private void EditGoodsCountCellOnAdd(yTreeView treeView)
         {
             int index = treeView.Model.IterNChildren() - 1;
-            Gtk.TreePath path;
+            TreePath path;
 
             treeView.Model.IterNthChild(out TreeIter iter, index);
             path = treeView.Model.GetPath(iter);
@@ -332,57 +312,18 @@ namespace Vodovoz.ViewWidgets.Orders
 
         protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)
         {
-            if (treeEquipment.GetSelectedObject() is OrderEquipment deletedEquipment)
+            if (ytreeViewMovementItems.GetSelectedObject() is OrderEquipment deletedEquipment)
             {
                 OnDeleteEquipment?.Invoke(this, deletedEquipment);
                 //при удалении номенклатуры выделение снимается и при последующем удалении exception
                 //для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-                buttonDeleteEquipment.Sensitive = treeEquipment.GetSelectedObject() != null;
+                ybtnRemoveMovementItem.Sensitive = ytreeViewMovementItems.GetSelectedObject() != null;
             }
-        }
-
-        protected void OnButtonAddEquipmentToClientClicked(object sender, EventArgs e)
-        {
-            if (Order.Client == null)
-            {
-                MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
-                return;
-            }
-
-            var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-            nomenclatureFilter.SetAndRefilterAtOnce(
-                x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-                x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
-                x => x.DefaultSelectedSaleCategory = SaleCategory.notForSale
-            );
-            PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter))
-            {
-                Mode = JournalSelectMode.Single,
-                ShowFilter = true
-            };
-            SelectDialog.CustomTabName("Оборудование к клиенту");
-            SelectDialog.ObjectSelected += NomenclatureToClient;
-            MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
-        }
-
-        void NomenclatureToClient(object sender, JournalObjectSelectedEventArgs e)
-        {
-            var selectedId = e.GetSelectedIds().FirstOrDefault();
-            if (selectedId == 0)
-            {
-                return;
-            }
-            AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(selectedId));
-        }
-
-        void AddNomenclatureToClient(Nomenclature nomenclature)
-        {
-            Order.AddEquipmentNomenclatureToClient(nomenclature, UoW);
         }
 
         protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
         {
-            if (Order.Client == null)
+            if (ViewModel.Order.Counterparty == null)
             {
                 MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
                 return;
@@ -418,6 +359,5 @@ namespace Vodovoz.ViewWidgets.Orders
         {
             Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
         }
-        */
     }
 }
