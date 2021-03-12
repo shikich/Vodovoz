@@ -123,6 +123,7 @@
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Dialogs\Orders\BaseOrdersDocumentsViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrderMovementItemsViewModel.cs" />
+    <Compile Include="Dialogs\Orders\VisitingMasterOrderInfoPanelViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
@@ -203,6 +204,7 @@
     <Compile Include="ViewModels\Orders\OrderInfoViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\OrderMainViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\SelfDeliveryOrderMainViewModel.cs" />
+    <Compile Include="ViewModels\Orders\VisitingMasterOrderInfoViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />

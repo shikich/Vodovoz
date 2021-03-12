@@ -1571,6 +1571,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DeliveryOrderInfoPanelView.cs" />
     <Compile Include="Views\Orders\DeliveryOrderInfoView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DeliveryOrderInfoView.cs" />
+    <Compile Include="Views\Orders\VisitingMasterOrderInfoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.VisitingMasterOrderInfoView.cs" />
+    <Compile Include="Views\Orders\VisitingMasterOrderInfoPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.VisitingMasterOrderInfoPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
