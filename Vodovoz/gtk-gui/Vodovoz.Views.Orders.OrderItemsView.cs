@@ -58,7 +58,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yCheckButton ychkDeposits;
 
-		private global::Vodovoz.ViewWidgets.OrderEquipmentItemsView orderEquipmentItemsView;
+		private global::Gtk.VBox vboxMovementItems;
 
 		private global::Gtk.VBox vboxDeposits;
 
@@ -343,11 +343,11 @@ namespace Vodovoz.Views.Orders
 			w26.Expand = false;
 			w26.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.orderEquipmentItemsView = new global::Vodovoz.ViewWidgets.OrderEquipmentItemsView();
-			this.orderEquipmentItemsView.Events = ((global::Gdk.EventMask)(256));
-			this.orderEquipmentItemsView.Name = "orderEquipmentItemsView";
-			this.vboxMain.Add(this.orderEquipmentItemsView);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.orderEquipmentItemsView]));
+			this.vboxMovementItems = new global::Gtk.VBox();
+			this.vboxMovementItems.Name = "vboxMovementItems";
+			this.vboxMovementItems.Spacing = 6;
+			this.vboxMain.Add(this.vboxMovementItems);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxMovementItems]));
 			w27.Position = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.vboxDeposits = new global::Gtk.VBox();
@@ -391,7 +391,7 @@ namespace Vodovoz.Views.Orders
 			}
 			this.hboxReasons.Hide();
 			this.hboxReturnTareReason.Hide();
-			this.orderEquipmentItemsView.Hide();
+			this.vboxMovementItems.Hide();
 			this.vboxDeposits.Hide();
 			this.hboxJournals.Hide();
 			this.Hide();

@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 {
                     var newDepositItem = new OrderDepositReturnsItem
                     {
-                        Count = MyTab is OrderReturnsView ? 0 : 1,
+                        //Count = MyTab is OrderReturnsView ? 0 : 1,
                         ActualCount = null,
                         Order = Order,
                         DepositType = DepositType.Bottles
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 () =>
                 {
                     if (SelectedDeposit is OrderDepositReturnsItem depositItem)
-                        if (MyTab is OrderReturnsView)
+                        if (true/*MyTab is OrderReturnsView*/)
                         {
                             //Удаление только новых залогов добавленных из закрытия МЛ
                             if (depositItem.Count == 0)
@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private void ConfigureEquipmentsJournalViewModel(NomenclaturesJournalViewModel equipmentsJournalViewModel)
         {
             EquipmentsJournalViewModel = equipmentsJournalViewModel;
-            EquipmentsJournalViewModel.OnEntitySelectedResult += (s, ea) =>
+            EquipmentsJournalViewModel.OnEntitySelectedResultWithoutClose += (s, ea) =>
             {
                 var selectedNode = ea.SelectedNodes.FirstOrDefault();
                 

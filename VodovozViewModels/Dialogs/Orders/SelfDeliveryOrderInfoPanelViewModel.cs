@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         public SelfDeliveryOrder Order { get; set; }
         public DialogViewModelBase ParentTab { get; set; }
         public ILifetimeScope AutofacScope { get; set; }
-        
+
         public SelfDeliveryOrderInfoPanelViewModel(SelfDeliveryOrder order)
         {
             Order = order;

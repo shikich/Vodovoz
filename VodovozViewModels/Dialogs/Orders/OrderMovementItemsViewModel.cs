@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
-using QS.Dialog;
-using QS.Project.Dialogs;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
@@ -17,63 +14,92 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
     {
         private readonly IInteractiveService interactiveService;
         public OrderBase Order { get; set; }
-        public NomenclaturesJournalViewModel MovementItemsJournalViewModel { get; private set; }
+        public NomenclaturesJournalViewModel MovementItemsToClientJournalViewModel { get; }
+        public NomenclaturesJournalViewModel MovementItemsFromClientJournalViewModel { get; }
 
-        public event Action UpdateVisibilityMovementItemsJournal;
+        public event Action UpdateVisibilityMovementItemsToClientJournal;
+        public event Action UpdateVisibilityMovementItemsFromClientJournal;
 
+        #region Команды
+        
         private DelegateCommand addMovementItemToClientCommand;
         public DelegateCommand AddMovementItemToClientCommand => addMovementItemToClientCommand ?? (
             addMovementItemToClientCommand = new DelegateCommand(
                 () =>
                 {
-                    if (Order.Counterparty == null)
+                    /*if (Order.Counterparty == null)
                     {
                         interactiveService.ShowMessage(
                             ImportanceLevel.Warning,"Для добавления товара на продажу должен быть выбран клиент.");
                         return;
-                    }
+                    }*/
+                    
+                    UnsubscribeAll();
+                    MovementItemsToClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
+                        MovementItemsToClientJournalVMOnEntitySelected;
 
-                    var nomenclatureFilter = new NomenclatureFilterViewModel();
-                    nomenclatureFilter.SetAndRefilterAtOnce(
-                        x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-                        x => x.SelectCategory = NomenclatureCategory.equipment,
-                        x => x.SelectSaleCategory = SaleCategory.notForSale
-                    );
-                    PermissionControlledRepresentationJournal SelectDialog = 
-                        new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter))
-                        {
-                            Mode = JournalSelectMode.Single,
-                            ShowFilter = true
-                        };
-                    SelectDialog.CustomTabName("Оборудование к клиенту");
-                    SelectDialog.ObjectSelected += NomenclatureToClient;
-                    MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
+                    UpdateVisibilityMovementItemsToClientJournal?.Invoke();
                 },
                 () => true
             )
         );
+        
+        private DelegateCommand addMovementItemFromClientCommand;
+        public DelegateCommand AddMovementItemFromClientCommand => addMovementItemFromClientCommand ?? (
+            addMovementItemFromClientCommand = new DelegateCommand(
+                () =>
+                {
+                    /*if (Order.Counterparty == null)
+                    {
+                        interactiveService.ShowMessage(
+                            ImportanceLevel.Warning,"Для добавления товара на продажу должен быть выбран клиент.");
+                        return;
+                    }*/
 
+                    UnsubscribeAll();
+                    MovementItemsFromClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
+                        MovementItemsFromClientJournalVMOnEntitySelected;
+
+                    UpdateVisibilityMovementItemsFromClientJournal?.Invoke();
+                },
+                () => true
+            )
+        );
+        
+        #endregion
+        
         public OrderMovementItemsViewModel(
             IInteractiveService interactiveService,
-            NomenclaturesJournalViewModel movementItemsJournalViewModel)
+            OrderBase order,
+            NomenclaturesJournalViewModel movementItemsToClientJournalViewModel,
+            NomenclaturesJournalViewModel movementItemsFromClientJournalViewModel)
         {
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            ConfigureEquipmentsJournalViewModel(movementItemsJournalViewModel);
+            Order = order;
+            MovementItemsToClientJournalViewModel = movementItemsToClientJournalViewModel;
+            MovementItemsFromClientJournalViewModel = movementItemsFromClientJournalViewModel;
         }
         
-        private void ConfigureEquipmentsJournalViewModel(NomenclaturesJournalViewModel movementItemsJournalViewModel)
+        private void MovementItemsToClientJournalVMOnEntitySelected(Object sender, JournalSelectedNodesEventArgs ea)
         {
-            MovementItemsJournalViewModel = movementItemsJournalViewModel;
-            MovementItemsJournalViewModel.OnEntitySelectedResult += (s, ea) =>
-            {
-                var selectedNode = ea.SelectedNodes.FirstOrDefault();
-                
-                if (selectedNode == null)
-                    return;
-                
-                //AddDepositEquipment(UoW.Session.Get<Nomenclature>(selectedNode.Id));
-                UpdateVisibilityMovementItemsJournal?.Invoke();
-            };
+            var selectedNode = ea.SelectedNodes.FirstOrDefault();
+
+            if (selectedNode == null)
+                return;
+
+            //AddMovementItem(UoW.Session.Get<Nomenclature>(selectedNode.Id), true);
+            UpdateVisibilityMovementItemsToClientJournal?.Invoke();
+        }
+
+        private void MovementItemsFromClientJournalVMOnEntitySelected(Object sender, JournalSelectedNodesEventArgs ea)
+        {
+            var selectedNode = ea.SelectedNodes.FirstOrDefault();
+
+            if (selectedNode == null)
+                return;
+
+            //AddMovementItem(UoW.Session.Get<Nomenclature>(selectedNode.Id), false);
+            UpdateVisibilityMovementItemsFromClientJournal?.Invoke();
         }
         
         public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
@@ -88,20 +114,23 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                     return false;
             }
         }
-
-        void NomenclatureToClient(object sender, JournalObjectSelectedEventArgs e)
-        {
-            var selectedId = e.GetSelectedIds().FirstOrDefault();
-            if (selectedId == 0)
-            {
-                return;
-            }
-            AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(selectedId));
-        }
-
+        /*
         void AddNomenclatureToClient(Nomenclature nomenclature)
         {
             Order.AddEquipmentNomenclatureToClient(nomenclature, UoW);
+        }*/
+        
+        void AddMovementItem(Nomenclature nomenclature, bool toClient)
+        {
+            //Order.AddEquipmentNomenclatureFromClient(nomenclature, ViewModel.UoW);
+        }
+
+        private void UnsubscribeAll()
+        {
+            MovementItemsToClientJournalViewModel.OnEntitySelectedResultWithoutClose -=
+                MovementItemsToClientJournalVMOnEntitySelected;
+            MovementItemsFromClientJournalViewModel.OnEntitySelectedResultWithoutClose -=
+                MovementItemsFromClientJournalVMOnEntitySelected;
         }
     }
 }

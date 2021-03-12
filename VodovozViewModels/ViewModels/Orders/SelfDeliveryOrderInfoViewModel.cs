@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Core;
+using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 if (orderItemsViewModel == null)
                 {
                     Parameter[] parameters = {
+                        new TypedParameter(typeof(IInteractiveService), AutofacScope.Resolve<IInteractiveService>()),
                         new TypedParameter(typeof(OrderBase), Order),
                         new TypedParameter(typeof(OrderInfoExpandedPanelViewModel), ExpandedPanelViewModel)
                     };

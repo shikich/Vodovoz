@@ -164,7 +164,7 @@
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempAdapters\ICarJournalFactory.cs" />
-    <Compile Include="TempAdapters\ICounterpartyCommonEEVMBuilderFactory.cs" />
+    <Compile Include="TempAdapters\ISelfDeliveryOrderCommonEEVMBuilderFactory.cs" />
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\ICurrentUserSettings.cs" />
     <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
@@ -309,6 +309,8 @@
     <Compile Include="Dialogs\Orders\OrderInfoExpandedPanelViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrdersDocumentsViewModelBase.cs" />
     <Compile Include="Dialogs\Orders\SelfDeliveryOrderInfoPanelViewModel.cs" />
+    <Compile Include="ViewModels\Orders\DeliveryOrderInfoViewModel.cs" />
+    <Compile Include="Dialogs\Orders\DeliveryOrderInfoPanelViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

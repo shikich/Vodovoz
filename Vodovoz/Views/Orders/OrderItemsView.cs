@@ -2,6 +2,7 @@
 using System.Linq;
 using Autofac;
 using Gtk;
+using QS.Project.Journal;
 using QS.Tdi;
 using QS.Views.GtkUI;
 using QS.Views.Resolve;
@@ -14,6 +15,8 @@ namespace Vodovoz.Views.Orders
     {
         private Widget nomenclaturesJournal;
         private Widget equipmentsJournal;
+        private Widget movementItemsToClientJournal;
+        private Widget movementItemsFromClientJournal;
 
         public OrderItemsView(OrderItemsViewModel viewModel) : base (viewModel)
         {
@@ -32,8 +35,14 @@ namespace Vodovoz.Views.Orders
             ViewModel.UpdateVisibilityNomenclaturesForSaleJournal += UpdateVisibilityNomenclaturesForSaleJournal;
             
             AddOrderDepositReturnsItemsView();
+            AddOrderMovementItemsView();
             
-            ViewModel.OrderDepositReturnsItemsViewModel.UpdateVisibilityEquipmentJournal += UpdateVisibilityDepositEquipmentJournal;
+            ViewModel.OrderDepositReturnsItemsViewModel.UpdateVisibilityEquipmentJournal += 
+                UpdateVisibilityDepositEquipmentJournal;
+            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsToClientJournal +=
+                UpdateVisibilityMovementItemsToClientJournal;
+            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsFromClientJournal +=
+                UpdateVisibilityMovementItemsFromClientJournal;
         }
 
         private void AddOrderDepositReturnsItemsView()
@@ -43,6 +52,15 @@ namespace Vodovoz.Views.Orders
 
             vboxDeposits.Add(depositsView);
             depositsView.Show();
+        }
+        
+        private void AddOrderMovementItemsView()
+        {
+            var movementItemsView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
+                .Resolve(ViewModel.OrderMovementItemsViewModel);
+
+            vboxMovementItems.Add(movementItemsView);
+            movementItemsView.Show();
         }
 
         private void UpdateVisibilityNomenclaturesForSaleJournal()
@@ -110,6 +128,56 @@ namespace Vodovoz.Views.Orders
             equipmentsJournal.Show();
             hboxJournals.Show();
         }
+        
+        private void UpdateVisibilityMovementItemsToClientJournal()
+        {
+            if (movementItemsToClientJournal == null) {
+                AddMovementItemsToClientJournal();
+            }
+            else {
+                ChangeJournalsVisibility(movementItemsToClientJournal);
+            }
+
+            if (ViewModel.OrderInfoExpandedPanelViewModel.IsExpanded == hboxJournals.Visible) {
+                ViewModel.OrderInfoExpandedPanelViewModel.Expande();
+            }
+        }
+        
+        private void AddMovementItemsToClientJournal()
+        {
+            movementItemsToClientJournal =
+                ViewModel.AutofacScope.Resolve<ITDIWidgetResolver>()
+                    .Resolve(ViewModel.OrderMovementItemsViewModel.MovementItemsToClientJournalViewModel);
+
+            hboxJournals.Add(movementItemsToClientJournal);
+            movementItemsToClientJournal.Show();
+            hboxJournals.Show();
+        }
+        
+        private void UpdateVisibilityMovementItemsFromClientJournal()
+        {
+            if (movementItemsFromClientJournal == null) {
+                AddMovementItemsFromClientJournal();
+            }
+            else {
+                ChangeJournalsVisibility(movementItemsFromClientJournal);
+            }
+
+            if (ViewModel.OrderInfoExpandedPanelViewModel.IsExpanded == hboxJournals.Visible) {
+                ViewModel.OrderInfoExpandedPanelViewModel.Expande();
+            }
+        }
+        
+        private void AddMovementItemsFromClientJournal()
+        {
+            movementItemsFromClientJournal =
+                ViewModel.AutofacScope.Resolve<ITDIWidgetResolver>()
+                    .Resolve(ViewModel.OrderMovementItemsViewModel.MovementItemsFromClientJournalViewModel);
+
+            hboxJournals.Add(movementItemsFromClientJournal);
+            movementItemsFromClientJournal.Show();
+            hboxJournals.Show();
+        }
 
         private void YchkDepositsOnToggled(object sender, EventArgs e)
         {
@@ -118,14 +186,18 @@ namespace Vodovoz.Views.Orders
 
         private void YchkMovementEquipmentsOnToggled(object sender, EventArgs e)
         {
-            orderEquipmentItemsView.Visible = ViewModel.IsMovementItemsVisible;
+            vboxMovementItems.Visible = ViewModel.IsMovementItemsVisible;
         }
 
         public override void Destroy()
         {
             ViewModel.UpdateVisibilityNomenclaturesForSaleJournal -= UpdateVisibilityNomenclaturesForSaleJournal;
-            ViewModel.OrderDepositReturnsItemsViewModel.UpdateVisibilityEquipmentJournal -=
+            ViewModel.OrderDepositReturnsItemsViewModel.UpdateVisibilityEquipmentJournal -= 
                 UpdateVisibilityDepositEquipmentJournal;
+            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsToClientJournal -=
+                UpdateVisibilityMovementItemsToClientJournal;
+            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsFromClientJournal -=
+                UpdateVisibilityMovementItemsFromClientJournal;
             base.Destroy();
         }
     }

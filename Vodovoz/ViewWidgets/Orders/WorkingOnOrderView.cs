@@ -10,7 +10,7 @@ namespace Vodovoz.ViewWidgets.Orders
         public WorkingOnOrderView(WorkingOnOrderViewModel viewModel) : base(viewModel)
         {
             this.Build();
-            //Configure();
+            Configure();
         }
 
         private void Configure()

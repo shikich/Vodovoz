@@ -27,15 +27,19 @@ namespace Vodovoz.ViewWidgets.Orders
 
         private void Configure()
         {
+            ybtnAddMovementItemToClient.Clicked += 
+                (sender, args) => ViewModel.AddMovementItemToClientCommand.Execute();
+            ybtnAddMovementItemFromClient.Clicked +=
+                (sender, args) => ViewModel.AddMovementItemFromClientCommand.Execute(); 
             ybtnRemoveMovementItem.Sensitive = false;
-            Order.ObservableOrderEquipments.ElementAdded += Order_ObservableOrderEquipments_ElementAdded;
+            ViewModel.Order.ObservableOrderMovements.ElementAdded += Order_ObservableOrderEquipments_ElementAdded;
 
-            if (MyTab is OrderReturnsView)
+            /*if (MyTab is OrderReturnsView)
             {
                 SetColumnConfigForReturnView();
                 ylblTitle.Visible = false;
             }
-            else
+            else*/
                 SetColumnConfigForOrderItemsView();
 
             ytreeViewMovementItems.ItemsDataSource = ViewModel.Order.ObservableOrderMovements;
@@ -302,7 +306,7 @@ namespace Vodovoz.ViewWidgets.Orders
             treeView.Model.IterNthChild(out TreeIter iter, index);
             path = treeView.Model.GetPath(iter);
 
-            var column = treeView.Columns.First(x => x.Title == (MyTab is OrderReturnsView ? "Кол-во(недовоз)" : "Кол-во"));
+            var column = treeView.Columns.First(x => x.Title == /*(MyTab is OrderReturnsView ? "Кол-во(недовоз)" : */"Кол-во")/*)*/;
             var renderer = column.CellRenderers.First();
             Application.Invoke(delegate {
                 treeView.SetCursorOnCell(path, column, renderer, true);
@@ -319,45 +323,6 @@ namespace Vodovoz.ViewWidgets.Orders
                 //для исправления делаем кнопку удаления не активной, если объект не выделился в списке
                 ybtnRemoveMovementItem.Sensitive = ytreeViewMovementItems.GetSelectedObject() != null;
             }
-        }
-
-        protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
-        {
-            if (ViewModel.Order.Counterparty == null)
-            {
-                MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
-                return;
-            }
-
-            var nomenclatureFilter = new NomenclatureRepFilter(UoW);
-            nomenclatureFilter.SetAndRefilterAtOnce(
-                x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-                x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
-                x => x.DefaultSelectedSaleCategory = SaleCategory.notForSale
-            );
-            PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new NomenclatureForSaleVM(nomenclatureFilter))
-            {
-                Mode = JournalSelectMode.Single,
-                ShowFilter = true
-            };
-            SelectDialog.CustomTabName("Оборудование от клиента");
-            SelectDialog.ObjectSelected += NomenclatureFromClient;
-            MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
-        }
-
-        void NomenclatureFromClient(object sender, JournalObjectSelectedEventArgs e)
-        {
-            var selectedId = e.GetSelectedIds().FirstOrDefault();
-            if (selectedId == 0)
-            {
-                return;
-            }
-            AddNomenclatureFromClient(UoW.Session.Get<Nomenclature>(selectedId));
-        }
-
-        void AddNomenclatureFromClient(Nomenclature nomenclature)
-        {
-            Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
         }
     }
 }

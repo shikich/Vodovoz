@@ -149,6 +149,7 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.Views.Client;
@@ -633,6 +634,8 @@ namespace Vodovoz
 			builder.RegisterType<UndeliveriesViewOpener>().As<IUndeliveriesViewOpener>();
 			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
+			builder.RegisterType<SelfDeliveryOrderCommonEEVMBuilderFactory>()
+				.As<ISelfDeliveryOrderCommonEEVMBuilderFactory>();
 
 			#endregion
 			
