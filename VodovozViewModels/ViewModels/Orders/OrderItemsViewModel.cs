@@ -24,7 +24,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-    public class OrderItemsViewModel : UoWWidgetViewModelBase, IAutofacScopeHolder
+    public class OrderItemsViewModel : UoWWidgetViewModelBase
     {
         private bool isMovementItemsVisible;
         private OrderBase Order { get; set; }
@@ -80,7 +80,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                     ConfigureMovementItemsFilter(filterViewModel);
                     
                     var movementItemsToClientJournalVM = GetNomenclaturesJournalViewModel(filterViewModel);
+                    movementItemsToClientJournalVM.TabName = "К клиенту";
                     var movementItemsFromClientJournalVM = GetNomenclaturesJournalViewModel(filterViewModel);
+                    movementItemsFromClientJournalVM.TabName = "От клиента";
 
                     Parameter[] parameters =
                     {
@@ -143,12 +145,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         
         public OrderItemsViewModel(
             IInteractiveService interactiveService,
+            ICurrentUserSettings currentUserSettings,
             OrderBase order,
-            OrderInfoExpandedPanelViewModel orderInfoExpandedPanelViewModel)
+            OrderInfoExpandedPanelViewModel orderInfoExpandedPanelViewModel,
+            ILifetimeScope scope)
         {
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            this.currentUserSettings = currentUserSettings ?? throw new ArgumentNullException(nameof(currentUserSettings));
             Order = order;
             OrderInfoExpandedPanelViewModel = orderInfoExpandedPanelViewModel;
+            AutofacScope = scope;
         }
         
         bool CanAddNomenclaturesToOrder()
@@ -259,9 +265,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         {
             var defaultCategory = NomenclatureCategory.water;
             
-            /*if(currentUserSettings.GetUserSettings().DefaultSaleCategory.HasValue) {
+            if(currentUserSettings.GetUserSettings().DefaultSaleCategory.HasValue) {
                 defaultCategory = currentUserSettings.GetUserSettings().DefaultSaleCategory.Value;
-            }*/
+            }
 
             filterViewModel.SetAndRefilterAtOnce(
                 x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),

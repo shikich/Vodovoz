@@ -5,13 +5,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public class SelfDeliveryOrderMainViewModel : OrderMainViewModelBase
     {
+        public SelfDeliveryOrder SelfDeliveryOrder => Order as SelfDeliveryOrder;
+        
         public SelfDeliveryOrderMainViewModel(
+            SelfDeliveryOrder selfDeliveryOrder,
             SelfDeliveryOrderInfoViewModel selfDeliveryInfoViewModel,
             ITdiCompatibilityNavigation tdiCompatibilityNavigation) 
-            : base (selfDeliveryInfoViewModel, tdiCompatibilityNavigation)
+            : base (selfDeliveryOrder, selfDeliveryInfoViewModel, tdiCompatibilityNavigation)
         {
-            Order = new SelfDeliveryOrder();
-            selfDeliveryInfoViewModel.Order = Order as SelfDeliveryOrder;
+            
         }
     }
 }

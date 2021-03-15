@@ -1213,7 +1213,7 @@ namespace Vodovoz
 				rdlDocs.ForEach(
 					doc => {
 						if(doc is IPrintableRDLDocument)
-							TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
+							TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
 					}
 				);
 			}
@@ -1259,7 +1259,7 @@ namespace Vodovoz
 		private void PrintDocuments(IList<OrderDocument> docList)
 		{
 			if(docList.Any()) {
-				new DocumentPrinter().PrintAll(docList.OfType<PrintableOrderDocument>());
+				new QSReport.DocumentPrinter().PrintAll(docList.OfType<PrintableOrderDocument>());
 			}
 		}
 
@@ -1917,7 +1917,7 @@ namespace Vodovoz
 				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().OfType<PrintableOrderDocument>()
 					.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
 				if(selectedPrintableRDLDocuments.Any()) {
-					new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
+					new QSReport.DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
 				}
 
 				var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()

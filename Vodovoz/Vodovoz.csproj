@@ -392,6 +392,7 @@
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Core\GetCurrentUserSettings.cs" />
+    <Compile Include="Core\DocumentPrinter.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />

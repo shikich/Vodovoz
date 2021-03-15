@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Autofac.Core;
-using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -8,7 +7,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public class VisitingMasterOrderInfoViewModel : OrderInfoViewModelBase
     {
-        public VisitingMasterOrder Order { get; set; }
+        public VisitingMasterOrder VisitingMasterOrder => Order as VisitingMasterOrder;
         
         private VisitingMasterOrderInfoPanelViewModel visitingMasterOrderInfoPanelViewModel;
         public VisitingMasterOrderInfoPanelViewModel VisitingMasterOrderInfoPanelViewModel
@@ -18,7 +17,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 if (visitingMasterOrderInfoPanelViewModel == null)
                 {
                     Parameter[] parameters = {
-                        new TypedParameter(typeof(VisitingMasterOrder), Order),
+                        new TypedParameter(typeof(VisitingMasterOrder), VisitingMasterOrder),
                     };
                     visitingMasterOrderInfoPanelViewModel = AutofacScope.Resolve<VisitingMasterOrderInfoPanelViewModel>(parameters);
                     visitingMasterOrderInfoPanelViewModel.AutofacScope = AutofacScope;
@@ -28,29 +27,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 return visitingMasterOrderInfoPanelViewModel;
             }
         }
-        
-        private OrderItemsViewModel orderItemsViewModel;
-        public override OrderItemsViewModel OrderItemsViewModel
-        {
-            get
-            {
-                if (orderItemsViewModel == null)
-                {
-                    Parameter[] parameters = {
-                        new TypedParameter(typeof(IInteractiveService), AutofacScope.Resolve<IInteractiveService>()),
-                        new TypedParameter(typeof(OrderBase), Order),
-                        new TypedParameter(typeof(OrderInfoExpandedPanelViewModel), ExpandedPanelViewModel)
-                    };
-                    orderItemsViewModel = AutofacScope.Resolve<OrderItemsViewModel>(parameters);
-                    orderItemsViewModel.AutofacScope = AutofacScope;
-                }
-
-                return orderItemsViewModel;
-            }
-        }
 
         public VisitingMasterOrderInfoViewModel(
-            OrderInfoExpandedPanelViewModel expandedPanelViewModel) : base(expandedPanelViewModel)
+            VisitingMasterOrder visitingMasterOrder,
+            OrderInfoExpandedPanelViewModel expandedPanelViewModel) : base(visitingMasterOrder, expandedPanelViewModel)
         {
 
         }

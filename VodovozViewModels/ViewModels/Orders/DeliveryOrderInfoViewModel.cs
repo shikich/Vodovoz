@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Autofac.Core;
-using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -8,7 +7,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public class DeliveryOrderInfoViewModel : OrderInfoViewModelBase
     {
-        public DeliveryOrder Order { get; set; }
+        public DeliveryOrder DeliveryOrder => Order as DeliveryOrder;
 
         private DeliveryOrderInfoPanelViewModel deliveryOrderInfoPanelViewModel;
         public DeliveryOrderInfoPanelViewModel DeliveryOrderInfoPanelViewModel
@@ -18,7 +17,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 if (deliveryOrderInfoPanelViewModel == null)
                 {
                     Parameter[] parameters = {
-                        new TypedParameter(typeof(DeliveryOrder), Order),
+                        new TypedParameter(typeof(DeliveryOrder), DeliveryOrder),
                     };
                     deliveryOrderInfoPanelViewModel = AutofacScope.Resolve<DeliveryOrderInfoPanelViewModel>(parameters);
                     deliveryOrderInfoPanelViewModel.AutofacScope = AutofacScope;
@@ -29,28 +28,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             }
         }
 
-        private OrderItemsViewModel orderItemsViewModel;
-        public override OrderItemsViewModel OrderItemsViewModel
-        {
-            get
-            {
-                if (orderItemsViewModel == null)
-                {
-                    Parameter[] parameters = {
-                        new TypedParameter(typeof(IInteractiveService), AutofacScope.Resolve<IInteractiveService>()),
-                        new TypedParameter(typeof(OrderBase), Order),
-                        new TypedParameter(typeof(OrderInfoExpandedPanelViewModel), ExpandedPanelViewModel)
-                    };
-                    orderItemsViewModel = AutofacScope.Resolve<OrderItemsViewModel>(parameters);
-                    orderItemsViewModel.AutofacScope = AutofacScope;
-                }
-
-                return orderItemsViewModel;
-            }
-        }
-
         public DeliveryOrderInfoViewModel(
-            OrderInfoExpandedPanelViewModel expandedPanelViewModel) : base(expandedPanelViewModel)
+            DeliveryOrder deliveryOrder,
+            OrderInfoExpandedPanelViewModel expandedPanelViewModel) : base(deliveryOrder, expandedPanelViewModel)
         {
         }
     }

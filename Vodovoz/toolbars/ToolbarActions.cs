@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using Autofac;
+using Autofac.Core;
 using Dialogs.Employees;
 using Gtk;
 using InstantSmsService;
@@ -879,7 +880,19 @@ public partial class MainWindow : Window
 		);
 		*/
 
-		NavigationManager.OpenViewModel<SelfDeliveryOrderMainViewModel, ITdiCompatibilityNavigation>(null, NavigationManager);
+		var order = new SelfDeliveryOrder();
+		Parameter[] parameters =
+		{
+			new TypedParameter(typeof(SelfDeliveryOrder), order),
+			new TypedParameter(typeof(OrderInfoExpandedPanelViewModel),
+				AutofacScope.Resolve<OrderInfoExpandedPanelViewModel>())
+		};
+
+		var selfDeliveryOrderInfoViewModel = AutofacScope.Resolve<SelfDeliveryOrderInfoViewModel>(parameters);
+		
+		NavigationManager.OpenViewModel<
+			SelfDeliveryOrderMainViewModel, SelfDeliveryOrder, SelfDeliveryOrderInfoViewModel, ITdiCompatibilityNavigation>(
+			null, order, selfDeliveryOrderInfoViewModel, NavigationManager);
 	}
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)

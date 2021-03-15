@@ -31,6 +31,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 {
                     Parameter[] parameters = {
                         new TypedParameter(typeof(OrderBase), orderBase),
+                        new TypedParameter(typeof(OrderDocumentUpdatersFactory),
+                            AutofacScope.Resolve<OrderDocumentUpdatersFactory>())
                     };
                     orderDocumentsModel = AutofacScope.Resolve<OrderDocumentsModel>(parameters);
                 }
@@ -58,7 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         {
             get
             {
-                if (orderDocumentsModel == null)
+                if (ordersDocumentsViewModel == null)
                 {
                     Parameter[] parameters = {
                         new TypedParameter(typeof(IUnitOfWork), uow),

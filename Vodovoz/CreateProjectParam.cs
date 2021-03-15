@@ -129,6 +129,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.NhibernateExtensions;
@@ -149,11 +150,13 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewWidgets.Orders;
+using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
 
 namespace Vodovoz
 {
@@ -636,6 +639,7 @@ namespace Vodovoz
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
 			builder.RegisterType<SelfDeliveryOrderCommonEEVMBuilderFactory>()
 				.As<ISelfDeliveryOrderCommonEEVMBuilderFactory>();
+			builder.RegisterType<DocumentPrinter>().As<IDocumentPrinter>();
 
 			#endregion
 			
@@ -650,6 +654,7 @@ namespace Vodovoz
 				.As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
+			builder.RegisterType<GetCurrentUserSettings>().As<ICurrentUserSettings>();
 			
 			#endregion
 			
@@ -658,6 +663,18 @@ namespace Vodovoz
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
+
+			#endregion
+			
+			#region Фабрики
+			
+			builder.RegisterType<OrderDocumentUpdatersFactory>().AsSelf();
+
+			#endregion
+			
+			#region Модели
+			
+			builder.RegisterType<OrderDocumentsModel>().AsSelf();
 
 			#endregion
 			

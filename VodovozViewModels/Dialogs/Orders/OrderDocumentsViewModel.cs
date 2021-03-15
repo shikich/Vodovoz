@@ -13,6 +13,7 @@ using QS.Report;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Dialog;
+using QS.DocTemplates;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
@@ -32,7 +33,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
     {
         private readonly ValidationContext ValidationContext;
         private OrderBase TemplateOrder { get; set;}
-
         public OrderBase Order { get; set; }
         public SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; }
         public DialogViewModelBase ParentTab { get; set; }
@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                                 var uowBuilder = EntityUoWBuilder.ForOpen(m2Proxy.M2Proxy.Id);
                                 var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
 
-                                Type[] types = new[]
+                                Type[] types =
                                 {
                                     typeof(IEntityUoWBuilder),
                                     typeof(IUnitOfWorkFactory),
@@ -100,10 +100,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                                     typeof(ICommonServices)
                                 };
 
-                                object[] m2ProxyViewModelCtorObjs = new[]
+                                object[] m2ProxyViewModelCtorObjs =
                                 {
                                     uowBuilder,
-                                    (object) uowFactory,
+                                    uowFactory,
                                     compatibilityNavigation,
                                     commonServices
                                 };
@@ -124,9 +124,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             openPrintDlgCommand = new DelegateCommand(
                 () =>
                 {
+                    //TODO Переписать на MVVM DocumentsPrinterDlg
                     /*if(Order.OrderDocuments.OfType<PrintableOrderDocument>().Any(
                         doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
-                        TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));*/
+                        TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Order));*/
                 },
                 () => true
             )
@@ -137,27 +138,26 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             printSelectedDocsCommand = new DelegateCommand<object[]>(
                 docs =>
                 {
-                    /*var selectedDocs = docs.Cast<OrderDocument>().ToList();
+                    var selectedDocs = docs.Cast<OrderDocument>().ToList();
                     selectedDocs.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
                         
                     string whatToPrint = selectedDocs.Count() > 1
                         ? "документов"
                         : "документа \"" + selectedDocs.First().Type.GetEnumTitle() + "\"";
-                    
-                    if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+                    /*
+                    if(UoWGeneric.HasChanges && commonMessages.SaveBeforePrint(typeof(Order), whatToPrint))
                         UoWGeneric.Save();
-
+                    */
                     var selectedPrintableRDLDocuments = docs.OfType<PrintableOrderDocument>()
                         .Where(doc => doc.PrintType == PrinterType.RDL).ToList();
                     if(selectedPrintableRDLDocuments.Any()) {
-                        new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
+                        documentPrinter.PrintAllDocuments(selectedPrintableRDLDocuments);
                     }
 
                     var selectedPrintableODTDocuments = docs.OfType<IPrintableOdtDocument>().ToList();
-                    if (selectedPrintableODTDocuments.Any())
-                    {
-                        TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
-                    }*/
+                    if (selectedPrintableODTDocuments.Any()) {
+                        documentPrinter.PrintAllODTDocuments(selectedPrintableODTDocuments);
+                    }
                 },
                 docs => docs.Any()
             )
@@ -289,6 +289,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private readonly CommonMessages commonMessages;
         private readonly ITdiCompatibilityNavigation compatibilityNavigation;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
+        private readonly IDocumentPrinter documentPrinter;
+        private readonly OrderDocumentsModel orderDocumentsModel;
 
         public OrderDocumentsViewModel(
             //IUnitOfWork uow,
@@ -296,8 +298,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             ITdiCompatibilityNavigation compatibilityNavigation,
             ICommonServices commonServices,
             IRDLPreviewOpener rdlPreviewOpener,
+            IDocumentPrinter documentPrinter,
             CommonMessages commonMessages,
-            SendDocumentByEmailViewModel sendDocumentByEmailViewModel)
+            SendDocumentByEmailViewModel sendDocumentByEmailViewModel,
+            OrderDocumentsModel orderDocumentsModel)
         {
             //this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
             Order = order;
@@ -306,6 +310,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             this.compatibilityNavigation = 
                 compatibilityNavigation ?? throw new ArgumentNullException(nameof(compatibilityNavigation));
             this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+            this.documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
+            this.orderDocumentsModel = orderDocumentsModel;
             SendDocumentByEmailViewModel = sendDocumentByEmailViewModel;
 
             ValidationContext = new ValidationContext(Order);
@@ -313,12 +319,19 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         
         private IEnumerable<OrderDocument> RemoveAdditionalDocuments(IEnumerable<OrderDocument> docs)
         {
-            throw new NotImplementedException();
+            var docsOfThisOrder = docs.Where(x => x.NewOrder.Id == Order.Id);
+            var anotherDocs = docs.Where(x => x.NewOrder.Id != Order.Id);
+
+            if (anotherDocs.Any()) {
+                orderDocumentsModel.RemoveExistingDocuments(anotherDocs);
+            }
+
+            return docsOfThisOrder;
         }
 
         private void AddContractDocument(CounterpartyContract contract)
         {
-            
+            throw new NotImplementedException();
         }
 
         private bool Validate()

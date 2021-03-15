@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Autofac.Core;
-using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -8,7 +7,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public class ClosingDocOrderInfoViewModel : OrderInfoViewModelBase
     {
-        public ClosingDocOrder Order { get; set; }
+        public ClosingDocOrder ClosingDocOrder => Order as ClosingDocOrder;
 
         private ClosingDocOrderInfoPanelViewModel closingDocOrderInfoPanelViewModel;
         public ClosingDocOrderInfoPanelViewModel ClosingDocOrderInfoPanelViewModel
@@ -18,7 +17,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 if (closingDocOrderInfoPanelViewModel == null)
                 {
                     Parameter[] parameters = {
-                        new TypedParameter(typeof(ClosingDocOrder), Order),
+                        new TypedParameter(typeof(ClosingDocOrder), ClosingDocOrder),
                     };
                     closingDocOrderInfoPanelViewModel = AutofacScope.Resolve<ClosingDocOrderInfoPanelViewModel>(parameters);
                     closingDocOrderInfoPanelViewModel.AutofacScope = AutofacScope;
@@ -29,28 +28,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             }
         }
 
-        private OrderItemsViewModel orderItemsViewModel;
-        public override OrderItemsViewModel OrderItemsViewModel
-        {
-            get
-            {
-                if (orderItemsViewModel == null)
-                {
-                    Parameter[] parameters = {
-                        new TypedParameter(typeof(IInteractiveService), AutofacScope.Resolve<IInteractiveService>()),
-                        new TypedParameter(typeof(OrderBase), Order),
-                        new TypedParameter(typeof(OrderInfoExpandedPanelViewModel), ExpandedPanelViewModel)
-                    };
-                    orderItemsViewModel = AutofacScope.Resolve<OrderItemsViewModel>(parameters);
-                    orderItemsViewModel.AutofacScope = AutofacScope;
-                }
-
-                return orderItemsViewModel;
-            }
-        }
-
         public ClosingDocOrderInfoViewModel(
-            OrderInfoExpandedPanelViewModel expandedPanelViewModel) : base(expandedPanelViewModel)
+            ClosingDocOrder closingDocOrder,
+            OrderInfoExpandedPanelViewModel expandedPanelViewModel) : base(closingDocOrder, expandedPanelViewModel)
         {
         }
     }

@@ -125,6 +125,7 @@
     <Compile Include="Dialogs\Orders\ClosingDocOrderInfoPanelViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrderMovementItemsViewModel.cs" />
     <Compile Include="Dialogs\Orders\VisitingMasterOrderInfoPanelViewModel.cs" />
+    <Compile Include="Infrastructure\Print\IDocumentPrinter.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
@@ -357,6 +358,10 @@
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
       <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
       <Name>RdlEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
+      <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
+      <Name>QS.DocTemplates</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
