@@ -47,6 +47,7 @@ using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
 using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
+using QS.Services;
 using Vodovoz.Additions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
@@ -54,6 +55,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
@@ -881,11 +883,37 @@ public partial class MainWindow : Window
 		*/
 
 		var order = new SelfDeliveryOrder();
+		var uowFactory = AutofacScope.Resolve<IUnitOfWorkFactory>();
+		var comServices = AutofacScope.Resolve<ICommonServices>();
+		var emplService = AutofacScope.Resolve<IEmployeeService>();
+		var counterpartySelector = AutofacScope.Resolve<ICounterpartyJournalFactory>();
+		var nomenclatureSelector = AutofacScope.Resolve<INomenclatureSelectorFactory>();
+		var nomRepository = AutofacScope.Resolve<INomenclatureRepository>();
+		var usrRepository = AutofacScope.Resolve<IUserRepository>();
+		var nomSelectorFilter = AutofacScope.Resolve<NomenclatureFilterViewModel>();
+
+		Parameter[] journalFactoryParams =
+		{
+			new TypedParameter(typeof(IUnitOfWorkFactory), uowFactory),
+			new TypedParameter(typeof(ICommonServices), comServices),
+			new TypedParameter(typeof(IEmployeeService), emplService),
+			new TypedParameter(typeof(IEntityAutocompleteSelectorFactory),
+				counterpartySelector.CreateCounterpartyAutocompleteSelectorFactory()),
+			new TypedParameter(
+				typeof(IEntityAutocompleteSelectorFactory),
+				nomenclatureSelector.CreateNomenclatureAutocompleteSelectorFactory(nomSelectorFilter)),
+			new TypedParameter(typeof(INomenclatureRepository), nomRepository),
+			new TypedParameter(typeof(IUserRepository), usrRepository),
+		};
+
+		var journalFactory = AutofacScope.Resolve<INomenclaturesJournalViewModelFactory>(journalFactoryParams);
+		
 		Parameter[] parameters =
 		{
 			new TypedParameter(typeof(SelfDeliveryOrder), order),
 			new TypedParameter(typeof(OrderInfoExpandedPanelViewModel),
-				AutofacScope.Resolve<OrderInfoExpandedPanelViewModel>())
+				AutofacScope.Resolve<OrderInfoExpandedPanelViewModel>()),
+			new TypedParameter(typeof(INomenclaturesJournalViewModelFactory), journalFactory)
 		};
 
 		var selfDeliveryOrderInfoViewModel = AutofacScope.Resolve<SelfDeliveryOrderInfoViewModel>(parameters);

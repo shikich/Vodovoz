@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Linq;
+using QS.BusinessCommon.Domain;
 using QS.Commands;
+using QS.Dialog;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
@@ -13,12 +17,14 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
     public class OrderMovementItemsViewModel : UoWWidgetViewModelBase
     {
         private readonly IInteractiveService interactiveService;
+        private readonly INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory;
+        private readonly INomenclatureFilterViewModelFactory nomenclatureFilterViewModelFactory;
         public OrderBase Order { get; set; }
-        public NomenclaturesJournalViewModel MovementItemsToClientJournalViewModel { get; }
-        public NomenclaturesJournalViewModel MovementItemsFromClientJournalViewModel { get; }
+        public NomenclaturesJournalViewModel MovementItemsToClientJournalViewModel { get; private set; }
+        public NomenclaturesJournalViewModel MovementItemsFromClientJournalViewModel { get; private set; }
 
-        public event Action UpdateVisibilityMovementItemsToClientJournal;
-        public event Action UpdateVisibilityMovementItemsFromClientJournal;
+        public event Action<NomenclaturesJournalViewModel> UpdateActiveViewModel;
+        public event Action RemoveActiveViewModel;
 
         #region Команды
         
@@ -27,18 +33,27 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             addMovementItemToClientCommand = new DelegateCommand(
                 () =>
                 {
-                    /*if (Order.Counterparty == null)
+                    if (Order.Counterparty == null)
                     {
                         interactiveService.ShowMessage(
                             ImportanceLevel.Warning,"Для добавления товара на продажу должен быть выбран клиент.");
                         return;
-                    }*/
+                    }
                     
-                    UnsubscribeAll();
-                    MovementItemsToClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
-                        MovementItemsToClientJournalVMOnEntitySelected;
+                    UpdateJournalSubscribes(MovementItemsToClientJournalViewModel);
 
-                    UpdateVisibilityMovementItemsToClientJournal?.Invoke();
+                    if (MovementItemsToClientJournalViewModel is null)
+                    {
+                        MovementItemsToClientJournalViewModel =
+                            nomenclaturesJournalViewModelFactory.CreateNomenclaturesJournalViewModel(
+                                nomenclatureFilterViewModelFactory.CreateMovementItemsFilter()
+                            );
+                        
+                        MovementItemsToClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
+                            MovementItemsToClientJournalVMOnEntitySelected;
+                    }
+
+                    UpdateActiveViewModel?.Invoke(MovementItemsToClientJournalViewModel);
                 },
                 () => true
             )
@@ -49,18 +64,27 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             addMovementItemFromClientCommand = new DelegateCommand(
                 () =>
                 {
-                    /*if (Order.Counterparty == null)
+                    if (Order.Counterparty == null)
                     {
                         interactiveService.ShowMessage(
                             ImportanceLevel.Warning,"Для добавления товара на продажу должен быть выбран клиент.");
                         return;
-                    }*/
+                    }
+                    
+                    UpdateJournalSubscribes(MovementItemsFromClientJournalViewModel);
 
-                    UnsubscribeAll();
-                    MovementItemsFromClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
-                        MovementItemsFromClientJournalVMOnEntitySelected;
+                    if (MovementItemsFromClientJournalViewModel is null)
+                    {
+                        MovementItemsFromClientJournalViewModel =
+                            nomenclaturesJournalViewModelFactory.CreateNomenclaturesJournalViewModel(
+                                nomenclatureFilterViewModelFactory.CreateMovementItemsFilter()
+                            );
+                        
+                        MovementItemsFromClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
+                            MovementItemsFromClientJournalVMOnEntitySelected;
+                    }
 
-                    UpdateVisibilityMovementItemsFromClientJournal?.Invoke();
+                    UpdateActiveViewModel?.Invoke(MovementItemsFromClientJournalViewModel);
                 },
                 () => true
             )
@@ -70,14 +94,16 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         
         public OrderMovementItemsViewModel(
             IInteractiveService interactiveService,
+            INomenclatureFilterViewModelFactory nomenclatureFilterViewModelFactory,
             OrderBase order,
-            NomenclaturesJournalViewModel movementItemsToClientJournalViewModel,
-            NomenclaturesJournalViewModel movementItemsFromClientJournalViewModel)
+            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory)
         {
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            this.nomenclaturesJournalViewModelFactory = 
+                nomenclaturesJournalViewModelFactory ?? 
+                    throw new ArgumentNullException(nameof(nomenclaturesJournalViewModelFactory));
+            this.nomenclatureFilterViewModelFactory = nomenclatureFilterViewModelFactory;
             Order = order;
-            MovementItemsToClientJournalViewModel = movementItemsToClientJournalViewModel;
-            MovementItemsFromClientJournalViewModel = movementItemsFromClientJournalViewModel;
         }
         
         private void MovementItemsToClientJournalVMOnEntitySelected(Object sender, JournalSelectedNodesEventArgs ea)
@@ -87,8 +113,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             if (selectedNode == null)
                 return;
 
-            //AddMovementItem(UoW.Session.Get<Nomenclature>(selectedNode.Id), true);
-            UpdateVisibilityMovementItemsToClientJournal?.Invoke();
+            //AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(selectedNode.Id), true);
+            RemoveActiveViewModel?.Invoke();
         }
 
         private void MovementItemsFromClientJournalVMOnEntitySelected(Object sender, JournalSelectedNodesEventArgs ea)
@@ -98,8 +124,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             if (selectedNode == null)
                 return;
 
-            //AddMovementItem(UoW.Session.Get<Nomenclature>(selectedNode.Id), false);
-            UpdateVisibilityMovementItemsFromClientJournal?.Invoke();
+            //AddNomenclatureFromClient(UoW.Session.Get<Nomenclature>(selectedNode.Id), false);
+            RemoveActiveViewModel?.Invoke();
         }
         
         public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
@@ -120,17 +146,28 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             Order.AddEquipmentNomenclatureToClient(nomenclature, UoW);
         }*/
         
-        void AddMovementItem(Nomenclature nomenclature, bool toClient)
+        void AddNomenclatureFromClient(Nomenclature nomenclature)
         {
             //Order.AddEquipmentNomenclatureFromClient(nomenclature, ViewModel.UoW);
         }
 
-        private void UnsubscribeAll()
+        /*private void UnsubscribeAll()
         {
             MovementItemsToClientJournalViewModel.OnEntitySelectedResultWithoutClose -=
                 MovementItemsToClientJournalVMOnEntitySelected;
             MovementItemsFromClientJournalViewModel.OnEntitySelectedResultWithoutClose -=
                 MovementItemsFromClientJournalVMOnEntitySelected;
+        }*/
+
+        private void UpdateJournalSubscribes(NomenclaturesJournalViewModel journalViewModel)
+        {
+            journalViewModel?.UpdateOnChanges(
+                typeof(Nomenclature),
+                typeof(MeasurementUnits),
+                typeof(WarehouseMovementOperation),
+                typeof(Order),
+                typeof(OrderItem)
+            );
         }
     }
 }

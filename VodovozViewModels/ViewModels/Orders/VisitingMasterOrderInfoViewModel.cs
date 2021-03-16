@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Core;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Factories;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
@@ -30,7 +31,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
         public VisitingMasterOrderInfoViewModel(
             VisitingMasterOrder visitingMasterOrder,
-            OrderInfoExpandedPanelViewModel expandedPanelViewModel) : base(visitingMasterOrder, expandedPanelViewModel)
+            OrderInfoExpandedPanelViewModel expandedPanelViewModel,
+            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory) 
+            : base(visitingMasterOrder, expandedPanelViewModel, nomenclaturesJournalViewModelFactory)
         {
 
         }

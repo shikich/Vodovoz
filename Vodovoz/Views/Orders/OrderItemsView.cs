@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Linq;
+using System.ComponentModel;
 using Autofac;
 using Gtk;
-using QS.Project.Journal;
 using QS.Tdi;
 using QS.Views.GtkUI;
 using QS.Views.Resolve;
@@ -10,13 +9,10 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
-    [System.ComponentModel.ToolboxItem(true)]
+    [ToolboxItem(true)]
     public partial class OrderItemsView : WidgetViewBase<OrderItemsViewModel>
     {
         private Widget nomenclaturesJournal;
-        private Widget equipmentsJournal;
-        private Widget movementItemsToClientJournal;
-        private Widget movementItemsFromClientJournal;
 
         public OrderItemsView(OrderItemsViewModel viewModel) : base (viewModel)
         {
@@ -32,26 +28,10 @@ namespace Vodovoz.Views.Orders
             ychkDeposits.Toggled += YchkDepositsOnToggled;
             ychkDeposits.Binding.AddBinding(ViewModel, vm => vm.IsDepositsReturnsVisible, w => w.Active).InitializeFromSource();
             
-            ViewModel.UpdateVisibilityNomenclaturesForSaleJournal += UpdateVisibilityNomenclaturesForSaleJournal;
-            
-            AddOrderDepositReturnsItemsView();
             AddOrderMovementItemsView();
+            AddOrderDepositReturnsItemsView();
             
-            ViewModel.OrderDepositReturnsItemsViewModel.UpdateVisibilityEquipmentJournal += 
-                UpdateVisibilityDepositEquipmentJournal;
-            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsToClientJournal +=
-                UpdateVisibilityMovementItemsToClientJournal;
-            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsFromClientJournal +=
-                UpdateVisibilityMovementItemsFromClientJournal;
-        }
-
-        private void AddOrderDepositReturnsItemsView()
-        {
-            var depositsView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
-                .Resolve(ViewModel.OrderDepositReturnsItemsViewModel);
-
-            vboxDeposits.Add(depositsView);
-            depositsView.Show();
+            ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
         }
         
         private void AddOrderMovementItemsView()
@@ -62,120 +42,53 @@ namespace Vodovoz.Views.Orders
             vboxMovementItems.Add(movementItemsView);
             movementItemsView.Show();
         }
-
-        private void UpdateVisibilityNomenclaturesForSaleJournal()
-        {
-            if (nomenclaturesJournal == null) {
-                AddNomenclatureForSaleJournal();
-            }
-            else {
-                ChangeJournalsVisibility(nomenclaturesJournal);
-            }
-
-            if (ViewModel.OrderInfoExpandedPanelViewModel.IsExpanded == hboxJournals.Visible) {
-                ViewModel.OrderInfoExpandedPanelViewModel.Expande();
-            }
-        }
         
-        private void AddNomenclatureForSaleJournal()
+        private void AddOrderDepositReturnsItemsView()
         {
-            nomenclaturesJournal =
-                ViewModel.AutofacScope.Resolve<ITDIWidgetResolver>()
-                    .Resolve(ViewModel.NomenclaturesJournalViewModel);
+            var depositsView = ViewModel.AutofacScope.Resolve<IGtkViewResolver>()
+                .Resolve(ViewModel.OrderDepositReturnsItemsViewModel);
 
-            hboxJournals.Add(nomenclaturesJournal);
-            nomenclaturesJournal.Show();
-            hboxJournals.Show();
+            vboxDeposits.Add(depositsView);
+            depositsView.Show();
         }
 
-        private void ChangeJournalsVisibility(Widget journal)
+        private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            switch (hboxJournals.Visible) {
-                case true:
-                    journal.Visible = !journal.Visible;
-                    break;
-                case false:
-                    hboxJournals.Visible = journal.Visible = true;
-                    break;
-            }
-
-            if (hboxJournals.Visible && hboxJournals.Children.All(x => x.Visible == false)) {
-                hboxJournals.Visible = false;
+            if (e.PropertyName == nameof(ViewModel.ActiveNomenclatureJournalViewModel)) {
+                UpdateJournal();
             }
         }
 
-        private void UpdateVisibilityDepositEquipmentJournal()
+        private void UpdateJournal()
         {
-            if (equipmentsJournal == null) {
-                AddDepositEquipmentJournal();
+            if (ViewModel.ActiveNomenclatureJournalViewModel is null)
+            {
+                CloseJournal();
+                return;
             }
-            else {
-                ChangeJournalsVisibility(equipmentsJournal);
-            }
+
+            AddJournal();
             
             if (ViewModel.OrderInfoExpandedPanelViewModel.IsExpanded == hboxJournals.Visible) {
                 ViewModel.OrderInfoExpandedPanelViewModel.Expande();
             }
         }
 
-        private void AddDepositEquipmentJournal()
+        private void CloseJournal()
         {
-            equipmentsJournal =
+            nomenclaturesJournal.Destroy();
+            nomenclaturesJournal = null;
+            hboxJournals.Visible = false;
+        }
+
+        private void AddJournal()
+        {
+            nomenclaturesJournal =
                 ViewModel.AutofacScope.Resolve<ITDIWidgetResolver>()
-                    .Resolve(ViewModel.OrderDepositReturnsItemsViewModel.EquipmentsJournalViewModel);
+                    .Resolve(ViewModel.ActiveNomenclatureJournalViewModel);
 
-            hboxJournals.Add(equipmentsJournal);
-            equipmentsJournal.Show();
-            hboxJournals.Show();
-        }
-        
-        private void UpdateVisibilityMovementItemsToClientJournal()
-        {
-            if (movementItemsToClientJournal == null) {
-                AddMovementItemsToClientJournal();
-            }
-            else {
-                ChangeJournalsVisibility(movementItemsToClientJournal);
-            }
-
-            if (ViewModel.OrderInfoExpandedPanelViewModel.IsExpanded == hboxJournals.Visible) {
-                ViewModel.OrderInfoExpandedPanelViewModel.Expande();
-            }
-        }
-        
-        private void AddMovementItemsToClientJournal()
-        {
-            movementItemsToClientJournal =
-                ViewModel.AutofacScope.Resolve<ITDIWidgetResolver>()
-                    .Resolve(ViewModel.OrderMovementItemsViewModel.MovementItemsToClientJournalViewModel);
-
-            hboxJournals.Add(movementItemsToClientJournal);
-            movementItemsToClientJournal.Show();
-            hboxJournals.Show();
-        }
-        
-        private void UpdateVisibilityMovementItemsFromClientJournal()
-        {
-            if (movementItemsFromClientJournal == null) {
-                AddMovementItemsFromClientJournal();
-            }
-            else {
-                ChangeJournalsVisibility(movementItemsFromClientJournal);
-            }
-
-            if (ViewModel.OrderInfoExpandedPanelViewModel.IsExpanded == hboxJournals.Visible) {
-                ViewModel.OrderInfoExpandedPanelViewModel.Expande();
-            }
-        }
-        
-        private void AddMovementItemsFromClientJournal()
-        {
-            movementItemsFromClientJournal =
-                ViewModel.AutofacScope.Resolve<ITDIWidgetResolver>()
-                    .Resolve(ViewModel.OrderMovementItemsViewModel.MovementItemsFromClientJournalViewModel);
-
-            hboxJournals.Add(movementItemsFromClientJournal);
-            movementItemsFromClientJournal.Show();
+            hboxJournals.Add(nomenclaturesJournal);
+            nomenclaturesJournal.Show();
             hboxJournals.Show();
         }
 
@@ -191,13 +104,7 @@ namespace Vodovoz.Views.Orders
 
         public override void Destroy()
         {
-            ViewModel.UpdateVisibilityNomenclaturesForSaleJournal -= UpdateVisibilityNomenclaturesForSaleJournal;
-            ViewModel.OrderDepositReturnsItemsViewModel.UpdateVisibilityEquipmentJournal -= 
-                UpdateVisibilityDepositEquipmentJournal;
-            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsToClientJournal -=
-                UpdateVisibilityMovementItemsToClientJournal;
-            ViewModel.OrderMovementItemsViewModel.UpdateVisibilityMovementItemsFromClientJournal -=
-                UpdateVisibilityMovementItemsFromClientJournal;
+            ViewModel.PropertyChanged -= ViewModelOnPropertyChanged;
             base.Destroy();
         }
     }

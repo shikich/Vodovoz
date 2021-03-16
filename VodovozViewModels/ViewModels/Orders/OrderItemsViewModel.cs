@@ -2,22 +2,17 @@
 using System.Linq;
 using Autofac;
 using Autofac.Core;
+using QS.BusinessCommon.Domain;
 using QS.Commands;
 using QS.Dialog;
-using QS.DomainModel.UoW;
-using QS.Navigation;
-using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
@@ -42,7 +37,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             set => SetField(ref isDepositsReturnsVisible, value);
         }
         
-        public NomenclaturesJournalViewModel NomenclaturesJournalViewModel { get; set; }
+        private NomenclaturesJournalViewModel NomenclaturesForSaleJournalViewModel { get; set; }
+
+        private NomenclaturesJournalViewModel activeNomenclatureJournalViewModel;
+        public NomenclaturesJournalViewModel ActiveNomenclatureJournalViewModel
+        {
+            get => activeNomenclatureJournalViewModel;
+            set => SetField(ref activeNomenclatureJournalViewModel, value);
+        }
         
         private OrderDepositReturnsItemsViewModel orderDepositReturnsItemsViewModel;
         public OrderDepositReturnsItemsViewModel OrderDepositReturnsItemsViewModel
@@ -51,14 +53,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             {
                 if (orderDepositReturnsItemsViewModel == null)
                 {
-                    var filterViewModel = AutofacScope.Resolve<NomenclatureFilterViewModel>();
-                    ConfigureDepositEquipmentsFilter(filterViewModel);
-                    
-                    var depositEquipmentsJournalVM = GetNomenclaturesJournalViewModel(filterViewModel);
-                    
                     Parameter[] parameters =
                     {
-                        new TypedParameter(typeof(NomenclaturesJournalViewModel), depositEquipmentsJournalVM),
+                        new TypedParameter(typeof(NomenclatureFilterViewModel),
+                            AutofacScope.Resolve<INomenclatureFilterViewModelFactory>()),
+                        new TypedParameter(typeof(INomenclaturesJournalViewModelFactory),
+                            nomenclaturesJournalViewModelFactory),
                         new TypedParameter(typeof(OrderBase), Order)
                     };
                     orderDepositReturnsItemsViewModel = 
@@ -76,19 +76,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             {
                 if (orderMovementItemsViewModel == null)
                 {
-                    var filterViewModel = AutofacScope.Resolve<NomenclatureFilterViewModel>();
-                    ConfigureMovementItemsFilter(filterViewModel);
-                    
-                    var movementItemsToClientJournalVM = GetNomenclaturesJournalViewModel(filterViewModel);
-                    movementItemsToClientJournalVM.TabName = "К клиенту";
-                    var movementItemsFromClientJournalVM = GetNomenclaturesJournalViewModel(filterViewModel);
-                    movementItemsFromClientJournalVM.TabName = "От клиента";
-
                     Parameter[] parameters =
                     {
                         new TypedParameter(typeof(IInteractiveService), interactiveService),
-                        new TypedParameter(typeof(NomenclaturesJournalViewModel), movementItemsToClientJournalVM),
-                        new TypedParameter(typeof(NomenclaturesJournalViewModel), movementItemsFromClientJournalVM),
+                        new TypedParameter(typeof(NomenclatureFilterViewModel),
+                            AutofacScope.Resolve<INomenclatureFilterViewModelFactory>()),
+                        new TypedParameter(typeof(INomenclaturesJournalViewModelFactory),
+                            nomenclaturesJournalViewModelFactory),
                         new TypedParameter(typeof(OrderBase), Order)
                     };
                     orderMovementItemsViewModel = AutofacScope.Resolve<OrderMovementItemsViewModel>(parameters);
@@ -98,8 +92,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             }
         }
 
-        public event Action UpdateVisibilityNomenclaturesForSaleJournal;
-
         #region Команды
 
         private DelegateCommand addSalesItemCommand;
@@ -107,31 +99,44 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             addSalesItemCommand = new DelegateCommand(
                 () =>
                 {
-                    /*if(!CanAddNomenclaturesToOrder())
+                    if(!CanAddNomenclaturesToOrder())
                         return;
-                    */
-                    if (NomenclaturesJournalViewModel == null)
+                    
+                    OrderMovementItemsViewModelOnRemoveActiveViewModel();
+                    
+                    NomenclaturesForSaleJournalViewModel?.UpdateOnChanges(
+                        typeof(Nomenclature),
+                        typeof(MeasurementUnits),
+                        typeof(WarehouseMovementOperation),
+                        typeof(Order),
+                        typeof(OrderItem)
+                    );
+                    
+                    if (NomenclaturesForSaleJournalViewModel == null)
                     {
-                        var nomenclatureFilter = AutofacScope.Resolve<NomenclatureFilterViewModel>();
-                        ConfigureNomenclatureOnSaleFilter(nomenclatureFilter);
-
-                        var journalViewModel = GetNomenclaturesJournalViewModel(nomenclatureFilter);
+                        var nomenclatureFilter = 
+                            AutofacScope.Resolve<INomenclatureFilterViewModelFactory>()
+                                        .CreateNomenclatureForSaleFilter(GetDefaultNomenclatureCategory());
+                        
+                        var journalViewModel =
+                            nomenclaturesJournalViewModelFactory.CreateNomenclaturesJournalViewModel(nomenclatureFilter);
                         journalViewModel.AdditionalJournalRestriction =
                             new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
                         journalViewModel.TabName = "Номенклатура на продажу";
                         journalViewModel.OnEntitySelectedResultWithoutClose += (s, ea) =>
                         {
                             var selectedNode = ea.SelectedNodes.FirstOrDefault();
+                            
                             if (selectedNode == null)
                                 return;
+                            
                             //TryAddNomenclature(UoW.Session.Get<Nomenclature>(selectedNode.Id));
-                            UpdateVisibilityNomenclaturesForSaleJournal?.Invoke();
+                            OrderMovementItemsViewModelOnRemoveActiveViewModel();
                         };
 
-                        NomenclaturesJournalViewModel = journalViewModel;
+                        NomenclaturesForSaleJournalViewModel = journalViewModel;
                     }
-
-                    UpdateVisibilityNomenclaturesForSaleJournal?.Invoke();
+                    ActiveNomenclatureJournalViewModel = NomenclaturesForSaleJournalViewModel;
                 },
                 () => true
             )
@@ -141,6 +146,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         
         private readonly IInteractiveService interactiveService;
         private readonly ICurrentUserSettings currentUserSettings;
+        private readonly INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory;
         public OrderInfoExpandedPanelViewModel OrderInfoExpandedPanelViewModel { get; }
         
         public OrderItemsViewModel(
@@ -148,15 +154,35 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             ICurrentUserSettings currentUserSettings,
             OrderBase order,
             OrderInfoExpandedPanelViewModel orderInfoExpandedPanelViewModel,
-            ILifetimeScope scope)
+            ILifetimeScope scope,
+            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory)
         {
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             this.currentUserSettings = currentUserSettings ?? throw new ArgumentNullException(nameof(currentUserSettings));
+            this.nomenclaturesJournalViewModelFactory = 
+                nomenclaturesJournalViewModelFactory ??
+                    throw new ArgumentNullException(nameof(nomenclaturesJournalViewModelFactory));
             Order = order;
             OrderInfoExpandedPanelViewModel = orderInfoExpandedPanelViewModel;
             AutofacScope = scope;
+            
+            OrderMovementItemsViewModel.UpdateActiveViewModel += OrderMovementItemsViewModelOnUpdateActiveViewModel;
+            OrderMovementItemsViewModel.RemoveActiveViewModel += OrderMovementItemsViewModelOnRemoveActiveViewModel;
+            OrderDepositReturnsItemsViewModel.UpdateActiveViewModel += OrderMovementItemsViewModelOnUpdateActiveViewModel;
+            OrderDepositReturnsItemsViewModel.RemoveActiveViewModel += OrderMovementItemsViewModelOnRemoveActiveViewModel;
         }
-        
+
+        private void OrderMovementItemsViewModelOnRemoveActiveViewModel()
+            => ActiveNomenclatureJournalViewModel = null;
+
+        private void OrderMovementItemsViewModelOnUpdateActiveViewModel(NomenclaturesJournalViewModel journalViewModel)
+        {
+            if (ActiveNomenclatureJournalViewModel != journalViewModel) {
+                OrderMovementItemsViewModelOnRemoveActiveViewModel();
+                ActiveNomenclatureJournalViewModel = journalViewModel;
+            }
+        }
+
         bool CanAddNomenclaturesToOrder()
         {
             if(Order.Counterparty == null) {
@@ -213,7 +239,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             AddNomenclature(nomenclature, count, discount, false, discountReason);
         }
         
-        //TODO Реализовать метод
         public virtual void AddNomenclature(
             Nomenclature nomenclature, 
             decimal count = 0, 
@@ -222,46 +247,31 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             DiscountReason discountReason = null, 
             PromotionalSet proSet = null)
         {
-            
+            /*
+            switch(nomenclature.Category) {
+                case NomenclatureCategory.water:
+                    AddWaterForSale(nomenclature, count, discount, discountInMoney, discountReason, proSet);
+                    break;
+                case NomenclatureCategory.master:
+                    Order.Contract = CreateServiceContractAddMasterNomenclature(nomenclature);
+                    break;
+                default:
+                    var orderSalesItem = new OrderSalesItem {
+                        Count = count,
+                        Nomenclature = nomenclature,
+                        Price = nomenclature.GetPrice(1),
+                        IsDiscountInMoney = discountInMoney,
+                        // TODO Поправить утсановку свойства
+                        //DiscountSetter = discount,
+                        DiscountReason = discountReason,
+                        PromoSet = proSet
+                    };
+                    AddItemWithNomenclatureForSale(orderSalesItem);
+                    break;
+            }*/
         }
 
-        public ILifetimeScope AutofacScope { get; set; }
-
-        private NomenclaturesJournalViewModel GetNomenclaturesJournalViewModel(NomenclatureFilterViewModel filterViewModel)
-        {
-            var uowFactory = AutofacScope.Resolve<IUnitOfWorkFactory>();
-            var comServices = AutofacScope.Resolve<ICommonServices>();
-            var emplService = AutofacScope.Resolve<IEmployeeService>();
-            var counterpartySelector = AutofacScope.Resolve<ICounterpartyJournalFactory>();
-            var nomenclatureSelector = AutofacScope.Resolve<INomenclatureSelectorFactory>();
-            var nomRepository = AutofacScope.Resolve<INomenclatureRepository>();
-            var usrRepository = AutofacScope.Resolve<IUserRepository>();
-            var nomSelectorFilter = AutofacScope.Resolve<NomenclatureFilterViewModel>();
-
-            Parameter[] parameters =
-            {
-                new TypedParameter(typeof(NomenclatureFilterViewModel), filterViewModel),
-                new TypedParameter(typeof(IUnitOfWorkFactory), uowFactory),
-                new TypedParameter(typeof(ICommonServices), comServices),
-                new TypedParameter(typeof(IEmployeeService), emplService),
-                new TypedParameter(typeof(IEntityAutocompleteSelectorFactory),
-                    counterpartySelector.CreateCounterpartyAutocompleteSelectorFactory()),
-                new TypedParameter(
-                    typeof(IEntityAutocompleteSelectorFactory),
-                    nomenclatureSelector.CreateNomenclatureAutocompleteSelectorFactory(nomSelectorFilter)),
-                new TypedParameter(typeof(INomenclatureRepository), nomRepository),
-                new TypedParameter(typeof(IUserRepository), usrRepository),
-            };
-
-            var journalVM = AutofacScope.Resolve<NomenclaturesJournalViewModel>(parameters);
-            journalVM.SelectionMode = JournalSelectionMode.Single;
-
-            return journalVM;
-        }
-
-        #region Настройка фильтров журналов
-
-        private void ConfigureNomenclatureOnSaleFilter(NomenclatureFilterViewModel filterViewModel)
+        private NomenclatureCategory GetDefaultNomenclatureCategory()
         {
             var defaultCategory = NomenclatureCategory.water;
             
@@ -269,31 +279,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 defaultCategory = currentUserSettings.GetUserSettings().DefaultSaleCategory.Value;
             }
 
-            filterViewModel.SetAndRefilterAtOnce(
-                x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-                x => x.SelectCategory = defaultCategory,
-                x => x.SelectSaleCategory = SaleCategory.forSale,
-                x => x.RestrictArchive = false
-            );
-        }
-        
-        private void ConfigureDepositEquipmentsFilter(NomenclatureFilterViewModel filterViewModel)
-        {
-            filterViewModel.SetAndRefilterAtOnce(
-                x => x.SelectCategory = NomenclatureCategory.equipment,
-                x => x.RestrictArchive = false
-            );
-        }
-        
-        private void ConfigureMovementItemsFilter(NomenclatureFilterViewModel filterViewModel)
-        {
-            filterViewModel.SetAndRefilterAtOnce(
-                x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-                x => x.SelectCategory = NomenclatureCategory.equipment,
-                x => x.SelectSaleCategory = SaleCategory.notForSale
-            );
+            return defaultCategory;
         }
 
-        #endregion
+        public ILifetimeScope AutofacScope { get; set; }
     }
 }

@@ -125,6 +125,10 @@
     <Compile Include="Dialogs\Orders\ClosingDocOrderInfoPanelViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrderMovementItemsViewModel.cs" />
     <Compile Include="Dialogs\Orders\VisitingMasterOrderInfoPanelViewModel.cs" />
+    <Compile Include="Factories\INomenclatureFilterViewModelFactory.cs" />
+    <Compile Include="Factories\INomenclaturesJournalViewModelFactory.cs" />
+    <Compile Include="Factories\NomenclatureFilterViewModelFactory.cs" />
+    <Compile Include="Factories\NomenclaturesJournalViewModelFactory.cs" />
     <Compile Include="Infrastructure\Print\IDocumentPrinter.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />

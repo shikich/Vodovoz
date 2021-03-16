@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Linq;
+using QS.BusinessCommon.Domain;
 using QS.Commands;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
 {
     public class OrderDepositReturnsItemsViewModel : UoWWidgetViewModelBase
     {
+        private readonly INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory;
+        private readonly INomenclatureFilterViewModelFactory nomenclatureFilterViewModelFactory;
         public OrderBase Order { get; set; }
 
         private object selectedDeposit;
@@ -28,7 +32,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         
         public NomenclaturesJournalViewModel EquipmentsJournalViewModel { get; private set; }
 
-        public event Action UpdateVisibilityEquipmentJournal;
+        public event Action<NomenclaturesJournalViewModel> UpdateActiveViewModel;
+        public event Action RemoveActiveViewModel;
 
         public bool HasSelectedDeposit => SelectedDeposit != null;
         public bool DepositsScrolled { get; } 
@@ -56,7 +61,16 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             addEquipmentDepositCommand = new DelegateCommand(
                 () =>
                 {
-                    UpdateVisibilityEquipmentJournal?.Invoke();
+                    UpdateJournalSubscribes(EquipmentsJournalViewModel);
+                    
+                    if (EquipmentsJournalViewModel is null)
+                    {
+                        EquipmentsJournalViewModel =
+                            nomenclaturesJournalViewModelFactory.CreateNomenclaturesJournalViewModel(
+                                nomenclatureFilterViewModelFactory.CreateEquipmentFilter());
+                        ConfigureEquipmentsJournalViewModel();
+                    }
+                    UpdateActiveViewModel?.Invoke(EquipmentsJournalViewModel);
                 },
                 () => true
             )
@@ -82,18 +96,22 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         );
         
         public OrderDepositReturnsItemsViewModel(
-            NomenclaturesJournalViewModel equipmentsJournalViewModel,
+            INomenclatureFilterViewModelFactory nomenclatureFilterViewModelFactory, 
+            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory,
             OrderBase order,
             bool depositsScrolled = false)
         {
-            ConfigureEquipmentsJournalViewModel(equipmentsJournalViewModel);
             Order = order;
             DepositsScrolled = depositsScrolled;
+            this.nomenclaturesJournalViewModelFactory = 
+                nomenclaturesJournalViewModelFactory ?? 
+                    throw new ArgumentNullException(nameof(nomenclaturesJournalViewModelFactory));
+            this.nomenclatureFilterViewModelFactory = nomenclatureFilterViewModelFactory;
         }
 
-        private void ConfigureEquipmentsJournalViewModel(NomenclaturesJournalViewModel equipmentsJournalViewModel)
+        private void ConfigureEquipmentsJournalViewModel()
         {
-            EquipmentsJournalViewModel = equipmentsJournalViewModel;
+            EquipmentsJournalViewModel.TabName = "Оборудование под залог";
             EquipmentsJournalViewModel.OnEntitySelectedResultWithoutClose += (s, ea) =>
             {
                 var selectedNode = ea.SelectedNodes.FirstOrDefault();
@@ -102,7 +120,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                     return;
                 
                 //AddDepositEquipment(UoW.Session.Get<Nomenclature>(selectedNode.Id));
-                UpdateVisibilityEquipmentJournal?.Invoke();
+                RemoveActiveViewModel?.Invoke();
             };
         }
         
@@ -116,6 +134,17 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 DepositType = DepositType.Equipment
             };
             Order.ObservableOrderDepositReturnsItems.Add(newDepositItem);
+        }
+        
+        private void UpdateJournalSubscribes(NomenclaturesJournalViewModel journalViewModel)
+        {
+            journalViewModel?.UpdateOnChanges(
+                typeof(Nomenclature),
+                typeof(MeasurementUnits),
+                typeof(WarehouseMovementOperation),
+                typeof(Order),
+                typeof(OrderItem)
+            );
         }
     }
 }

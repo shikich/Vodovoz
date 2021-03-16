@@ -132,6 +132,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Factories;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
@@ -669,6 +670,8 @@ namespace Vodovoz
 			#region Фабрики
 			
 			builder.RegisterType<OrderDocumentUpdatersFactory>().AsSelf();
+			builder.RegisterType<NomenclaturesJournalViewModelFactory>().As<INomenclaturesJournalViewModelFactory>();
+			builder.RegisterType<NomenclaturesFilterViewModelFactory>().As<INomenclatureFilterViewModelFactory>();
 
 			#endregion
 			

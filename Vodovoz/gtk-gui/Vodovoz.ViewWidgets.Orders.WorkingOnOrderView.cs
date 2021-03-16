@@ -42,6 +42,8 @@ namespace Vodovoz.ViewWidgets.Orders
 
 		private global::Gamma.GtkWidgets.yLabel ylblTareComment;
 
+		private global::Gamma.GtkWidgets.yLabel ylblValueNumOfDriverCall;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -226,11 +228,24 @@ namespace Vodovoz.ViewWidgets.Orders
 			w17.BottomAttach = ((uint)(5));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.ylblValueNumOfDriverCall = new global::Gamma.GtkWidgets.yLabel();
+			this.ylblValueNumOfDriverCall.Name = "ylblValueNumOfDriverCall";
+			this.ylblValueNumOfDriverCall.Xalign = 0F;
+			this.ylblValueNumOfDriverCall.LabelProp = global::Mono.Unix.Catalog.GetString("Значение");
+			this.tableMain.Add(this.ylblValueNumOfDriverCall);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblValueNumOfDriverCall]));
+			w18.TopAttach = ((uint)(2));
+			w18.BottomAttach = ((uint)(3));
+			w18.LeftAttach = ((uint)(1));
+			w18.RightAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableMain);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
-			w18.Position = 0;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
