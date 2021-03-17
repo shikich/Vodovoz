@@ -18,7 +18,8 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.Documents {
-    public class OrderDocumentUpdatersFactory {
+    public class OrderDocumentUpdatersFactory : IOrderDocumentUpdatersFactory
+    {
         public IEnumerable<OrderDocumentUpdaterBase> CreateUpdaters() {
             yield return CreateAssemblyListDocumentUpdater();
             yield return CreateBillDocumentUpdater();

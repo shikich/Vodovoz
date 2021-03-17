@@ -130,6 +130,7 @@
     <Compile Include="Domain\Orders\Documents\Invoice\InvoiceDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\Invoice\InvoiceDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\Invoice\InvoiceDocument.cs" />
+    <Compile Include="Domain\Orders\Documents\IOrderDocumentUpdatersFactory.cs" />
     <Compile Include="Domain\Orders\Documents\OrderContract\OrderContractDocumentFactory.cs" />
     <Compile Include="Domain\Orders\Documents\OrderContract\OrderContractDocumentUpdater.cs" />
     <Compile Include="Domain\Orders\Documents\OrderContract\OrderContract.cs" />

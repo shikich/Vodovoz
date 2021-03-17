@@ -31,8 +31,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 {
                     Parameter[] parameters = {
                         new TypedParameter(typeof(OrderBase), orderBase),
-                        new TypedParameter(typeof(OrderDocumentUpdatersFactory),
-                            AutofacScope.Resolve<OrderDocumentUpdatersFactory>())
+                        new TypedParameter(typeof(IOrderDocumentUpdatersFactory),
+                            AutofacScope.Resolve<IOrderDocumentUpdatersFactory>())
                     };
                     orderDocumentsModel = AutofacScope.Resolve<OrderDocumentsModel>(parameters);
                 }

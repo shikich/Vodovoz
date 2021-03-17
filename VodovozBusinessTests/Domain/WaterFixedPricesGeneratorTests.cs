@@ -38,7 +38,8 @@ namespace VodovozBusinessTests.Domain {
 
             // act
             decimal fixedPrice = 200;
-            var dict = waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(semiozerieMock.Id, fixedPrice);
+            var dict = 
+                waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(uowMock, semiozerieMock.Id, fixedPrice);
             
             // assert
             Assert.AreEqual(5, dict.Count);
@@ -72,7 +73,8 @@ namespace VodovozBusinessTests.Domain {
 
             // act
             decimal fixedPrice = 200;
-            var dict = waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(stroykaMock.Id, fixedPrice);
+            var dict = 
+                waterFixedPricesGeneratorMock.GenerateFixedPricesForAllWater(uowMock, stroykaMock.Id, fixedPrice);
             
             // assert
             Assert.AreEqual(1, dict.Count);

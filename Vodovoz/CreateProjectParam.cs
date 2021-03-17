@@ -669,7 +669,9 @@ namespace Vodovoz
 			
 			#region Фабрики
 			
-			builder.RegisterType<OrderDocumentUpdatersFactory>().AsSelf();
+			builder.RegisterType<OrderDocumentUpdatersFactory>()
+				.As<IOrderDocumentUpdatersFactory>()
+				.AsSelf();
 			builder.RegisterType<NomenclaturesJournalViewModelFactory>().As<INomenclaturesJournalViewModelFactory>();
 			builder.RegisterType<NomenclaturesFilterViewModelFactory>().As<INomenclatureFilterViewModelFactory>();
 

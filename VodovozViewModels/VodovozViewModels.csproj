@@ -208,10 +208,13 @@
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Orders\ClosingDocOrderInfoViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ClosingDocOrderMainViewModel.cs" />
+    <Compile Include="ViewModels\Orders\DeliveryOrderMainViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderInfoViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\OrderMainViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\SelfDeliveryOrderMainViewModel.cs" />
     <Compile Include="ViewModels\Orders\VisitingMasterOrderInfoViewModel.cs" />
+    <Compile Include="ViewModels\Orders\VisitingMasterOrderMainViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />

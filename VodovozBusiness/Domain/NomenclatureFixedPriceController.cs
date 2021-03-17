@@ -160,7 +160,8 @@ namespace Vodovoz.Domain {
 
         private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow,  DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice) 
         {
-            var fixedPrices = waterFixedPricesGenerator.GenerateFixedPricesForAllWater(nomenclature.Id, fixedPrice);
+            var fixedPrices = 
+                waterFixedPricesGenerator.GenerateFixedPricesForAllWater(uow, nomenclature.Id, fixedPrice);
 
             foreach (var pricePair in fixedPrices) {
                 var foundFixedPrice = deliveryPoint.NomenclatureFixedPrices.SingleOrDefault(x => x.Nomenclature.Id == pricePair.Key);
@@ -177,7 +178,8 @@ namespace Vodovoz.Domain {
         
         private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow,  Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice) 
         {
-            var fixedPrices = waterFixedPricesGenerator.GenerateFixedPricesForAllWater(nomenclature.Id, fixedPrice);
+            var fixedPrices = 
+                waterFixedPricesGenerator.GenerateFixedPricesForAllWater(uow, nomenclature.Id, fixedPrice);
 
             foreach (var pricePair in fixedPrices) {
                 var foundFixedPrice = counterparty.NomenclatureFixedPrices.SingleOrDefault(x => x.Nomenclature.Id == pricePair.Key);

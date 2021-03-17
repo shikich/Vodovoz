@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NSubstitute;
+using NSubstitute.Extensions;
 using NUnit.Framework;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.Documents.Bill;
 using Vodovoz.Domain.Orders.Documents.DriverTicket;
 using Vodovoz.Domain.Orders.Documents.Invoice;
 using Vodovoz.Services;
@@ -22,7 +24,11 @@ namespace VodovozBusinessTests.Updaters {
             INomenclatureParametersProvider nomenclatureParametersProviderMock =
                 Substitute.For<INomenclatureParametersProvider>();
             nomenclatureParametersProviderMock.PaidDeliveryNomenclatureId.Returns(5);
-            OrderDocumentUpdatersFactory orderDocumentUpdatersFactoryMock = Substitute.For<OrderDocumentUpdatersFactory>();
+            var orderDocumentUpdatersFactoryMock = Substitute.For<IOrderDocumentUpdatersFactory>();
+            var billDocumentFactoryMock = Substitute.For<BillDocumentFactory>();
+            BillDocumentUpdater billDocumentUpdaterMock = 
+                new BillDocumentUpdater(billDocumentFactoryMock, nomenclatureParametersProviderMock);
+            orderDocumentUpdatersFactoryMock.CreateUpdaters().Returns(new []{billDocumentUpdaterMock});
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
             selfDeliveryOrderMock.PaymentType.Returns(PaymentType.cashless);
             selfDeliveryOrderMock.Status.Returns(OrderStatus.Accepted);

@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.ViewWidgets.Orders
@@ -12,11 +13,19 @@ namespace Vodovoz.ViewWidgets.Orders
             this.Build();
             Configure();
         }
-
+        //TODO Проверить свойства для комментариев ОДЗ и отдела продаж
         private void Configure()
         {
             enumDiverCallType.ItemsEnum = typeof(DriverCallType);
+            
             specCmbNonReturnTareReasons.ItemsList = ViewModel.nonReturnReasons;
+            
+            ylblValueNumOfDriverCall.Binding.AddBinding(ViewModel.Order, o => o.DriverCallNumber, w => w.LabelProp, new IntToStringConverter()).InitializeFromSource();
+            
+            ytxtManagerComment.Binding.AddBinding(ViewModel.Order, o => o.CommentManager, w => w.Buffer.Text).InitializeFromSource();
+            ytxtTareComment.Binding.AddBinding(ViewModel.Order, o => o.TareInformation, w => w.Buffer.Text).InitializeFromSource();
+            //ytxtSalesDepartmentComment.Binding.AddBinding(ViewModel.Order, o => o.SalesDepartmentComment, w => w.Buffer.Text).InitializeFromSource();
+            //ytxtODZComment.Binding.AddBinding(ViewModel.Order, o => o.ODZComment, w => w.Buffer.Text).InitializeFromSource();
         }
     }
 }

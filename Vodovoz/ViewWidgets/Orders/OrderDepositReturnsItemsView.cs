@@ -21,7 +21,7 @@ namespace Vodovoz.ViewWidgets.Orders
         {
             ConfigureTree();
 
-            //ybtnRemoveDeposit.Clicked += (sender, args) => ViewModel.RemoveDepositCommand.Execute();
+            ybtnRemoveDeposit.Clicked += (sender, args) => ViewModel.RemoveDepositCommand.Execute();
             ybtnAddEquipmentDeposit.Clicked += (sender, args) => ViewModel.AddEquipmentDepositCommand.Execute();
             ybtnRemoveDeposit.Binding.AddBinding(ViewModel, vm => vm.HasSelectedDeposit, w => w.Sensitive).InitializeFromSource();
         }

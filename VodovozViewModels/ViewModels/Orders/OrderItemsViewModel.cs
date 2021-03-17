@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Autofac.Core;
@@ -22,8 +23,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
     public class OrderItemsViewModel : UoWWidgetViewModelBase
     {
         private bool isMovementItemsVisible;
-        private OrderBase Order { get; set; }
+        public OrderBase Order { get; set; }
         
+        public ILifetimeScope AutofacScope { get; set; }
+
         public bool IsMovementItemsVisible
         {
             get => isMovementItemsVisible;
@@ -142,6 +145,17 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             )
         );
 
+        private DelegateCommand<object[]> removeSalesItemCommand;
+        public DelegateCommand<object[]> RemoveSalesItemCommand => 
+            removeSalesItemCommand ?? (removeSalesItemCommand = new DelegateCommand<object[]>(
+                items =>
+                {
+                    
+                },
+                items => items.Any()
+            )
+        );
+
         #endregion Commands
         
         private readonly IInteractiveService interactiveService;
@@ -173,7 +187,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         }
 
         private void OrderMovementItemsViewModelOnRemoveActiveViewModel()
-            => ActiveNomenclatureJournalViewModel = null;
+        {
+            ActiveNomenclatureJournalViewModel?.Items.Clear();
+            ActiveNomenclatureJournalViewModel = null;
+        }
 
         private void OrderMovementItemsViewModelOnUpdateActiveViewModel(NomenclaturesJournalViewModel journalViewModel)
         {
@@ -281,7 +298,5 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
             return defaultCategory;
         }
-
-        public ILifetimeScope AutofacScope { get; set; }
     }
 }

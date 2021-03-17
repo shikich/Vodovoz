@@ -24,9 +24,9 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Label lblOnlineOrder;
 
-		private global::Gamma.Widgets.yValidatedEntry entOnlineOrder1;
+		private global::Gamma.Widgets.yValidatedEntry entOnlineOrder;
 
-		private global::Gamma.Widgets.ySpecComboBox ySpecPaymentFrom1;
+		private global::Gamma.Widgets.ySpecComboBox ySpecPaymentFrom;
 
 		private global::Gtk.HSeparator hseparator1;
 
@@ -67,14 +67,6 @@ namespace Vodovoz.Views.Orders
 		private global::Gamma.GtkWidgets.yLabel ylblStatus;
 
 		private global::Gamma.GtkWidgets.yLabel ylblStatusInfo;
-
-		private global::Gtk.Expander expanderCommentForLogistician;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
-
-		private global::Gamma.GtkWidgets.yTextView ytextview2;
-
-		private global::Gtk.Label GtkLblCommentForLogistician;
 
 		protected virtual void Build()
 		{
@@ -179,25 +171,25 @@ namespace Vodovoz.Views.Orders
 			w7.Position = 0;
 			w7.Expand = false;
 			// Container child hbxOnlineOrder.Gtk.Box+BoxChild
-			this.entOnlineOrder1 = new global::Gamma.Widgets.yValidatedEntry();
-			this.entOnlineOrder1.CanFocus = true;
-			this.entOnlineOrder1.Name = "entOnlineOrder1";
-			this.entOnlineOrder1.IsEditable = true;
-			this.entOnlineOrder1.MaxLength = 10;
-			this.entOnlineOrder1.InvisibleChar = '●';
-			this.hbxOnlineOrder.Add(this.entOnlineOrder1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.entOnlineOrder1]));
+			this.entOnlineOrder = new global::Gamma.Widgets.yValidatedEntry();
+			this.entOnlineOrder.CanFocus = true;
+			this.entOnlineOrder.Name = "entOnlineOrder";
+			this.entOnlineOrder.IsEditable = true;
+			this.entOnlineOrder.MaxLength = 10;
+			this.entOnlineOrder.InvisibleChar = '●';
+			this.hbxOnlineOrder.Add(this.entOnlineOrder);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.entOnlineOrder]));
 			w8.Position = 1;
 			w8.Expand = false;
 			// Container child hbxOnlineOrder.Gtk.Box+BoxChild
-			this.ySpecPaymentFrom1 = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySpecPaymentFrom1.Name = "ySpecPaymentFrom1";
-			this.ySpecPaymentFrom1.AddIfNotExist = false;
-			this.ySpecPaymentFrom1.DefaultFirst = false;
-			this.ySpecPaymentFrom1.ShowSpecialStateAll = false;
-			this.ySpecPaymentFrom1.ShowSpecialStateNot = false;
-			this.hbxOnlineOrder.Add(this.ySpecPaymentFrom1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.ySpecPaymentFrom1]));
+			this.ySpecPaymentFrom = new global::Gamma.Widgets.ySpecComboBox();
+			this.ySpecPaymentFrom.Name = "ySpecPaymentFrom";
+			this.ySpecPaymentFrom.AddIfNotExist = false;
+			this.ySpecPaymentFrom.DefaultFirst = false;
+			this.ySpecPaymentFrom.ShowSpecialStateAll = false;
+			this.ySpecPaymentFrom.ShowSpecialStateNot = false;
+			this.hbxOnlineOrder.Add(this.ySpecPaymentFrom);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.ySpecPaymentFrom]));
 			w9.Position = 2;
 			this.tableInfo.Add(this.hbxOnlineOrder);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.hbxOnlineOrder]));
@@ -454,28 +446,6 @@ namespace Vodovoz.Views.Orders
 			this.vboxInfo.Add(this.tableInfo);
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxInfo[this.tableInfo]));
 			w31.Position = 0;
-			// Container child vboxInfo.Gtk.Box+BoxChild
-			this.expanderCommentForLogistician = new global::Gtk.Expander(null);
-			this.expanderCommentForLogistician.CanFocus = true;
-			this.expanderCommentForLogistician.Name = "expanderCommentForLogistician";
-			// Container child expanderCommentForLogistician.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.ytextview2 = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextview2.CanFocus = true;
-			this.ytextview2.Name = "ytextview2";
-			this.GtkScrolledWindow1.Add(this.ytextview2);
-			this.expanderCommentForLogistician.Add(this.GtkScrolledWindow1);
-			this.GtkLblCommentForLogistician = new global::Gtk.Label();
-			this.GtkLblCommentForLogistician.Name = "GtkLblCommentForLogistician";
-			this.GtkLblCommentForLogistician.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий логисту");
-			this.GtkLblCommentForLogistician.UseUnderline = true;
-			this.expanderCommentForLogistician.LabelWidget = this.GtkLblCommentForLogistician;
-			this.vboxInfo.Add(this.expanderCommentForLogistician);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vboxInfo[this.expanderCommentForLogistician]));
-			w34.Position = 1;
 			this.Add(this.vboxInfo);
 			if ((this.Child != null))
 			{

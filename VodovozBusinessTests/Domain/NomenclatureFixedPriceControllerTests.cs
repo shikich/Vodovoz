@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NSubstitute;
@@ -21,7 +22,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -48,7 +49,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -75,7 +76,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
@@ -99,7 +100,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -124,7 +125,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
@@ -146,7 +147,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -171,7 +172,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
@@ -193,7 +194,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -222,7 +223,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -251,7 +252,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             SelfDeliveryOrder selfDeliveryOrderMock = Substitute.For<SelfDeliveryOrder>();
@@ -276,7 +277,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -303,7 +304,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
@@ -326,7 +327,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -353,7 +354,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
@@ -376,21 +377,47 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
-            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            Nomenclature semiozerieMock = Substitute.For<Nomenclature>();
+            semiozerieMock.Id.Returns(1);
+            uowMock.GetById<Nomenclature>(1).Returns(semiozerieMock);
+            Nomenclature snyatogorskayaMock = Substitute.For<Nomenclature>();
+            snyatogorskayaMock.Id.Returns(2);
+            uowMock.GetById<Nomenclature>(2).Returns(snyatogorskayaMock);
+            Nomenclature stroykaMock = Substitute.For<Nomenclature>();
+            stroykaMock.Id.Returns(7);
+            uowMock.GetById<Nomenclature>(7).Returns(stroykaMock);
+            Nomenclature kislorodnayaMock = Substitute.For<Nomenclature>();
+            kislorodnayaMock.Id.Returns(12);
+            uowMock.GetById<Nomenclature>(12).Returns(kislorodnayaMock);
+            Nomenclature kislorodnayaDeluxMock = Substitute.For<Nomenclature>();
+            kislorodnayaDeluxMock.Id.Returns(655);
+            uowMock.GetById<Nomenclature>(655).Returns(kislorodnayaDeluxMock);
+            Nomenclature ruchkiMock = Substitute.For<Nomenclature>();
+            ruchkiMock.Id.Returns(15);
+            uowMock.GetById<Nomenclature>(15).Returns(ruchkiMock);
+            nomenclatureRepositoryMock.GetWaterSemiozerie(uowMock).Returns(semiozerieMock);
+            nomenclatureRepositoryMock.GetWaterSnyatogorskaya(uowMock).Returns(snyatogorskayaMock);
+            nomenclatureRepositoryMock.GetWaterStroika(uowMock).Returns(stroykaMock);
+            nomenclatureRepositoryMock.GetWaterKislorodnaya(uowMock).Returns(kislorodnayaMock);
+            nomenclatureRepositoryMock.GetWaterKislorodnayaDeluxe(uowMock).Returns(kislorodnayaDeluxMock);
+            nomenclatureRepositoryMock.GetWaterRuchki(uowMock).Returns(ruchkiMock);
+            nomenclatureRepositoryMock.GetWaterPriceIncrement.Returns(20);
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
-            nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
+            nomenclatureFixedPriceMock.Nomenclature.Returns(semiozerieMock);
             nomenclatureFixedPriceMock.Price.Returns(250);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();
+            List<NomenclatureFixedPrice> fixedPrices = new List<NomenclatureFixedPrice>();
             deliveryPointMock.ObservableNomenclatureFixedPrices.Returns(observableFixedPrices);
-            deliveryPointMock.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPriceMock);
+            deliveryPointMock.NomenclatureFixedPrices.Returns(fixedPrices);
+            deliveryPointMock.NomenclatureFixedPrices.Add(nomenclatureFixedPriceMock);
             
             // act
             decimal fixedPrice = 300;
-            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, deliveryPointMock, nomenclatureMock, fixedPrice);
+            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, deliveryPointMock, semiozerieMock, fixedPrice);
             
             // assert
             Assert.AreEqual(300, nomenclatureFixedPriceMock.Price);
@@ -403,16 +430,22 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             Nomenclature semiozerieMock = Substitute.For<Nomenclature>();
             semiozerieMock.Id.Returns(1);
+            uowMock.GetById<Nomenclature>(1).Returns(semiozerieMock);
             Nomenclature snyatogorskayaMock = Substitute.For<Nomenclature>();
             snyatogorskayaMock.Id.Returns(2);
+            uowMock.GetById<Nomenclature>(2).Returns(snyatogorskayaMock);
             Nomenclature stroykaMock = Substitute.For<Nomenclature>();
             stroykaMock.Id.Returns(7);
+            uowMock.GetById<Nomenclature>(7).Returns(stroykaMock);
             Nomenclature kislorodnayaMock = Substitute.For<Nomenclature>();
             kislorodnayaMock.Id.Returns(12);
+            uowMock.GetById<Nomenclature>(12).Returns(kislorodnayaMock);
             Nomenclature kislorodnayaDeluxMock = Substitute.For<Nomenclature>();
             kislorodnayaDeluxMock.Id.Returns(655);
+            uowMock.GetById<Nomenclature>(655).Returns(kislorodnayaDeluxMock);
             Nomenclature ruchkiMock = Substitute.For<Nomenclature>();
             ruchkiMock.Id.Returns(15);
+            uowMock.GetById<Nomenclature>(15).Returns(ruchkiMock);
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             nomenclatureRepositoryMock.GetWaterSemiozerie(uowMock).Returns(semiozerieMock);
             nomenclatureRepositoryMock.GetWaterSnyatogorskaya(uowMock).Returns(snyatogorskayaMock);
@@ -422,7 +455,7 @@ namespace VodovozBusinessTests.Domain {
             nomenclatureRepositoryMock.GetWaterRuchki(uowMock).Returns(ruchkiMock);
             nomenclatureRepositoryMock.GetWaterPriceIncrement.Returns(20);
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
@@ -445,21 +478,47 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
-            Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+            Nomenclature semiozerieMock = Substitute.For<Nomenclature>();
+            semiozerieMock.Id.Returns(1);
+            uowMock.GetById<Nomenclature>(1).Returns(semiozerieMock);
+            Nomenclature snyatogorskayaMock = Substitute.For<Nomenclature>();
+            snyatogorskayaMock.Id.Returns(2);
+            uowMock.GetById<Nomenclature>(2).Returns(snyatogorskayaMock);
+            Nomenclature stroykaMock = Substitute.For<Nomenclature>();
+            stroykaMock.Id.Returns(7);
+            uowMock.GetById<Nomenclature>(7).Returns(stroykaMock);
+            Nomenclature kislorodnayaMock = Substitute.For<Nomenclature>();
+            kislorodnayaMock.Id.Returns(12);
+            uowMock.GetById<Nomenclature>(12).Returns(kislorodnayaMock);
+            Nomenclature kislorodnayaDeluxMock = Substitute.For<Nomenclature>();
+            kislorodnayaDeluxMock.Id.Returns(655);
+            uowMock.GetById<Nomenclature>(655).Returns(kislorodnayaDeluxMock);
+            Nomenclature ruchkiMock = Substitute.For<Nomenclature>();
+            ruchkiMock.Id.Returns(15);
+            uowMock.GetById<Nomenclature>(15).Returns(ruchkiMock);
+            nomenclatureRepositoryMock.GetWaterSemiozerie(uowMock).Returns(semiozerieMock);
+            nomenclatureRepositoryMock.GetWaterSnyatogorskaya(uowMock).Returns(snyatogorskayaMock);
+            nomenclatureRepositoryMock.GetWaterStroika(uowMock).Returns(stroykaMock);
+            nomenclatureRepositoryMock.GetWaterKislorodnaya(uowMock).Returns(kislorodnayaMock);
+            nomenclatureRepositoryMock.GetWaterKislorodnayaDeluxe(uowMock).Returns(kislorodnayaDeluxMock);
+            nomenclatureRepositoryMock.GetWaterRuchki(uowMock).Returns(ruchkiMock);
+            nomenclatureRepositoryMock.GetWaterPriceIncrement.Returns(20);
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
-            nomenclatureFixedPriceMock.Nomenclature.Returns(nomenclatureMock);
+            nomenclatureFixedPriceMock.Nomenclature.Returns(semiozerieMock);
             nomenclatureFixedPriceMock.Price.Returns(300);
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
+            List<NomenclatureFixedPrice> fixedPrices = new List<NomenclatureFixedPrice>();
             GenericObservableList<NomenclatureFixedPrice> observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>();
+            counterpartyMock.NomenclatureFixedPrices.Returns(fixedPrices);
             counterpartyMock.ObservableNomenclatureFixedPrices.Returns(observableFixedPrices);
-            counterpartyMock.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPriceMock);
+            counterpartyMock.NomenclatureFixedPrices.Add(nomenclatureFixedPriceMock);
             
             // act
             decimal fixedPrice = 500;
-            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, counterpartyMock, nomenclatureMock, fixedPrice);
+            nomenclatureFixedPriceController.AddOrUpdateFixedPrice(uowMock, counterpartyMock, semiozerieMock, fixedPrice);
             
             // assert
             Assert.AreEqual(fixedPrice, nomenclatureFixedPriceMock.Price);
@@ -472,16 +531,22 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             Nomenclature semiozerieMock = Substitute.For<Nomenclature>();
             semiozerieMock.Id.Returns(1);
+            uowMock.GetById<Nomenclature>(1).Returns(semiozerieMock);
             Nomenclature snyatogorskayaMock = Substitute.For<Nomenclature>();
             snyatogorskayaMock.Id.Returns(2);
+            uowMock.GetById<Nomenclature>(2).Returns(snyatogorskayaMock);
             Nomenclature stroykaMock = Substitute.For<Nomenclature>();
             stroykaMock.Id.Returns(7);
+            uowMock.GetById<Nomenclature>(7).Returns(stroykaMock);
             Nomenclature kislorodnayaMock = Substitute.For<Nomenclature>();
             kislorodnayaMock.Id.Returns(12);
+            uowMock.GetById<Nomenclature>(12).Returns(kislorodnayaMock);
             Nomenclature kislorodnayaDeluxMock = Substitute.For<Nomenclature>();
             kislorodnayaDeluxMock.Id.Returns(655);
+            uowMock.GetById<Nomenclature>(655).Returns(kislorodnayaDeluxMock);
             Nomenclature ruchkiMock = Substitute.For<Nomenclature>();
             ruchkiMock.Id.Returns(15);
+            uowMock.GetById<Nomenclature>(15).Returns(ruchkiMock);
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             nomenclatureRepositoryMock.GetWaterSemiozerie(uowMock).Returns(semiozerieMock);
             nomenclatureRepositoryMock.GetWaterSnyatogorskaya(uowMock).Returns(snyatogorskayaMock);
@@ -491,7 +556,7 @@ namespace VodovozBusinessTests.Domain {
             nomenclatureRepositoryMock.GetWaterRuchki(uowMock).Returns(ruchkiMock);
             nomenclatureRepositoryMock.GetWaterPriceIncrement.Returns(20);
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             NomenclatureFixedPriceController nomenclatureFixedPriceController = 
                 new NomenclatureFixedPriceController(fixedPriceFactoryMock, waterFixedPricesGeneratorMock);
@@ -514,7 +579,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             DeliveryPoint deliveryPointMock = Substitute.For<DeliveryPoint>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();
@@ -540,7 +605,7 @@ namespace VodovozBusinessTests.Domain {
             IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
             INomenclatureRepository nomenclatureRepositoryMock = Substitute.For<INomenclatureRepository>();
             WaterFixedPricesGenerator waterFixedPricesGeneratorMock = 
-                Substitute.For<WaterFixedPricesGenerator>(uowMock, nomenclatureRepositoryMock);
+                Substitute.For<WaterFixedPricesGenerator>(nomenclatureRepositoryMock);
             Counterparty counterpartyMock = Substitute.For<Counterparty>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
             NomenclatureFixedPrice nomenclatureFixedPriceMock = Substitute.For<NomenclatureFixedPrice>();

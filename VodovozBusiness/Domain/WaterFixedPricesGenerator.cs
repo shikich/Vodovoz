@@ -61,17 +61,15 @@ namespace Vodovoz.Domain {
 			set => SemiozeriePrice = value - priceIncrement * 3;
 		}
 
-		private void LoadNomenclatures()
+		private void LoadNomenclatures(IUnitOfWork uow)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				SemiozeriePrice = 0m;
-				priceIncrement = nomenclatureRepository.GetWaterPriceIncrement;
-				SemiozerieWater = nomenclatureRepository.GetWaterSemiozerie(uow);
-				RuchkiWater = nomenclatureRepository.GetWaterRuchki(uow);
-				KislorodnayaWater = nomenclatureRepository.GetWaterKislorodnaya(uow);
-				SnyatogorskayaWater = nomenclatureRepository.GetWaterSnyatogorskaya(uow);
-				KislorodnayaDeluxeWater = nomenclatureRepository.GetWaterKislorodnayaDeluxe(uow);
-			}
+			SemiozeriePrice = 0m;
+			priceIncrement = nomenclatureRepository.GetWaterPriceIncrement;
+			SemiozerieWater = nomenclatureRepository.GetWaterSemiozerie(uow);
+			RuchkiWater = nomenclatureRepository.GetWaterRuchki(uow);
+			KislorodnayaWater = nomenclatureRepository.GetWaterKislorodnaya(uow);
+			SnyatogorskayaWater = nomenclatureRepository.GetWaterSnyatogorskaya(uow);
+			KislorodnayaDeluxeWater = nomenclatureRepository.GetWaterKislorodnayaDeluxe(uow);
 		}
 
 		/// <summary>
@@ -80,12 +78,13 @@ namespace Vodovoz.Domain {
 		/// <returns>Словарь с id номенклатуры и ценой</returns>
 		/// <param name="waterNomenclature"> Номенклатура относительно которой будут созданы остальные фиксированные цены</param>
 		/// <param name="fixedPrice"> Фиксированная цена для базовой номенклатуры </param>
-		public Dictionary<int, decimal> GenerateFixedPricesForAllWater(int waterNomenclatureId, decimal fixedPrice) {
+		public Dictionary<int, decimal> GenerateFixedPricesForAllWater(
+			IUnitOfWork uow, int waterNomenclatureId, decimal fixedPrice) {
 			if(waterNomenclatureId == 0) {
 				throw new InvalidOperationException("Невозможно определить цены на воду для новой номенклатуры.");
 			}
 
-			LoadNomenclatures();
+			LoadNomenclatures(uow);
 
 			var result = new Dictionary<int, decimal>();
 			

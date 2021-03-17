@@ -7,14 +7,14 @@ namespace Vodovoz.Domain.Orders.Documents {
         private readonly Dictionary<OrderDocumentType, OrderDocumentUpdaterBase> documentUpdaters;
 
         public OrderDocumentsModel(OrderBase order, 
-                                   OrderDocumentUpdatersFactory documentUpdatersFactory) {
+                                   IOrderDocumentUpdatersFactory documentUpdatersFactory) {
             this.order = order;
             documentUpdaters = new Dictionary<OrderDocumentType, OrderDocumentUpdaterBase>();
             
             FillDocumentUpdaters(documentUpdatersFactory);
         }
 
-        private void FillDocumentUpdaters(OrderDocumentUpdatersFactory documentUpdatersFactory) {
+        private void FillDocumentUpdaters(IOrderDocumentUpdatersFactory documentUpdatersFactory) {
             var updaters = documentUpdatersFactory.CreateUpdaters();
             
             foreach (var updater in updaters) {
