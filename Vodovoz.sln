@@ -159,7 +159,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MangoControllerForNet", "Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.MachineConfig", "..\QSProjects\QS.MachineConfig\QS.MachineConfig.csproj", "{769710D2-BF98-4120-9E07-67BD740CFA1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsRuSendService", "Services\Library\SmsRuSendService\SmsRuSendService.csproj", "{9083162F-81A6-49B3-A2D6-F355D62EC5C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsRuSendService", "Services\Library\SmsRuSendService\SmsRuSendService.csproj", "{9083162F-81A6-49B3-A2D6-F355D62EC5C2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{03DF8ADE-4BA1-4AF0-8881-D45D04C4FABE}"
 	ProjectSection(SolutionItems) = preProject
@@ -167,6 +167,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamma.Utilities.Gtk", "..\GammaBinding\Gamma.Utilities.Gtk\Gamma.Utilities.Gtk.csproj", "{5735D438-792E-40CE-BAFD-25814C8879BC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. WebAPI", "5. WebAPI", "{46B80CE7-2069-45C2-A09D-2E619A179C02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriversAPI", "DriversAPI\DriversAPI.csproj", "{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -932,6 +936,18 @@ Global
 		{5735D438-792E-40CE-BAFD-25814C8879BC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5735D438-792E-40CE-BAFD-25814C8879BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{5735D438-792E-40CE-BAFD-25814C8879BC}.Release|x86.Build.0 = Release|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Debug|x86.Build.0 = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Release|x86.ActiveCfg = Release|Any CPU
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1012,6 +1028,7 @@ Global
 		{769710D2-BF98-4120-9E07-67BD740CFA1D} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
 		{9083162F-81A6-49B3-A2D6-F355D62EC5C2} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 		{5735D438-792E-40CE-BAFD-25814C8879BC} = {FA158D40-CF6B-44A9-A0A1-C1382EAAA1EB}
+		{96D57D58-97B7-4412-8FF9-BCDCC938AD4F} = {46B80CE7-2069-45C2-A09D-2E619A179C02}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
