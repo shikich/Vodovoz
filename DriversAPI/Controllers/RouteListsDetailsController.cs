@@ -17,8 +17,8 @@ namespace DriversAPI.Controllers
             this.aPIRouteListData = aPIRouteListData;
         }
 
-        // GET: RouteListsDetails
-        public IEnumerable<APIRouteList> Get(int[] routeListsIds)
+        // GET: RouteListsDetails 
+        public IEnumerable<APIRouteList> Post([FromBody] int[] routeListsIds)
         {
             return aPIRouteListData.Get(routeListsIds);
         }
