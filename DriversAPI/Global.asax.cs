@@ -1,3 +1,4 @@
+using AutoFacWithWebAPI.App_Start;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace DriversAPI
     {
         protected void Application_Start()
         {
+            Bootstrapper.Run();
+
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }
     }
