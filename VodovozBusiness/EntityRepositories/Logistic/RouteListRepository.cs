@@ -677,7 +677,24 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return actualRouteList.Version != routeList.Version;
 			}
 		}
-	}
+
+        public IList<RouteList> GetRouteLists(int[] routeListsIds)
+        {
+            using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+            {
+				RouteList routeListAlias = null;
+				var query = uow.Session.QueryOver(() => routeListAlias)
+					.Where(
+						Restrictions.In(
+							Projections.Property(() => routeListAlias.Id), 
+							routeListsIds
+							)
+						);
+
+				return query.List();
+            }
+        }
+    }
 
 	#region DTO
 
