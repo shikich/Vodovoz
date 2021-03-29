@@ -16,10 +16,10 @@ namespace WebAPI.Library.DataAccess
         private readonly IRouteListRepository routeListRepository;
         private readonly IOrderRepository orderRepository;
 
-        public APIRouteListData(IRouteListRepository routeListRepository, IOrderRepository orderRepository)
+        public APIRouteListData(IRouteListRepository routeListRepository)//, IOrderRepository orderRepository)
         {
             this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-            this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+            //this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         }
 
         public IEnumerable<APIRouteList> Get(int[] routeListsIds)

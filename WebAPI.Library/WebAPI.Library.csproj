@@ -43,7 +43,7 @@
   <ItemGroup>
     <Compile Include="Models\APIAddress.cs" />
     <Compile Include="Models\APIRouteList.cs" />
-    <Compile Include="Models\APIRouteListAddresses.cs" />
+    <Compile Include="Models\APIRouteListAddress.cs" />
     <Compile Include="Models\APIRouteListAddressStatus.cs" />
     <Compile Include="Models\APIRouteListStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
