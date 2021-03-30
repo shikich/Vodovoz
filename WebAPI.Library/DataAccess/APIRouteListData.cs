@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,16 +25,19 @@ namespace WebAPI.Library.DataAccess
 
         public IEnumerable<APIRouteList> Get(int[] routeListsIds)
         {
-            var vodovozRouteLists = routeListRepository.GetRouteLists(routeListsIds);
-
-            var routeLists = new List<APIRouteList>();
-
-            foreach(var routelist in vodovozRouteLists)
+            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
             {
-                routeLists.Add(convertToAPIRouteList(routelist));
-            }
+                var vodovozRouteLists = routeListRepository.GetRouteLists(uow, routeListsIds);
 
-            return routeLists;
+                var routeLists = new List<APIRouteList>();
+
+                foreach (var routelist in vodovozRouteLists)
+                {
+                    routeLists.Add(convertToAPIRouteList(routelist));
+                }
+
+                return routeLists;
+            }
         }
 
         private APIRouteList convertToAPIRouteList(RouteList routeList)

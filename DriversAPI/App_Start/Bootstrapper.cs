@@ -11,6 +11,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Employees;
+using MySql.Data.MySqlClient;
 
 namespace AutoFacWithWebAPI.App_Start
 {
@@ -25,6 +26,17 @@ namespace AutoFacWithWebAPI.App_Start
 
 		static void CreateBaseConfig()
 		{
+			MySqlConnectionStringBuilder mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder();
+
+			mySqlConnectionStringBuilder.Server = "localhost";
+			mySqlConnectionStringBuilder.Port = 3306;
+			mySqlConnectionStringBuilder.Database = "vodovoz_dev_local";
+			mySqlConnectionStringBuilder.UserID = "root";
+			mySqlConnectionStringBuilder.Password = "P@ssw0rd";
+			mySqlConnectionStringBuilder.SslMode = MySqlSslMode.None;
+
+			QSMain.ConnectionString = mySqlConnectionStringBuilder.GetConnectionString(true);
+
 			//Увеличиваем таймоут
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
@@ -43,14 +55,14 @@ namespace AutoFacWithWebAPI.App_Start
 					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 				},
-			(cnf) => {
-				cnf.DataBaseIntegration(
-				dbi => {
-					dbi.BatchSize = 100;
-					dbi.Batcher<MySqlClientBatchingBatcherFactory>();
+				(cnf) => {
+					cnf.DataBaseIntegration(
+					dbi => {
+						dbi.BatchSize = 100;
+						dbi.Batcher<MySqlClientBatchingBatcherFactory>();
+					}
+				);
 				}
-			);
-			}
 			);
 
 			HistoryMain.Enable();
