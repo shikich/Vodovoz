@@ -1,40 +1,26 @@
 ﻿using Autofac;
 using Autofac.Integration.WebApi;
-using DriversAPI.Data;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Services;
 using System.Reflection;
-using System.Web.Http;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using WebAPI.Library.DataAccess;
 using WebAPI.Library.Models;
 
-namespace DriversAPI.App_Start
+namespace AuthTest.App_Start
 {
     public class AutofacWebapiConfig
     {
-        public static IContainer Container;
-
-        public static void Initialize(HttpConfiguration configuration)
-        {
-            Initialize(configuration, RegisterServices(new ContainerBuilder()));
-        }
-
-        public static void Initialize(HttpConfiguration config, IContainer container)
-        {
-            config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
-        }
-
-        private static IContainer RegisterServices(ContainerBuilder builder)
+        public static IContainer RegisterServices(ContainerBuilder builder)
         {
             //Register your Web API controllers.  
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
             //Dependencies
-            
+
             #region База
             builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
             builder.RegisterType<BaseParametersProvider>().AsSelf();
@@ -59,12 +45,7 @@ namespace DriversAPI.App_Start
             //    .AsSelf();
             #endregion
 
-            builder.RegisterType<CustomUserManager>().AsSelf();
-
-            //Set the dependency resolver to be Autofac.  
-            Container = builder.Build();
-
-            return Container;
+            return builder.Build();
         }
     }
 }
