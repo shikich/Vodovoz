@@ -12,13 +12,12 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OAuth;
-using AuthTest.Models;
-using AuthTest.Providers;
-using AuthTest.Results;
+using AuthTest2.Models;
+using AuthTest2.Providers;
+using AuthTest2.Results;
 using NHibernate.AspNet.Identity;
-using AuthTest.Identity;
 
-namespace AuthTest.Controllers
+namespace AuthTest2.Controllers
 {
     [Authorize]
     [RoutePrefix("api/Account")]
@@ -49,8 +48,6 @@ namespace AuthTest.Controllers
                 _userManager = value;
             }
         }
-
-        public SignInManager SignInManager => Request.GetOwinContext().Get<SignInManager>();
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
@@ -376,33 +373,6 @@ namespace AuthTest.Controllers
             return Ok();
         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        public object Login(LoginRequestModel loginModel)
-        {
-            if (ModelState.IsValid && !User.Identity.IsAuthenticated)
-            {
-
-                var result = SignInManager.PasswordSignInAsync(loginModel.Login,
-                loginModel.Password, false, false).Result;
-
-                switch (result)
-                {
-                    case SignInStatus.Success:
-                        var user = UserManager.FindByNameAsync(loginModel.Login).Result;
-
-
-
-                        return new {Message = "error" };
-
-                    case SignInStatus.Failure:
-                        ModelState.AddModelError("", "Неверный логин или пароль");
-                        break;
-                }
-            }
-            return loginModel;
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing && _userManager != null)
@@ -520,11 +490,5 @@ namespace AuthTest.Controllers
         }
 
         #endregion
-
-        public class LoginRequestModel
-        {
-            public string Login { get; set; }
-            public string Password { get; set; }
-        }
     }
 }

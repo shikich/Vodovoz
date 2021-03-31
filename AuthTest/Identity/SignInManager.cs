@@ -17,10 +17,5 @@ namespace AuthTest.Identity
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
         }
-
-        internal static async Task<SignInStatus> PasswordSignInAsync(string login, string password)
-        {
-            return SignInStatus.Success;
-        }
     }
 }
