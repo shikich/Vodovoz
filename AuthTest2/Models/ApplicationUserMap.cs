@@ -11,9 +11,9 @@ namespace AuthTest2.Models
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 
             Map(x => x.UserName).Column("user_name");
-            Map(x => x.PasswordHash).Column("password_hash");
-            Map(x => x.SecurityStamp).Column("security_stamp");
-            Map(x => x.AccessFailedCount).Column("access_failed_count");
+            //Map(x => x.PasswordHash).Column("password_hash");
+            //Map(x => x.SecurityStamp).Column("security_stamp");
+            //Map(x => x.AccessFailedCount).Column("access_failed_count");
         }
     }
 }

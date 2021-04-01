@@ -35,6 +35,10 @@ namespace AuthTest2.Models
     public class RegisterBindingModel
     {
         [Required]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required]
         [Display(Name = "Login")]
         public string Login { get; set; }
 

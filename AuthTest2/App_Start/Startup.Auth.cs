@@ -10,9 +10,8 @@ using Owin;
 using AuthTest2.Providers;
 using AuthTest2.Models;
 using QS.DomainModel.UoW;
-using AuthTest2.Identity;
 using Microsoft.Owin.Security;
-
+using Vodovoz.Identity;
 
 namespace AuthTest2
 {

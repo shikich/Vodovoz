@@ -30,7 +30,7 @@ namespace AuthTest2.Providers
         {
             var userManager = context.OwinContext.GetUserManager<ApplicationUserManager>();
 
-            ApplicationUser user = await userManager.FindAsync(context.UserName, context.Password);
+            ApplicationUser user = (ApplicationUser) await userManager.FindAsync(context.UserName, context.Password);
 
             if (user == null)
             {

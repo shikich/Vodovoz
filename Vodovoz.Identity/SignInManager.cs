@@ -1,5 +1,4 @@
-﻿using AuthTest2.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -9,11 +8,11 @@ using Microsoft.Owin.Security;
 using Microsoft.Owin;
 using System.Threading.Tasks;
 
-namespace AuthTest2.Identity
+namespace Vodovoz.Identity
 {
-    public class SignInManager : SignInManager<ApplicationUser, string>
+    public class SignInManager : SignInManager<IdentityUser, int>
     {
-        public SignInManager(ApplicationUserManager userManager, IAuthenticationManager authenticationManager) : base(userManager, authenticationManager)
+        public SignInManager(UserManager userManager, IAuthenticationManager authenticationManager) : base(userManager, authenticationManager)
         {
         }
 
@@ -30,17 +29,19 @@ namespace AuthTest2.Identity
                         return SignInStatus.Success;
                     }
                 }
-            }catch (Exception e)
+            }
+            catch (Exception e)
             {
                 return SignInStatus.Failure;
             }
+
 
             return SignInStatus.Failure;
         }
 
         public static SignInManager Create(IdentityFactoryOptions<SignInManager> options, IOwinContext context)
         {
-            return new SignInManager(context.Get<ApplicationUserManager>(), context.Authentication);
+            return new SignInManager(context.Get<UserManager>(), context.Authentication);
         }
     }
 }

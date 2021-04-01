@@ -15,7 +15,7 @@ using Microsoft.Owin.Security.OAuth;
 using AuthTest2.Models;
 using AuthTest2.Providers;
 using AuthTest2.Results;
-using NHibernate.AspNet.Identity;
+using Vodovoz.Identity;
 
 namespace AuthTest2.Controllers
 {
@@ -25,7 +25,7 @@ namespace AuthTest2.Controllers
     {
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
-        private Identity.SignInManager _signInManager;
+        private SignInManager _signInManager;
 
         public AccountController()
         {
@@ -33,7 +33,7 @@ namespace AuthTest2.Controllers
 
         public AccountController(ApplicationUserManager userManager,
             ISecureDataFormat<AuthenticationTicket> accessTokenFormat,
-            Identity.SignInManager signInManager)
+            SignInManager signInManager)
         {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             AccessTokenFormat = accessTokenFormat ?? throw new ArgumentNullException(nameof(accessTokenFormat));
@@ -54,11 +54,11 @@ namespace AuthTest2.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
-        public Identity.SignInManager SignInManager
+        public SignInManager SignInManager
         {
             get
             {
-                return _signInManager ?? Request.GetOwinContext().GetUserManager<Identity.SignInManager>();
+                return _signInManager ?? Request.GetOwinContext().GetUserManager<SignInManager>();
             }
             private set
             {
@@ -122,7 +122,7 @@ namespace AuthTest2.Controllers
         [Route("ManageInfo")]
         public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
         {
-            IdentityUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            IdentityUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId<int>());
 
             if (user == null)
             {
@@ -131,7 +131,7 @@ namespace AuthTest2.Controllers
 
             List<UserLoginInfoViewModel> logins = new List<UserLoginInfoViewModel>();
 
-            foreach (IdentityUserLogin linkedAccount in user.Logins)
+            foreach (UserLogin linkedAccount in user.Logins)
             {
                 logins.Add(new UserLoginInfoViewModel
                 {
@@ -167,7 +167,7 @@ namespace AuthTest2.Controllers
                 return BadRequest(ModelState);
             }
 
-            IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
+            IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId<int>(), model.OldPassword,
                 model.NewPassword);
             
             if (!result.Succeeded)
@@ -187,7 +187,7 @@ namespace AuthTest2.Controllers
                 return BadRequest(ModelState);
             }
 
-            IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
+            IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId<int>(), model.NewPassword);
 
             if (!result.Succeeded)
             {
@@ -224,7 +224,7 @@ namespace AuthTest2.Controllers
                 return BadRequest("The external login is already associated with an account.");
             }
 
-            IdentityResult result = await UserManager.AddLoginAsync(User.Identity.GetUserId(),
+            IdentityResult result = await UserManager.AddLoginAsync(User.Identity.GetUserId<int>(),
                 new UserLoginInfo(externalData.LoginProvider, externalData.ProviderKey));
 
             if (!result.Succeeded)
@@ -248,11 +248,11 @@ namespace AuthTest2.Controllers
 
             if (model.LoginProvider == LocalLoginProvider)
             {
-                result = await UserManager.RemovePasswordAsync(User.Identity.GetUserId());
+                result = await UserManager.RemovePasswordAsync(User.Identity.GetUserId<int>());
             }
             else
             {
-                result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId(),
+                result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId<int>(),
                     new UserLoginInfo(model.LoginProvider, model.ProviderKey));
             }
 
@@ -294,7 +294,7 @@ namespace AuthTest2.Controllers
                 return new ChallengeResult(provider, this);
             }
 
-            ApplicationUser user = await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider,
+            ApplicationUser user = (ApplicationUser) await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider,
                 externalLogin.ProviderKey));
 
             bool hasRegistered = user != null;
@@ -401,7 +401,7 @@ namespace AuthTest2.Controllers
                 return InternalServerError();
             }
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var user = new ApplicationUser() { UserName = model.Email };
 
             IdentityResult result = await UserManager.CreateAsync(user);
             if (!result.Succeeded)
