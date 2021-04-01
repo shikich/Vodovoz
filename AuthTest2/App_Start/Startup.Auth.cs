@@ -12,6 +12,7 @@ using AuthTest2.Models;
 using QS.DomainModel.UoW;
 using Microsoft.Owin.Security;
 using Vodovoz.Identity;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace AuthTest2
 {
@@ -28,6 +29,7 @@ namespace AuthTest2
             //app.CreatePerOwinContext(ApplicationDbContext.Create); <-- заменено на UoW (Обертка над ISession)
             app.CreatePerOwinContext<IUnitOfWork>(() => UnitOfWorkFactory.CreateWithoutRoot());
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
+            app.CreatePerOwinContext<UserManager>((parameters, context) => context.GetUserManager<ApplicationUserManager>());
             app.CreatePerOwinContext<SignInManager>(SignInManager.Create);
 
             // Enable the application to use a cookie to store information for the signed in user

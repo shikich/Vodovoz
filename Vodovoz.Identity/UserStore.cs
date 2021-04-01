@@ -35,7 +35,7 @@ namespace Vodovoz.Identity
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
 
         public Task<IdentityUser> FindByIdAsync(int userId)
