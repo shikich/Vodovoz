@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AuthTest2.App_Start;
 using Microsoft.Owin;
 using Owin;
 
@@ -12,6 +13,7 @@ namespace AuthTest2
     {
         public void Configuration(IAppBuilder app)
         {
+            NhibernateConfig.CreateBaseConfig();
             ConfigureAuth(app);
         }
     }
