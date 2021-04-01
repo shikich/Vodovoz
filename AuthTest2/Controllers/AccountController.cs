@@ -25,6 +25,7 @@ namespace AuthTest2.Controllers
     {
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
+        private Identity.SignInManager _signInManager;
 
         public AccountController()
         {
@@ -32,7 +33,7 @@ namespace AuthTest2.Controllers
 
         public AccountController(ApplicationUserManager userManager,
             ISecureDataFormat<AuthenticationTicket> accessTokenFormat,
-            SignInManager<ApplicationUser, string> signInManager)
+            Identity.SignInManager signInManager)
         {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             AccessTokenFormat = accessTokenFormat ?? throw new ArgumentNullException(nameof(accessTokenFormat));
@@ -53,7 +54,17 @@ namespace AuthTest2.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
-        public SignInManager<ApplicationUser, string> SignInManager { get; set; }
+        public Identity.SignInManager SignInManager
+        {
+            get
+            {
+                return _signInManager ?? Request.GetOwinContext().GetUserManager<Identity.SignInManager>();
+            }
+            private set
+            {
+                _signInManager = value;
+            }
+        }
 
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
@@ -85,6 +96,7 @@ namespace AuthTest2.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    // тут формирование и возврат токена
                     return Ok();
                 case SignInStatus.LockedOut:
                     return Unauthorized();
@@ -360,7 +372,7 @@ namespace AuthTest2.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var user = new ApplicationUser() { UserName = model.Login };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
 

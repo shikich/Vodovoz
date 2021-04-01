@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using QS.DomainModel.UoW;
 using NHibernate.AspNet.Identity;
+using System.Threading.Tasks;
 
 namespace AuthTest2.Identity
 {
@@ -13,5 +14,10 @@ namespace AuthTest2.Identity
         public UserStore(ISession context) : base(context)
         {
         }
+
+        //public override Task<TUser> FindByNameAsync(string userName)
+        //{
+        //    return base.FindByNameAsync(userName);
+        //}
     }
 }

@@ -41,10 +41,10 @@ namespace AuthTest2.App_Start
             OrmConfig.ConfigureOrm(
                 db_config,
                 new System.Reflection.Assembly[] {
-                    System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-                    System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-                    System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
+                    System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+                    System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+                    System.Reflection.Assembly.GetAssembly(typeof(Bank)),
+                    System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
                 },
                 (cnf) =>
                 {
