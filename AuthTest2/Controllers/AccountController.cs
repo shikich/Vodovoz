@@ -31,10 +31,12 @@ namespace AuthTest2.Controllers
         }
 
         public AccountController(ApplicationUserManager userManager,
-            ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
+            ISecureDataFormat<AuthenticationTicket> accessTokenFormat,
+            SignInManager<ApplicationUser, string> signInManager)
         {
-            UserManager = userManager;
-            AccessTokenFormat = accessTokenFormat;
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            AccessTokenFormat = accessTokenFormat ?? throw new ArgumentNullException(nameof(accessTokenFormat));
+            SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         }
 
         public ApplicationUserManager UserManager
@@ -51,6 +53,8 @@ namespace AuthTest2.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
+        public SignInManager<ApplicationUser, string> SignInManager { get; set; }
+
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
         [Route("UserInfo")]
@@ -64,6 +68,34 @@ namespace AuthTest2.Controllers
                 HasRegistered = externalLogin == null,
                 LoginProvider = externalLogin != null ? externalLogin.LoginProvider : null
             };
+        }
+
+        // POST api/Account/Login
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("Login")]
+        public async Task<IHttpActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Unauthorized();
+            }
+
+            var result = await SignInManager.PasswordSignInAsync(model.Login, model.Password, model.RememberMe, shouldLockout: false);
+            switch (result)
+            {
+                case SignInStatus.Success:
+                    return Ok();
+                case SignInStatus.LockedOut:
+                    return Unauthorized();
+                case SignInStatus.RequiresVerification:
+                    return BadRequest(); // not supported
+                case SignInStatus.Failure:
+                    return Unauthorized();
+                default:
+                    ModelState.AddModelError("", "Invalid login attempt.");
+                    return Unauthorized();
+            }
         }
 
         // POST api/Account/Logout
@@ -490,5 +522,12 @@ namespace AuthTest2.Controllers
         }
 
         #endregion
+    }
+
+    public class LoginViewModel
+    {
+        public string Login { get; set; }
+        public string Password { get; set; }
+        public bool RememberMe { get; set; }
     }
 }
