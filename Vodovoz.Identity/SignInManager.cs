@@ -18,9 +18,11 @@ namespace Vodovoz.Identity
 
         public override async Task<SignInStatus> PasswordSignInAsync(string userName, string password, bool isPersistent, bool shouldLockout)
         {
+            IdentityUser user;
+
             try
             {
-                var user = await UserManager.FindByNameAsync(userName);
+                user = await UserManager.FindByNameAsync(userName);
 
                 if (user != null)
                 {

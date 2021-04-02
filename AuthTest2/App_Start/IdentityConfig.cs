@@ -24,7 +24,7 @@ namespace AuthTest2
             manager.UserValidator = new UserValidator(manager)
             {
                 AllowOnlyAlphanumericUserNames = false,
-                RequireUniqueEmail = true
+                RequireUniqueEmail = false
             };
             // Configure validation logic for passwords
             manager.PasswordValidator = new PasswordValidator

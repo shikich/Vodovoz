@@ -12,6 +12,7 @@ namespace AuthTest2.Mapping
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 
             Map(x => x.UserName).Column("user_name");
+            Map(x => x.PasswordHash).Column("password_hash");
 
             HasMany(x => x.Claims).Cascade.All().Inverse().KeyColumn("user_id");
             HasMany(x => x.Logins).Cascade.All().Inverse().KeyColumn("user_id");
