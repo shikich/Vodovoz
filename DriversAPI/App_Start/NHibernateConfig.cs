@@ -10,6 +10,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Employees;
 using MySql.Data.MySqlClient;
+using FluentNHibernate.Cfg;
+using DriversAPI.Models;
+using Microsoft.AspNet.Identity;
+using NHibernate.AspNet.Identity;
+using NHibernate.AspNet.Identity.Helpers;
 
 namespace AuthTest.App_Start
 {
@@ -37,6 +42,10 @@ namespace AuthTest.App_Start
 				.AdoNetBatchSize(100)
 				.Driver<LoggedMySqlClientDriver>();
 
+			var myEntities = new[] {
+				typeof(ApplicationUser)
+			};
+
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
 				db_config,
@@ -48,11 +57,13 @@ namespace AuthTest.App_Start
 				},
 				(cnf) => {
 					cnf.DataBaseIntegration(
-					dbi => {
-						dbi.BatchSize = 100;
-						dbi.Batcher<MySqlClientBatchingBatcherFactory>();
-					}
-				);
+						dbi =>
+						{
+							dbi.BatchSize = 100;
+							dbi.Batcher<MySqlClientBatchingBatcherFactory>();
+						}
+					);
+					cnf.AddDeserializedMapping(MappingHelper.GetIdentityMappings(myEntities), null);
 				}
 			);
 
