@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Identity
 {
-    public class UserRole : IdentityUserRole<int>
+    public class UserRole : IdentityRole<int>
     {
     }
 }

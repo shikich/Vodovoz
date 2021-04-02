@@ -145,10 +145,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IdentityRole.cs" />
     <Compile Include="IdentityUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SignInManager.cs" />
+    <Compile Include="UserClaim.cs" />
     <Compile Include="UserLogin.cs" />
     <Compile Include="UserManager.cs" />
     <Compile Include="UserRole.cs" />

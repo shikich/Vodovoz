@@ -35,7 +35,6 @@ namespace Vodovoz.Identity
                 return SignInStatus.Failure;
             }
 
-
             return SignInStatus.Failure;
         }
 

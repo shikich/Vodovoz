@@ -2,10 +2,6 @@
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Vodovoz.Identity
@@ -17,7 +13,7 @@ namespace Vodovoz.Identity
             UoW = unitOfWork;
         }
 
-        public UserStore(ISession context)// : base(context)
+        public UserStore(ISession context) //: base(context)
         {
         }
 

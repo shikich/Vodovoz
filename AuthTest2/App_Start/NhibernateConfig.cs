@@ -11,6 +11,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Employees;
 using MySql.Data.MySqlClient;
 using AuthTest2.Models;
+using Vodovoz.Identity;
 
 namespace AuthTest2.App_Start
 {
@@ -47,6 +48,7 @@ namespace AuthTest2.App_Start
                     System.Reflection.Assembly.GetAssembly(typeof(Bank)),
                     System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
                     System.Reflection.Assembly.GetAssembly(typeof(ApplicationUser)),
+                    System.Reflection.Assembly.GetAssembly(typeof(UserClaim)),
                 },
                 (cnf) =>
                 {
