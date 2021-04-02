@@ -40,6 +40,6 @@ namespace Vodovoz.EntityRepositories.Logistic
         /// <param name="routeListId">Идентификатор МЛ</param>
         /// <returns></returns>
         bool IsTerminalRequired(IUnitOfWork uow, int routeListId);
-        IList<RouteList> GetRouteLists(int[] routeListsIds);
+        IList<RouteList> GetRouteLists(IUnitOfWork uow, int[] routeListsIds);
     }
 }
