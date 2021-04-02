@@ -42,6 +42,23 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(x => x.Date == date);
 		}
 
+		public IList<RouteList> GetRouteLists(int[] routeListsIds)
+		{
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				RouteList routeListAlias = null;
+				var query = uow.Session.QueryOver(() => routeListAlias)
+					.Where(
+						Restrictions.In(
+							Projections.Property(() => routeListAlias.Id),
+							routeListsIds
+							)
+						);
+
+				return query.List();
+			}
+		}
+
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
 		{
 			GeographicGroup geographicGroupAlias = null;
