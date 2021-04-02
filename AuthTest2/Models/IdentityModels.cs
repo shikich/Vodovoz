@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Vodovoz.Identity;
 
@@ -14,5 +15,11 @@ namespace AuthTest2.Models
             // Add custom user claims here
             return userIdentity;
         }
+        public new virtual IList<ApplicationUserLogin> Logins { get; set; }
+    }
+
+    public class ApplicationUserLogin : UserLogin
+    {
+        public new virtual ApplicationUser User { get; set; }
     }
 }

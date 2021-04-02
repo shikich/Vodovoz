@@ -13,7 +13,6 @@ namespace Vodovoz.Identity
         public virtual string PasswordHash { get; set; }
         public virtual IList<UserLogin> Logins { get; set; }
         public virtual IList<UserRole> Roles { get; set; }
-
         public virtual IList<UserClaim> Claims { get; set; }
     }
 

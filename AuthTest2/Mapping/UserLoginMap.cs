@@ -1,13 +1,9 @@
-﻿using FluentNHibernate.Mapping;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Vodovoz.Identity;
+﻿using AuthTest2.Models;
+using FluentNHibernate.Mapping;
 
 namespace AuthTest2.Mapping
 {
-    public class UserLoginMap : ClassMap<UserLogin>
+    public class UserLoginMap : ClassMap<ApplicationUserLogin>
     {
         public UserLoginMap()
         {

@@ -18,8 +18,6 @@ namespace AuthTest2.Mapping
 
             Map(x => x.ClaimType).Column("claim_type");
             Map(x => x.ClaimValue).Column("claim_value");
-
-            References(x => x.User).Column("user_id");
         }
     }
 }
