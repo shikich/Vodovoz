@@ -20,6 +20,7 @@ namespace DriversAPI.Controllers
 
         // GET: RouteListsDetails 
         [Authorize]
+        [HttpPost]
         public IEnumerable<APIRouteList> Get([FromBody] int[] routeListsIds)
         {
             return aPIRouteListData.Get(routeListsIds);
