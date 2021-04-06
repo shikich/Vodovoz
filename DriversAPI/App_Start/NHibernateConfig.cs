@@ -1,12 +1,15 @@
 ﻿using DriversAPI.Models;
+using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using NHibernate.AdoNet;
 using NHibernate.AspNet.Identity.Helpers;
+using NLog;
 using QS.Banks.Domain;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QSOrmProject;
 using QSProjectsLib;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
@@ -20,17 +23,44 @@ namespace DriversAPI
     /// </summary>
     public class NhibernateConfig
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly string configFile = "/etc/vodovoz-driver-api.conf";
+
         public static void CreateBaseConfig()
         {
+            string mysqlServerHostName;
+            uint mysqlServerPort;
+            string mysqlUser;
+            string mysqlPassword;
+            string mysqlDatabase;
 
+            try
+            {
+                var builder = new ConfigurationBuilder()
+                    .AddIniFile(configFile, optional: false);
+
+                var configuration = builder.Build();
+
+                var mysqlSection = configuration.GetSection("Mysql");
+                mysqlServerHostName = mysqlSection["host_name"];
+                mysqlServerPort = uint.Parse(mysqlSection["port"]);
+                mysqlUser = mysqlSection["user"];
+                mysqlPassword = mysqlSection["password"];
+                mysqlDatabase = mysqlSection["database"];
+            }
+            catch (Exception ex)
+            {
+                logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
+                return;
+            }
 
             var mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder();
 
-            mySqlConnectionStringBuilder.Server = "localhost";
-            mySqlConnectionStringBuilder.Port = 3306;
-            mySqlConnectionStringBuilder.Database = "vodovoz_dev_local";
-            mySqlConnectionStringBuilder.UserID = "root";
-            mySqlConnectionStringBuilder.Password = "P@ssw0rd";
+            mySqlConnectionStringBuilder.Server = mysqlServerHostName;
+            mySqlConnectionStringBuilder.Port = mysqlServerPort;
+            mySqlConnectionStringBuilder.Database = mysqlDatabase;
+            mySqlConnectionStringBuilder.UserID = mysqlUser;
+            mySqlConnectionStringBuilder.Password = mysqlPassword;
             mySqlConnectionStringBuilder.SslMode = MySqlSslMode.None;
 
             QSMain.ConnectionString = mySqlConnectionStringBuilder.GetConnectionString(true);
