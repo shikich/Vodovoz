@@ -12,7 +12,7 @@ using WebAPI.Library.Models;
 
 namespace WebAPI.Library.DataAccess
 {
-    public class APIRouteListData
+    public class APIRouteListData : IDisposable
     {
         private readonly IRouteListRepository routeListRepository;
         private readonly IOrderRepository orderRepository;
@@ -125,6 +125,11 @@ namespace WebAPI.Library.DataAccess
                 Floor = deliveryPoint.Floor,
                 Apartment = deliveryPoint.Room
             };
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }

@@ -5,9 +5,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OAuth;
-using NHibernate;
 using Owin;
-using QS.DomainModel.UoW;
 using System;
 
 namespace DriversAPI
@@ -21,14 +19,6 @@ namespace DriversAPI
         // Для дополнительной информации о конфигурации аутентификации посетите https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
-            // Конфигурация подключения к БД, менеджера пользователей и менеджера аутентификации
-            // для использования одного экземпляра на запрос
-            NhibernateConfig.CreateBaseConfig();
-            app.CreatePerOwinContext<IUnitOfWork>(() => UnitOfWorkFactory.CreateWithoutRoot());
-            app.CreatePerOwinContext<ISession>((p,c) => c.Get<IUnitOfWork>().Session);
-            app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
-            app.CreatePerOwinContext<ApplicationSignInManager>(ApplicationSignInManager.Create);
-
             // Позволяет приложения использовать cookie (печеньки) для хранения информации о вошедшем пользователе
             // и использовать cookie для временного хранения информации о пользователе вошедшем через внешние сервисы аутентификации
             // Настройка cookie для аутентификации
