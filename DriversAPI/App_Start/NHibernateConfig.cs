@@ -13,81 +13,82 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 
-namespace AuthTest.App_Start
+namespace DriversAPI
 {
-	/// <summary>
-	/// Настройка Nhibernate
-	/// </summary>
+    /// <summary>
+    /// Настройка Nhibernate
+    /// </summary>
     public class NhibernateConfig
-	{
-		public static void CreateBaseConfig()
-		{
+    {
+        public static void CreateBaseConfig()
+        {
 
 
-			var mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder();
+            var mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder();
 
-			mySqlConnectionStringBuilder.Server = "localhost";
-			mySqlConnectionStringBuilder.Port = 3306;
-			mySqlConnectionStringBuilder.Database = "vodovoz_dev_local";
-			mySqlConnectionStringBuilder.UserID = "root";
-			mySqlConnectionStringBuilder.Password = "P@ssw0rd";
-			mySqlConnectionStringBuilder.SslMode = MySqlSslMode.None;
+            mySqlConnectionStringBuilder.Server = "localhost";
+            mySqlConnectionStringBuilder.Port = 3306;
+            mySqlConnectionStringBuilder.Database = "vodovoz_dev_local";
+            mySqlConnectionStringBuilder.UserID = "root";
+            mySqlConnectionStringBuilder.Password = "P@ssw0rd";
+            mySqlConnectionStringBuilder.SslMode = MySqlSslMode.None;
 
-			QSMain.ConnectionString = mySqlConnectionStringBuilder.GetConnectionString(true);
+            QSMain.ConnectionString = mySqlConnectionStringBuilder.GetConnectionString(true);
 
-			//Увеличиваем таймаут
-			QSMain.ConnectionString += ";ConnectionTimeout=120";
+            //Увеличиваем таймаут
+            QSMain.ConnectionString += ";ConnectionTimeout=120";
 
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(QSMain.ConnectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>();
+            var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+                .Dialect<MySQL57SpatialExtendedDialect>()
+                .ConnectionString(QSMain.ConnectionString)
+                .AdoNetBatchSize(100)
+                .Driver<LoggedMySqlClientDriver>();
 
-			var myEntities = new[] {
-				typeof(ApplicationUser)
-			};
+            var myEntities = new[] {
+                typeof(ApplicationUser)
+            };
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new System.Reflection.Assembly[] {
-					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
-				},
-				(cnf) => {
-					cnf.DataBaseIntegration(
-						dbi =>
-						{
-							dbi.BatchSize = 100;
-							dbi.Batcher<MySqlClientBatchingBatcherFactory>();
-						}
-					);
-					cnf.AddDeserializedMapping(MappingHelper.GetIdentityMappings(myEntities), null);
-				}
-			);
+            // Настройка ORM
+            OrmConfig.ConfigureOrm(
+                db_config,
+                new System.Reflection.Assembly[] {
+                    System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
+                    System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+                    System.Reflection.Assembly.GetAssembly (typeof(Bank)),
+                    System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
+                },
+                (cnf) =>
+                {
+                    cnf.DataBaseIntegration(
+                        dbi =>
+                        {
+                            dbi.BatchSize = 100;
+                            dbi.Batcher<MySqlClientBatchingBatcherFactory>();
+                        }
+                    );
+                    cnf.AddDeserializedMapping(MappingHelper.GetIdentityMappings(myEntities), null);
+                }
+            );
 
-			HistoryMain.Enable();
+            HistoryMain.Enable();
 
-			//Настройка ParentReference
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, Account>
-			{
-				AddNewChild = (o, a) => o.AddAccount(a)
-			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, Account>
-			{
-				AddNewChild = (c, a) => c.AddAccount(a)
-			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, Account>
-			{
-				AddNewChild = (c, a) => c.AddAccount(a)
-			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account>
-			{
-				AddNewChild = (c, a) => c.AddAccount(a)
-			});
-		}
-	}
+            //Настройка ParentReference
+            ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, Account>
+            {
+                AddNewChild = (o, a) => o.AddAccount(a)
+            });
+            ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, Account>
+            {
+                AddNewChild = (c, a) => c.AddAccount(a)
+            });
+            ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, Account>
+            {
+                AddNewChild = (c, a) => c.AddAccount(a)
+            });
+            ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account>
+            {
+                AddNewChild = (c, a) => c.AddAccount(a)
+            });
+        }
+    }
 }

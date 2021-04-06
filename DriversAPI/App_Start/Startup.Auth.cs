@@ -1,5 +1,4 @@
-﻿using AuthTest.App_Start;
-using DriversAPI.Models;
+﻿using DriversAPI.Models;
 using DriversAPI.Providers;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
