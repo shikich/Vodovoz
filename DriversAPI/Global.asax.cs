@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -11,6 +8,9 @@ namespace DriversAPI
 {
     public class MvcApplication : System.Web.HttpApplication
     {
+        /// <summary>
+        /// Запуск приложения
+        /// </summary>
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -18,6 +18,15 @@ namespace DriversAPI
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+
+        /// <summary>
+        /// Хак для xsp4, удаляет лишний заголовок Content-Length
+        /// При необходимости или нахождении другого решения - удалить
+        /// </summary>
+        protected void Application_EndRequest(object sender, EventArgs e)
+        {
+            Response.Headers.Remove("Content-Length");
         }
     }
 }

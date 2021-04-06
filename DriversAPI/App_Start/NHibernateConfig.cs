@@ -1,27 +1,29 @@
-﻿using QS.Banks.Domain;
+﻿using DriversAPI.Models;
+using MySql.Data.MySqlClient;
+using NHibernate.AdoNet;
+using NHibernate.AspNet.Identity.Helpers;
+using QS.Banks.Domain;
 using QS.HistoryLog;
 using QS.Project.DB;
+using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
-using NHibernate.AdoNet;
-using QSOrmProject;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Employees;
-using MySql.Data.MySqlClient;
-using FluentNHibernate.Cfg;
-using DriversAPI.Models;
-using Microsoft.AspNet.Identity;
-using NHibernate.AspNet.Identity;
-using NHibernate.AspNet.Identity.Helpers;
 
 namespace AuthTest.App_Start
 {
-	public class NhibernateConfig
+	/// <summary>
+	/// Настройка Nhibernate
+	/// </summary>
+    public class NhibernateConfig
 	{
 		public static void CreateBaseConfig()
 		{
+
+
 			var mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder();
 
 			mySqlConnectionStringBuilder.Server = "localhost";
@@ -33,7 +35,7 @@ namespace AuthTest.App_Start
 
 			QSMain.ConnectionString = mySqlConnectionStringBuilder.GetConnectionString(true);
 
-			//Увеличиваем таймоут
+			//Увеличиваем таймаут
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard

@@ -7,6 +7,9 @@ using Swashbuckle.Application;
 
 namespace DriversAPI
 {
+    /// <summary>
+    /// Настройка Swagger для WebAPI
+    /// </summary>
     public class SwaggerConfig
     {
         public static void Register()
