@@ -27,6 +27,11 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -63,7 +68,18 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Зарплатный район").AddTextRenderer(node => node.WageDistrict)
-					.AddColumn("Статус набора районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
+					.AddColumn("Статус версии районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
+					.AddColumn("Код версии").AddNumericRenderer(node => node.DistrictsSetId)
+					.AddColumn("")
+					.Finish()
+			);
+			
+			//DriverCarKindJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DriverCarKindJournalViewModel>(
+				() => FluentColumnsConfig<DriverCarKindNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Сокр. название").AddTextRenderer(node => node.ShortName)
 					.Finish()
 			);
 			
@@ -283,8 +299,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//SubdivisionsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
+            TreeViewColumnsConfigFactory.Register<EmployeePostsJournalViewModel>(
+                () => FluentColumnsConfig<EmployeePostJournalNode>.Create()
+                    .AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Название").AddTextRenderer(node => node.EmployeePostName)
+                    .Finish()
+            );
+
+            //SubdivisionsJournalViewModel
+            TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
 				() => FluentColumnsConfig<FineJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
@@ -484,6 +507,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Модель").AddTextRenderer(x => x.Model).WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 
@@ -736,6 +761,10 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n =>  n.Author )
 						.XAlign(0.5f)
+					.AddColumn("Подотчетное лицо")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.AccountablePerson)
+						.XAlign(0.5f)
 					.AddColumn("Сумма")
 						.HeaderAlignment(0.5f)
 						.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum))
@@ -914,6 +943,84 @@ namespace Vodovoz.JournalColumnsConfigs
                         .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
                     .Finish()
             );
-        }
+
+			//RegisteredRMJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RegisteredRMJournalViewModel>(
+				() => FluentColumnsConfig<RegisteredRMJournalNode>.Create()
+					.AddColumn("Имя пользователя")
+						.AddTextRenderer(node => node.Username)
+					.AddColumn("Домен")
+						.AddTextRenderer(node => node.Domain)
+					.AddColumn("SID пользователя")
+						.AddTextRenderer(node => node.SID)
+					.AddColumn("")
+					.Finish()
+			);
+
+            //DeliveryPointResponsiblePersonTypeJournalViewModel
+            TreeViewColumnsConfigFactory.Register<DeliveryPointResponsiblePersonTypeJournalViewModel>(
+                () => FluentColumnsConfig<DeliveryPointResponsiblePersonTypeJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Имя")
+                        .AddTextRenderer(node => node.Title)
+                    .AddColumn("")
+                    .Finish()
+            );
+
+            //DeliveryPointResponsiblePersonTypeJournalViewModel
+            TreeViewColumnsConfigFactory.Register<SalesChannelJournalViewModel>(
+                () => FluentColumnsConfig<SalesChannelJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Имя")
+                        .AddTextRenderer(node => node.Title)
+                    .AddColumn("")
+                    .Finish()
+            );
+
+			//RetailOrderJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RetailOrderJournalViewModel>(
+				() => FluentColumnsConfig<RetailOrderJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : String.Empty)
+					.AddColumn("Автор").AddTextRenderer(node => node.Author)
+					.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
+						.WrapMode(WrapMode.WordChar)
+						.WrapWidth(100)
+					.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
+					.AddColumn("Кол-во с/о").AddTextRenderer(node => $"{node.SanitisationAmount:N0}")
+					.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
+					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
+					.AddColumn("Статус оплаты").AddTextRenderer(x =>
+						(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
+					.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
+					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
+					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
+					.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : string.Empty)
+					.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
+					.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
+					.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//RetailCounterpartyJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RetailCounterpartyJournalViewModel>(
+				() => FluentColumnsConfig<RetailCounterpartyJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Вн.номер").AddTextRenderer(x => x.InternalId.ToString())
+					.AddColumn("Тег").AddTextRenderer(x => x.Tags, useMarkup: true)
+					.AddColumn("Контрагент").AddTextRenderer(node => node.Name).WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Телефоны").AddTextRenderer(x => x.Phones)
+					.AddColumn("ИНН").AddTextRenderer(x => x.INN)
+					.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
+					.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+		}
 	}
 }

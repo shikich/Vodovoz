@@ -334,7 +334,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
 			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCounterparty = oldOrder.Counterparty,
+				x => x.RestrictCounterparty = oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
 			Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);

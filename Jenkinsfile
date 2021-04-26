@@ -1,4 +1,4 @@
-node {
+node('Vodovoz') {
 	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
 	stage('Gtk.DataBindings') {		
@@ -37,7 +37,7 @@ node {
 	stage('My-FyiReporting') {
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/QSBuild']],
+			branches: [[name: '*/release/1.4']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
@@ -49,7 +49,7 @@ node {
 	stage('QSProjects') {
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/release/1.3.1']],
+			branches: [[name: '*/release/1.4']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]

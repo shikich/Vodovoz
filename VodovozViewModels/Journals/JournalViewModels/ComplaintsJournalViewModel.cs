@@ -17,7 +17,6 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -52,6 +51,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IUserRepository userRepository;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -104,15 +105,31 @@ namespace Vodovoz.Journals.JournalViewModels
 			FilterViewModel.SubdivisionService = subdivisionService;
 			FilterViewModel.EmployeeService = employeeService;
 
-			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
-			if(currentEmployeeSubdivision != null) {
-				if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
-					FilterViewModel.Subdivision = currentEmployeeSubdivision;
-				else
-					FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
-			}
+            var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
+            var defaultSubdivision = currentUserSettings.DefaultSubdivision;
+            var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 
-			UpdateOnChanges(
+            FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
+
+            if (FilterViewModel.SubdivisionService.GetOkkId() == currentEmployeeSubdivision.Id)
+            {
+                FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
+            }
+            else
+            {
+                if (currentUserSettings.UseEmployeeSubdivision)
+                {
+                    FilterViewModel.Subdivision = currentEmployeeSubdivision;
+                }
+                else
+                {
+                    FilterViewModel.Subdivision = defaultSubdivision;
+                }
+
+                FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
+            }
+
+            UpdateOnChanges(
 				typeof(Complaint),
 				typeof(ComplaintGuiltyItem),
 				typeof(ComplaintResult),
@@ -170,20 +187,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				NHibernateUtil.String,
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
-
-			var okkProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1)"),
-				NHibernateUtil.String,
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => discussionAlias.Status), ComplaintStatuses.Checking),
-					Projections.Constant("ОКК"),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
-						NHibernateUtil.String
-					)
-				)
-			);
-
+                
 			string okkSubdivision = uow.GetById<Subdivision>(subdivisionService.GetOkkId()).ShortName ?? "?";
 
 			var workInSubdivisionsProjection = Projections.SqlFunction(
@@ -259,6 +263,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			#region Filter
 
 			if(FilterViewModel != null) {
+				if (FilterViewModel.IsForRetail != null)
+				{
+					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				}
 
 				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
 				if(FilterViewModel.StartDate.HasValue)
@@ -307,7 +315,14 @@ namespace Vodovoz.Journals.JournalViewModels
 				if(FilterViewModel.Employee != null)
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
 
-				if(FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
+				if (FilterViewModel.CurrentUserSubdivision != null 
+					&& FilterViewModel.ComplaintDiscussionStatus != null)
+                {
+					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
+						.And(() => discussionAlias.Status == FilterViewModel.ComplaintDiscussionStatus);
+				}
+
+				if (FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
 					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
 											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
 					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
@@ -386,7 +401,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						nomenclatureSelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -418,7 +434,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeService,
 						subdivisionRepository,
 						commonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -534,8 +551,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть рекламацию",
-					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed,
-					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
+					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && canCloseComplaint,
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && canCloseComplaint,
 					n => {
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;

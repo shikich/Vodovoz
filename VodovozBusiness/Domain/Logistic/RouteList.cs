@@ -24,13 +24,14 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
+using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
@@ -61,6 +62,10 @@ namespace Vodovoz.Domain.Logistic
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(ParametersProvider.Instance));
 
+		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
+		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
+		private readonly ICashRepository cashRepository = new EntityRepositories.Cash.CashRepository(); 
+		
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -524,6 +529,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
 
+		public virtual bool HasMoneyDiscrepancy => Total != cashRepository.CurrentRouteListCash(UoW, Id);
+
 		#endregion
 
 		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
@@ -711,49 +718,54 @@ namespace Vodovoz.Domain.Logistic
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
-			//ТОВАРЫ
-			var orderClosingItems = Addresses.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
-										 .SelectMany(item => item.Order.OrderItems)
-										 .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-										 .Where(item => item.Nomenclature.Category != NomenclatureCategory.bottle)
-										 .ToList();
+			#region Товары
 
-			foreach(var orderItem in orderClosingItems) {
-				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id && x.TransferedTo == null);
-				var discrepancy = new Discrepancy();
-				
-				if (address?.TransferedTo != null && address.TransferedTo.NeedToReload) {
-					discrepancy.ClientRejected = orderItem.Count;
+			foreach(var address in Addresses) {
+				foreach(var orderItem in address.Order.OrderItems) {
+					if(!Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category)
+						|| orderItem.Nomenclature.Category == NomenclatureCategory.bottle) 
+					{
+						continue;
+					}
+					Discrepancy discrepancy = null;
+					
+					if(address.TransferedTo == null) {
+						discrepancy = new Discrepancy {
+							ClientRejected = orderItem.ReturnedCount, 
+							Nomenclature = orderItem.Nomenclature, 
+							Name = orderItem.Nomenclature.Name
+						};
+					} else if(address.TransferedTo.NeedToReload) {
+						discrepancy = new Discrepancy {
+							ClientRejected = orderItem.Count, 
+							Nomenclature = orderItem.Nomenclature, 
+							Name = orderItem.Nomenclature.Name
+						};
+					}
+					if(discrepancy != null && discrepancy.ClientRejected != 0) {
+						AddDiscrepancy(result, discrepancy);
+					}
 				}
-				else {
-					discrepancy.ClientRejected = orderItem.ReturnedCount;
-				}
-
-				discrepancy.Nomenclature = orderItem.Nomenclature;
-				discrepancy.Name = orderItem.Nomenclature.Name;
-				
-				AddDiscrepancy(result, discrepancy);
 			}
-			
+
+			#endregion
+
 			//Терминал для оплаты
-
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var loadDocs = new RouteListRepository().GetCarLoadDocuments(UoW, Id);
-			var isTerminalLoaded =
-				loadDocs.SelectMany(x => x.ObservableItems)
-				        .Any(x => x.Nomenclature.Id == terminalId);
+			var loadedTerminalAmount = carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
+			var unloadedTerminalAmount = carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
-			var driverTerminalBalance =
-				new EmployeeNomenclatureMovementRepository().GetDriverTerminalBalance(UoW, Driver.Id, terminalId);
-
-			if (isTerminalLoaded && driverTerminalBalance >= 0) {
+			if (loadedTerminalAmount > 0) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
 				var discrepancyTerminal = new Discrepancy {
 					Nomenclature = terminal,
-					PickedUpFromClient = driverTerminalBalance,
+					PickedUpFromClient = loadedTerminalAmount,
 					Name = terminal.Name
 				};
+
+				if (unloadedTerminalAmount > 0) discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
+
 				AddDiscrepancy(result, discrepancyTerminal);
 			}
 
@@ -768,7 +780,7 @@ namespace Vodovoz.Domain.Logistic
 					Name = orderEquip.Nomenclature.Name
 				};
 
-				if(orderEquip.Direction == Domain.Orders.Direction.Deliver)
+				if(orderEquip.Direction == Direction.Deliver)
 					discrepancy.ClientRejected = orderEquip.ReturnedCount;
 				else
 					discrepancy.PickedUpFromClient = orderEquip.ActualCount ?? 0;
@@ -1132,7 +1144,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(validationContext.Items.ContainsKey("NewStatus")) {
+            bool cashOrderClose = false;
+            if (validationContext.Items.ContainsKey("cash_order_close"))
+            {
+                cashOrderClose = (bool)validationContext.Items["cash_order_close"];
+            }
+            if (validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
 				switch(newStatus) {
 					case RouteListStatus.New:
@@ -1148,7 +1165,8 @@ namespace Vodovoz.Domain.Logistic
 										address.Order,
 										null,
 										new Dictionary<object, object> {
-											{ "NewStatus", OrderStatus.Closed },
+											{ "NewStatus", OrderStatus.Closed},
+                                            { "cash_order_close", cashOrderClose},
 											{ "AddressStatus", address.Status}
 										}
 									)
@@ -1454,7 +1472,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument()) {
+			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument() && !HasMoneyDiscrepancy) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 			}
 			else {

@@ -131,6 +131,7 @@ using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
 using Vodovoz.NhibernateExtensions;
@@ -151,6 +152,16 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Security;
+using Vodovoz.Views.Security;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.ViewModels.ViewModels.Retail;
+using Vodovoz.Views.Retail;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparties;
@@ -215,6 +226,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
+				.RegisterWidgetForTabViewModel<DriverWorkScheduleSetViewModel, DriverWorkScheduleSetView>()
+				.RegisterWidgetForTabViewModel<DriverDistrictPrioritySetViewModel, DriverDistrictPrioritySetView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				.RegisterWidgetForTabViewModel<IncomingInvoiceViewModel, IncomingInvoiceView>()
@@ -224,6 +237,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentLoaderViewModel, PaymentLoaderView>()
 				.RegisterWidgetForTabViewModel<ManualPaymentMatchingViewModel, ManualPaymentMatchingView>()
 				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
+				.RegisterWidgetForTabViewModel<DriverCarKindViewModel, DriverCarKindView>()
 				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
 				.RegisterWidgetForTabViewModel<DistrictsSetViewModel, DistrictsSetView>()
 				.RegisterWidgetForTabViewModel<AcceptBeforeViewModel, AcceptBeforeView>()
@@ -240,7 +254,10 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
                 .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
-				;
+				.RegisterWidgetForTabViewModel<RegisteredRMViewModel, RegisteredRMView>()
+                .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
+                .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
+                ;
 
             //Регистрация виджетов
             ViewModelWidgetResolver.Instance
@@ -264,6 +281,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
 				.RegisterWidgetForWidgetViewModel<OrderForMovDocJournalFilterViewModel, OrderForMovDocFilterView>()
+				.RegisterWidgetForWidgetViewModel<DriverCarKindJournalFilterViewModel, DriverCarKindJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<BottlesCountAdvancedWageParameterViewModel, BottlesCountAdvancedWageParameterWidget>()
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeAdvancedWageParameterViewModel, DeliveryTimeAdvancedWagePrameterView>()
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
@@ -282,6 +300,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<RegisteredRMJournalFilterViewModel, RegisteredRMJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DeliveryPointResponsiblePersonTypeJournalFilterViewModel, DeliveryPointResponsiblePersonTypeJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<EmployeePostViewModel, EmployeePostView>()
 				.RegisterWidgetForWidgetViewModel<SelfDeliveryOrderInfoViewModel, SelfDeliveryOrderInfoView>()
                 .RegisterWidgetForWidgetViewModel<OrderItemsViewModel, OrderItemsView>()
 				.RegisterWidgetForWidgetViewModel<AddExistingDocumentsViewModel, AddExistingDocumentsView>()
@@ -459,6 +481,12 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
+			OrmMain.AddObjectDescription<SalesChannel>()
+				.DefaultTableView()
+				.SearchColumn("Код", x => x.Id.ToString())
+				.SearchColumn("Название", x => x.Name)
+				.End();
+
 
 			#endregion
 

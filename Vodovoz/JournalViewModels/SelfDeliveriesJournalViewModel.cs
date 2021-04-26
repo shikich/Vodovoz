@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -34,22 +35,34 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, CallTaskWorker callTaskWorker) 
+        private readonly CallTaskWorker callTaskWorker;
+
+        private readonly OrderPaymentSettings orderPaymentSettings;
+
+		private readonly bool userCanChangePayTypeToByCard;
+
+        public SelfDeliveriesJournalViewModel(
+        OrderJournalFilterViewModel filterViewModel, 
+            IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices, 
+            CallTaskWorker callTaskWorker,
+            OrderPaymentSettings orderPaymentSettings) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			
-			TabName = "Журнал самовывозов";
+            this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+            this.orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
+            TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
+			userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
 
-		private readonly CallTaskWorker callTaskWorker;
+		
 
-		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+        protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
 			SelfDeliveryJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -151,7 +164,7 @@ namespace Vodovoz.Representations
 					)).WithAlias(() => resultAlias.BottleAmount)
 					.Select(Projections.Sum(
 						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3 - ?4"),
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(IFNULL(?2, ?1) * ?3 - ?4, 2)"),
 							NHibernateUtil.Decimal,
 							Projections.Property(() => orderItemAlias.Count),
 							Projections.Property(() => orderItemAlias.ActualCount),
@@ -240,9 +253,10 @@ namespace Vodovoz.Representations
 					"Оплата по карте",
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
-						return selectedNodes.Count() == 1 && selectedNodes.First().PaymentTypeEnum == PaymentType.cash;
+                        var selectedNode = selectedNodes.First();
+                        return selectedNodes.Count() == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
-					selectedItems => true,
+					selectedItems => userCanChangePayTypeToByCard,
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode  = selectedNodes.FirstOrDefault();
@@ -250,9 +264,10 @@ namespace Vodovoz.Representations
 							TabParent.AddTab(
 								new PaymentByCardViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
-									UnitOfWorkFactory,
+                                    UnitOfWorkFactory,
 									commonServices,
-									callTaskWorker), 
+                                    callTaskWorker,
+                                    orderPaymentSettings), 
 								this
 							);
 					}

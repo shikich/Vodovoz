@@ -11,14 +11,19 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Logistic;
+using QS.Dialog.GtkUI;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
 	public partial class CarsDlg : QS.Dialog.Gtk.EntityDialogBase<Car>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		private ICarRepository carRepository;
 
 		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
 
@@ -49,6 +54,9 @@ namespace Vodovoz
 
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
+			
+			comboDriverCarKind.ItemsList = UoW.GetAll<DriverCarKind>();
+			comboDriverCarKind.Binding.AddBinding(Entity, e => e.DriverCarKind, w => w.SelectedItem).InitializeFromSource();
 
 			yentryVIN.Binding.AddBinding(Entity, e => e.VIN, w => w.Text).InitializeFromSource();
 			yentryManufactureYear.Binding.AddBinding(Entity, e => e.ManufactureYear, w => w.Text).InitializeFromSource();
@@ -67,13 +75,17 @@ namespace Vodovoz
 			yentryPTSNum.Binding.AddBinding(Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 			
-			var filter = new EmployeeFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
-			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			var employeeFilter = new EmployeeFilterViewModel {
+				RestrictCategory = EmployeeCategory.driver,
+				Status = EmployeeStatus.IsWorking
+			};
+			entryDriver.SetEntityAutocompleteSelectorFactory(
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+					typeof(Employee),
+					() => new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
+				);
+			entryDriver.Changed += OnEntryDriverChanged;
+			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);
 			dataentryFuelType.Binding.AddBinding(Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
@@ -90,7 +102,26 @@ namespace Vodovoz
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
 
-			checkIsRaskat.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Active).InitializeFromSource();
+			carRepository = new CarRepository();
+
+			checkIsRaskat.Active = Entity.IsRaskat;
+
+			Entity.PropertyChanged += (s, e) => {
+				if (e.PropertyName == nameof(Entity.IsRaskat) && checkIsRaskat.Active != Entity.IsRaskat) {
+					checkIsRaskat.Active = Entity.IsRaskat;
+				}
+			};
+
+			checkIsRaskat.Toggled += (s, e) => {
+				if(Entity.Id == 0 || !carRepository.IsInAnyRouteList(UoW, Entity)) {
+					Entity.IsRaskat = checkIsRaskat.Active;
+				}
+				else if(checkIsRaskat.Active != Entity.IsRaskat) {
+					checkIsRaskat.Active = Entity.IsRaskat;
+					MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
+				}
+			};
+
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Car));
@@ -98,7 +129,7 @@ namespace Vodovoz
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				attachmentFiles.UpdateFileList();
 			}
-			OnDataentryreferenceDriverChanged(null, null);
+			OnEntryDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
 
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
@@ -109,7 +140,7 @@ namespace Vodovoz
 			maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
 			maxWeightSpin.Sensitive = canChangeVolumeWeightConsumption;
 
-			checkIsRaskat.Sensitive = CarTypeIsEditable();
+			checkIsRaskat.Sensitive = CarTypeIsEditable() || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_is_raskat");
 			comboTypeOfUse.Sensitive = CarTypeIsEditable();
 
 			minBottlesFromAddressSpin.Sensitive = canChangeBottlesFromAddress;
@@ -129,8 +160,9 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			var valid = new QSValidator<Car>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+            if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel)) {
 				return false;
+			}
 
 			logger.Info("Сохраняем автомобиль...");
 			try {
@@ -146,7 +178,6 @@ namespace Vodovoz
 			}
 			logger.Info("Ok");
 			return true;
-
 		}
 
 		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
@@ -167,7 +198,7 @@ namespace Vodovoz
 				notebook1.CurrentPage = 2;
 		}
 
-		protected void OnDataentryreferenceDriverChanged(object sender, EventArgs e)
+		protected void OnEntryDriverChanged(object sender, EventArgs e)
 		{
 			if(UoWGeneric.Root.Driver != null) {
 				var docs = Entity.Driver.GetMainDocuments();
@@ -193,11 +224,13 @@ namespace Vodovoz
 
 		void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			if(yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList)
-				foreach(var item in e.Subjects) {
-					if(item is GeographicGroup group && !ggList.Any(x => x.Id == group.Id))
+			if (yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList) {
+				foreach (var item in e.Subjects) {
+					if (item is GeographicGroup group && !ggList.Any(x => x.Id == group.Id)) {
 						ggList.Add(group);
+					}
 				}
+			}
 		}
 
 		protected void OnBtnRemoveGeographicGroupClicked(object sender, EventArgs e)
@@ -213,6 +246,7 @@ namespace Vodovoz
 
 			if(Entity.IsCompanyCar) {
 				Entity.Driver = null;
+				Entity.DriverCarKind = null;
 			}
 			if(CarTypeIsEditable())
 				Entity.IsRaskat = false;
@@ -220,7 +254,7 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
-			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyCar;
+			comboDriverCarKind.Sensitive = Entity.TypeOfUse.HasValue && !Entity.IsCompanyCar;
 		}
 	}
 }

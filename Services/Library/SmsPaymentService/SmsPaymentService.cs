@@ -70,7 +70,7 @@ namespace SmsPaymentService
                     var newPayment = new SmsPayment {
                         Amount = order.TotalSum,
                         Order = order,
-                        Recepient = order.Counterparty,
+                        Recepient = order.Client,
                         CreationDate = DateTime.Now,
                         PhoneNumber = phoneNumber
                     };

@@ -24,7 +24,7 @@ namespace Vodovoz.Services
         int WaterKislorodnayaDeluxeId { get; }
         int WaterStroikaId { get; }
         int WaterRuchkiId { get; }
-        decimal WaterPriceIncrement { get; }
+        decimal GetWaterPriceIncrement { get; }
         int PaidDeliveryNomenclatureId { get; }
     }
 }

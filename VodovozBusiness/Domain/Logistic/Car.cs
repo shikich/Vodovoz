@@ -96,14 +96,14 @@ namespace Vodovoz.Domain.Logistic
 		}
 		
 		string docPTSSeries;
-		[Display(Name = "Серия свидетельства о регистрации ТС")]
+		[Display(Name = "Серия паспорта ТС")]
 		public virtual string DocPTSSeries {
 			get { return docPTSSeries; }
 			set { SetField(ref docPTSSeries, value); }
 		}
 
 		string docPTSNumber;
-		[Display(Name = "Номер свидетельства о регистрации ТС")]
+		[Display(Name = "Номер паспорта ТС")]
 		public virtual string DocPTSNumber {
 			get { return docPTSNumber; }
 			set { SetField(ref docPTSNumber, value); }
@@ -232,6 +232,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string FuelCardNumber {
 			get => fuelCardNumber;
 			set => SetField(ref fuelCardNumber, value, () => FuelCardNumber);
+		}
+		
+		private DriverCarKind driverCarKind;
+		[Display(Name = "Вид наёмного автомобиля")]
+		public virtual DriverCarKind DriverCarKind {
+			get => driverCarKind;
+			set => SetField(ref driverCarKind, value);
 		}
 
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();

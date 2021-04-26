@@ -292,16 +292,16 @@ namespace Vodovoz.Domain.Documents
 					Document = this,
 					Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
 				};
-				item.CreateOperation(Warehouse, Order.Counterparty, TimeStamp);
+				item.CreateOperation(Warehouse, Order.Client, TimeStamp);
 				ReturnedItems.Add(item);
 			} else if(item != null && returnedNomenclaureQuantity == 0) {
 				ReturnedItems.Remove(item);
 			} else if(item != null && returnedNomenclaureQuantity != 0) {
 				item.Amount = returnedNomenclaureQuantity;
 				if(item.Id == 0) {
-					item.CreateOperation(Warehouse, Order.Counterparty, TimeStamp);
+					item.CreateOperation(Warehouse, Order.Client, TimeStamp);
 				} else {
-					item.UpdateOperation(Warehouse, Order.Counterparty);
+					item.UpdateOperation(Warehouse, Order.Client);
 				}
 			}
 		}

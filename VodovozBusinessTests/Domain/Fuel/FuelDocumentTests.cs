@@ -594,7 +594,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 				.Release();
 		}
 
-		public static IEnumerable PayedForFuelDecimalValuesForRound {
+		public new static IEnumerable PayedForFuelDecimalValuesForRound {
 			get {
 				yield return new object[] { 80M, 80M };
 				yield return new object[] { 80.111M, 80.11M };
@@ -664,7 +664,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 		#region PayedLitersTests
 
-		public static IEnumerable PayedForFuelDecimalValues {
+		public new static IEnumerable PayedForFuelDecimalValues {
 			get {
 				yield return new object[] { 70M, 30M, 2.33M };
 				yield return new object[] { 75M, 30M, 2.5M };

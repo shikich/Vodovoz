@@ -25,14 +25,12 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.JournalViewModels;
@@ -41,19 +39,22 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListsOnDayViewModel : TabViewModelBase
 	{
-		readonly IRouteListRepository routeListRepository;
-		readonly ISubdivisionRepository subdivisionRepository;
-		readonly IOrderRepository orderRepository;
-		readonly IAtWorkRepository atWorkRepository;
-		readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
-		readonly ICarRepository carRepository;
+		private readonly IRouteListRepository routeListRepository;
+		private readonly ISubdivisionRepository subdivisionRepository;
+		private readonly IOrderRepository orderRepository;
+		private readonly IAtWorkRepository atWorkRepository;
+		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
+		private readonly ICarRepository carRepository;
 		private readonly IUserRepository userRepository;
-		readonly ICommonServices commonServices;
+		private readonly ICommonServices commonServices;
+		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
+		private readonly int closingDocumentDeliveryScheduleId;
 
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
 			ICommonServices commonServices,
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
@@ -61,9 +62,11 @@ namespace Vodovoz.ViewModels.Logistic
 			IAtWorkRepository atWorkRepository,
 			ICarRepository carRepository,
 			INavigationManager navigationManager,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings
 		) : base(commonServices.InteractiveService, navigationManager)
 		{
+			if(defaultDeliveryDayScheduleSettings == null) throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -72,7 +75,10 @@ namespace Vodovoz.ViewModels.Logistic
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-
+			
+			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
+				throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			
 			CreateUoW();
 
 			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
@@ -104,6 +110,11 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
 
+			defaultDeliveryDaySchedule =
+				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
+			NHibernateUtil.Initialize(defaultDeliveryDaySchedule.Shifts);
+			
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
@@ -225,7 +236,7 @@ namespace Vodovoz.ViewModels.Logistic
 								continue;
 							}
 
-							var daySchedule = GetDriverWorkDaySchedule(drv, new BaseParametersProvider());
+							var daySchedule = GetDriverWorkDaySchedule(drv);
 
 							var driver = new AtWorkDriver(
 									drv,
@@ -1076,6 +1087,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void InitializeData()
 		{
+			//Эта штука выключает LazyLoading у всех сущностей в сессии. Наверное с этим надо что-то делать
 			UoW.Session.Clear();
 			if(OrdersOnDay == null) {
 				OrdersOnDay = new List<Order>();
@@ -1091,10 +1103,12 @@ namespace Vodovoz.ViewModels.Logistic
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
 			if(AddressTypes.Any(x => x.Selected)) {
-				var query = QueryOver.Of<Order>().Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
-													.Where(o => o.DeliverySchedule != null)
-													.Where(x => x.DeliveryPoint != null)
-													;
+				var query = QueryOver.Of<Order>()
+					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
+					.Where(o => o.DeliverySchedule != null)
+					.Where(x => x.DeliveryPoint != null)
+					.And(x => x.DeliverySchedule.Id != closingDocumentDeliveryScheduleId);
+				
 				if(!ShowCompleted)
 					query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 				else
@@ -1303,17 +1317,15 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver, IDefaultDeliveryDaySchedule defaultDelDaySchedule)
+		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver)
 		{
-			DeliveryDaySchedule daySchedule;
-			var drvDaySchedule = driver.ObservableWorkDays.SingleOrDefault(x => (int)x.WeekDay == (int)DateForRouting.DayOfWeek);
+			var driverWorkSchedule = driver
+				.ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive)
+				?.ObservableDriverWorkSchedules.SingleOrDefault(x => (int)x.WeekDay == (int)DateForRouting.DayOfWeek);
 
-			if(drvDaySchedule == null)
-				daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
-			else
-				daySchedule = drvDaySchedule.DaySchedule;
-
-			return daySchedule;
+			return driverWorkSchedule == null 
+				? defaultDeliveryDaySchedule
+				: driverWorkSchedule.DaySchedule;
 		}
 	}
 }

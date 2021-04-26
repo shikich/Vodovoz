@@ -36,7 +36,7 @@ namespace Vodovoz.Parameters
 		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => uow.GetById<Nomenclature>(WaterKislorodnayaDeluxeId);
 		public Nomenclature GetWaterStroika(IUnitOfWork uow) => uow.GetById<Nomenclature>(WaterStroikaId);
 		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => uow.GetById<Nomenclature>(WaterRuchkiId);
-		public decimal WaterPriceIncrement => parametersProvider.GetDecimalValue("water_price_increment");
+		public decimal GetWaterPriceIncrement => parametersProvider.GetDecimalValue("water_price_increment");
 
 		#endregion
 

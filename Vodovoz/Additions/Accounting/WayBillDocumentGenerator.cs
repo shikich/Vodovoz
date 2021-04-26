@@ -1,7 +1,6 @@
 using QSReport;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using FluentNHibernate.Conventions;
@@ -58,7 +57,6 @@ namespace Vodovoz.Additions.Accounting
         }
 
         IUnitOfWork uow;
-        RouteList currentRouteList;
 
         #region Events
 
@@ -118,7 +116,14 @@ namespace Vodovoz.Additions.Accounting
         
         public void PrintSelected(SelectablePrintDocument document = null)
         {
-            if(!cancelPrinting) {
+            if (Environment.OSVersion.Platform != PlatformID.MacOSX && Environment.OSVersion.Platform != PlatformID.Unix)
+            {
+                var settingsOperaation = new PrintOperation();
+                settingsOperaation.Run(PrintOperationAction.PrintDialog, null);
+                PrinterSettings = settingsOperaation.PrintSettings;
+            }
+
+            if (!cancelPrinting) {
                 MultiDocPrinter.PrinterSettings = PrinterSettings;
                 if(document == null)
                     MultiDocPrinter.PrintSelectedDocuments();
@@ -188,14 +193,14 @@ namespace Vodovoz.Additions.Accounting
                 {
                     var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
                     var randomTimeInterval = GenerateRandomRouteTime();
-                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, randomTimeInterval, employeeToCarPair.Key, employeeToCarPair.Value );
+                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, day, randomTimeInterval, employeeToCarPair.Key, employeeToCarPair.Value );
                     
                     currentDayOrders = currentDayOrders.Skip(routesCount).ToList();
                 }
             }
         }
 
-        private void GenerateWayBill(IList<Order> orders, int waypointsCount, TimeSpan[] timeInterval, Employee employee, Car car)
+        private void GenerateWayBill(IList<Order> orders, int waypointsCount, DateTime generationDate, TimeSpan[] timeInterval, Employee employee, Car car)
         {
             var wayBillDocument = new WayBillDocument();
 
@@ -278,7 +283,7 @@ namespace Vodovoz.Additions.Accounting
                 return;
             }
 
-            wayBillDocument.Date = DateTime.Now;
+            wayBillDocument.Date = generationDate.Date;
             wayBillDocument.CarModel = car.Model;
             wayBillDocument.CarRegistrationNumber = car.RegistrationNumber;
             wayBillDocument.DriverFIO = employee.FullName;
@@ -292,8 +297,8 @@ namespace Vodovoz.Additions.Accounting
             wayBillDocument.CarPassportSerialNumber = car.DocPTSSeries;
             wayBillDocument.CarPassportNumber = car.DocPTSNumber;
 
-            wayBillDocument.GarageLeavingDateTime = startDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
-            wayBillDocument.GarageReturningDateTime = endDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
+            wayBillDocument.GarageLeavingDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
+            wayBillDocument.GarageReturningDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
             wayBillDocument.CarFuelType = car.FuelType;
             wayBillDocument.CarFuelConsumption = (decimal)car.FuelConsumption;
 
@@ -302,6 +307,11 @@ namespace Vodovoz.Additions.Accounting
 
             wayBillDocument.Organization = orders.First().Contract.Organization;
             wayBillDocument.PrepareTemplate(uow);
+
+            if (wayBillDocument.DocumentTemplate == null)
+            {
+                throw new Exception($"Не обнаружен шаблон Путевого листа для организации: {wayBillDocument.Organization.Name}");
+            }
 
             (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
 

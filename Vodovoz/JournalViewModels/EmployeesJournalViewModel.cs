@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using EmailService;
 using InstantSmsService;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -14,9 +16,7 @@ using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using QS.Services;
 using Vodovoz.Additions;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
@@ -43,8 +43,10 @@ namespace Vodovoz.JournalViewModels
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()));
-				UpdateOnChanges(typeof(Employee));
+					new GtkInteractiveService()),
+				EmailServiceSetting.GetEmailService());
+
+			UpdateOnChanges(typeof(Employee));
 		}
 
 		private readonly IAuthorizationService authorizationService;
@@ -52,23 +54,11 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) => {
 			EmployeeJournalNode resultAlias = null;
 			Employee employeeAlias = null;
-			DriverWorkSchedule drvWorkScheduleAlias = null;
-			DeliveryDaySchedule dlvDayScheduleAlias = null;
-			DeliveryShift shiftAlias = null;
 
 			var query = uow.Session.QueryOver(() => employeeAlias);
 
 			if(FilterViewModel?.Status != null)
 				query.Where(e => e.Status == FilterViewModel.Status);
-
-			if(FilterViewModel?.DrvStartTime != null && FilterViewModel.DrvEndTime != null && FilterViewModel.WeekDay != null) {
-				query.Left.JoinAlias(() => employeeAlias.WorkDays, () => drvWorkScheduleAlias)
-					 .Left.JoinAlias(() => drvWorkScheduleAlias.DaySchedule, () => dlvDayScheduleAlias)
-					 .Left.JoinAlias(() => dlvDayScheduleAlias.Shifts, () => shiftAlias)
-					 .Where(() => (int)drvWorkScheduleAlias.WeekDay == (int)FilterViewModel.WeekDay.Value.DayOfWeek
-								   && shiftAlias.StartTime >= FilterViewModel.DrvStartTime
-								   && shiftAlias.StartTime <= FilterViewModel.DrvEndTime);
-			}
 
 			if(FilterViewModel?.Category != null)
 				query.Where(e => e.Category == FilterViewModel.Category);
@@ -93,6 +83,7 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			query.Where(GetSearchCriterion(
+				() => employeeAlias.Id,
 				() => employeeProjection
 			));
 
@@ -116,13 +107,16 @@ namespace Vodovoz.JournalViewModels
 
 		private void ResetPasswordForEmployee(Employee employee)
 		{
-			var passGenerator = new PasswordGenerator();
-			var result = authorizationService.ResetPassword(employee, passGenerator.GeneratePassword(5));
-			if (result.MessageStatus == SmsMessageStatus.Ok)
+            if (string.IsNullOrWhiteSpace(employee.Email))
+            {
+				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
+				return;
+            }
+			if (authorizationService.ResetPasswordToGenerated(employee))
 			{
-				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
+				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
 			} else {
-				MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
+				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
 			}
 		}
 
@@ -132,7 +126,7 @@ namespace Vodovoz.JournalViewModels
 			
 			var resetPassAction = new JournalAction(
 				"Сбросить пароль",
-				x => true,
+				x => x.FirstOrDefault() != null,
 				x => true, 
 				selectedItems =>
 			{
@@ -141,7 +135,27 @@ namespace Vodovoz.JournalViewModels
 				if (selectedNode != null)
 				{
 					var employee = UoW.GetById<Employee>(selectedNode.Id);
-					ResetPasswordForEmployee(employee);
+
+					if (employee.User == null)
+					{
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"К сотруднику не привязан пользователь!");
+						
+						return;
+					}
+					
+					if (string.IsNullOrEmpty(employee.User.Login))
+					{
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"У пользователя не заполнен логин!");
+						
+						return;
+					}
+
+					if (commonServices.InteractiveService.Question("Вы уверены?"))
+					{
+						ResetPasswordForEmployee(employee);
+					}
 				}
 			});
 			
