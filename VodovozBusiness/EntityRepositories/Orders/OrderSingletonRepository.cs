@@ -849,5 +849,19 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
 		}
+
+		public IList<VodovozOrder> GetOrders(IUnitOfWork uow, int[] ids)
+        {
+			VodovozOrder vodovozOrderAlias = null;
+			var query = uow.Session.QueryOver(() => vodovozOrderAlias)
+				.Where(
+					Restrictions.In(
+						Projections.Property(() => vodovozOrderAlias.Id),
+						ids
+						)
+					);
+
+			return query.List();
+		}
 	}
 }
