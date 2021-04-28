@@ -60,7 +60,7 @@ namespace Vodovoz.Tools.CallTasks
 
 		private void FillFromOrder(IUnitOfWork uow, CallTask callTask, IPersonProvider personProvider, Order order)
 		{
-			callTask.Counterparty = uow.GetById<Counterparty>(order.Counterparty.Id);
+			callTask.Counterparty = uow.GetById<Counterparty>(order.Client.Id);
 			callTask.DeliveryPoint = uow.GetById<DeliveryPoint>(order.DeliveryPoint.Id);
 			callTask.TaskState = CallTaskStatus.Reconciliation;
 			callTask.AssignedEmployee = uow.GetById<Employee>(personProvider.GetDefaultEmployeeForCallTask());

@@ -22,12 +22,12 @@ namespace Vodovoz.Repositories.Client
 		
 		public CounterpartyContract CreateContract(IUnitOfWork uow, Order order, DateTime? issueDate)
 		{
-			var contractType = counterpartyContractRepository.GetContractTypeForPaymentType(order.Counterparty.PersonType, order.PaymentType);
+			var contractType = counterpartyContractRepository.GetContractTypeForPaymentType(order.Client.PersonType, order.PaymentType);
 			var org = organizationProvider.GetOrganization(uow, order);
-			var contractSubNumber = CounterpartyContract.GenerateSubNumber(order.Counterparty);
+			var contractSubNumber = CounterpartyContract.GenerateSubNumber(order.Client);
 			
 			CounterpartyContract contract = new CounterpartyContract {
-				 Counterparty = order.Counterparty,
+				 Counterparty = order.Client,
 				 ContractSubNumber = contractSubNumber,
 				 Organization = org,
 				 IsArchive = false,

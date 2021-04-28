@@ -41,6 +41,9 @@ using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
+using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
@@ -134,7 +137,7 @@ namespace Vodovoz
                 if(nomenclatureSelectorFactory == null) {
                     nomenclatureSelectorFactory =
                         new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-                            ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+                            ServicesConfig.CommonServices, employeeService, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
                             NomenclatureRepository, userRepository);
                 }
                 return nomenclatureSelectorFactory;
@@ -540,7 +543,8 @@ namespace Vodovoz
 
         private void ConfigureTabDocuments()
         {
-            counterpartydocumentsview.Config(UoWGeneric, Entity);
+            var counterpartyDocsVM = new CounterpartyDocumentsViewModel(UoWGeneric, Entity);
+            counterpartydocumentsview.ViewModel = counterpartyDocsVM;
         }
 
         private void ConfigureTabPrices()

@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Orders.Documents.Torg2
 
 		public override PrinterType PrintType => PrinterType.RDL;
 
-		public override int CopiesToPrint => Order.Counterparty.Torg2Count ?? 1;
+		public override int CopiesToPrint => Order.Client.Torg2Count ?? 1;
 
 		Dictionary<object, object> IPrintableRDLDocument.Parameters { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 	}

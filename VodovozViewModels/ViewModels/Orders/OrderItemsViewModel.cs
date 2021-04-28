@@ -231,27 +231,26 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 return;
 
             if(Order.OrderSalesItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-               && nomenclature.Category == NomenclatureCategory.master) {
+                && nomenclature.Category == NomenclatureCategory.master) {
                 interactiveService.ShowMessage(
                     ImportanceLevel.Info, "В не сервисный заказ нельзя добавить сервисную услугу");
                 return;
             }
 
             if(Order.OrderSalesItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-               && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+                && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
                 interactiveService.ShowMessage(
                     ImportanceLevel.Info, "В сервисный заказ нельзя добавить не сервисную услугу");
                 return;
             }
             
-            if(nomenclature.ProductGroup != null)
-                if(nomenclature.ProductGroup.IsOnlineStore && !ServicesConfig.CommonServices.CurrentPermissionService
-                    .ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
-                    interactiveService.ShowMessage(
-                        ImportanceLevel.Warning,
-                        "У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
-                    return;
-                }
+            if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
+                .ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
+                interactiveService.ShowMessage(
+                    ImportanceLevel.Info,
+                    "У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
+                return;
+            }
 			
             AddNomenclature(nomenclature, count, discount, false, discountReason);
         }

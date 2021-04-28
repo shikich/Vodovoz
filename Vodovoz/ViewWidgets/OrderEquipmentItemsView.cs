@@ -335,7 +335,7 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonAddEquipmentToClientClicked(object sender, EventArgs e)
 		{
-			if(Order.Counterparty == null) {
+			if(Order.Client == null) {
 				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
@@ -371,7 +371,7 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
 		{
-			if(Order.Counterparty == null) {
+			if(Order.Client == null) {
 				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}

@@ -65,7 +65,7 @@ namespace Vodovoz.Domain.Orders
 			if(order == null){
 				return;
 			}
-			IList<NomenclatureFixedPrice> fixedPrices = order.Counterparty.NomenclatureFixedPrices;
+			IList<NomenclatureFixedPrice> fixedPrices = order.Client.NomenclatureFixedPrices;
 			if(order.DeliveryPoint != null){
 				fixedPrices = order.DeliveryPoint.NomenclatureFixedPrices;
 			}
@@ -99,7 +99,7 @@ namespace Vodovoz.Domain.Orders
 			//Долг клиента
 			var counterpartyDebtQuery = order.UoW.Session.QueryOver<BottlesMovementOperation>(() => bottlesMovementAlias)
 				.Where(() => bottlesMovementAlias.DeliveryPoint == null)
-				.Where(() => bottlesMovementAlias.Counterparty.Id == order.Counterparty.Id)
+				.Where(() => bottlesMovementAlias.Counterparty.Id == order.Client.Id)
 				.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
@@ -110,14 +110,14 @@ namespace Vodovoz.Domain.Orders
 				return false;
 
 			//Долг по точкам доставки
-			foreach(var deliveryPoint in order.Counterparty.DeliveryPoints) {
+			foreach(var deliveryPoint in order.Client.DeliveryPoints) {
 				if(bottlesRepository.GetBottlesAtDeliveryPoint(order.UoW, deliveryPoint) != 0)
 					return false;
 			}
 
 			//Возврат бутылей и(ничего или возврат залога или неустойка)
 			var orders1 = order.UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.Counterparty.Id == order.Counterparty.Id)
+				.Where(() => orderAlias.Client.Id == order.Client.Id)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
 				.Where(() => orderAlias.BottlesReturn != 0)
 				.List<Order>();

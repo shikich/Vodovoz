@@ -231,9 +231,9 @@ namespace VodovozBusinessTests.Validators.Orders {
         {
             // arrange
             VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
-            ProductGroup productGroup = new ProductGroup {IsOnlineStore = true, Id = 5};
+            OnlineStore onlineStoreMock = Substitute.For<OnlineStore>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
-            nomenclatureMock.ProductGroup.Returns(productGroup);
+            nomenclatureMock.OnlineStore.Returns(onlineStoreMock);
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Discount.Returns(25m);
             orderItemMock.IsDiscountInMoney.Returns(true);
@@ -642,9 +642,9 @@ namespace VodovozBusinessTests.Validators.Orders {
             // arrange
             VisitingMasterOrder visitingMasterOrderMock = Substitute.For<VisitingMasterOrder>();
             visitingMasterOrderMock.EShopOrder = null;
-            ProductGroup productGroup = new ProductGroup {IsOnlineStore = true, Id = 5};
+            OnlineStore onlineStoreMock = Substitute.For<OnlineStore>();
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
-            nomenclatureMock.ProductGroup.Returns(productGroup);
+            nomenclatureMock.OnlineStore.Returns(onlineStoreMock);
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Nomenclature.Returns(nomenclatureMock);
 

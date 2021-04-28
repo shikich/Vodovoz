@@ -19,12 +19,13 @@ using QS.Project.Services;
 using QS.Project.Journal;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.JournalSelector;
 using Vodovoz.Domain.Client;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -198,6 +199,7 @@ namespace Vodovoz
 				var nomenclatureAutoCompleteSelectorFactory =
 					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 						ServicesConfig.CommonServices,
+						employeeService,
 						nomenclatureFilter,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
@@ -299,6 +301,7 @@ namespace Vodovoz
 			var nomenclatureAutoCompleteSelectorFactory = 
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices,
+					employeeService,
 					filter,
 					counterpartySelectorFactory,
 					nomenclatureRepository,

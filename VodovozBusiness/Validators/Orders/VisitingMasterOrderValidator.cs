@@ -36,14 +36,14 @@ namespace Vodovoz.Validators.Orders {
                 yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
                     new[] { nameof(order.OrderNumberFromOnlineStore) });
             
-            if(!order.EShopOrder.HasValue
-               && order.ObservableOrderItems
-                       .Where(x => x.Nomenclature.ProductGroup != null)
-                       .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
-                       .Any(x => x.Id == nomenclatureParametersProvider.RootProductGroupForOnlineStoreNomenclatures))
+            if (order.ObservableOrderItems.Any(oi => !string.IsNullOrWhiteSpace(oi.Nomenclature.OnlineStoreExternalId))
+                && order.EShopOrder == null)
+            {
                 yield return new ValidationResult(
-                    "При добавлении в заказ номенклатур с группой товаров интернет-магазина необходимо указать номер заказа интернет-магазина.",
-                    new[] { nameof(order.EShopOrder) });
+                    "В заказе есть товары ИМ, но не указан номер заказа ИМ",
+                    new[] { nameof(order.EShopOrder) }
+                );
+            }
             
             if(order.PaymentType == PaymentType.ByCard && order.PaymentByCardFrom == null)
                 yield return new ValidationResult(

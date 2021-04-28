@@ -508,7 +508,7 @@ namespace Vodovoz.Domain.Orders
 					OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 					Amount = ActualCount.Value,//не могу представить ситуацию с null - пусть будет exception если что
 					Equipment = Equipment,
-					IncomingCounterparty = Order.Counterparty,
+					IncomingCounterparty = Order.Client,
 					IncomingDeliveryPoint = Order.DeliveryPoint,
 				};
 			}

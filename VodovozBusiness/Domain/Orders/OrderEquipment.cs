@@ -196,12 +196,12 @@ namespace Vodovoz.Domain.Orders
 			CounterpartyMovementOperation.Nomenclature = nomenclature;
 			CounterpartyMovementOperation.ForRent = Reason != Reason.Sale;
 			if(Direction == Direction.Deliver) {
-				CounterpartyMovementOperation.IncomingCounterparty = Order.Counterparty;
+				CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
 				CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
 				CounterpartyMovementOperation.WriteoffCounterparty = null;
 				CounterpartyMovementOperation.WriteoffDeliveryPoint = null;
 			} else {
-				CounterpartyMovementOperation.WriteoffCounterparty = Order.Counterparty;
+				CounterpartyMovementOperation.WriteoffCounterparty = Order.Client;
 				CounterpartyMovementOperation.WriteoffDeliveryPoint = Order.DeliveryPoint;
 				CounterpartyMovementOperation.IncomingCounterparty = null;
 				CounterpartyMovementOperation.IncomingDeliveryPoint = null;

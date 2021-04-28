@@ -639,10 +639,10 @@ namespace VodovozBusinessTests.Validators.Orders {
         {
             // arrange
             ClosingDocOrder closingDocOrderMock = Substitute.For<ClosingDocOrder>();
+            OnlineStore onlineStoreMock = Substitute.For<OnlineStore>();
             closingDocOrderMock.EShopOrder = null;
-            ProductGroup productGroup = new ProductGroup {IsOnlineStore = true, Id = 5};
             Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
-            nomenclatureMock.ProductGroup.Returns(productGroup);
+            nomenclatureMock.OnlineStore.Returns(onlineStoreMock);
             OrderItem orderItemMock = Substitute.For<OrderItem>();
             orderItemMock.Nomenclature.Returns(nomenclatureMock);
 

@@ -63,7 +63,7 @@ namespace Vodovoz.Domain {
             if (order.DeliveryPoint != null)
                 return ContainsFixedPrice(order.DeliveryPoint, nomenclature);
 
-            return ContainsFixedPrice(order.Counterparty, nomenclature);
+            return ContainsFixedPrice(order.Client, nomenclature);
         }
 
         public bool TryGetFixedPrice(Order order, Nomenclature nomenclature, out decimal fixedPrice) 
@@ -82,7 +82,7 @@ namespace Vodovoz.Domain {
             }
             else {
                 nomenclatureFixedPrice = 
-                    order.Counterparty.ObservableNomenclatureFixedPrices.SingleOrDefault(x =>
+                    order.Client.ObservableNomenclatureFixedPrices.SingleOrDefault(x =>
                         x.Nomenclature.Id == nomenclature.Id);
                 
                 if (nomenclatureFixedPrice != null) {

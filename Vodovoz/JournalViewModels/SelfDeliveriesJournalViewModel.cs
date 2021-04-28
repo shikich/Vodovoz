@@ -102,7 +102,7 @@ namespace Vodovoz.Representations
 				query.WhereRestrictionOn(o => o.PaymentType).IsIn(FilterViewModel.AllowPaymentTypes);
 
 			if(FilterViewModel.RestrictCounterparty != null)
-				query.Where(o => o.Counterparty == FilterViewModel.RestrictCounterparty);
+				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 
 			if(FilterViewModel.RestrictDeliveryPoint != null)
 				query.Where(o => o.DeliveryPoint == FilterViewModel.RestrictDeliveryPoint);
@@ -128,7 +128,7 @@ namespace Vodovoz.Representations
 
 			query
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(o => o.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)

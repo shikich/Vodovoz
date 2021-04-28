@@ -171,7 +171,7 @@ namespace Vodovoz.ExportTo1c
 				exportInvoiceDocument.Properties.Add(
 					new PropertyNode("Контрагент",
 						Common1cTypes.ReferenceCounterparty,
-						CounterpartyCatalog.CreateReferenceTo(order.Counterparty)
+						CounterpartyCatalog.CreateReferenceTo(order.Client)
 					)
 				);
 				exportInvoiceDocument.Properties.Add(
@@ -238,7 +238,7 @@ namespace Vodovoz.ExportTo1c
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("Контрагент",
 					Common1cTypes.ReferenceCounterparty,
-					CounterpartyCatalog.CreateReferenceTo(order.Counterparty)
+					CounterpartyCatalog.CreateReferenceTo(order.Client)
 				)
 			);
 

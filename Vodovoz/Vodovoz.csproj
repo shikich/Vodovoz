@@ -859,8 +859,6 @@
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureEquipTypeFilter.cs" />
     <Compile Include="Dialogs\AddExistingDocumentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.AddExistingDocumentsDlg.cs" />
-    <Compile Include="JournalViewers\OrderSelectedView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.OrderSelectedView.cs" />
     <Compile Include="JournalViewers\OrdersDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.OrdersDocumentsView.cs" />
     <Compile Include="ViewWidgets\Store\NonSerialEquipmentReceptionView.cs" />

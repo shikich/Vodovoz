@@ -31,7 +31,7 @@ namespace Vodovoz.Domain.Orders.Documents.TransportInvoice
 
 		public override PrinterType PrintType => PrinterType.RDL;
 
-		public override int CopiesToPrint => Order.Counterparty.TTNCount ?? 1;
+		public override int CopiesToPrint => Order.Client.TTNCount ?? 1;
 
 		public TransportInvoiceDocument()
 		{

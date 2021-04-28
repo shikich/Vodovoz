@@ -131,7 +131,7 @@ namespace Vodovoz.Representations
 			#region LastOrder
 
 			var LastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Domain.Orders.Order>(p => p.Id))
@@ -152,7 +152,7 @@ namespace Vodovoz.Representations
 
 			var orderFromAnotherDP = QueryOver.Of(() => orderFromAnotherDPAlias)
 				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
-				.Where(() => orderFromAnotherDPAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
 				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
@@ -166,11 +166,11 @@ namespace Vodovoz.Representations
 				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
 				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
 				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
-				.Where(() => orderCountAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
 				.Where(
 					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
 				.Select(Projections.GroupProperty(
-					Projections.Property<Order>(o => o.Counterparty.Id))
+					Projections.Property<Order>(o => o.Client.Id))
 				)
 				.Where(Restrictions.Gt(Projections.CountDistinct(() => orderCountAlias.Id), 1));
 
@@ -178,13 +178,13 @@ namespace Vodovoz.Representations
 
 			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
 
-			ordersQuery.JoinAlias(c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+			ordersQuery.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			#region Filter
 
 			if(FilterViewModel != null) {
 				if(FilterViewModel.Client != null)
-					ordersQuery = ordersQuery.Where((arg) => arg.Counterparty.Id == FilterViewModel.Client.Id);
+					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
 				if(FilterViewModel.Address != null)
 					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
 				if(FilterViewModel.OPF != null)
@@ -284,18 +284,18 @@ namespace Vodovoz.Representations
 				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
 				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
 				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
-				.Where(() => orderCountAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
 				.Where(
 					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
 				.Select(Projections.GroupProperty(
-					Projections.Property<Order>(o => o.Counterparty.Id))
+					Projections.Property<Order>(o => o.Client.Id))
 				)
 				.Where(Restrictions.Gt(Projections.CountDistinct(() => orderCountAlias.Id), 1));
 
 			#region LastOrder
 
 			var LastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Domain.Orders.Order>(p => p.Id))
@@ -316,7 +316,7 @@ namespace Vodovoz.Representations
 
 			var orderFromAnotherDP = QueryOver.Of(() => orderFromAnotherDPAlias)
 				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
-				.Where(() => orderFromAnotherDPAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
 				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
@@ -324,7 +324,7 @@ namespace Vodovoz.Representations
 						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 	);
 			var ordersCountSubQuery = QueryOver.Of(() => orderCountAlias)
-				.Where(() => orderCountAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
 				.ToRowCountQuery();
 
 			#endregion LastOrder
@@ -335,7 +335,7 @@ namespace Vodovoz.Representations
 
 			if(FilterViewModel != null) {
 				if(FilterViewModel.Client != null)
-					ordersQuery = ordersQuery.Where((arg) => arg.Counterparty.Id == FilterViewModel.Client.Id);
+					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
 				if(FilterViewModel.Address != null)
 					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
 				if(FilterViewModel.OPF != null)
@@ -379,7 +379,7 @@ namespace Vodovoz.Representations
 
 			var queryResult = ordersQuery
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
 				.Select(sumProj).UnderlyingCriteria.SetTimeout(180).UniqueResult<int>();
 			return queryResult;

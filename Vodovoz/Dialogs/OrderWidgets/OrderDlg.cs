@@ -152,8 +152,8 @@ namespace Vodovoz
 				if(nomenclatureSelectorFactory == null) {
 					nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, userRepository);
+							ServicesConfig.CommonServices, employeeService, new NomenclatureFilterViewModel(), 
+							CounterpartySelectorFactory, NomenclatureRepository, userRepository);
 				}
 				return nomenclatureSelectorFactory;
 			}
@@ -1214,9 +1214,9 @@ namespace Vodovoz
 			
             var selectedOrderVM = new OrdersDocumentsViewModel(
 	            UoW,
-				Entity.Counterparty);
+				Entity.Client);
             
-            var counterpartyDocumentsVM = new CounterpartyDocumentsViewModel(UoW, Entity.Counterparty, true);
+            var counterpartyDocumentsVM = new CounterpartyDocumentsViewModel(UoW, Entity.Client, true);
             
             TabParent.OpenTab(
 				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),

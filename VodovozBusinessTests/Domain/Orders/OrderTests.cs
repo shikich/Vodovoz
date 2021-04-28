@@ -136,7 +136,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.Contract = Substitute.For<CounterpartyContract>();
 
 			Counterparty testClient = new Counterparty();
-			testOrder.Counterparty = testClient;
+			testOrder.Client = testClient;
 			testClient.DefaultDocumentType = DefaultDocumentType.torg12;
 			testClient.PaymentMethod = PaymentType.cashless;
 
@@ -177,7 +177,7 @@ namespace VodovozBusinessTests.Domain.Orders
 
 			Order orderUnderTest = new Order {
 				UoW = Substitute.For<IUnitOfWork>(),
-				Counterparty = Substitute.For<Counterparty>(),
+				Client = Substitute.For<Counterparty>(),
 				DeliveryPoint = Substitute.For<DeliveryPoint>(),
 
 				OrderItems = new List<OrderItem> {
@@ -364,7 +364,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var intercativeServiceMock = Substitute.For<IInteractiveService>();
 			Order orderUnderTest = new Order {
 				UoW = Substitute.For<IUnitOfWork>(),
-				Counterparty = Substitute.For<Counterparty>(),
+				Client = Substitute.For<Counterparty>(),
 				DeliveryPoint = Substitute.For<DeliveryPoint>(),
 				InteractiveService = intercativeServiceMock
 			};
@@ -422,7 +422,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 			client.FirstOrder.ReturnsNull();
 
-			Order orderUnderTest = new Order { Counterparty = client };
+			Order orderUnderTest = new Order { Client = client };
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
@@ -461,7 +461,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 			client.FirstOrder.Returns(firstOrder);
 
-			Order orderUnderTest = new Order { Counterparty = client };
+			Order orderUnderTest = new Order { Client = client };
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
@@ -487,7 +487,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 			client.FirstOrder.Returns(firstOrder);
 
-			Order orderUnderTest = new Order { Counterparty = client };
+			Order orderUnderTest = new Order { Client = client };
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
@@ -948,7 +948,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Order order = new Order {
-				Counterparty = null
+				Client = null
 			};
 
 			// act
@@ -965,7 +965,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				SelfDelivery = true
 			};
 
@@ -989,7 +989,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				SelfDelivery = true
 			};
 
@@ -1017,7 +1017,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				SelfDelivery = true
 			};
 
@@ -1045,7 +1045,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				SelfDelivery = true
 			};
 
@@ -1075,7 +1075,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				DeliveryPoint = dp
 			};
 
@@ -1105,7 +1105,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				DeliveryPoint = dp
 			};
 
@@ -1129,7 +1129,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				DeliveryPoint = dp
 			};
 
@@ -1157,7 +1157,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				DeliveryPoint = dp
 			};
 
@@ -1198,7 +1198,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Counterparty = client,
+				Client = client,
 				DeliveryPoint = dp
 			};
 

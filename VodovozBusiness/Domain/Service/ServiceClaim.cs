@@ -333,7 +333,7 @@ namespace Vodovoz.Domain.Service
 		public ServiceClaim (Order order) : this(ServiceClaimType.RegularService)
 		{
 			InitialOrder = order;
-			Counterparty = order.Counterparty;
+			Counterparty = order.Client;
 			DeliveryPoint = order.DeliveryPoint;
 			Payment = order.PaymentType;
 			Status = ServiceClaimStatus.PickUp;

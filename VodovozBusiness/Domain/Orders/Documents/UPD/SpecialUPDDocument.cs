@@ -40,8 +40,8 @@ namespace Vodovoz.Domain.Orders.Documents.UPD
 		public override int CopiesToPrint {
 			get
 			{
-				if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Counterparty.UPDCount.HasValue)
-					return Order.Counterparty.UPDCount.Value;
+				if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Client.UPDCount.HasValue)
+					return Order.Client.UPDCount.Value;
 
 				return copiesToPrint;
 			}

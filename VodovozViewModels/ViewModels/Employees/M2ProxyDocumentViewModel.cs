@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.Employees
 				var equipmentList = Entity.Order.ObservableOrderEquipments.Where(eq => eq.Direction == Direction.PickUp);
 				Entity.Date = order.DeliveryDate ?? DateTime.Now;
 				Entity.ExpirationDate = Entity.Date.AddDays(10);
-				Entity.Supplier = order.Counterparty;
+				Entity.Supplier = order.Client;
 				Entity.Organization = order.Contract.Organization;
 
 				foreach (var item in equipmentList) {

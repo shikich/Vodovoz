@@ -880,14 +880,14 @@ public partial class MainWindow : Window
 		*/
 
 		var order = new SelfDeliveryOrder();
-		var uowFactory = AutofacScope.Resolve<IUnitOfWorkFactory>();
-		var comServices = AutofacScope.Resolve<ICommonServices>();
-		var emplService = AutofacScope.Resolve<IEmployeeService>();
-		var counterpartySelector = AutofacScope.Resolve<ICounterpartyJournalFactory>();
-		var nomenclatureSelector = AutofacScope.Resolve<INomenclatureSelectorFactory>();
-		var nomRepository = AutofacScope.Resolve<INomenclatureRepository>();
-		var usrRepository = AutofacScope.Resolve<IUserRepository>();
-		var nomSelectorFilter = AutofacScope.Resolve<NomenclatureFilterViewModel>();
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var comServices = autofacScope.Resolve<ICommonServices>();
+		var emplService = autofacScope.Resolve<IEmployeeService>();
+		var counterpartySelector = autofacScope.Resolve<ICounterpartyJournalFactory>();
+		var nomenclatureSelector = autofacScope.Resolve<INomenclatureSelectorFactory>();
+		var nomRepository = autofacScope.Resolve<INomenclatureRepository>();
+		var usrRepository = autofacScope.Resolve<IUserRepository>();
+		var nomSelectorFilter = autofacScope.Resolve<NomenclatureFilterViewModel>();
 
 		Parameter[] journalFactoryParams =
 		{
@@ -903,17 +903,17 @@ public partial class MainWindow : Window
 			new TypedParameter(typeof(IUserRepository), usrRepository),
 		};
 
-		var journalFactory = AutofacScope.Resolve<INomenclaturesJournalViewModelFactory>(journalFactoryParams);
+		var journalFactory = autofacScope.Resolve<INomenclaturesJournalViewModelFactory>(journalFactoryParams);
 		
 		Parameter[] parameters =
 		{
 			new TypedParameter(typeof(SelfDeliveryOrder), order),
 			new TypedParameter(typeof(OrderInfoExpandedPanelViewModel),
-				AutofacScope.Resolve<OrderInfoExpandedPanelViewModel>()),
+				autofacScope.Resolve<OrderInfoExpandedPanelViewModel>()),
 			new TypedParameter(typeof(INomenclaturesJournalViewModelFactory), journalFactory)
 		};
 
-		var selfDeliveryOrderInfoViewModel = AutofacScope.Resolve<SelfDeliveryOrderInfoViewModel>(parameters);
+		var selfDeliveryOrderInfoViewModel = autofacScope.Resolve<SelfDeliveryOrderInfoViewModel>(parameters);
 		
 		NavigationManager.OpenViewModel<
 			SelfDeliveryOrderMainViewModel, SelfDeliveryOrder, SelfDeliveryOrderInfoViewModel, ITdiCompatibilityNavigation>(

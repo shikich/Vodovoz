@@ -98,7 +98,7 @@ namespace Android
 			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;
 			RouteListItemStatus = item.Status.GetEnumTitle ();
 			OrderComment = item.Order.Comment;
-			Counterparty = item.Order.Counterparty.FullName;
+			Counterparty = item.Order.Client.FullName;
 			BottlesReturn = item.DriverBottlesReturned == null ? null :item.DriverBottlesReturned.ToString() ;
 
 			DPContact = "Контактные лица не указаны";
@@ -113,7 +113,7 @@ namespace Android
 		    }
 
             CPPhones = new List<string> ();
-			foreach (Phone phone in item.Order.Counterparty.Phones) {
+			foreach (Phone phone in item.Order.Client.Phones) {
 				CPPhones.Add (String.Format("{0}: {1}", phone.PhoneType?.Name, phone.Number));
 			}
 

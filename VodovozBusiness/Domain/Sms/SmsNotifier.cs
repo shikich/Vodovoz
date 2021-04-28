@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Sms
 			if(order == null || order.Id == 0 || order.OrderStatus == OrderStatus.NewOrder || !order.DeliveryDate.HasValue) {
 				return;
 			}
-			if(order.Counterparty.FirstOrder == null || order.Counterparty.FirstOrder.Id != order.Id) {
+			if(order.Client.FirstOrder == null || order.Client.FirstOrder.Id != order.Id) {
 				return;
 			}
 			//проверка даты без времени
@@ -40,7 +40,7 @@ namespace Vodovoz.Domain.Sms
 			//проверка уже существующих ранее уведомлений
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				var existsNotifications = uow.Session.QueryOver<NewClientSmsNotification>()
-					.Where(x => x.Counterparty.Id == order.Counterparty.Id)
+					.Where(x => x.Counterparty.Id == order.Client.Id)
 					.List();
 				if(existsNotifications.Any()) {
 					return;
@@ -68,7 +68,7 @@ namespace Vodovoz.Domain.Sms
 			//создание нового уведомления для отправки
 			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<NewClientSmsNotification>()) {
 				uow.Root.Order = order;
-				uow.Root.Counterparty = order.Counterparty;
+				uow.Root.Counterparty = order.Client;
 				uow.Root.NotifyTime = DateTime.Now;
 				uow.Root.MobilePhone = mobilePhoneNumber;
 				uow.Root.Status = SmsNotificationStatus.New;
@@ -90,7 +90,7 @@ namespace Vodovoz.Domain.Sms
 			if(order.DeliveryPoint != null && !order.DeliveryPoint.Phones.Any()) {
 				phone = order.DeliveryPoint.Phones.FirstOrDefault();
 			} else {
-				phone = order.Counterparty.Phones.FirstOrDefault();
+				phone = order.Client.Phones.FirstOrDefault();
 			}
 			if(phone == null) {
 				return null;

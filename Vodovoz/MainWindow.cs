@@ -1203,8 +1203,8 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionDriveingCallsActivated(object sender, EventArgs e)
     {
         tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.DrivingCallReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.DrivingCallReport())
+            QSReport.ReportViewDlg.GenerateHashName<DrivingCallReport>(),
+            () => new QSReport.ReportViewDlg(new DrivingCallReport())
         );
     }
 
@@ -1971,7 +1971,7 @@ public partial class MainWindow : Gtk.Window
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
             new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+                .CommonServices, VodovozGtkServicesConfig.EmployeeService, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
                 nomenclatureRepository, UserSingletonRepository.GetInstance());
 
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
@@ -2033,7 +2033,7 @@ public partial class MainWindow : Gtk.Window
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
             new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+                .CommonServices, VodovozGtkServicesConfig.EmployeeService, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
                 nomenclatureRepository, UserSingletonRepository.GetInstance());
 
         tdiMain.OpenTab(

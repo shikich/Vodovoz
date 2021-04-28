@@ -25,11 +25,11 @@ namespace Vodovoz.EntityRepositories
 		{
 			if(uow == null) throw new ArgumentNullException(nameof(uow));
 			if(order == null) throw new ArgumentNullException(nameof(order));
-			if(order.Counterparty == null) {
+			if(order.Client == null) {
 				return null;
 			}
 
-			var personType = order.Counterparty.PersonType;
+			var personType = order.Client.PersonType;
 			var paymentType = order.PaymentType;
 			var contractType = GetContractTypeForPaymentType(personType, paymentType);
 			var organization = organizationProvider.GetOrganization(uow, order);
@@ -44,7 +44,7 @@ namespace Vodovoz.EntityRepositories
 				.JoinAlias(co => co.Organization, () => organizationAlias)
 				.Where(
 					co => (
-						   counterpartyAlias.Id == order.Counterparty.Id &&
+						   counterpartyAlias.Id == order.Client.Id &&
 					       !co.IsArchive &&
 					       !co.OnCancellation &&
 					       organizationAlias.Id == organization.Id &&

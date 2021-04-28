@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparties
 		public bool IsEditable { get; set; } = true;
 
 		public CounterpartyContractViewModel(
-			Counterparty counterparty, 
+			Domain.Client.Counterparty counterparty, 
 			ICommonServices commonServices,
 			INavigationManager navigationManager) : base(navigationManager)
 		{
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparties
 		/// Новый договор с заполненной организацией.
 		/// </summary>
 		public CounterpartyContractViewModel(
-			Counterparty counterparty, 
+			Domain.Client.Counterparty counterparty, 
 			Domain.Organizations.Organization organization,
 			ICommonServices commonServices,
 			INavigationManager navigationManager) : this (counterparty, commonServices, navigationManager)
@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparties
 		}
 
 		public CounterpartyContractViewModel(
-			Counterparty counterparty, 
+			Domain.Client.Counterparty counterparty, 
 			PaymentType paymentType, 
 			Domain.Organizations.Organization organization, 
 			DateTime? date,

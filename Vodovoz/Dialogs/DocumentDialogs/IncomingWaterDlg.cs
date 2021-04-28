@@ -9,20 +9,19 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -104,6 +103,7 @@ namespace Vodovoz
 			var nomenclatureAutoCompleteSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices,
+					VodovozGtkServicesConfig.EmployeeService,
 					nomenclatureFilter,
 					counterpartySelectorFactory,
 					nomenclatureRepository,

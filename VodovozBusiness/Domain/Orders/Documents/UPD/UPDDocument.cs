@@ -45,8 +45,8 @@ namespace Vodovoz.Domain.Orders.Documents.UPD
 			get {
 				if (copiesToPrint < 0)
 				{
-					if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Counterparty.UPDCount.HasValue)
-						return Order.Counterparty.UPDCount.Value;
+					if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Client.UPDCount.HasValue)
+						return Order.Client.UPDCount.Value;
 					
 					return Order.DocumentType.HasValue && Order.DocumentType.Value == DefaultDocumentType.torg12 ? 1 : 2;
 				}

@@ -339,7 +339,7 @@ namespace Vodovoz.Domain.Orders
 			StringBuilder info = new StringBuilder("\n").AppendLine(string.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
 			if(oldOrder != null) {
 				info.AppendLine(string.Format("<b>Автор накладной:</b> {0}", oldOrder.Author?.ShortName));
-				info.AppendLine(string.Format("<b>Клиент:</b> {0}", oldOrder.Counterparty.Name));
+				info.AppendLine(string.Format("<b>Клиент:</b> {0}", oldOrder.Client.Name));
 				if(oldOrder.SelfDelivery)
 					info.AppendLine(string.Format("<b>Адрес:</b> {0}", "Самовывоз"));
 				else

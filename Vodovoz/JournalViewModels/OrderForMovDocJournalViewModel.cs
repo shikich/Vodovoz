@@ -74,7 +74,7 @@ namespace Vodovoz.JournalViewModels
 											   );
 
 			query.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				 .JoinAlias(o => o.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,

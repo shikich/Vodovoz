@@ -438,7 +438,7 @@ namespace Vodovoz
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.IncomingCounterparty)
 				.AddDeleteDependence<IncomingInvoice>(item => item.Contractor)
 				.AddDeleteDependence<MoneyMovementOperation>(item => item.Counterparty)
-				.AddDeleteDependence<Order>(item => item.Counterparty)
+				.AddDeleteDependence<Order>(item => item.Client)
 				.AddDeleteDependence<ServiceClaim>(x => x.Counterparty)
 				.AddDeleteDependence<WriteoffDocument>(item => item.Client)
 				.AddDeleteDependence<AccountIncome>(item => item.Counterparty)

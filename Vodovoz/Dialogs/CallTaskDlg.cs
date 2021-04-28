@@ -195,7 +195,7 @@ namespace Vodovoz.Dialogs
 				return;
 
 			OrderDlg orderDlg = new OrderDlg();
-			orderDlg.Entity.Counterparty = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
+			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
 			orderDlg.Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
 

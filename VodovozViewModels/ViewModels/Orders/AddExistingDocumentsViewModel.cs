@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 {
                     Parameter[] parameters = {
                         new TypedParameter(typeof(IUnitOfWork), uow),
-                        new TypedParameter(typeof(Counterparty), orderBase.Counterparty)
+                        new TypedParameter(typeof(Vodovoz.Domain.Client.Counterparty), orderBase.Counterparty)
                     };
                     ordersDocumentsViewModel = AutofacScope.Resolve<BaseOrdersDocumentsViewModel>(parameters);
                     ordersDocumentsViewModel.OrderActivated += OnOrderSelectedViewModelOrderActivated;
@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 {
                     Parameter[] parameters = {
                         new TypedParameter(typeof(IUnitOfWork), uow),
-                        new TypedParameter(typeof(Counterparty), orderBase.Counterparty),
+                        new TypedParameter(typeof(Vodovoz.Domain.Client.Counterparty), orderBase.Counterparty),
                         new TypedParameter(typeof(bool), true)
                     };
                     counterpartyDocumentsViewModel = AutofacScope.Resolve<CounterpartyDocumentsViewModel>(parameters);

@@ -12,7 +12,6 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 

@@ -251,7 +251,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 		#endregion
 
-		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.WaterPriceIncrement;
+		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.GetWaterPriceIncrement;
 
 		public Nomenclature GetPaidDeliveryNomenclature(IUnitOfWork uow) =>
 			uow.GetById<Nomenclature>(nomenclatureParametersProvider.PaidDeliveryNomenclatureId);

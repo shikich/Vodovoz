@@ -70,7 +70,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OrderSource)						.Column("order_source").CustomType<OrderSourceStringType>();
 			Map(x => x.OrderPaymentStatus)				.Column("order_payment_status").CustomType<OrderPaymentStatusStringType>();
 
-			References(x => x.Counterparty)					.Column("client_id");
+			References(x => x.Client)					.Column("client_id");
 			References(x => x.Contract)					.Column("counterparty_contract_id").Cascade.SaveUpdate();
 			References(x => x.Author)					.Column("author_employee_id");
 			References(x => x.AcceptedOrderEmployee)	.Column("accepted_order_employee");

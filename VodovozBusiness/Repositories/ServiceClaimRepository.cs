@@ -27,7 +27,7 @@ namespace Vodovoz.Repositories
 
 			var queryOver = QueryOver.Of<ServiceClaim> (() => serviceClaimAlias)
 				.JoinAlias (s => s.Counterparty, () => counterpartyAlias)
-				.Where (s => counterpartyAlias.Id == order.Counterparty.Id &&
+				.Where (s => counterpartyAlias.Id == order.Client.Id &&
 			                s.Status == ServiceClaimStatus.Ready &&
 			                s.FinalOrder == null &&
 			                s.Payment == order.PaymentType);

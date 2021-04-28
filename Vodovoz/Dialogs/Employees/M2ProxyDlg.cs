@@ -130,7 +130,7 @@ namespace Vodovoz.Dialogs.Employees
 				equipmentList = Entity.Order.ObservableOrderEquipments.Where(eq => eq.Direction == Domain.Orders.Direction.PickUp).ToList<OrderEquipment>();
 				Entity.Date = order.DeliveryDate != null ? order.DeliveryDate.Value : DateTime.Now;
 				Entity.ExpirationDate = Entity.Date.AddDays(10);
-				Entity.Supplier = order.Counterparty;
+				Entity.Supplier = order.Client;
 				Entity.Organization = order.Contract.Organization;
 				yTWEquipment.ItemsDataSource = equipmentList;
 			} else {

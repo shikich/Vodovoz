@@ -76,7 +76,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			VodovozOrder orderAlias = null;
 			var queryResult = UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.Counterparty.Id == counterparty.Id)
+				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
 				.OrderBy(() => orderAlias.Id).Desc
 				.Take(1).List();
@@ -87,7 +87,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			VodovozOrder orderAlias = null;
 			return UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.Counterparty.Id == counterparty.Id)
+				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
 				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed
 					&& orderAlias.OrderStatus != OrderStatus.Canceled
@@ -100,7 +100,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			VodovozOrder orderAlias = null;
 			return UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.Counterparty.Id == counterparty.Id)
+				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				//.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.paid)
 				.List();
 		}
@@ -217,7 +217,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var query = uow.Session.QueryOver<VodovozOrder>()
 						   .Where(o => o.Id != order.Id)
-						   .Where(o => o.Counterparty == counterparty)
+						   .Where(o => o.Client == counterparty)
 						   .Where(o => o.OrderStatus.IsIn(GetValidStatusesToUseActionBottle()))
 						   .OrderBy(o => o.DeliveryDate).Asc
 						   .Take(1)
@@ -328,7 +328,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			VodovozOrder orderAlias = null;
 			var queryResult = UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.Counterparty == client)
+				.Where(() => orderAlias.Client == client)
 				.OrderBy(() => orderAlias.DeliveryDate).Desc;
 			if(count != null)
 				return queryResult.Take(count.Value).List();
@@ -404,7 +404,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			var stockBottleOrder = uow.Session.QueryOver<VodovozOrder>()
 				.Where(x => x.IsBottleStock)
-				.And(x => x.Counterparty.Id == counterparty.Id)
+				.And(x => x.Client.Id == counterparty.Id)
 				.Take(1)
 				.SingleOrDefault();
 
@@ -613,7 +613,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
-				.Left.JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Where(alwaysSendOrdersRestriction)
@@ -651,7 +651,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
-				.Left.JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
@@ -740,7 +740,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			
 			var total = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Left.JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
 				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
 				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
@@ -762,7 +762,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
-				.Left.JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
 				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
 				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)

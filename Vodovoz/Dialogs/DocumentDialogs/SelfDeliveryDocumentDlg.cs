@@ -289,7 +289,7 @@ namespace Vodovoz
 			}
 
 			string text = String.Format("Клиент: {0}\nБутылей на возврат: {1}\nАвтор заказа:{2}",
-							  Entity.Order.Counterparty.Name,
+							  Entity.Order.Client.Name,
 							  Entity.Order.BottlesReturn,
 							  Entity.Order.Author?.ShortName
 						  );

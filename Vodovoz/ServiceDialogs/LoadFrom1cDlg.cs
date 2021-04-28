@@ -776,7 +776,7 @@ namespace Vodovoz
 					Code1c 		  	 	= code1cNode?.InnerText,
 					Comment 	  	 	= commentNode?.InnerText,
 					CommentLogist 		= commentLogistNode?.InnerText,
-					Counterparty 		  	 	= client,
+					Client 		  	 	= client,
 					DeliveryDate  	 	= deliveryDate,
 					DeliverySchedule 	= deliverySchedule,
 					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
@@ -1056,16 +1056,16 @@ namespace Vodovoz
 				progressbar.Adjustment.Value++;
 				QSMain.WaitRedraw ();
 
-				var existCounterparty = ExistCouterpaties.FirstOrDefault(n => n.Code1c == loaded.Counterparty.Code1c);
+				var existCounterparty = ExistCouterpaties.FirstOrDefault(n => n.Code1c == loaded.Client.Code1c);
 				if (existCounterparty != null)
-					loaded.Counterparty = existCounterparty;
+					loaded.Client = existCounterparty;
 
-				if (loaded.Counterparty.Id > 0)
+				if (loaded.Client.Id > 0)
 				{
 					if(!String.IsNullOrEmpty(loaded.Address1cCode))
-						loaded.DeliveryPoint = loaded.Counterparty.DeliveryPoints.FirstOrDefault(x => x.Code1c == loaded.Address1cCode);
+						loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Code1c == loaded.Address1cCode);
 					if(loaded.DeliveryPoint == null)
-						loaded.DeliveryPoint = loaded.Counterparty.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
+						loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
 				}
 
 				if(!String.IsNullOrWhiteSpace(loaded.Address1cCode) && loaded.DeliveryPoint != null && String.IsNullOrWhiteSpace(loaded.DeliveryPoint.Code1c))
@@ -1080,7 +1080,7 @@ namespace Vodovoz
 					{
 //						if (loaded.Address1c.ToLower().Contains("самовывоз"))
 //							continue;
-						var newPoint = DeliveryPoint.Create(loaded.Counterparty);
+						var newPoint = DeliveryPoint.Create(loaded.Client);
 						newPoint.Address1c = loaded.Address1c;
 						newPoint.Code1c = loaded.Address1cCode;
 						uow.Save(newPoint);

@@ -132,7 +132,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.Where(x => x.PaymentType == PaymentType.cashless);
 
 			if(Entity.Client != null)
-				cashlessOrdersQuery.Where(x => x.Counterparty == Entity.Client);
+				cashlessOrdersQuery.Where(x => x.Client == Entity.Client);
 
 			if(StartDate.HasValue && EndDate.HasValue)
 				cashlessOrdersQuery.Where(x => x.CreateDate >= StartDate && x.CreateDate <= EndDate);

@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModel
 			}
 
 			if(Filter.RestrictCounterparty != null) {
-				query.Where(o => o.Counterparty == Filter.RestrictCounterparty);
+				query.Where(o => o.Client == Filter.RestrictCounterparty);
 			}
 
 			if(Filter.RestrictDeliveryPoint != null) {
@@ -142,7 +142,7 @@ namespace Vodovoz.ViewModel
 
 			query.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				 .JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.Counterparty, () => counterpartyAlias)
+				 .JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				 .JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				 .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);

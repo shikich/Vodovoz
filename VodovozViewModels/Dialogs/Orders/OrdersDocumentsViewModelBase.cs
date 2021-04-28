@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             }
 
             var docs = query.JoinAlias(() => orderDocumentAlias.Order, () => orderAlias)
-                .JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
+                .JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
                 .JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
                 .Where(() =>
                           orderDocumentAlias.GetType() == typeof(BillDocument)

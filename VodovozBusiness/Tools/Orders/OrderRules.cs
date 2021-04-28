@@ -201,12 +201,12 @@ namespace Vodovoz.Tools.Orders
 
 		static bool GetConditionForTorg2(OrderStateKey key)
 		{
-			return key.Order.Counterparty.Torg2Count.HasValue;
+			return key.Order.Client.Torg2Count.HasValue;
 		}
 
 		static bool GetConditionForTransportInvoice(OrderStateKey key)
 		{
-			return key.Order.Counterparty.TTNCount.HasValue && key.HasOrderItems;
+			return key.Order.Client.TTNCount.HasValue && key.HasOrderItems;
 		}
 
 		static bool GetConditionForBarterInvoice(OrderStateKey key) =>
@@ -255,7 +255,7 @@ namespace Vodovoz.Tools.Orders
 		
 		static bool ConditionForUPD(OrderStateKey key) => (
 			(GetConditionForBill(key) ||
-				(key.Order.Counterparty.UPDCount.HasValue &&
+				(key.Order.Client.UPDCount.HasValue &&
 					key.Order.PaymentType == PaymentType.BeveragesWorld &&
 					IsOrderWithOrderItemsAndWithoutDeposits(key)))
 			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))

@@ -103,7 +103,7 @@ namespace Vodovoz.Tools.Orders
 		void InitializeFields()
 		{
 			//для документов
-			this.DefaultDocumentType = Order.DocumentType ?? Order.Counterparty.DefaultDocumentType;
+			this.DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
 			this.HasOrderEquipment = Order.ObservableOrderEquipments.Any();
 			
@@ -122,7 +122,7 @@ namespace Vodovoz.Tools.Orders
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
 			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
 			this.PaymentType = Order.PaymentType;
-			this.HaveSpecialFields = Order.Counterparty.UseSpecialDocFields;
+			this.HaveSpecialFields = Order.Client.UseSpecialDocFields;
 			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Domain.Goods.NomenclatureCategory.master);
 			this.IsSelfDelivery = Order.SelfDelivery;
 			this.PayAfterShipment = Order.PayAfterShipment;

@@ -96,7 +96,7 @@ namespace Vodovoz.JournalViewModels
 			}
 
 			if(FilterViewModel.RestrictCounterparty != null) {
-				query.Where(o => o.Counterparty == FilterViewModel.RestrictCounterparty);
+				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
 
 			if(FilterViewModel.RestrictDeliveryPoint != null) {
@@ -161,7 +161,7 @@ namespace Vodovoz.JournalViewModels
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				 .Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
-				 .Left.JoinAlias(o => o.Counterparty, () => counterpartyAlias)
+				 .Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .Left.JoinAlias(o => o.Author, () => authorAlias)
 				 .Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 				 .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);

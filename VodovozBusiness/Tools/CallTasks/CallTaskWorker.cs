@@ -92,7 +92,7 @@ namespace Vodovoz.Tools.CallTasks
 				|| UoW.Session.QueryOver<CallTask>().Where(x => x.DeliveryPoint == order.DeliveryPoint).List().Any()
 				//Есть заказы на другую точку доставки
 				|| !UoW.Session.QueryOver<Order>()
-						.Where(x => x.Counterparty == order.Counterparty)
+						.Where(x => x.Client == order.Client)
 						.Where(x => !x.SelfDelivery)
 						.Where(x => x.DeliveryPoint != order.DeliveryPoint)
 						.List().Any(x => x.Id != order.Id)
@@ -105,7 +105,7 @@ namespace Vodovoz.Tools.CallTasks
 			newTask.AssignedEmployee = UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForCallTask());
 			newTask.TaskState = CallTaskStatus.Task;
 			newTask.DeliveryPoint = order.DeliveryPoint;
-			newTask.Counterparty = order.Counterparty;
+			newTask.Counterparty = order.Client;
 			newTask.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59);
 			newTask.SourceDocumentId = order.Id;
 			newTask.Source = TaskSource.AutoFromOrder;
@@ -116,7 +116,7 @@ namespace Vodovoz.Tools.CallTasks
 		{
 			IEnumerable<CallTask> tasks;
 			if(order.SelfDelivery)
-				tasks = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(order.UoW, order.Counterparty, CallTaskStatus.Call);
+				tasks = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(order.UoW, order.Client, CallTaskStatus.Call);
 			else
 				tasks = callTaskRepository.GetActiveTaskByDeliveryPoint(order.UoW, order.DeliveryPoint, CallTaskStatus.Call);
 			if(tasks?.FirstOrDefault() == null)
@@ -141,7 +141,7 @@ namespace Vodovoz.Tools.CallTasks
 			newTask.AssignedEmployee = tasks?.OrderBy(x => x.EndActivePeriod).LastOrDefault().AssignedEmployee;
 			newTask.TaskState = CallTaskStatus.Call;
 			newTask.DeliveryPoint = order.DeliveryPoint;
-			newTask.Counterparty = order.Counterparty;
+			newTask.Counterparty = order.Client;
 			newTask.EndActivePeriod = dateTime.Value;
 			newTask.SourceDocumentId = order.Id;
 			newTask.Source = TaskSource.AutoFromOrder;
@@ -181,7 +181,7 @@ namespace Vodovoz.Tools.CallTasks
 			CallTask activeTask;
 
 			if(order.SelfDelivery)
-				activeTask = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(order.UoW, order.Counterparty, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+				activeTask = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(order.UoW, order.Client, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
 			else
 				activeTask = callTaskRepository.GetActiveTaskByDeliveryPoint(order.UoW, order.DeliveryPoint, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
 
@@ -193,7 +193,7 @@ namespace Vodovoz.Tools.CallTasks
 			newTask.AssignedEmployee = order.UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForDepositReturnTask());
 			newTask.TaskState = CallTaskStatus.DepositReturn;
 			newTask.DeliveryPoint = order.DeliveryPoint;
-			newTask.Counterparty = order.Counterparty;
+			newTask.Counterparty = order.Client;
 			newTask.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59);
 			newTask.SourceDocumentId = order.Id;
 			newTask.Source = TaskSource.AutoFromOrder;

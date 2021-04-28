@@ -46,6 +46,9 @@
       <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\..\..\.nuget\packages\microsoft.bcl.asyncinterfaces\1.1.0\ref\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="NetTopologySuite, Version=1.15.3.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
       <HintPath>..\..\..\..\..\.nuget\packages\nettopologysuite.core\1.15.3\lib\net45\NetTopologySuite.dll</HintPath>
     </Reference>

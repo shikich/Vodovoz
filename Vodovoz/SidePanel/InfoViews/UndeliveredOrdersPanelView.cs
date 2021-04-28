@@ -96,7 +96,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var query = InfoProvider.UoW.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 						   .Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
 						   .Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
-						   .Left.JoinAlias(() => oldOrderAlias.Counterparty, () => counterpartyAlias)
+						   .Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
 						   .Left.JoinAlias(() => oldOrderAlias.Author, () => oldOrderAuthorAlias)
 						   .Left.JoinAlias(() => oldOrderAlias.DeliveryPoint, () => undeliveredOrderDeliveryPointAlias)
 						   .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)

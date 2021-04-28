@@ -317,7 +317,7 @@ namespace Vodovoz.Domain.Complaints
 			if(Counterparty == null && Order == null) {
 				return result;
 			}
-			string clientName = Counterparty == null ? Order.Counterparty.Name : Counterparty.Name;
+			string clientName = Counterparty == null ? Order.Client.Name : Counterparty.Name;
 			string clientInfo = $", {clientName}";
 			return result + clientInfo;
 		}

@@ -68,7 +68,7 @@ namespace Vodovoz.Core
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
 				.Where(
@@ -145,7 +145,7 @@ namespace Vodovoz.Core
 
 			var phoneResult = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Left.JoinAlias(() => orderAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)

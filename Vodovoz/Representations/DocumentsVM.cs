@@ -327,7 +327,7 @@ namespace Vodovoz.ViewModel
 				var selfDeliveryQuery = UoW.Session.QueryOver<SelfDeliveryDocument>(() => selfDeliveryAlias)
 					.JoinQueryOver(() => selfDeliveryAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => selfDeliveryAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => orderAlias.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if (Filter.RestrictWarehouse != null)
 					selfDeliveryQuery.Where(() => selfDeliveryAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);

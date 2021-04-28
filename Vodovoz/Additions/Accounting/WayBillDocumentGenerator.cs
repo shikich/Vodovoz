@@ -215,7 +215,7 @@ namespace Vodovoz.Additions.Accounting
             {
                 var wayBillDocumentItem = new WayBillDocumentItem()
                 {
-                    CounterpartyName = orderEnumerator.Current.Counterparty.Name,
+                    CounterpartyName = orderEnumerator.Current.Client.Name,
                     DriverLastName = employee.LastName,
                     HoursFrom = timeInterval[0],
                     HoursTo = timeInterval[1],
