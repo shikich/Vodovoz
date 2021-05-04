@@ -28,6 +28,9 @@ namespace Vodovoz.Parameters
         public int WaterStroikaId => parametersProvider.GetIntValue("nomenclature_stroika_id");
         public int WaterRuchkiId => parametersProvider.GetIntValue("nomenclature_ruchki_id");
         
+
+        public int VodovozLeafletId => parametersProvider.GetIntValue("vodovoz_leaflet_id");
+
         #region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => uow.GetById<Nomenclature>(WaterSemiozerieId);

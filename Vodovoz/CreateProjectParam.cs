@@ -315,9 +315,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<M2ProxyDocumentViewModel, M2ProxyDocumentView>()
                 .RegisterWidgetForWidgetViewModel<OrderDepositReturnsItemsViewModel, OrderDepositReturnsItemsView>()
                 .RegisterWidgetForWidgetViewModel<OrderMovementItemsViewModel, OrderMovementItemsView>()
-				;
+                .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
+                ;
 
-			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
+            DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void ConfigureJournalColumnsConfigs()
