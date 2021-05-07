@@ -100,5 +100,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 				RouteListItemStatus.Transfered
 			};
 		}
-	}
+
+        public RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId)
+        {
+			return uow.GetById<RouteListItem>(routeListAddressId);
+        }
+    }
 }

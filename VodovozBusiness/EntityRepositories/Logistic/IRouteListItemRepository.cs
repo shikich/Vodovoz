@@ -15,5 +15,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		bool WasOrderInAnyRouteList(IUnitOfWork uow, Order order);
 		RouteListItemStatus[] GetUndeliveryStatuses();
 		bool AnotherRouteListItemForOrderExist(IUnitOfWork uow, RouteListItem routeListItem);
-	}
+		RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId);
+    }
 }
