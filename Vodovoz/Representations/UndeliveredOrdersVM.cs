@@ -47,8 +47,7 @@ namespace Vodovoz.Representations
 
 		public virtual void UpdateNodes()
 		{
-			UndeliveredOrdersVMNode resultAlias = null;
-			CommentNode commentsAlias = null;
+			UndeliveredOrdersVMNode resultAlias = null;			
 			UndeliveredOrder undeliveredOrderAlias = null;
 			Domain.Orders.Order oldOrderAlias = null;
 			Domain.Orders.Order newOrderAlias = null;
@@ -56,8 +55,7 @@ namespace Vodovoz.Representations
 			Employee oldOrderAuthorAlias = null;
 			Employee authorAlias = null;
 			Employee editorAlias = null;
-			Employee registratorAlias = null;
-			Employee employeeAlias = null;
+			Employee registratorAlias = null;			
 			Nomenclature nomenclatureAlias = null;
 			OrderItem orderItemAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
@@ -67,8 +65,7 @@ namespace Vodovoz.Representations
 			DeliverySchedule newOrderDeliveryScheduleAlias = null;
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
-			Subdivision subdivisionAlias = null;
-			UndeliveredOrderComment undeliveredOrderCommentsAlias = null;
+			Subdivision subdivisionAlias = null;			
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
 			Employee finedEmployeeAlias = null;
@@ -277,110 +274,10 @@ namespace Vodovoz.Representations
 			                         ).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
 							  .TransformUsing(Transformers.AliasToBean<UndeliveredOrdersVMNode>())
 							  .List<UndeliveredOrdersVMNode>();
-			
-			var allCommentsList = UoW.Session.QueryOver<UndeliveredOrderComment>(() => undeliveredOrderCommentsAlias)
-									 .Left.JoinAlias(c => c.Employee, () => employeeAlias)
-									 .SelectList(
-										 list => list
-										 .Select(() => undeliveredOrderCommentsAlias.UndeliveredOrder.Id).WithAlias(() => commentsAlias.Id)
-										 .Select(() => undeliveredOrderCommentsAlias.CommentDate).WithAlias(() => commentsAlias.Date)
-										 .Select(() => undeliveredOrderCommentsAlias.CommentedField).WithAlias(() => commentsAlias.Field)
-										 .Select(
-											 Projections.SqlFunction(
-												 new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('<span foreground=\"', ?6, '\">', '<b>', DATE_FORMAT(?1, '%e.%m.%y, %k:%i:%s'), '\n', ?2, ' ', ?4, ':</b>\n', TRIM(?5), '</span>')"),
-												 NHibernateUtil.String,
-												 Projections.Property(() => undeliveredOrderCommentsAlias.CommentDate),
-												 Projections.Property(() => employeeAlias.Name),
-												 Projections.Property(() => employeeAlias.Patronymic),
-												 Projections.Property(() => employeeAlias.LastName),
-												 Projections.Property(() => undeliveredOrderCommentsAlias.Comment),
-												 Projections.Conditional(
-													 Restrictions.Eq(Projections.Property(() => employeeAlias.Id), currUser),
-													 Projections.Constant("blue"),
-													 Projections.Constant("red")
-													)
-												)
-											).WithAlias(() => commentsAlias.Comment)
-										).TransformUsing(Transformers.AliasToBean<CommentNode>())
-									 .List<CommentNode>();
-
 			int counter = 1;
-			foreach(var r in Result) {
-				var commentsForAllFields = allCommentsList.Where(x => x.Id == r.Id).OrderBy(x => x.Date).ToList();
+			foreach(var r in Result) {		
 
-				List<UndeliveredOrdersVMNode> commentsList = new List<UndeliveredOrdersVMNode>();
-				while(commentsForAllFields.Any()) {
-					var com = new UndeliveredOrderCommentsNode();
-					foreach(CommentedFields field in Enum.GetValues(typeof(CommentedFields))) {
-						var comment = commentsForAllFields.FirstOrDefault(x => x.Field == field);
-						if(comment == null) continue;
-						commentsForAllFields.Remove(comment);
-
-						switch(comment.Field) {
-							case CommentedFields.OldOrderDeliveryDate:
-								com.OldOrderDeliveryDate = comment.Comment;
-								break;
-							case CommentedFields.Reason:
-								com.Reason = comment.Comment;
-								break;
-							case CommentedFields.ActionWithInvoice:
-								com.ActionWithInvoice = comment.Comment;
-								break;
-							case CommentedFields.TransferDateTime:
-								com.TransferDateTime = comment.Comment;
-								break;
-							case CommentedFields.Client:
-								com.Client = comment.Comment;
-								break;
-							case CommentedFields.Address:
-								com.Address = comment.Comment;
-								break;
-							case CommentedFields.UndeliveredOrderItems:
-								com.UndeliveredOrderItems = comment.Comment;
-								break;
-							case CommentedFields.OldDeliverySchedule:
-								com.OldDeliverySchedule = comment.Comment;
-								break;
-							case CommentedFields.OldOrderAuthor:
-								com.OldOrderAuthor = comment.Comment;
-								break;
-							case CommentedFields.DriverName:
-								com.DriverName = comment.Comment;
-								break;
-							case CommentedFields.DriversCall:
-								com.DriversCall = comment.Comment;
-								break;
-							case CommentedFields.DispatcherCall:
-								com.DispatcherCall = comment.Comment;
-								break;
-							case CommentedFields.Registrator:
-								com.Registrator = comment.Comment;
-								break;
-							case CommentedFields.UndeliveryAuthor:
-								com.UndeliveryAuthor = comment.Comment;
-								break;
-							case CommentedFields.Guilty:
-								com.Guilty = comment.Comment;
-								break;
-							case CommentedFields.FinedPeople:
-								com.FinedPeople = comment.Comment;
-								break;
-							case CommentedFields.Status:
-								com.Status = comment.Comment;
-								break;
-							case CommentedFields.OldOrderStatus:
-								com.OldOrderStatus = comment.Comment;
-								break;
-							default:
-								break;
-						}
-					}
-					com.Parent = r;
-					commentsList.Add(com);
-				}
-
-				r.NumberInList = counter++;
-				r.Children = commentsList;
+				r.NumberInList = counter++;				
 			}
 
 			#region Формирование цвета строк таблицы недовозов
@@ -389,11 +286,7 @@ namespace Vodovoz.Representations
 			Color darkerLightYellow = new Color(255, 255, 168);
 			Color darkerLightGreen = new Color(168, 255, 168);
 			for(int i = 0; i < Result.Count(); i++) {
-				Result[i].BGColor = i % 2 == 0 ? lightYellow : lightGreen;
-				for(int j = 0; j < Result[i].Children.Count(); j++) {
-					var color = Result[i].BGColor.Red == 65535 ? darkerLightYellow : darkerLightGreen;
-					Result[i].Children[j].BGColor = j % 2 == 1 ? Result[i].BGColor : color;
-				}
+				Result[i].BGColor = i % 2 == 0 ? lightYellow : lightGreen;				
 			}
 			#endregion
 		}
