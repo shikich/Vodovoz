@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public abstract class OrderMainViewModelBase : DialogViewModelBase, IAutofacScopeHolder
     {
-        protected OrderBase Order { get; set; }
+        public OrderBase Order { get; set; }
 
         public ILifetimeScope AutofacScope { get; set; }
         

@@ -149,5 +149,72 @@ namespace Vodovoz.Domain.Orders
 
 			return true;
 		}
+		
+		public override bool IsValidForOrder(OrderBase order, IUnitOfWork uow)
+		{
+			if(!IsForZeroDebt)
+				return true;
+
+			var forfeitId = new BaseParametersProvider().GetForfeitId();
+
+			BottlesRepository bottlesRepository = new BottlesRepository();
+
+			BottlesMovementOperation bottlesMovementAlias = null;
+			OrderBase orderAlias = null;
+
+			//Долг клиента
+			var counterpartyDebtQuery = uow.Session.QueryOver(() => bottlesMovementAlias)
+				.Where(() => bottlesMovementAlias.DeliveryPoint == null)
+				.Where(() => bottlesMovementAlias.Counterparty.Id == order.Counterparty.Id)
+				.Select(
+				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+					NHibernateUtil.Int32, new IProjection[] {
+								Projections.Sum(() => bottlesMovementAlias.Returned),
+								Projections.Sum(() => bottlesMovementAlias.Delivered)}
+				)).SingleOrDefault<int>();
+			if(counterpartyDebtQuery != 0)
+				return false;
+
+			//Долг по точкам доставки
+			foreach(var deliveryPoint in order.Counterparty.DeliveryPoints) {
+				if(bottlesRepository.GetBottlesAtDeliveryPoint(uow, deliveryPoint) != 0)
+					return false;
+			}
+
+			//Возврат бутылей и(ничего или возврат залога или неустойка)
+			var orders1 = uow.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.Counterparty.Id == order.Counterparty.Id)
+				.Where(() => orderAlias.Status == OrderStatus.Closed)
+				//TODO Может нужно это поле в базовый класс?
+				//.Where(() => orderAlias.BottlesReturn != 0)
+				.List<Order>();
+			if(orders1.Count == 0)
+				return false;
+
+			var orders2 = new List<Order>();
+
+			foreach(var o in orders1) {
+				if(o.OrderDepositItems != null && o.OrderItems == null)
+					orders2.Add(o);
+				if(o.OrderItems.All(i => i.Nomenclature.Id == forfeitId))
+					orders2.Add(o);
+				if(o.OrderItems == null)
+					orders2.Add(o);
+			}
+
+			if(orders2.Count == 0)
+				return false;
+
+			//Ввод остатков
+			foreach(var o in orders2) {
+				if(o.DeliveryPoint == null)
+					continue;
+				if(o.DeliveryPoint.HaveResidue.HasValue)
+					if(!o.DeliveryPoint.HaveResidue.Value)
+						return false;
+			}
+
+			return true;
+		}
 	}
 }

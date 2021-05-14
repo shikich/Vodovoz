@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Autofac;
 using Autofac.Core;
 using QS.BusinessCommon.Domain;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
@@ -22,15 +24,68 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public class OrderItemsViewModel : UoWWidgetViewModelBase
     {
-        private bool isMovementItemsVisible;
-        public OrderBase Order { get; set; }
+        private const string NomenclatureForSaleJournalName = "Номенклатура на продажу";
         
+        private bool isMovementItemsVisible;
+        
+        public OrderBase Order { get; set; }
         public ILifetimeScope AutofacScope { get; set; }
+        public ICommonServices CommonServices { get; }
+        public IEnumerable<PromotionalSet> PromotionalSets { get; private set; }
+        public IEnumerable<ReturnTareReasonCategory> ReturnTareReasonCategories { get; private set; }
+        public IEnumerable<DiscountReason> DiscountReasons { get; private set; }
 
         public bool IsMovementItemsVisible
         {
             get => isMovementItemsVisible;
             set => SetField(ref isMovementItemsVisible, value);
+        }
+        
+        private IEnumerable<ReturnTareReason> returnTareReasons;
+        public IEnumerable<ReturnTareReason> ReturnTareReasons
+        {
+            get => returnTareReasons;
+            private set => SetField(ref returnTareReasons, value);
+        }
+        
+        private ReturnTareReasonCategory returnTareReasonCategory;
+        public ReturnTareReasonCategory ReturnTareReasonCategory
+        {
+            get => returnTareReasonCategory;
+            set => SetField(ref returnTareReasonCategory, value);
+        }
+        
+        private ReturnTareReason returnTareReason;
+        public ReturnTareReason ReturnTareReason
+        {
+            get => returnTareReason;
+            set => SetField(ref returnTareReason, value);
+        }
+        
+        int? bottlesReturn;
+        public int? BottlesReturn {
+            get => bottlesReturn;
+            set
+            {
+                if (SetField(ref bottlesReturn, value))
+                {
+                    ReturnTareReasonCategoryShow();
+                }
+            }
+        }
+        
+        private bool isReturnTareReasonVisible;
+        public bool IsReturnTareReasonVisible
+        {
+            get => isReturnTareReasonVisible;
+            set => SetField(ref isReturnTareReasonVisible, value);
+        }
+        
+        private bool isReturnTareReasonCategoryVisible;
+        public bool IsReturnTareReasonCategoryVisible
+        {
+            get => isReturnTareReasonCategoryVisible;
+            set => SetField(ref isReturnTareReasonCategoryVisible, value);
         }
         
         private bool isDepositsReturnsVisible;
@@ -105,16 +160,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                     if(!CanAddNomenclaturesToOrder())
                         return;
                     
-                    OrderMovementItemsViewModelOnRemoveActiveViewModel();
-                    
-                    NomenclaturesForSaleJournalViewModel?.UpdateOnChanges(
-                        typeof(Nomenclature),
-                        typeof(MeasurementUnits),
-                        typeof(WarehouseMovementOperation),
-                        typeof(Order),
-                        typeof(OrderItem)
-                    );
-                    
                     if (NomenclaturesForSaleJournalViewModel == null)
                     {
                         var nomenclatureFilter = 
@@ -125,7 +170,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                             nomenclaturesJournalViewModelFactory.CreateNomenclaturesJournalViewModel(nomenclatureFilter);
                         journalViewModel.AdditionalJournalRestriction =
                             new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-                        journalViewModel.TabName = "Номенклатура на продажу";
+                        journalViewModel.TabName = NomenclatureForSaleJournalName;
                         journalViewModel.OnEntitySelectedResultWithoutClose += (s, ea) =>
                         {
                             var selectedNode = ea.SelectedNodes.FirstOrDefault();
@@ -134,12 +179,27 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                                 return;
                             
                             //TryAddNomenclature(UoW.Session.Get<Nomenclature>(selectedNode.Id));
-                            OrderMovementItemsViewModelOnRemoveActiveViewModel();
                         };
 
                         NomenclaturesForSaleJournalViewModel = journalViewModel;
                     }
-                    ActiveNomenclatureJournalViewModel = NomenclaturesForSaleJournalViewModel;
+
+                    if (ActiveNomenclatureJournalViewModel != null 
+                        && ActiveNomenclatureJournalViewModel.TabName == NomenclatureForSaleJournalName) {
+                        OrderMovementItemsViewModelOnUpdateActiveViewModel(null);
+                    }
+                    else {
+                        NomenclaturesForSaleJournalViewModel?.UpdateOnChanges(
+                            typeof(Nomenclature),
+                            typeof(MeasurementUnits),
+                            typeof(WarehouseMovementOperation),
+                            typeof(Order),
+                            typeof(OrderItem)
+                        );
+                        OrderMovementItemsViewModelOnUpdateActiveViewModel(NomenclaturesForSaleJournalViewModel);
+                        OrderMovementItemsViewModel.DeactivateActiveJournalViewModels();
+                    }
+                    
                 },
                 () => true
             )
@@ -179,11 +239,36 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             Order = order;
             OrderInfoExpandedPanelViewModel = orderInfoExpandedPanelViewModel;
             AutofacScope = scope;
-            
+            //TODO потом убрать, когда определимся с прокидыванием uow
+            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+            FillLists();
+            Order.PropertyChanged += OrderOnPropertyChanged;
             OrderMovementItemsViewModel.UpdateActiveViewModel += OrderMovementItemsViewModelOnUpdateActiveViewModel;
-            OrderMovementItemsViewModel.RemoveActiveViewModel += OrderMovementItemsViewModelOnRemoveActiveViewModel;
             OrderDepositReturnsItemsViewModel.UpdateActiveViewModel += OrderMovementItemsViewModelOnUpdateActiveViewModel;
-            OrderDepositReturnsItemsViewModel.RemoveActiveViewModel += OrderMovementItemsViewModelOnRemoveActiveViewModel;
+        }
+
+        private void FillLists()
+        {
+            ReturnTareReasonCategories = UoW.Session.QueryOver<ReturnTareReasonCategory>().List();
+            DiscountReasons = UoW.Session.QueryOver<DiscountReason>().List();
+        }
+
+        private void OrderOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Order.Counterparty):
+                    UpdateParamsDependOnCounterparty();
+                    break;
+            }
+        }
+
+        private void UpdateParamsDependOnCounterparty()
+        {
+            var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
+            //TODO Заменить создание uow на нормальный
+            PromotionalSets = promoSets.Where(s => s.IsValidForOrder(Order, UnitOfWorkFactory.CreateWithoutRoot()));
         }
 
         private void OrderMovementItemsViewModelOnRemoveActiveViewModel()
@@ -194,6 +279,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
         private void OrderMovementItemsViewModelOnUpdateActiveViewModel(NomenclaturesJournalViewModel journalViewModel)
         {
+            if (journalViewModel == null)
+            {
+                OrderMovementItemsViewModelOnRemoveActiveViewModel();
+                return;
+            }
+            
             if (ActiveNomenclatureJournalViewModel != journalViewModel) {
                 OrderMovementItemsViewModelOnRemoveActiveViewModel();
                 ActiveNomenclatureJournalViewModel = journalViewModel;
@@ -296,6 +387,47 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             }
 
             return defaultCategory;
+        }
+
+        private void RemoveReturnTareReason()
+        {
+            if (ReturnTareReason != null)
+                ReturnTareReason = null;
+
+            if(ReturnTareReasonCategory != null)
+                ReturnTareReasonCategory = null;
+        }
+
+        public void ChangeReturnTareReasonVisibility()
+        {
+            if (ReturnTareReasonCategory != null)
+            {
+                if (!IsReturnTareReasonVisible)
+                    IsReturnTareReasonVisible = true;
+
+                ReturnTareReasons = ReturnTareReasonCategory.ChildReasons;
+            }
+        }
+        
+        private void ReturnTareReasonCategoryShow()
+        {
+            if (BottlesReturn.HasValue && BottlesReturn > 0)
+            {
+                IsReturnTareReasonCategoryVisible = Order.GetTotalWater19LCount() == 0;
+
+                if(!IsReturnTareReasonCategoryVisible) {
+                    IsReturnTareReasonVisible = false;
+                    RemoveReturnTareReason();
+                }
+                else {
+                    ChangeReturnTareReasonVisibility();
+                }
+            }
+            else
+            {
+                IsReturnTareReasonCategoryVisible = IsReturnTareReasonVisible = false;
+                RemoveReturnTareReason();
+            }
         }
     }
 }

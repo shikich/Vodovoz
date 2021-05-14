@@ -133,6 +133,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
@@ -685,6 +686,8 @@ namespace Vodovoz
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
 			builder.RegisterType<GetCurrentUserSettings>().As<ICurrentUserSettings>();
+			builder.Register(c => new OrderParametersProvider(ParametersProvider.Instance))
+				.As<IOrderParametersProvider>();
 			
 			#endregion
 			
@@ -716,6 +719,7 @@ namespace Vodovoz
 			
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
 			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
+			builder.Register(c => OrderSingletonRepository.GetInstance()).As<IOrderRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
 			builder.Register(c =>
 					new NomenclatureRepository(

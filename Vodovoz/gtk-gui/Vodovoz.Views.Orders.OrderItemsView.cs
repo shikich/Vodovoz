@@ -34,19 +34,19 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinBtnDiscount;
 
-		private global::Gtk.HBox hbox5;
+		private global::Gtk.HBox hboxReturnTare;
 
 		private global::Gamma.GtkWidgets.yLabel ylblBottlesToReturn;
 
 		private global::Gamma.Widgets.yValidatedEntry entryBottlesToReturn;
 
-		private global::Gtk.HBox hboxReturnTareReason;
+		private global::Gamma.GtkWidgets.yHBox yhboxReturnTareReason;
 
 		private global::Gamma.GtkWidgets.yLabel ylblReturnTareReasonCategory;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox yCmbReturnTareReasonCategories;
 
-		private global::Gtk.HBox hboxReasons;
+		private global::Gamma.GtkWidgets.yHBox yhboxReasons;
 
 		private global::Gamma.GtkWidgets.yLabel ylblReturnTareReason;
 
@@ -218,44 +218,44 @@ namespace Vodovoz.Views.Orders
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hbox5 = new global::Gtk.HBox();
-			this.hbox5.Name = "hbox5";
-			this.hbox5.Spacing = 6;
-			// Container child hbox5.Gtk.Box+BoxChild
+			this.hboxReturnTare = new global::Gtk.HBox();
+			this.hboxReturnTare.Name = "hboxReturnTare";
+			this.hboxReturnTare.Spacing = 6;
+			// Container child hboxReturnTare.Gtk.Box+BoxChild
 			this.ylblBottlesToReturn = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblBottlesToReturn.Name = "ylblBottlesToReturn";
 			this.ylblBottlesToReturn.LabelProp = global::Mono.Unix.Catalog.GetString("Планируемая тара:");
-			this.hbox5.Add(this.ylblBottlesToReturn);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ylblBottlesToReturn]));
+			this.hboxReturnTare.Add(this.ylblBottlesToReturn);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxReturnTare[this.ylblBottlesToReturn]));
 			w15.Position = 0;
 			w15.Expand = false;
 			w15.Fill = false;
-			// Container child hbox5.Gtk.Box+BoxChild
+			// Container child hboxReturnTare.Gtk.Box+BoxChild
 			this.entryBottlesToReturn = new global::Gamma.Widgets.yValidatedEntry();
 			this.entryBottlesToReturn.CanFocus = true;
 			this.entryBottlesToReturn.Name = "entryBottlesToReturn";
 			this.entryBottlesToReturn.IsEditable = true;
 			this.entryBottlesToReturn.WidthChars = 4;
 			this.entryBottlesToReturn.InvisibleChar = '●';
-			this.hbox5.Add(this.entryBottlesToReturn);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.entryBottlesToReturn]));
+			this.hboxReturnTare.Add(this.entryBottlesToReturn);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxReturnTare[this.entryBottlesToReturn]));
 			w16.Position = 1;
 			w16.Expand = false;
 			w16.Fill = false;
-			// Container child hbox5.Gtk.Box+BoxChild
-			this.hboxReturnTareReason = new global::Gtk.HBox();
-			this.hboxReturnTareReason.Name = "hboxReturnTareReason";
-			this.hboxReturnTareReason.Spacing = 6;
-			// Container child hboxReturnTareReason.Gtk.Box+BoxChild
+			// Container child hboxReturnTare.Gtk.Box+BoxChild
+			this.yhboxReturnTareReason = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxReturnTareReason.Name = "yhboxReturnTareReason";
+			this.yhboxReturnTareReason.Spacing = 6;
+			// Container child yhboxReturnTareReason.Gtk.Box+BoxChild
 			this.ylblReturnTareReasonCategory = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblReturnTareReasonCategory.Name = "ylblReturnTareReasonCategory";
 			this.ylblReturnTareReasonCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория причины забора тары: ");
-			this.hboxReturnTareReason.Add(this.ylblReturnTareReasonCategory);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxReturnTareReason[this.ylblReturnTareReasonCategory]));
+			this.yhboxReturnTareReason.Add(this.ylblReturnTareReasonCategory);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhboxReturnTareReason[this.ylblReturnTareReasonCategory]));
 			w17.Position = 0;
 			w17.Expand = false;
 			w17.Fill = false;
-			// Container child hboxReturnTareReason.Gtk.Box+BoxChild
+			// Container child yhboxReturnTareReason.Gtk.Box+BoxChild
 			this.yCmbReturnTareReasonCategories = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.yCmbReturnTareReasonCategories.Name = "yCmbReturnTareReasonCategories";
 			this.yCmbReturnTareReasonCategories.AddIfNotExist = false;
@@ -263,25 +263,25 @@ namespace Vodovoz.Views.Orders
 			this.yCmbReturnTareReasonCategories.ShowSpecialStateAll = false;
 			this.yCmbReturnTareReasonCategories.ShowSpecialStateNot = true;
 			this.yCmbReturnTareReasonCategories.NameForSpecialStateNot = "Нет";
-			this.hboxReturnTareReason.Add(this.yCmbReturnTareReasonCategories);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxReturnTareReason[this.yCmbReturnTareReasonCategories]));
+			this.yhboxReturnTareReason.Add(this.yCmbReturnTareReasonCategories);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhboxReturnTareReason[this.yCmbReturnTareReasonCategories]));
 			w18.Position = 1;
 			w18.Expand = false;
 			w18.Fill = false;
-			// Container child hboxReturnTareReason.Gtk.Box+BoxChild
-			this.hboxReasons = new global::Gtk.HBox();
-			this.hboxReasons.Name = "hboxReasons";
-			this.hboxReasons.Spacing = 6;
-			// Container child hboxReasons.Gtk.Box+BoxChild
+			// Container child yhboxReturnTareReason.Gtk.Box+BoxChild
+			this.yhboxReasons = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxReasons.Name = "yhboxReasons";
+			this.yhboxReasons.Spacing = 6;
+			// Container child yhboxReasons.Gtk.Box+BoxChild
 			this.ylblReturnTareReason = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblReturnTareReason.Name = "ylblReturnTareReason";
 			this.ylblReturnTareReason.LabelProp = global::Mono.Unix.Catalog.GetString("Причина забора тары: ");
-			this.hboxReasons.Add(this.ylblReturnTareReason);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxReasons[this.ylblReturnTareReason]));
+			this.yhboxReasons.Add(this.ylblReturnTareReason);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhboxReasons[this.ylblReturnTareReason]));
 			w19.Position = 0;
 			w19.Expand = false;
 			w19.Fill = false;
-			// Container child hboxReasons.Gtk.Box+BoxChild
+			// Container child yhboxReasons.Gtk.Box+BoxChild
 			this.yCmbReturnTareReasons = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.yCmbReturnTareReasons.Name = "yCmbReturnTareReasons";
 			this.yCmbReturnTareReasons.AddIfNotExist = false;
@@ -289,23 +289,23 @@ namespace Vodovoz.Views.Orders
 			this.yCmbReturnTareReasons.ShowSpecialStateAll = false;
 			this.yCmbReturnTareReasons.ShowSpecialStateNot = true;
 			this.yCmbReturnTareReasons.NameForSpecialStateNot = "Нет";
-			this.hboxReasons.Add(this.yCmbReturnTareReasons);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hboxReasons[this.yCmbReturnTareReasons]));
+			this.yhboxReasons.Add(this.yCmbReturnTareReasons);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yhboxReasons[this.yCmbReturnTareReasons]));
 			w20.Position = 1;
 			w20.Expand = false;
 			w20.Fill = false;
-			this.hboxReturnTareReason.Add(this.hboxReasons);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hboxReturnTareReason[this.hboxReasons]));
+			this.yhboxReturnTareReason.Add(this.yhboxReasons);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhboxReturnTareReason[this.yhboxReasons]));
 			w21.Position = 2;
 			w21.Expand = false;
 			w21.Fill = false;
-			this.hbox5.Add(this.hboxReturnTareReason);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.hboxReturnTareReason]));
+			this.hboxReturnTare.Add(this.yhboxReturnTareReason);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hboxReturnTare[this.yhboxReturnTareReason]));
 			w22.Position = 2;
 			w22.Expand = false;
 			w22.Fill = false;
-			this.vboxMain.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox5]));
+			this.vboxMain.Add(this.hboxReturnTare);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxReturnTare]));
 			w23.Position = 4;
 			w23.Expand = false;
 			w23.Fill = false;
@@ -389,8 +389,8 @@ namespace Vodovoz.Views.Orders
 			{
 				this.Child.ShowAll();
 			}
-			this.hboxReasons.Hide();
-			this.hboxReturnTareReason.Hide();
+			this.yhboxReasons.Hide();
+			this.yhboxReturnTareReason.Hide();
 			this.vboxMovementItems.Hide();
 			this.vboxDeposits.Hide();
 			this.hboxJournals.Hide();

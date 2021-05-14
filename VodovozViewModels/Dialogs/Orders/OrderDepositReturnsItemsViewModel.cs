@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         public NomenclaturesJournalViewModel EquipmentsJournalViewModel { get; private set; }
 
         public event Action<NomenclaturesJournalViewModel> UpdateActiveViewModel;
-        public event Action RemoveActiveViewModel;
+        //public event Action RemoveActiveViewModel;
 
         public bool HasSelectedDeposit => SelectedDeposit != null;
         public bool DepositsScrolled { get; } 
@@ -120,7 +120,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                     return;
                 
                 //AddDepositEquipment(UoW.Session.Get<Nomenclature>(selectedNode.Id));
-                RemoveActiveViewModel?.Invoke();
+                //RemoveActiveViewModel?.Invoke();
             };
         }
         

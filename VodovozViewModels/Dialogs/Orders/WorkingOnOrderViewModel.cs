@@ -9,12 +9,30 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
     {
         public OrderBase Order { get; set; }
         public readonly IEnumerable<NonReturnReason> nonReturnReasons;
+        
+        private string receivablesDepartmentComment;
+        /// <summary>
+        /// Комментарий отдела дебиторской задолженности
+        /// </summary>
+        public virtual string ReceivablesDepartmentComment {
+            get => receivablesDepartmentComment;
+            set => SetField(ref receivablesDepartmentComment, value);
+        }
+		
+        private string salesDepartmentComment;
+        /// <summary>
+        /// Комментарий отдела продаж
+        /// </summary>
+        public virtual string SalesDepartmentComment {
+            get => salesDepartmentComment;
+            set => SetField(ref salesDepartmentComment, value);
+        }
 
         public WorkingOnOrderViewModel(OrderBase order)
         {
             Order = order;
-            //UoW = uow ?? throw new ArgumentNullException(nameof(uow));
-            //nonReturnReasons = uow.Session.QueryOver<NonReturnReason>().List();
+            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+            nonReturnReasons = UoW.Session.QueryOver<NonReturnReason>().List();
         }
     }
 }

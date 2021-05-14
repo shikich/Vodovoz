@@ -19,12 +19,15 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private readonly IInteractiveService interactiveService;
         private readonly INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory;
         private readonly INomenclatureFilterViewModelFactory nomenclatureFilterViewModelFactory;
+
+        private bool isMovementItemsToClientJournalViewModelActive;
+        private bool isMovementItemsFromClientJournalViewModelActive;
+        
         public OrderBase Order { get; set; }
         public NomenclaturesJournalViewModel MovementItemsToClientJournalViewModel { get; private set; }
         public NomenclaturesJournalViewModel MovementItemsFromClientJournalViewModel { get; private set; }
 
         public event Action<NomenclaturesJournalViewModel> UpdateActiveViewModel;
-        public event Action RemoveActiveViewModel;
 
         #region Команды
         
@@ -40,8 +43,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         return;
                     }
                     
-                    UpdateJournalSubscribes(MovementItemsToClientJournalViewModel);
-
                     if (MovementItemsToClientJournalViewModel is null)
                     {
                         MovementItemsToClientJournalViewModel =
@@ -53,7 +54,15 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                             MovementItemsToClientJournalVMOnEntitySelected;
                     }
 
-                    UpdateActiveViewModel?.Invoke(MovementItemsToClientJournalViewModel);
+                    if (isMovementItemsToClientJournalViewModelActive) {
+                        UpdateActiveViewModel?.Invoke(null);
+                        isMovementItemsToClientJournalViewModelActive = false;
+                    }
+                    else {
+                        UpdateJournalSubscribes(MovementItemsToClientJournalViewModel);
+                        UpdateActiveViewModel?.Invoke(MovementItemsToClientJournalViewModel);
+                        isMovementItemsToClientJournalViewModelActive = true;
+                    }
                 },
                 () => true
             )
@@ -71,8 +80,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         return;
                     }
                     
-                    UpdateJournalSubscribes(MovementItemsFromClientJournalViewModel);
-
                     if (MovementItemsFromClientJournalViewModel is null)
                     {
                         MovementItemsFromClientJournalViewModel =
@@ -83,6 +90,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                         MovementItemsFromClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
                             MovementItemsFromClientJournalVMOnEntitySelected;
                     }
+                    
+                    UpdateJournalSubscribes(MovementItemsFromClientJournalViewModel);
 
                     UpdateActiveViewModel?.Invoke(MovementItemsFromClientJournalViewModel);
                 },
@@ -114,7 +123,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 return;
 
             //AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(selectedNode.Id), true);
-            RemoveActiveViewModel?.Invoke();
         }
 
         private void MovementItemsFromClientJournalVMOnEntitySelected(Object sender, JournalSelectedNodesEventArgs ea)
@@ -125,7 +133,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 return;
 
             //AddNomenclatureFromClient(UoW.Session.Get<Nomenclature>(selectedNode.Id), false);
-            RemoveActiveViewModel?.Invoke();
         }
         
         public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
@@ -168,6 +175,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 typeof(Order),
                 typeof(OrderItem)
             );
+        }
+
+        public void DeactivateActiveJournalViewModels()
+        {
+            isMovementItemsFromClientJournalViewModelActive = isMovementItemsToClientJournalViewModelActive = false;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Data.Bindings.Utilities;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Orders
@@ -165,6 +166,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsValidForOrder(Order order)
 		{
 			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order));
+		}
+		
+		//TODO Проверить метод, прокидываем uow
+		public virtual bool IsValidForOrder(OrderBase order, IUnitOfWork uow)
+		{
+			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, uow));
 		}
 	}
 

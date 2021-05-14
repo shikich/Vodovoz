@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -401,6 +402,48 @@ namespace Vodovoz.Domain.Orders {
 			if(doNotCountWaterFromPromoSets)
 				water19L = water19L.Where(x => x.PromoSet == null);
 			return (int)water19L.Sum(x => x.Count);
+		}
+		
+		public virtual bool CanEditOrder => EditableOrderStatuses.Contains(Status);
+		
+		private OrderStatus[] EditableOrderStatuses {
+			get {
+				if(Type == OrderType.SelfDeliveryOrder) {
+					return new [] {OrderStatus.NewOrder};
+				}
+
+				return new[] {OrderStatus.NewOrder, OrderStatus.WaitForPayment};
+			}
+		}
+
+		public override string ToString()
+		{
+			return Status == OrderStatus.NewOrder
+				? $"<b>Новый {Type.GetEnumTitle().ToLower()}</b>"
+				: $"<b>{Type.GetEnumTitle()} от {DeliveryDate:dd.MM.yyyy}</b>";
+		}
+
+		public OrderBase()
+		{
+			Status = OrderStatus.NewOrder;
+		}
+		
+		//TODO узнать про поле документов по умолчанию для самовывоза
+		public virtual void UpdateClientDefaultParam()
+		{
+			if(Counterparty == null) return;
+			if(Status != OrderStatus.NewOrder) return;
+
+			DeliveryDate = null;
+			DeliveryPoint = null;
+			//DeliverySchedule = null;
+			Contract = null;
+			//DefaultDocumentType = Counterparty.DefaultDocumentType ?? DefaultDocumentType.upd;
+
+			if(Type != OrderType.SelfDeliveryOrder && Counterparty.DeliveryPoints?.Count == 1)
+				DeliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault();
+
+			PaymentType = Counterparty.PaymentMethod;
 		}
     }
 }

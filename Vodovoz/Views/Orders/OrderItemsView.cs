@@ -5,14 +5,25 @@ using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets.Cells;
 using Gtk;
+using QS.Dialog;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Services;
 using QS.Tdi;
-using QS.Utilities;
 using QS.Views.GtkUI;
 using QS.Views.Resolve;
+using QSOrmProject;
+using QSWidgetLib;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories;
+using Vodovoz.Representations;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
+using Widget = Gtk.Widget;
 
 namespace Vodovoz.Views.Orders
 {
@@ -34,11 +45,37 @@ namespace Vodovoz.Views.Orders
             ybtnAddOrderItem.Clicked += (sender, args) => ViewModel.AddSalesItemCommand.Execute();
             ybtnRemoveOrderItem.Clicked += (sender, args) =>
 	            ViewModel.RemoveSalesItemCommand.Execute(ytreeViewOrderItems.GetSelectedObjects());
+            
             ychkMovementEquipments.Toggled += YchkMovementEquipmentsOnToggled;
             ychkMovementEquipments.Binding.AddBinding(ViewModel, vm => vm.IsMovementItemsVisible, w => w.Active).InitializeFromSource();
             ychkDeposits.Toggled += YchkDepositsOnToggled;
             ychkDeposits.Binding.AddBinding(ViewModel, vm => vm.IsDepositsReturnsVisible, w => w.Active).InitializeFromSource();
             
+            yCmbPromoSets.ItemsList = ViewModel.PromotionalSets;
+            ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
+            ycomboboxReason.ItemsList = ViewModel.DiscountReasons;
+            
+            entryBottlesToReturn.ValidationMode = ValidationType.numeric;
+            entryBottlesToReturn.Binding.AddBinding(ViewModel, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+            
+            yhboxReturnTareReason.Binding.AddBinding(ViewModel, vm => vm.IsReturnTareReasonCategoryVisible, w => w.Visible).InitializeFromSource();
+            yhboxReasons.Binding.AddBinding(ViewModel, vm => vm.IsReturnTareReasonVisible, w => w.Visible).InitializeFromSource();
+            
+            yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
+            yCmbReturnTareReasonCategories.ItemsList = ViewModel.ReturnTareReasonCategories;
+            yCmbReturnTareReasonCategories.Binding.AddBinding(ViewModel, vm => vm.ReturnTareReasonCategory, w => w.SelectedItem).InitializeFromSource();
+            yCmbReturnTareReasonCategories.Changed += (Sender, e) => ViewModel.ChangeReturnTareReasonVisibility();
+
+            yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Name);
+            yCmbReturnTareReasons.Binding.AddBinding(ViewModel, vm => vm.ReturnTareReasons, w => w.ItemsList).InitializeFromSource();
+            yCmbReturnTareReasons.Binding.AddBinding(ViewModel, vm => vm.ReturnTareReason, w => w.SelectedItem).InitializeFromSource();
+            
+            enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
+            enumAddRentButton.ItemsEnum = typeof(RentType);
+            enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
+            
+            yspinBtnDiscount.Adjustment.Upper = 100;
+
             AddOrderMovementItemsView();
             AddOrderDepositReturnsItemsView();
             
@@ -227,6 +264,176 @@ namespace Vodovoz.Views.Orders
         {
             vboxMovementItems.Visible = ViewModel.IsMovementItemsVisible;
         }
+        
+        #region Аренда
+		//TODO Возможно все эти методы можно будет перенести в VM, когда перепишутся журналы PermissionControlledRepresentationJournal
+		private void AddRent(RentType rentType)
+		{
+			if (ViewModel.Order.Type == OrderType.VisitingMasterOrder) {
+				ViewModel.CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error, 
+					"Нельзя добавлять аренду в сервисный заказ", 
+					"Ошибка"
+				);
+				return;
+			}
+			switch (rentType) {
+				case RentType.NonfreeRent:
+					SelectPaidRentPackage(RentType.NonfreeRent);
+					break;
+				case RentType.DailyRent:
+					SelectPaidRentPackage(RentType.DailyRent);
+					break;
+				case RentType.FreeRent:
+					SelectFreeRentPackage();
+					break;
+			}
+		}
+		
+		#region PaidRent
+		
+		private void SelectPaidRentPackage(RentType rentType)
+		{
+			var ormReference = new OrmReference(typeof(PaidRentPackage)) {
+				Mode = OrmReferenceMode.Select
+			};
+			ormReference.ObjectSelected += (sender, e) => {
+				if (!(e.Subject is PaidRentPackage selectedRentPackage)) {
+					return;
+				}
+				var paidRentPackage = ViewModel.UoW.GetById<PaidRentPackage>(selectedRentPackage.Id);
+				SelectEquipmentForPaidRentPackage(rentType, paidRentPackage);
+			};
+			//TabParent.AddTab(ormReference, this);
+		}
+
+		private void SelectEquipmentForPaidRentPackage(RentType rentType, PaidRentPackage paidRentPackage)
+		{
+			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+				var existingItems = ViewModel.Order.OrderEquipments
+					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+					.Select(x => x.Nomenclature.Id)
+					.Distinct()
+					.ToArray();
+				
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(ViewModel.UoW, paidRentPackage.EquipmentType, existingItems);
+				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
+			}
+			else {
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(ViewModel.UoW, paidRentPackage.EquipmentType));
+				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.CustomTabName("Оборудование для аренды");
+				selectDialog.ObjectSelected += (sender, e) => {
+					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+					if(selectedNode == null) {
+						return;
+					}
+					var nomenclature = ViewModel.UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					AddPaidRent(rentType, paidRentPackage, nomenclature);
+				};
+				//TabParent.AddSlaveTab(this, selectDialog);
+			}
+		}
+		
+		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+		{
+			if (rentType == RentType.FreeRent) {
+				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
+			}
+			var interactiveService = ServicesConfig.InteractiveService;
+			if(equipmentNomenclature == null) {
+				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				return;
+			}
+
+			var stock = StockRepository.GetStockForNomenclature(ViewModel.UoW, equipmentNomenclature.Id);
+			if(stock <= 0) {
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+					return;
+				}
+			}
+
+			switch (rentType) {
+				case RentType.NonfreeRent:
+					//TODO Реализовать метод, когда будет понятно где он будет находиться
+					//Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
+					break;
+				case RentType.DailyRent:
+					//TODO Реализовать метод, когда будет понятно где он будет находиться
+					//Entity.AddDailyRent(paidRentPackage, equipmentNomenclature);
+					break;
+			}
+		}
+
+		#endregion PaidRent
+
+		#region FreeRent
+
+		private void SelectFreeRentPackage()
+		{
+			var ormReference = new OrmReference(typeof(FreeRentPackage)) {
+				Mode = OrmReferenceMode.Select
+			};
+			ormReference.ObjectSelected += (sender, e) => {
+				if (!(e.Subject is FreeRentPackage selectedRentPackage)) {
+					return;
+				}
+				var rentPackage = ViewModel.UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
+				SelectEquipmentForFreeRentPackage(rentPackage);
+			};
+			//TabParent.AddTab(ormReference, this);
+		}
+
+		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
+		{
+			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+				var existingItems = ViewModel.Order.OrderEquipments
+					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+					.Select(x => x.Nomenclature.Id)
+					.Distinct()
+					.ToArray();
+				
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(ViewModel.UoW, freeRentPackage.EquipmentType, existingItems);
+				AddFreeRent(freeRentPackage, anyNomenclature);
+			}
+			else {
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(ViewModel.UoW, freeRentPackage.EquipmentType));
+				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.CustomTabName("Оборудование для аренды");
+				selectDialog.ObjectSelected += (sender, e) => {
+					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+					if(selectedNode == null) {
+						return;
+					}
+					var nomenclature = ViewModel.UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					AddFreeRent(freeRentPackage, nomenclature);
+				};
+				//TabParent.AddSlaveTab(this, selectDialog);
+			}
+		}
+		
+		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
+		{
+			var interactiveService = ServicesConfig.InteractiveService;
+			if(equipmentNomenclature == null) {
+				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				return;
+			}
+
+			var stock = StockRepository.GetStockForNomenclature(ViewModel.UoW, equipmentNomenclature.Id);
+			if(stock <= 0) {
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+					return;
+				}
+			}
+			
+			//TODO Реализовать метод, когда будет понятно где он будет находиться
+			//Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
+		}
+
+		#endregion FreeRent
+
+		#endregion
 
         public override void Destroy()
         {

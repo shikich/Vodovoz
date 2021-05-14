@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -17,7 +18,7 @@ namespace Vodovoz.Domain.Orders
 		public abstract void Activate(Order order);
 		public abstract void Deactivate(Order order);
 		public abstract bool IsValidForOrder(Order order);
-
+		public abstract bool IsValidForOrder(OrderBase order, IUnitOfWork uow);
 		public abstract string Title { get; }
 	}
 }

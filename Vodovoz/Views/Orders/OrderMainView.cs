@@ -20,6 +20,7 @@ namespace Vodovoz.Views.Orders
             notebookOrder.ShowTabs = false;
             yradBtnInfo.Active = true;
 
+            ylblTitle.Markup = ViewModel.Order.ToString();
             ybtnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 
             ResolveInfoView();

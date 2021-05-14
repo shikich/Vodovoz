@@ -13,6 +13,7 @@ namespace Vodovoz.ViewWidgets.Orders
             this.Build();
             Configure();
         }
+        
         //TODO Проверить свойства для комментариев ОДЗ и отдела продаж
         private void Configure()
         {
@@ -24,8 +25,8 @@ namespace Vodovoz.ViewWidgets.Orders
             
             ytxtManagerComment.Binding.AddBinding(ViewModel.Order, o => o.CommentManager, w => w.Buffer.Text).InitializeFromSource();
             ytxtTareComment.Binding.AddBinding(ViewModel.Order, o => o.TareInformation, w => w.Buffer.Text).InitializeFromSource();
-            //ytxtSalesDepartmentComment.Binding.AddBinding(ViewModel.Order, o => o.SalesDepartmentComment, w => w.Buffer.Text).InitializeFromSource();
-            //ytxtODZComment.Binding.AddBinding(ViewModel.Order, o => o.ODZComment, w => w.Buffer.Text).InitializeFromSource();
+            ytxtSalesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.SalesDepartmentComment, w => w.Buffer.Text).InitializeFromSource();
+            ytxtODZComment.Binding.AddBinding(ViewModel, vm => vm.ReceivablesDepartmentComment, w => w.Buffer.Text).InitializeFromSource();
         }
     }
 }
