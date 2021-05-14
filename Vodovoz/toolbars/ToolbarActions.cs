@@ -5,6 +5,7 @@ using Autofac.Core;
 using Dialogs.Employees;
 using Gtk;
 using InstantSmsService;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -48,7 +49,9 @@ using QS.Project.Journal;
 using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using QS.Services;
+using QS.Validation;
 using Vodovoz.Additions;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
@@ -77,6 +80,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Rent;
 using Vodovoz.Views.Orders;
 
 public partial class MainWindow : Window
@@ -879,6 +883,29 @@ public partial class MainWindow : Window
 		);
 		*/
 
+		var uowBuilder = EntityUoWBuilder.ForCreate();
+		var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
+		var validator = new ObjectValidator(new GtkValidationViewFactory());
+		
+		Type[] types =
+		{
+			typeof(IEntityUoWBuilder),
+			typeof(IUnitOfWorkFactory),
+			typeof(INavigationManager),
+			typeof(IValidator)
+		};
+
+		object[] ctorValues =
+		{
+			uowBuilder,
+			uowFactory,
+			NavigationManager,
+			validator
+		};
+
+		NavigationManager.OpenViewModelTypedArgs<FreeRentPackageViewModel>(null, types, ctorValues);
+
+		/*
 		var order = new SelfDeliveryOrder();
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var comServices = autofacScope.Resolve<ICommonServices>();
@@ -918,6 +945,7 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<
 			SelfDeliveryOrderMainViewModel, SelfDeliveryOrder, SelfDeliveryOrderInfoViewModel, ITdiCompatibilityNavigation>(
 			null, order, selfDeliveryOrderInfoViewModel, NavigationManager);
+			*/
 	}
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)

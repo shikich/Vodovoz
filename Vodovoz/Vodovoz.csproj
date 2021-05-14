@@ -1626,6 +1626,10 @@
     <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Views\Warehouse\WarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
+    <Compile Include="Views\Rent\FreeRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.FreeRentPackageView.cs" />
+    <Compile Include="Views\Rent\PaidRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.PaidRentPackageView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1925,6 +1929,7 @@
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
     <Folder Include="ViewWidgets\Orders\" />
+    <Folder Include="Views\Rent\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

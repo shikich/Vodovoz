@@ -167,7 +167,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Rent;
 using Vodovoz.Views.Client;
+using Vodovoz.Views.Rent;
 using Vodovoz.ViewWidgets.Orders;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
 
@@ -317,6 +319,7 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<OrderDepositReturnsItemsViewModel, OrderDepositReturnsItemsView>()
                 .RegisterWidgetForWidgetViewModel<OrderMovementItemsViewModel, OrderMovementItemsView>()
                 .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
+				.RegisterWidgetForWidgetViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
                 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
