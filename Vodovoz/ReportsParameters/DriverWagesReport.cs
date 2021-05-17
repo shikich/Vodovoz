@@ -88,6 +88,22 @@ namespace Vodovoz.Reports
 			}
 			OnUpdate(true);
 		}
-	}
+
+        protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
+        {
+            if (yentryreferenceDriver.Subject as Employee != null)
+            {
+                OnUpdate(true);
+            }
+        }
+
+        protected void OnYentryreferenceDriverChanged(object sender, EventArgs e)
+        {
+            if (dateperiodpicker.StartDateOrNull != null && dateperiodpicker.EndDateOrNull != null)
+            {
+                OnUpdate(true);
+            }
+        }
+    }
 }
 
