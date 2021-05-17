@@ -721,7 +721,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return query.List();
 		}
-	}
+
+        public RouteList GetRouteList(IUnitOfWork uow, int routeListsId)
+        {
+			return uow.GetById<RouteList>(routeListsId);
+		}
+    }
 
 	#region DTO
 

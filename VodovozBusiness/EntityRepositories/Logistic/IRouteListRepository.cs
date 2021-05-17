@@ -41,7 +41,8 @@ namespace Vodovoz.EntityRepositories.Logistic
         /// <returns></returns>
         bool IsTerminalRequired(IUnitOfWork uow, int routeListId);
         IList<RouteList> GetRouteLists(IUnitOfWork uow, int[] routeListsIds);
-        IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
+		RouteList GetRouteList(IUnitOfWork uow, int routeListsId);
+		IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
 		RouteList GetRouteListByOrderId(IUnitOfWork uow, int orderId);
     }
 }
