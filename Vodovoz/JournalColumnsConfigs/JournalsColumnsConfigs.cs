@@ -1042,6 +1042,18 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+			
+			//PaidRentPackagesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PaidRentPackagesJournalViewModel>(
+				() => FluentColumnsConfig<PaidRentPackagesJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.AddColumn("Тип оборудования").AddTextRenderer(n => n.EquipmentTypeName)
+					.AddColumn("Цена в сутки").AddTextRenderer(n => n.PriceDailyString)
+					.AddColumn("Цена в месяц").AddTextRenderer(n => n.PriceMonthlyString)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }
