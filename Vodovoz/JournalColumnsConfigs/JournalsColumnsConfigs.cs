@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
+using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.ViewModels.Journals.JournalNodes.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
@@ -32,6 +33,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -1028,6 +1030,16 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
 					.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+			
+			//FreeRentPackagesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FreeRentPackagesJournalViewModel>(
+				() => FluentColumnsConfig<FreeRentPackagesJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.AddColumn("Тип оборудования").AddTextRenderer(n => n.EquipmentTypeName)
+					.AddColumn("")
 					.Finish()
 			);
 		}
