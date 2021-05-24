@@ -1,8 +1,12 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QS.Dialog;
+using QS.ErrorReporting;
 using QS.Utilities;
 using QS.Views.Dialog;
+using System;
+using System.Threading.Tasks;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.Views.Reports
@@ -21,7 +25,7 @@ namespace Vodovoz.Views.Reports
             ConfigureTree();
 
             ybtnExport.Clicked += (sender, args) => Export();
-            ybtnRunReport.Clicked += (sender, args) => RunReport();
+            ybtnRunReport.Clicked += (sender, args) => RunReportAsync();
             btnHelp.Clicked += (sender, args) => ViewModel.HelpCommand.Execute();
 
             ybtnRunReport.Binding.AddBinding(ViewModel, vm => vm.HasRunReport, w => w.Sensitive).InitializeFromSource();
@@ -35,13 +39,32 @@ namespace Vodovoz.Views.Reports
             rangepickerDeliveryDate.Binding.AddBinding(ViewModel, vm => vm.EndDeliveryDate, w => w.EndDateOrNull).InitializeFromSource();
         }
 
-        private void RunReport()
+        private async void RunReportAsync()
         {
-	        ViewModel.Progress = ViewModel.LoadingData;
-	        ViewModel.IsLoadingData = true;
-	        GtkHelper.WaitRedraw();
-	        ViewModel.RunReportCommand.Execute();
-        }
+			try
+			{
+				await Task.Run(() => ViewModel.RunReportCommand.Execute());
+				ytreeviewOrderAnalytics.SetItemsSource(ViewModel.NodesList);
+			}
+			catch (Exception ex)
+			{
+				ViewModel.Progress = OrderAnalyticsReportViewModel.Error;
+				
+				if (ex.FindExceptionTypeInInner<TimeoutException>() != null)
+				{
+					Application.Invoke((o, e) => ViewModel.interactiveService.ShowMessage(
+						ImportanceLevel.Error, "Превышен интервал ожидания выполнения запроса.\n Попробуйте уменьшить период"));
+				}
+				else
+				{
+					Application.Invoke((o, e) => throw ex);
+				}
+			}
+			finally
+			{
+				ViewModel.IsLoadingData = false;
+			}
+		}
         
         private void Export()
         {
@@ -126,8 +149,6 @@ namespace Vodovoz.Views.Reports
                         string.IsNullOrEmpty(n.ForwarderLastName) ? "Без экспедитора" : n.ForwarderFIO)
                 .AddColumn("")
                 .Finish();
-
-            ytreeviewOrderAnalytics.ItemsDataSource = ViewModel.NodesList;
         }
     }
 }

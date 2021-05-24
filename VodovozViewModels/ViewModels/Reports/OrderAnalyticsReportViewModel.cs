@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
@@ -16,7 +15,6 @@ using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels.Dialog;
@@ -33,12 +31,11 @@ namespace Vodovoz.ViewModels.Reports
 {
     public class OrderAnalyticsReportViewModel : UowDialogViewModelBase
     {
-        private readonly IInteractiveService interactiveService;
         private readonly Encoding encoding = Encoding.GetEncoding(1251);
 
         #region Help
 
-        private const string HELP = "<b>Сохранение в файл</b>: " +
+        private const string Help = "<b>Сохранение в файл</b>: " +
                                     "Для выгрузки данных, нажмите на кнопку \"Экспорт\" выберите папку и файл, куда будут сохранены данные. " +
                                     "Если нужно сохранить в новый файл, то укажите его имя в верней строке и нажмите " +
                                     "кнопку \"Сохранить\"\n\n" +
@@ -56,15 +53,16 @@ namespace Vodovoz.ViewModels.Reports
         private bool isLoadingData;
         private string progress = string.Empty;
         private const string DataLoaded = "Загрузка завершена.";
-        private const string Error = "Произошла ошибка.";
         private DateTime? startDeliveryDate = DateTime.Today;
         private DateTime? endDeliveryDate = DateTime.Today;
         private DateTime? startCreationDate;
         private DateTime? endCreationDate;
-        private DelegateCommand exportCommand = null;
-        private DelegateCommand helpCommand = null;
-        private DelegateCommand runReportCommand = null;
-        public string LoadingData = "Идет загрузка данных...";
+        private DelegateCommand exportCommand;
+        private DelegateCommand helpCommand;
+        private DelegateCommand runReportCommand;
+		public readonly IInteractiveService interactiveService;
+		public const string Error = "Произошла ошибка.";
+		public const string LoadingData = "Идет загрузка данных...";
 
         public OrderAnalyticsReportViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -146,8 +144,7 @@ namespace Vodovoz.ViewModels.Reports
 
         public bool HasRunReport => (StartCreationDate.HasValue || StartDeliveryDate.HasValue) && !IsLoadingData;
         
-        public GenericObservableList<OrderAnalyticsReportNode> NodesList { get; } =
-	        new GenericObservableList<OrderAnalyticsReportNode>();
+        public GenericObservableList<OrderAnalyticsReportNode> NodesList { get; private set; }
         
         public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
             () => 
@@ -181,52 +178,27 @@ namespace Vodovoz.ViewModels.Reports
         public DelegateCommand HelpCommand => helpCommand ?? (helpCommand = new DelegateCommand(
             () => 
             {
-                interactiveService.ShowMessage(ImportanceLevel.Info, HELP, "Справка");
+                interactiveService.ShowMessage(ImportanceLevel.Info, Help, "Справка");
             },
             () => true
         ));
         
         public DelegateCommand RunReportCommand => runReportCommand ?? (runReportCommand = new DelegateCommand(
-	        () => 
-	        {
-		        try
-		        {
-			        var list = Task.Run(UpdateNodes);
-
-			        foreach (var item in list.Result)
-			        {
-				        NodesList.Add(item);
-			        }
-
-			        Progress = DataLoaded;
-			        HasExportReport = true;
-		        }
-		        catch (Exception ex)
-		        {
-			        Progress = Error;
-			        if (ex.FindExceptionTypeInInner<TimeoutException>() != null)
-			        {
-				        interactiveService.ShowMessage(
-					        ImportanceLevel.Error, "Превышен интервал ожидания выполнения запроса.\n Попробуйте уменьшить период");
-			        }
-			        else
-			        {
-				        throw;
-			        }
-		        }
-		        finally
-		        {
-			        IsLoadingData = false;
-		        }
-	        },
+	        () =>
+			{
+				IsLoadingData = true;
+				Progress = LoadingData;
+				NodesList = new GenericObservableList<OrderAnalyticsReportNode>(UpdateNodes());
+				Progress = DataLoaded;
+				HasExportReport = true;
+			},
 	        () => true
         ));
 
-        private IEnumerable<OrderAnalyticsReportNode> UpdateNodes()
+        private IList<OrderAnalyticsReportNode> UpdateNodes()
         {
 	        HasExportReport = false;
-	        NodesList.Clear();
-            
+	                    
             OrderAnalyticsReportNode resultAlias = null;
             Order orderAlias = null;
             Order orderAlias2 = null;
@@ -431,7 +403,7 @@ namespace Vodovoz.ViewModels.Reports
         {
 	        if (value is Enum en)
 	        {
-		        return en.GetEnumTitle();
+				return en.GetEnumTitle();
 	        }
 	        
 	        return string.Empty;
