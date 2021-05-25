@@ -681,14 +681,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .List();
 		}
 
-		public RouteList GetRouteListByOrderId(IUnitOfWork uow, int orderId)
-		{
-			var order = uow.GetById<Domain.Orders.Order>(orderId);
-
-			return GetRouteListByOrder(uow, order);
-		}
-
-		public RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order)
+		public RouteList GetRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
@@ -707,7 +700,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			}
 		}
 
-		public IList<RouteList> GetRouteLists(IUnitOfWork uow, int[] routeListsIds)
+		public IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds)
 		{
 			RouteList routeListAlias = null;
 			var query = uow.Session.QueryOver(() => routeListAlias)
@@ -721,7 +714,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.List();
 		}
 
-        public RouteList GetRouteList(IUnitOfWork uow, int routeListsId)
+        public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
         {
 			return uow.GetById<RouteList>(routeListsId);
 		}
