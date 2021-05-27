@@ -197,15 +197,18 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
         private void UpdateParamsDependOnPaymentType()
         {
-            if (Order.PaymentType != PaymentType.ByCard && Order.PaymentType != PaymentType.Terminal) {
+            if (Order.PaymentType != PaymentType.ByCard && Order.PaymentType != PaymentType.Terminal) 
+            {
                 ChangeOrderNumberFromOnlineStore();
                 ChangePaymentByCardFrom();
             }
             
-            if (Order.PaymentType != PaymentType.cash) {
+            if (Order.PaymentType != PaymentType.cash) 
+            {
                 IsPaymentBySMSVisible = Order.IsPaymentBySms = false;
             }
-            else {
+            else 
+            {
                 IsPaymentBySMSVisible = true;
             }
 
@@ -281,7 +284,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         
         private void CheckSameOrders()
         {
-            if(!Order.DeliveryDate.HasValue || Order.DeliveryPoint == null) return;
+            if(!Order.DeliveryDate.HasValue || Order.DeliveryPoint == null)
+            {
+                return;
+            }
 
             var sameOrder = orderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Order.DeliveryDate.Value, Order.DeliveryPoint);
             

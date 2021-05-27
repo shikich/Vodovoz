@@ -7,6 +7,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Factories;
+using Vodovoz.ViewModels.Journals.JournalNodes.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
@@ -112,9 +113,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private void ConfigureEquipmentsJournalViewModel()
         {
             EquipmentsJournalViewModel.TabName = "Оборудование под залог";
-            EquipmentsJournalViewModel.OnEntitySelectedResultWithoutClose += (s, ea) =>
+            EquipmentsJournalViewModel.OnSelectResultWithoutClose += (s, ea) =>
             {
-                var selectedNode = ea.SelectedNodes.FirstOrDefault();
+                var selectedNode = ea.SelectedObjects.OfType<NomenclatureJournalNode>().FirstOrDefault();
                 
                 if (selectedNode == null)
                     return;

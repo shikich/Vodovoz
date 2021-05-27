@@ -188,7 +188,7 @@ namespace Vodovoz.Views.Orders
 			// Container child hbxOnlineOrder.Gtk.Box+BoxChild
 			this.ylblOnlineOrder = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblOnlineOrder.Name = "ylblOnlineOrder";
-			this.ylblOnlineOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Онлайн-заказ:");
+			this.ylblOnlineOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Онлайн заказ:");
 			this.hbxOnlineOrder.Add(this.ylblOnlineOrder);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.ylblOnlineOrder]));
 			w8.Position = 0;

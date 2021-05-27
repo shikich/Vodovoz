@@ -1,4 +1,5 @@
 ﻿using System;
+using Gamma.Binding.Converters;
 using Gamma.Widgets.Additions;
 using NLog;
 using QS.DomainModel.UoW;

@@ -11,7 +11,8 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Domain.Orders {
-    public abstract class OrderBase : DomainObjectBase {
+    public abstract class OrderBase : DomainObjectBase 
+    {
         DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
@@ -419,8 +420,8 @@ namespace Vodovoz.Domain.Orders {
 		public override string ToString()
 		{
 			return Status == OrderStatus.NewOrder
-				? $"<b>Новый {Type.GetEnumTitle().ToLower()}</b>"
-				: $"<b>{Type.GetEnumTitle()} от {DeliveryDate:dd.MM.yyyy}</b>";
+				? $"Новый {Type.GetEnumTitle().ToLower()}"
+				: $"{Type.GetEnumTitle()} от {DeliveryDate:dd.MM.yyyy}";
 		}
 
 		public OrderBase()

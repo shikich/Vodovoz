@@ -209,6 +209,7 @@
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />

@@ -13,6 +13,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.TempAdapters
 {
+	[Obsolete("Перенести все в NomenclatureRepository")]
     public static class EquipmentRepositoryForViews
     {
         /// <summary>

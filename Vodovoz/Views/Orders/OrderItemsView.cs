@@ -72,7 +72,7 @@ namespace Vodovoz.Views.Orders
             
             enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
             enumAddRentButton.ItemsEnum = typeof(RentType);
-            enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
+            enumAddRentButton.EnumItemClicked += (sender, e) => ViewModel.AddRentCommand.Execute((RentType)e.ItemEnum);
             
             yspinBtnDiscount.Adjustment.Upper = 100;
 
@@ -217,14 +217,14 @@ namespace Vodovoz.Views.Orders
 
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ViewModel.ActiveNomenclatureJournalViewModel)) {
+            if (e.PropertyName == nameof(ViewModel.ActiveJournalViewModel)) {
                 UpdateJournal();
             }
         }
 
         private void UpdateJournal()
         {
-            if (ViewModel.ActiveNomenclatureJournalViewModel is null)
+            if (ViewModel.ActiveJournalViewModel is null)
             {
                 CloseJournal();
                 return;
@@ -248,7 +248,7 @@ namespace Vodovoz.Views.Orders
         {
             nomenclaturesJournal =
                 ViewModel.AutofacScope.Resolve<ITDIWidgetResolver>()
-                    .Resolve(ViewModel.ActiveNomenclatureJournalViewModel);
+                    .Resolve(ViewModel.ActiveJournalViewModel);
 
             hboxJournals.Add(nomenclaturesJournal);
             nomenclaturesJournal.Show();
@@ -265,176 +265,6 @@ namespace Vodovoz.Views.Orders
             vboxMovementItems.Visible = ViewModel.IsMovementItemsVisible;
         }
         
-        #region Аренда
-		//TODO Возможно все эти методы можно будет перенести в VM, когда перепишутся журналы PermissionControlledRepresentationJournal
-		private void AddRent(RentType rentType)
-		{
-			if (ViewModel.Order.Type == OrderType.VisitingMasterOrder) {
-				ViewModel.CommonServices.InteractiveService.ShowMessage(
-					ImportanceLevel.Error, 
-					"Нельзя добавлять аренду в сервисный заказ", 
-					"Ошибка"
-				);
-				return;
-			}
-			switch (rentType) {
-				case RentType.NonfreeRent:
-					SelectPaidRentPackage(RentType.NonfreeRent);
-					break;
-				case RentType.DailyRent:
-					SelectPaidRentPackage(RentType.DailyRent);
-					break;
-				case RentType.FreeRent:
-					SelectFreeRentPackage();
-					break;
-			}
-		}
-		
-		#region PaidRent
-		
-		private void SelectPaidRentPackage(RentType rentType)
-		{
-			var ormReference = new OrmReference(typeof(PaidRentPackage)) {
-				Mode = OrmReferenceMode.Select
-			};
-			ormReference.ObjectSelected += (sender, e) => {
-				if (!(e.Subject is PaidRentPackage selectedRentPackage)) {
-					return;
-				}
-				var paidRentPackage = ViewModel.UoW.GetById<PaidRentPackage>(selectedRentPackage.Id);
-				SelectEquipmentForPaidRentPackage(rentType, paidRentPackage);
-			};
-			//TabParent.AddTab(ormReference, this);
-		}
-
-		private void SelectEquipmentForPaidRentPackage(RentType rentType, PaidRentPackage paidRentPackage)
-		{
-			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
-				var existingItems = ViewModel.Order.OrderEquipments
-					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
-					.Select(x => x.Nomenclature.Id)
-					.Distinct()
-					.ToArray();
-				
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(ViewModel.UoW, paidRentPackage.EquipmentType, existingItems);
-				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
-			}
-			else {
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(ViewModel.UoW, paidRentPackage.EquipmentType));
-				selectDialog.Mode = JournalSelectMode.Single;
-				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) => {
-					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null) {
-						return;
-					}
-					var nomenclature = ViewModel.UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
-					AddPaidRent(rentType, paidRentPackage, nomenclature);
-				};
-				//TabParent.AddSlaveTab(this, selectDialog);
-			}
-		}
-		
-		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
-		{
-			if (rentType == RentType.FreeRent) {
-				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
-			}
-			var interactiveService = ServicesConfig.InteractiveService;
-			if(equipmentNomenclature == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
-				return;
-			}
-
-			var stock = StockRepository.GetStockForNomenclature(ViewModel.UoW, equipmentNomenclature.Id);
-			if(stock <= 0) {
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
-					return;
-				}
-			}
-
-			switch (rentType) {
-				case RentType.NonfreeRent:
-					//TODO Реализовать метод, когда будет понятно где он будет находиться
-					//Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
-					break;
-				case RentType.DailyRent:
-					//TODO Реализовать метод, когда будет понятно где он будет находиться
-					//Entity.AddDailyRent(paidRentPackage, equipmentNomenclature);
-					break;
-			}
-		}
-
-		#endregion PaidRent
-
-		#region FreeRent
-
-		private void SelectFreeRentPackage()
-		{
-			var ormReference = new OrmReference(typeof(FreeRentPackage)) {
-				Mode = OrmReferenceMode.Select
-			};
-			ormReference.ObjectSelected += (sender, e) => {
-				if (!(e.Subject is FreeRentPackage selectedRentPackage)) {
-					return;
-				}
-				var rentPackage = ViewModel.UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
-				SelectEquipmentForFreeRentPackage(rentPackage);
-			};
-			//TabParent.AddTab(ormReference, this);
-		}
-
-		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
-		{
-			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
-				var existingItems = ViewModel.Order.OrderEquipments
-					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
-					.Select(x => x.Nomenclature.Id)
-					.Distinct()
-					.ToArray();
-				
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(ViewModel.UoW, freeRentPackage.EquipmentType, existingItems);
-				AddFreeRent(freeRentPackage, anyNomenclature);
-			}
-			else {
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(ViewModel.UoW, freeRentPackage.EquipmentType));
-				selectDialog.Mode = JournalSelectMode.Single;
-				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) => {
-					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null) {
-						return;
-					}
-					var nomenclature = ViewModel.UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
-					AddFreeRent(freeRentPackage, nomenclature);
-				};
-				//TabParent.AddSlaveTab(this, selectDialog);
-			}
-		}
-		
-		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
-		{
-			var interactiveService = ServicesConfig.InteractiveService;
-			if(equipmentNomenclature == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
-				return;
-			}
-
-			var stock = StockRepository.GetStockForNomenclature(ViewModel.UoW, equipmentNomenclature.Id);
-			if(stock <= 0) {
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
-					return;
-				}
-			}
-			
-			//TODO Реализовать метод, когда будет понятно где он будет находиться
-			//Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
-		}
-
-		#endregion FreeRent
-
-		#endregion
-
         public override void Destroy()
         {
             ViewModel.PropertyChanged -= ViewModelOnPropertyChanged;

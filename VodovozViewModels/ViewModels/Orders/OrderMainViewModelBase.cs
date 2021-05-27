@@ -16,7 +16,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
     public abstract class OrderMainViewModelBase : DialogViewModelBase, IAutofacScopeHolder
     {
         public OrderBase Order { get; set; }
-
         public ILifetimeScope AutofacScope { get; set; }
         
         protected readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
@@ -27,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         {
             get
             {
-                if (orderDocumentsViewModel == null)
+                if(orderDocumentsViewModel == null)
                 {
                     var orderParameter = new TypedParameter(typeof(OrderBase), Order);
                     var orderDocumentUpdatersFactoryParameter =
@@ -75,7 +74,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             OrderInfoViewModelBase orderInfoViewModelBase,
             ITdiCompatibilityNavigation tdiCompatibilityNavigation) : base (tdiCompatibilityNavigation)
         {
-            Order = order; 
+            Order = order;
+            Title = Order.ToString();
             this.tdiCompatibilityNavigation = 
                 tdiCompatibilityNavigation ?? throw new ArgumentNullException(nameof(tdiCompatibilityNavigation));
             OrderInfoViewModelBase = orderInfoViewModelBase;

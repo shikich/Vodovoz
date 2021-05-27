@@ -78,6 +78,7 @@ using Vodovoz.JournalFilters.Cash;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -883,30 +884,7 @@ public partial class MainWindow : Window
 			() => new OrderDlg() { IsForRetail = false }
 		);
 		*/
-
-		var uowBuilder = EntityUoWBuilder.ForCreate();
-		var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-		var validator = new ObjectValidator(new GtkValidationViewFactory());
 		
-		Type[] types =
-		{
-			typeof(IEntityUoWBuilder),
-			typeof(IUnitOfWorkFactory),
-			typeof(INavigationManager),
-			typeof(IValidator)
-		};
-
-		object[] ctorValues =
-		{
-			uowBuilder,
-			uowFactory,
-			NavigationManager,
-			validator
-		};
-
-		NavigationManager.OpenViewModelTypedArgs<FreeRentPackageViewModel>(null, types, ctorValues);
-
-		/*
 		var order = new SelfDeliveryOrder();
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var comServices = autofacScope.Resolve<ICommonServices>();
@@ -946,7 +924,6 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<
 			SelfDeliveryOrderMainViewModel, SelfDeliveryOrder, SelfDeliveryOrderInfoViewModel, ITdiCompatibilityNavigation>(
 			null, order, selfDeliveryOrderInfoViewModel, NavigationManager);
-			*/
 	}
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
@@ -981,7 +958,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		/*var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -1002,7 +979,15 @@ public partial class MainWindow : Window
 													  counterpartySelectorFactory,
 													  nomenclatureRepository,
 													  UserSingletonRepository.GetInstance());
-		tdiMain.AddTab(ordersJournal);
+		tdiMain.AddTab(ordersJournal);*/
+
+		var vm = new NonSerialEquipmentsForRentJournalViewModel(
+			null,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService,
+			NavigationManager);
+			
+		tdiMain.AddTab(vm);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)

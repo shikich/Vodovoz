@@ -8,16 +8,25 @@ using QS.BusinessCommon.Domain;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Journals.Nodes.Rent;
+using Vodovoz.Repositories;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Journals.JournalNodes.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
@@ -30,7 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         
         public OrderBase Order { get; set; }
         public ILifetimeScope AutofacScope { get; set; }
-        public ICommonServices CommonServices { get; }
         public IEnumerable<PromotionalSet> PromotionalSets { get; private set; }
         public IEnumerable<ReturnTareReasonCategory> ReturnTareReasonCategories { get; private set; }
         public IEnumerable<DiscountReason> DiscountReasons { get; private set; }
@@ -67,7 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             get => bottlesReturn;
             set
             {
-                if (SetField(ref bottlesReturn, value))
+                if(SetField(ref bottlesReturn, value))
                 {
                     ReturnTareReasonCategoryShow();
                 }
@@ -96,12 +104,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         }
         
         private NomenclaturesJournalViewModel NomenclaturesForSaleJournalViewModel { get; set; }
+        private PaidRentPackagesJournalViewModel PaidRentPackagesJournalViewModel { get; set; }
+        private FreeRentPackagesJournalViewModel FreeRentPackagesJournalViewModel { get; set; }
+        private NonSerialEquipmentsForRentJournalViewModel NonSerialEquipmentsForRentJournalViewModel { get; set; }
 
-        private NomenclaturesJournalViewModel activeNomenclatureJournalViewModel;
-        public NomenclaturesJournalViewModel ActiveNomenclatureJournalViewModel
+        private JournalViewModelBase activeJournalViewModel;
+        public JournalViewModelBase ActiveJournalViewModel
         {
-            get => activeNomenclatureJournalViewModel;
-            set => SetField(ref activeNomenclatureJournalViewModel, value);
+            get => activeJournalViewModel;
+            set => SetField(ref activeJournalViewModel, value);
         }
         
         private OrderDepositReturnsItemsViewModel orderDepositReturnsItemsViewModel;
@@ -109,7 +120,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         {
             get
             {
-                if (orderDepositReturnsItemsViewModel == null)
+                if(orderDepositReturnsItemsViewModel == null)
                 {
                     Parameter[] parameters =
                     {
@@ -132,11 +143,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
         {
             get
             {
-                if (orderMovementItemsViewModel == null)
+                if(orderMovementItemsViewModel == null)
                 {
                     Parameter[] parameters =
                     {
-                        new TypedParameter(typeof(IInteractiveService), interactiveService),
+                        new TypedParameter(typeof(IInteractiveService), commonServices.InteractiveService),
                         new TypedParameter(typeof(NomenclatureFilterViewModel),
                             AutofacScope.Resolve<INomenclatureFilterViewModelFactory>()),
                         new TypedParameter(typeof(INomenclaturesJournalViewModelFactory),
@@ -160,7 +171,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                     if(!CanAddNomenclaturesToOrder())
                         return;
                     
-                    if (NomenclaturesForSaleJournalViewModel == null)
+                    if(NomenclaturesForSaleJournalViewModel == null)
                     {
                         var nomenclatureFilter = 
                             AutofacScope.Resolve<INomenclatureFilterViewModelFactory>()
@@ -169,11 +180,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                         var journalViewModel =
                             nomenclaturesJournalViewModelFactory.CreateNomenclaturesJournalViewModel(nomenclatureFilter);
                         journalViewModel.AdditionalJournalRestriction =
-                            new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+                            new NomenclaturesForOrderJournalRestriction(commonServices);
                         journalViewModel.TabName = NomenclatureForSaleJournalName;
-                        journalViewModel.OnEntitySelectedResultWithoutClose += (s, ea) =>
+                        journalViewModel.OnSelectResultWithoutClose += (s, ea) =>
                         {
-                            var selectedNode = ea.SelectedNodes.FirstOrDefault();
+                            var selectedNode = ea.SelectedObjects.OfType<NomenclatureJournalNode>().FirstOrDefault();
                             
                             if (selectedNode == null)
                                 return;
@@ -184,9 +195,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                         NomenclaturesForSaleJournalViewModel = journalViewModel;
                     }
 
-                    if (ActiveNomenclatureJournalViewModel != null 
-                        && ActiveNomenclatureJournalViewModel.TabName == NomenclatureForSaleJournalName) {
-                        OrderMovementItemsViewModelOnUpdateActiveViewModel(null);
+                    if (ActiveJournalViewModel != null 
+                        && ActiveJournalViewModel.TabName == NomenclatureForSaleJournalName) {
+                        UpdateActiveJournalViewModel(null);
                     }
                     else {
                         NomenclaturesForSaleJournalViewModel?.UpdateOnChanges(
@@ -196,7 +207,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                             typeof(Order),
                             typeof(OrderItem)
                         );
-                        OrderMovementItemsViewModelOnUpdateActiveViewModel(NomenclaturesForSaleJournalViewModel);
+                        UpdateActiveJournalViewModel(NomenclaturesForSaleJournalViewModel);
                         OrderMovementItemsViewModel.DeactivateActiveJournalViewModels();
                     }
                     
@@ -215,27 +226,69 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 items => items.Any()
             )
         );
-
-        #endregion Commands
         
-        private readonly IInteractiveService interactiveService;
+        private DelegateCommand<RentType> addRentCommand;
+        public DelegateCommand<RentType> AddRentCommand => 
+            addRentCommand ?? (addRentCommand = new DelegateCommand<RentType>(
+                    rentType =>
+                    {
+                        if(Order.Type == OrderType.VisitingMasterOrder) {
+                            commonServices.InteractiveService.ShowMessage(
+                                ImportanceLevel.Error, 
+                                "Нельзя добавлять аренду в сервисный заказ", 
+                                "Ошибка"
+                            );
+                            return;
+                        }
+                        
+                        switch(rentType) {
+                            case RentType.NonfreeRent:
+                                SelectPaidRentPackage(RentType.NonfreeRent);
+                                break;
+                            case RentType.DailyRent:
+                                SelectPaidRentPackage(RentType.DailyRent);
+                                break;
+                            case RentType.FreeRent:
+                                SelectFreeRentPackage();
+                                break;
+                        }
+                    },
+                    rentType => true
+                )
+            );
+
+        #endregion Команды
+        
+        private readonly ICommonServices commonServices;
         private readonly ICurrentUserSettings currentUserSettings;
+        private readonly INomenclatureRepository nomenclatureRepository;
         private readonly INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory;
+        private readonly IRentPackagesJournalsViewModelsFactory rentPackagesJournalsViewModelsFactory;
+        private readonly INonSerialEquipmentsForRentJournalViewModelFactory nonSerialEquipmentsForRentJournalViewModelFactory;
         public OrderInfoExpandedPanelViewModel OrderInfoExpandedPanelViewModel { get; }
         
         public OrderItemsViewModel(
-            IInteractiveService interactiveService,
+            ICommonServices commonServices,
             ICurrentUserSettings currentUserSettings,
+            INomenclatureRepository nomenclatureRepository,
             OrderBase order,
             OrderInfoExpandedPanelViewModel orderInfoExpandedPanelViewModel,
             ILifetimeScope scope,
-            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory)
+            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory,
+            IRentPackagesJournalsViewModelsFactory rentPackagesJournalsViewModelsFactory,
+            INonSerialEquipmentsForRentJournalViewModelFactory nonSerialEquipmentsForRentJournalViewModelFactory)
         {
-            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
             this.currentUserSettings = currentUserSettings ?? throw new ArgumentNullException(nameof(currentUserSettings));
-            this.nomenclaturesJournalViewModelFactory = 
-                nomenclaturesJournalViewModelFactory ??
-                    throw new ArgumentNullException(nameof(nomenclaturesJournalViewModelFactory));
+            this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+            this.nomenclaturesJournalViewModelFactory = nomenclaturesJournalViewModelFactory ??
+                                                        throw new ArgumentNullException(nameof(nomenclaturesJournalViewModelFactory));
+            this.rentPackagesJournalsViewModelsFactory = rentPackagesJournalsViewModelsFactory ??
+                                                         throw new ArgumentNullException(nameof(rentPackagesJournalsViewModelsFactory));
+            this.nonSerialEquipmentsForRentJournalViewModelFactory =
+                nonSerialEquipmentsForRentJournalViewModelFactory ??
+                    throw new ArgumentNullException(nameof(nonSerialEquipmentsForRentJournalViewModelFactory));
+            
             Order = order;
             OrderInfoExpandedPanelViewModel = orderInfoExpandedPanelViewModel;
             AutofacScope = scope;
@@ -244,9 +297,214 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
             FillLists();
             Order.PropertyChanged += OrderOnPropertyChanged;
-            OrderMovementItemsViewModel.UpdateActiveViewModel += OrderMovementItemsViewModelOnUpdateActiveViewModel;
-            OrderDepositReturnsItemsViewModel.UpdateActiveViewModel += OrderMovementItemsViewModelOnUpdateActiveViewModel;
+            OrderMovementItemsViewModel.UpdateActiveViewModel += UpdateActiveJournalViewModel;
+            OrderDepositReturnsItemsViewModel.UpdateActiveViewModel += UpdateActiveJournalViewModel;
         }
+
+        #region Аренда
+
+        #region PaidRent
+
+        private void SelectPaidRentPackage(RentType rentType)
+        {
+            if(PaidRentPackagesJournalViewModel == null)
+            {
+                var paidRentJournal = rentPackagesJournalsViewModelsFactory.CreatePaidRentPackagesJournalViewModel(
+                    false, false, false, false);
+                paidRentJournal.OnSelectResult += (sender, args) =>
+                {
+                    var selectedRentPackage = args.SelectedObjects.OfType<PaidRentPackagesJournalNode>().FirstOrDefault();
+
+                    if (selectedRentPackage == null) return;
+                    
+                    var paidRentPackage = UoW.GetById<PaidRentPackage>(selectedRentPackage.Id);
+                    SelectEquipmentForPaidRentPackage(rentType, paidRentPackage);
+                };
+                PaidRentPackagesJournalViewModel = paidRentJournal;
+            }
+
+            if(ActiveJournalViewModel is PaidRentPackagesJournalViewModel)
+            {
+                UpdateActiveJournalViewModel(null);
+            }
+            else
+            {
+                UpdateActiveJournalViewModel(PaidRentPackagesJournalViewModel);
+            }
+        }
+        
+        private void SelectEquipmentForPaidRentPackage(RentType rentType, PaidRentPackage paidRentPackage)
+        {
+            if(commonServices.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) 
+            {
+                var existingItems = GetExistingItems();
+                var anyNomenclature = 
+                    nomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentType, existingItems);
+                AddPaidRent(rentType, paidRentPackage, anyNomenclature);
+            }
+            else
+            {
+                if(NonSerialEquipmentsForRentJournalViewModel == null)
+                {
+                    var nonSerialEquipmentsForRentJournal =
+                        nonSerialEquipmentsForRentJournalViewModelFactory.CreateNonSerialEquipmentsForRentJournalViewModel(
+                            paidRentPackage.EquipmentType);
+
+                    nonSerialEquipmentsForRentJournal.OnSelectResult += (sender, args) =>
+                    {
+                        var selectedNode = args.SelectedObjects.OfType<NomenclatureForRentNode>().FirstOrDefault();
+
+                        if (selectedNode == null) return;
+
+                        var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
+                        AddPaidRent(rentType, paidRentPackage, nomenclature);
+                    };
+                    NonSerialEquipmentsForRentJournalViewModel = nonSerialEquipmentsForRentJournal;
+                }
+                UpdateActiveJournalViewModel(NonSerialEquipmentsForRentJournalViewModel);
+            }
+        }
+
+        private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+        {
+            if(rentType == RentType.FreeRent) 
+            {
+                throw new InvalidOperationException(
+                    $"Неправильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
+            }
+            
+            if(equipmentNomenclature == null) 
+            {
+                commonServices.InteractiveService.ShowMessage(
+                    ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+                return;
+            }
+
+            var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+            
+            if(stock <= 0) 
+            {
+                if(!commonServices.InteractiveService.Question(
+                    $"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+                {
+                    //TODO Скорее всего надо закрывать журнал
+                    return;
+                }
+            }
+
+            switch (rentType) 
+            {
+                case RentType.NonfreeRent:
+                    //TODO Реализовать метод, когда будет понятно где он будет находиться
+                    //Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
+                    break;
+                case RentType.DailyRent:
+                    //TODO Реализовать метод, когда будет понятно где он будет находиться
+                    //Entity.AddDailyRent(paidRentPackage, equipmentNomenclature);
+                    break;
+            }
+            
+            UpdateActiveJournalViewModel(null);
+        }
+
+        #endregion
+        
+        #region FreeRent
+
+		private void SelectFreeRentPackage()
+		{
+            if(FreeRentPackagesJournalViewModel == null)
+            {
+                var freeRentJournal = rentPackagesJournalsViewModelsFactory.CreateFreeRentPackagesJournalViewModel(
+                    false, false, false, false);
+                freeRentJournal.OnSelectResult += (sender, args) =>
+                {
+                    var selectedRentPackage = args.SelectedObjects.OfType<FreeRentPackagesJournalNode>().FirstOrDefault();
+
+                    if(selectedRentPackage == null) return;
+                    
+                    var freeRentPackage = UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
+                    SelectEquipmentForFreeRentPackage(freeRentPackage);
+                };
+                FreeRentPackagesJournalViewModel = freeRentJournal;
+            }
+
+            if(ActiveJournalViewModel is FreeRentPackagesJournalViewModel)
+            {
+                UpdateActiveJournalViewModel(null);
+            }
+            else
+            {
+                UpdateActiveJournalViewModel(FreeRentPackagesJournalViewModel);
+            }
+		}
+
+		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
+		{
+			if(commonServices.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+				var existingItems = GetExistingItems();
+				
+				var anyNomenclature = 
+                    nomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentType, existingItems);
+				AddFreeRent(freeRentPackage, anyNomenclature);
+			}
+			else {
+                if(NonSerialEquipmentsForRentJournalViewModel == null)
+                {
+                    var nonSerialEquipmentsForRentJournal =
+                        nonSerialEquipmentsForRentJournalViewModelFactory.CreateNonSerialEquipmentsForRentJournalViewModel(
+                            freeRentPackage.EquipmentType);
+
+                    nonSerialEquipmentsForRentJournal.OnSelectResult += (sender, args) =>
+                    {
+                        var selectedNode = args.SelectedObjects.OfType<NomenclatureForRentNode>().FirstOrDefault();
+
+                        if (selectedNode == null) return;
+
+                        var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
+                        AddFreeRent(freeRentPackage, nomenclature);
+                    };
+                    NonSerialEquipmentsForRentJournalViewModel = nonSerialEquipmentsForRentJournal;
+                }
+                UpdateActiveJournalViewModel(NonSerialEquipmentsForRentJournalViewModel);
+			}
+		}
+		
+		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
+		{
+			if(equipmentNomenclature == null) 
+            {
+				commonServices.InteractiveService.ShowMessage(
+                    ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				return;
+			}
+
+			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+			if(stock <= 0) {
+				if(!commonServices.InteractiveService.Question(
+                    $"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+                {
+                    //TODO Скорее всего надо закрывать журнал
+					return;
+				}
+			}
+			
+			//TODO Реализовать метод, когда будет понятно где он будет находиться
+			//Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
+            UpdateActiveJournalViewModel(null);
+		}
+
+		#endregion FreeRent
+
+        private IEnumerable<int> GetExistingItems()
+        {
+            return Order.OrderEquipments
+                .Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+                .Select(x => x.Nomenclature.Id)
+                .Distinct();
+        }
+        
+        #endregion
 
         private void FillLists()
         {
@@ -273,36 +531,39 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
         private void OrderMovementItemsViewModelOnRemoveActiveViewModel()
         {
-            ActiveNomenclatureJournalViewModel?.Items.Clear();
-            ActiveNomenclatureJournalViewModel = null;
+            ActiveJournalViewModel?.Items.Clear();
+            ActiveJournalViewModel = null;
         }
 
-        private void OrderMovementItemsViewModelOnUpdateActiveViewModel(NomenclaturesJournalViewModel journalViewModel)
+        private void UpdateActiveJournalViewModel(JournalViewModelBase journalViewModel)
         {
-            if (journalViewModel == null)
+            if(journalViewModel == null)
             {
                 OrderMovementItemsViewModelOnRemoveActiveViewModel();
                 return;
             }
             
-            if (ActiveNomenclatureJournalViewModel != journalViewModel) {
+            if(ActiveJournalViewModel != journalViewModel) 
+            {
                 OrderMovementItemsViewModelOnRemoveActiveViewModel();
-                ActiveNomenclatureJournalViewModel = journalViewModel;
+                ActiveJournalViewModel = journalViewModel;
             }
         }
 
-        bool CanAddNomenclaturesToOrder()
+        private bool CanAddNomenclaturesToOrder()
         {
-            if(Order.Counterparty == null) {
-                interactiveService.ShowMessage(
+            if(Order.Counterparty == null) 
+            {
+                commonServices.InteractiveService.ShowMessage(
                     ImportanceLevel.Warning, 
                     "Для добавления товара на продажу должен быть выбран клиент.");
                 
                 return false;
             }
 
-            if(Order.DeliveryPoint == null && Order.Type != OrderType.SelfDeliveryOrder) {
-                interactiveService.ShowMessage(
+            if(Order.DeliveryPoint == null && Order.Type != OrderType.SelfDeliveryOrder) 
+            {
+                commonServices.InteractiveService.ShowMessage(
                     ImportanceLevel.Warning,
                     "Для добавления товара на продажу должна быть выбрана точка доставки.");
                 
@@ -319,25 +580,27 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             DiscountReason discountReason = null)
         {
             if(Order is OrderFrom1c)
+            {
                 return;
+            }
 
             if(Order.OrderSalesItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
                 && nomenclature.Category == NomenclatureCategory.master) {
-                interactiveService.ShowMessage(
+                commonServices.InteractiveService.ShowMessage(
                     ImportanceLevel.Info, "В не сервисный заказ нельзя добавить сервисную услугу");
                 return;
             }
 
             if(Order.OrderSalesItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
                 && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
-                interactiveService.ShowMessage(
+                commonServices.InteractiveService.ShowMessage(
                     ImportanceLevel.Info, "В сервисный заказ нельзя добавить не сервисную услугу");
                 return;
             }
             
             if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
                 .ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
-                interactiveService.ShowMessage(
+                commonServices.InteractiveService.ShowMessage(
                     ImportanceLevel.Info,
                     "У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
                 return;

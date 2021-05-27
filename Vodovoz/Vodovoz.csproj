@@ -1630,6 +1630,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Rent.FreeRentPackageView.cs" />
     <Compile Include="Views\Rent\PaidRentPackageView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Rent.PaidRentPackageView.cs" />
+    <Compile Include="Views\Orders\OrderFrom1cInfoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderFrom1cInfoView.cs" />
+    <Compile Include="Views\Orders\OrderFrom1cInfoPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderFrom1cInfoPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Goods
@@ -39,6 +40,15 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);
 		Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
 		Nomenclature GetSanitisationNomenclature(IUnitOfWork uow);
+
+		#region Rent
+
+		Nomenclature GetAvailableNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentType type, IEnumerable<int> excludeNomenclatures);
+		IList<NomenclatureForRentNode> GetAllNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentType type);
+		QueryOver<Nomenclature, Nomenclature> QueryAvailableNonSerialEquipmentForRent(EquipmentType type);
+
+		#endregion
+		
 		IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs);
 
 		/// <summary>

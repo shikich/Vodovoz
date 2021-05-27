@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Factories;
+using Vodovoz.ViewModels.Journals.JournalNodes.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
@@ -50,8 +51,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                                 nomenclatureFilterViewModelFactory.CreateMovementItemsFilter()
                             );
                         
-                        MovementItemsToClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
-                            MovementItemsToClientJournalVMOnEntitySelected;
+                        MovementItemsToClientJournalViewModel.OnSelectResultWithoutClose +=
+                            MovementItemsToClientJournalVMOnSelect;
                     }
 
                     if (isMovementItemsToClientJournalViewModelActive) {
@@ -87,8 +88,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                                 nomenclatureFilterViewModelFactory.CreateMovementItemsFilter()
                             );
                         
-                        MovementItemsFromClientJournalViewModel.OnEntitySelectedResultWithoutClose +=
-                            MovementItemsFromClientJournalVMOnEntitySelected;
+                        MovementItemsFromClientJournalViewModel.OnSelectResultWithoutClose +=
+                            MovementItemsFromClientJournalVMOnSelect;
                     }
                     
                     UpdateJournalSubscribes(MovementItemsFromClientJournalViewModel);
@@ -115,9 +116,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             Order = order;
         }
         
-        private void MovementItemsToClientJournalVMOnEntitySelected(Object sender, JournalSelectedNodesEventArgs ea)
+        private void MovementItemsToClientJournalVMOnSelect(Object sender, JournalSelectedEventArgs ea)
         {
-            var selectedNode = ea.SelectedNodes.FirstOrDefault();
+            var selectedNode = ea.SelectedObjects.OfType<NomenclatureJournalNode>().FirstOrDefault();
 
             if (selectedNode == null)
                 return;
@@ -125,9 +126,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             //AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(selectedNode.Id), true);
         }
 
-        private void MovementItemsFromClientJournalVMOnEntitySelected(Object sender, JournalSelectedNodesEventArgs ea)
+        private void MovementItemsFromClientJournalVMOnSelect(Object sender, JournalSelectedEventArgs ea)
         {
-            var selectedNode = ea.SelectedNodes.FirstOrDefault();
+            var selectedNode = ea.SelectedObjects.OfType<NomenclatureJournalNode>().FirstOrDefault();
 
             if (selectedNode == null)
                 return;

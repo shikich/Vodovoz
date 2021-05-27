@@ -6,6 +6,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.TempAdapters;
@@ -26,7 +27,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 if (orderItemsViewModel == null)
                 {
                     Parameter[] parameters = {
-                        new TypedParameter(typeof(IInteractiveService), AutofacScope.Resolve<IInteractiveService>()),
+                        new TypedParameter(typeof(ICommonServices), AutofacScope.Resolve<ICommonServices>()),
+                        new TypedParameter(typeof(INomenclatureRepository), AutofacScope.Resolve<INomenclatureRepository>()),
+                        new TypedParameter(
+                            typeof(IRentPackagesJournalsViewModelsFactory), AutofacScope.Resolve<IRentPackagesJournalsViewModelsFactory>()),
+                        new TypedParameter(
+                            typeof(INonSerialEquipmentsForRentJournalViewModelFactory),
+                            AutofacScope.Resolve<INonSerialEquipmentsForRentJournalViewModelFactory>()),
                         new TypedParameter(typeof(ICurrentUserSettings), AutofacScope.Resolve<ICurrentUserSettings>()),
                         new TypedParameter(typeof(OrderBase), Order),
                         new TypedParameter(typeof(OrderInfoExpandedPanelViewModel), ExpandedPanelViewModel),

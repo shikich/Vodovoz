@@ -55,8 +55,12 @@
     <Compile Include="Dialogs\Orders\VisitingMasterOrderInfoPanelViewModel.cs" />
     <Compile Include="Factories\INomenclatureFilterViewModelFactory.cs" />
     <Compile Include="Factories\INomenclaturesJournalViewModelFactory.cs" />
+    <Compile Include="Factories\INonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\IRentPackagesJournalsViewModelsFactory.cs" />
     <Compile Include="Factories\NomenclatureFilterViewModelFactory.cs" />
     <Compile Include="Factories\NomenclaturesJournalViewModelFactory.cs" />
+    <Compile Include="Factories\NonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\RentPackagesJournalsViewModelsFactory.cs" />
     <Compile Include="Infrastructure\Print\IDocumentPrinter.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
@@ -109,8 +113,8 @@
     <Compile Include="Journals\JournalViewModels\Logistic\DriverCarKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\NonSerialEquipmentsForRentJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\NonSerialEquipmentsForRentJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Rent\FreeRentPackagesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Rent\PaidRentPackagesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Security\RegisteredRMJournalViewModel.cs" />
@@ -289,6 +293,8 @@
     <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
     <Compile Include="ViewModels\Rent\FreeRentPackageViewModel.cs" />
     <Compile Include="ViewModels\Rent\PaidRentPackageViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrderFrom1cInfoViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrderFrom1cInfoPanelViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

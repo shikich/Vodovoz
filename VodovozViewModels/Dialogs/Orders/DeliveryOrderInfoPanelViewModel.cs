@@ -196,15 +196,18 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
         private void UpdateParamsDependOnPaymentType()
         {
-            if (Order.PaymentType != PaymentType.ByCard && Order.PaymentType != PaymentType.Terminal) {
+            if (Order.PaymentType != PaymentType.ByCard && Order.PaymentType != PaymentType.Terminal) 
+            {
                 ChangeOrderNumberFromOnlineStore();
                 ChangePaymentByCardFrom();
             }
             
-            if (Order.PaymentType != PaymentType.cash) {
+            if (Order.PaymentType != PaymentType.cash) 
+            {
                 IsPaymentBySMSVisible = Order.IsPaymentBySms = false;
             }
-            else {
+            else 
+            {
                 IsPaymentBySMSVisible = true;
             }
 

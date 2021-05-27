@@ -671,8 +671,7 @@ namespace Vodovoz
 			builder.RegisterType<UndeliveriesViewOpener>().As<IUndeliveriesViewOpener>();
 			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
-			builder.RegisterType<SelfDeliveryOrderCommonEEVMBuilderFactory>()
-				.As<ISelfDeliveryOrderCommonEEVMBuilderFactory>();
+			builder.RegisterType<SelfDeliveryOrderCommonEEVMBuilderFactory>().As<ISelfDeliveryOrderCommonEEVMBuilderFactory>();
 			builder.RegisterType<DocumentPrinter>().As<IDocumentPrinter>();
 
 			#endregion
@@ -709,6 +708,8 @@ namespace Vodovoz
 				.AsSelf();
 			builder.RegisterType<NomenclaturesJournalViewModelFactory>().As<INomenclaturesJournalViewModelFactory>();
 			builder.RegisterType<NomenclaturesFilterViewModelFactory>().As<INomenclatureFilterViewModelFactory>();
+			builder.RegisterType<RentPackagesJournalsViewModelsFactory>().As<IRentPackagesJournalsViewModelsFactory>();
+			builder.RegisterType<NonSerialEquipmentsForRentJournalViewModelFactory>().As<INonSerialEquipmentsForRentJournalViewModelFactory>();
 
 			#endregion
 			
@@ -724,10 +725,7 @@ namespace Vodovoz
 			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
 			builder.Register(c => OrderSingletonRepository.GetInstance()).As<IOrderRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
-			builder.Register(c =>
-					new NomenclatureRepository(
-						c.Resolve<INomenclatureParametersProvider>()))
-				.As<INomenclatureRepository>();
+			builder.RegisterType<NomenclatureRepository>().As<INomenclatureRepository>();
 			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
 			builder.RegisterType<EmailRepository>().As<IEmailRepository>();
 			
