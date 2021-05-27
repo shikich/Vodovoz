@@ -2,7 +2,6 @@
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModels.Dialogs.Orders;
@@ -65,7 +64,7 @@ namespace Vodovoz.ViewWidgets.Orders
                         if (document.Type == OrderDocumentType.UPD)
                         {
                             toggle.Activatable =
-                                ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+                                ViewModel.commonServices.CurrentPermissionService.ValidatePresetPermission(
                                     "can_edit_seal_and_signature_UPD");
                         }
                         else

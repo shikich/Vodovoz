@@ -285,12 +285,12 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         #endregion
         
         private readonly IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-        private readonly ICommonServices commonServices;
         private readonly CommonMessages commonMessages;
         private readonly ITdiCompatibilityNavigation compatibilityNavigation;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
         private readonly IDocumentPrinter documentPrinter;
         private readonly OrderDocumentsModel orderDocumentsModel;
+        public readonly ICommonServices commonServices;
 
         public OrderDocumentsViewModel(
             //IUnitOfWork uow,
