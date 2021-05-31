@@ -39,8 +39,7 @@ namespace Vodovoz.Domain.Orders.Documents.OrderContract
 			if(Contract.DocumentTemplate == null)
 				Contract.UpdateContractTemplate(uow);
 
-			if(Contract.DocumentTemplate != null)
-				Contract.DocumentTemplate.DocParser.SetDocObject(Contract);
+			Contract.DocumentTemplate?.DocParser.SetDocObject(Contract);
 		}
 
 		public virtual IDocTemplate GetTemplate() => Contract?.DocumentTemplate;

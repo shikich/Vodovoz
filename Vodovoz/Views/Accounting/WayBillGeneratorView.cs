@@ -1,10 +1,7 @@
 ﻿using System;
 using Gamma.ColumnConfig;
-using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
+using QS.Report;
 using QS.Views.GtkUI;
-using QSReport;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModels.Accounting;
 namespace Vodovoz.Views.Accounting

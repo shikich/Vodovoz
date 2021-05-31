@@ -13,14 +13,13 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Tdi;
 using QS.Validation;
-using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Additions.Printing;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -32,10 +31,12 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.PrintableDocuments;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz
 {
@@ -45,6 +46,7 @@ namespace Vodovoz
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
@@ -223,7 +225,7 @@ namespace Vodovoz
 
 		DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
 		{
-			var dlg = new DocumentsPrinterDlg(UoW, Entity, choise);
+			var dlg = new DocumentsPrinterDlg(UoW, Entity, entityDocumentsPrinterFactory, choise);
 			dlg.DocumentsPrinted += Dlg_DocumentsPrinted;
 			return dlg;
 		}

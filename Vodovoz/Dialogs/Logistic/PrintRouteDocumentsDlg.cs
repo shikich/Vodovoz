@@ -9,14 +9,16 @@ using NHibernate;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Tdi;
 using QSProjectsLib;
-using QSReport;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
+using Vodovoz.PrintableDocuments;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -26,6 +28,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		Gdk.Pixbuf vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 
+		private readonly IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		List<SelectablePrintDocument> Routes = new List<SelectablePrintDocument>();
 		GenericObservableList<OrderDocTypeNode> OrderDocTypesToPrint = new GenericObservableList<OrderDocTypeNode>();
 		GenericObservableList<GeographicGroup> geographicGroups;
@@ -211,9 +214,10 @@ namespace Vodovoz.Dialogs.Logistic
 																   .ToArray();
 
 						bool cancelPrinting = false;
-						EntitiyDocumentsPrinter printer = new EntitiyDocumentsPrinter(
+						var printer = entityDocumentsPrinterFactory.CreateRouteListWithOrderDocumentsPrinter(
 							uow,
 							rlPrintableDoc.routeList,
+							entityDocumentsPrinterFactory,
 							rlDocTypesToPrint.ToArray(),
 							oDocTypesToPrint
 						);
@@ -235,7 +239,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 					progressPrint.Adjustment.Value++;
 				}
-				EntitiyDocumentsPrinter.PrinterSettings = null;
+				EntityDocumentsPrinter.ClearPrinterSettings();
 			} finally {
 				SetSensetivity(true);
 			}

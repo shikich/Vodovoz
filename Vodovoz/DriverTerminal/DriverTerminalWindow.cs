@@ -5,9 +5,9 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
-using QSProjectsLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.PrintableDocuments;
 
 namespace Vodovoz.DriverTerminal
 {

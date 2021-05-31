@@ -38,6 +38,7 @@ using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using QSReport;
+using Vodovoz.Additions.Printing;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
@@ -162,6 +163,7 @@ using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.Views.Retail;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
@@ -703,13 +705,12 @@ namespace Vodovoz
 			
 			#region Фабрики
 			
-			builder.RegisterType<OrderDocumentUpdatersFactory>()
-				.As<IOrderDocumentUpdatersFactory>()
-				.AsSelf();
+			builder.RegisterType<OrderDocumentUpdatersFactory>().As<IOrderDocumentUpdatersFactory>().AsSelf();
 			builder.RegisterType<NomenclaturesJournalViewModelFactory>().As<INomenclaturesJournalViewModelFactory>();
 			builder.RegisterType<NomenclaturesFilterViewModelFactory>().As<INomenclatureFilterViewModelFactory>();
 			builder.RegisterType<RentPackagesJournalsViewModelsFactory>().As<IRentPackagesJournalsViewModelsFactory>();
 			builder.RegisterType<NonSerialEquipmentsForRentJournalViewModelFactory>().As<INonSerialEquipmentsForRentJournalViewModelFactory>();
+			builder.RegisterType<EntityDocumentsPrinterFactory>().As<IEntityDocumentsPrinterFactory>();
 
 			#endregion
 			

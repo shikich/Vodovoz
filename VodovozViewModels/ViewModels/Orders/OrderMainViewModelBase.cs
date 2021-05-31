@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -36,11 +37,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                     Parameter[] parameters = {
                         orderParameter,
                         new TypedParameter(typeof(ITdiCompatibilityNavigation), tdiCompatibilityNavigation),
+                        new TypedParameter(typeof(IEntityDocumentsPrinterFactory), AutofacScope.Resolve<IEntityDocumentsPrinterFactory>()),
                         new TypedParameter(typeof(ICommonServices), AutofacScope.Resolve<ICommonServices>()),
                         new TypedParameter(typeof(IRDLPreviewOpener), AutofacScope.Resolve<IRDLPreviewOpener>()),
                         new TypedParameter(typeof(CommonMessages), AutofacScope.Resolve<CommonMessages>()),
-                        new TypedParameter(typeof(SendDocumentByEmailViewModel),
-                            AutofacScope.Resolve<SendDocumentByEmailViewModel>()),
+                        new TypedParameter(typeof(SendDocumentByEmailViewModel), AutofacScope.Resolve<SendDocumentByEmailViewModel>()),
                         new TypedParameter(typeof(IDocumentPrinter), AutofacScope.Resolve<IDocumentPrinter>()),
                         new TypedParameter(typeof(OrderDocumentsModel), 
                             AutofacScope.Resolve<OrderDocumentsModel>(orderParameter, orderDocumentUpdatersFactoryParameter))

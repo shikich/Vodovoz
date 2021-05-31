@@ -20,10 +20,9 @@ namespace Vodovoz.ViewWidgets.Orders
         private void Configure()
         {
             ConfigureTree();
-            
+
             ybtnRemoveExistingDoc.Clicked +=
-                (sender, args) =>
-                    ViewModel.RemoveExistingDocCommand.Execute(ytreeDocuments.GetSelectedObjects<OrderDocument>());
+                (sender, args) => ViewModel.RemoveExistingDocCommand.Execute(ytreeDocuments.GetSelectedObjects<OrderDocument>());
             ybtnAddExistingDoc.Clicked += (sender, args) => ViewModel.AddExistingDocCommand.Execute();
             ybtnAddM2ProxyForThisOrder.Clicked += (sender, args) => ViewModel.AddM2ProxyCommand.Execute();
             ybtnPrintSelected.Clicked += (sender, args) => 

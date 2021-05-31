@@ -5,14 +5,14 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
-using QSReport;
-using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.Documents.DriverTicket;
 using Vodovoz.Domain.Orders.Documents.Invoice;
+using Vodovoz.PrintableDocuments;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Dialogs
 {
@@ -21,7 +21,8 @@ namespace Vodovoz.Dialogs
 		Order currentOrder;
 		RouteList currentRouteList;
 		SelectablePrintDocument selectedDocument;
-		EntitiyDocumentsPrinter entitiyDocumentsPrinter;
+		EntityDocumentsPrinter entityDocumentsPrinter;
+		
 		public event EventHandler DocumentsPrinted;
 
 		public DocumentsPrinterDlg(Order order)
@@ -30,19 +31,23 @@ namespace Vodovoz.Dialogs
 
 			TabName = "Печать документов заказа";
 
-			entitiyDocumentsPrinter = new EntitiyDocumentsPrinter(order);
-			if(!string.IsNullOrEmpty(entitiyDocumentsPrinter.ODTTemplateNotFoundMessages))
-				MessageDialogHelper.RunWarningDialog(entitiyDocumentsPrinter.ODTTemplateNotFoundMessages);
+			entityDocumentsPrinter = new EntityDocumentsPrinter(order);
+			if(!string.IsNullOrEmpty(entityDocumentsPrinter.ODTTemplateNotFoundMessages))
+				MessageDialogHelper.RunWarningDialog(entityDocumentsPrinter.ODTTemplateNotFoundMessages);
 			currentOrder = order;
 
 			Configure();
 		}
 
-		public DocumentsPrinterDlg(IUnitOfWork uow, RouteList routeList, RouteListPrintableDocuments selectedType)
+		public DocumentsPrinterDlg(
+			IUnitOfWork uow,
+			RouteList routeList,
+			IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
+			RouteListPrintableDocuments selectedType)
 		{
 			this.Build();
 			TabName = "Печать документов МЛ";
-			entitiyDocumentsPrinter = new EntitiyDocumentsPrinter(uow, routeList, selectedType);
+			entityDocumentsPrinter = new EntityDocumentsPrinter(uow, routeList, entityDocumentsPrinterFactory, selectedType);
 			currentRouteList = routeList;
 
 			Configure();
@@ -58,15 +63,15 @@ namespace Vodovoz.Dialogs
 				.RowCells()
 				.Finish();
 
-			ytreeviewDocuments.ItemsDataSource = entitiyDocumentsPrinter.MultiDocPrinter.PrintableDocuments;
+			ytreeviewDocuments.ItemsDataSource = entityDocumentsPrinter.MultiDocPrinter.PrintableDocuments;
 
 			DefaultPreviewDocument();
-			entitiyDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
+			entityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
 		}
 
 		protected void DefaultPreviewDocument()
 		{
-			var printDocuments = entitiyDocumentsPrinter.DocumentsToPrint;
+			var printDocuments = entityDocumentsPrinter.DocumentsToPrint;
 			if(currentOrder != null) { //если этот диалог вызван из заказа
 				var documents = printDocuments.Where(x => x.Document is OrderDocument)
 											  .Where(x => (x.Document as OrderDocument).Order.Id == currentOrder.Id);
@@ -102,12 +107,12 @@ namespace Vodovoz.Dialogs
 
 		void Reportviewer_ReportPrinted(object sender, EventArgs e) => DocumentsPrinted?.Invoke(this, new EndPrintArgs { Args = new[] { selectedDocument.Document } });
 
-		protected void OnButtonPrintAllClicked(object sender, EventArgs e) => entitiyDocumentsPrinter.Print();
+		protected void OnButtonPrintAllClicked(object sender, EventArgs e) => entityDocumentsPrinter.Print();
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			if(selectedDocument != null)
-				entitiyDocumentsPrinter.Print(selectedDocument);
+				entityDocumentsPrinter.Print(selectedDocument);
 		}
 
 		protected void OnYtreeviewDocumentsRowActivated(object o, RowActivatedArgs args)

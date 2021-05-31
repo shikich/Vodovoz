@@ -20,7 +20,7 @@ namespace Vodovoz.Repository.Client
 				.Where(x => x.TemplateType == type)
 				.Where(x => x.Organization == org)
 				.Where(x => x.ContractType == contractType)
-				.List<DocTemplate>(); ;
+				.List<DocTemplate>();
 			return templates.FirstOrDefault();
 		}
 
@@ -39,7 +39,6 @@ namespace Vodovoz.Repository.Client
 				.Where(x => x.Organization == org)
 				.List<DocTemplate>().FirstOrDefault();
 		}
-
 	}
 }
 

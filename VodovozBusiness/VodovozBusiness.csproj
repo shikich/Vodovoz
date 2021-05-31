@@ -282,6 +282,7 @@
     <Compile Include="Parameters\RouteListParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
+    <Compile Include="PrintableDocuments\RouteListPrintableDocuments.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\Accounting\AccountExpense.cs" />
     <Compile Include="Domain\Accounting\AccountIncome.cs" />

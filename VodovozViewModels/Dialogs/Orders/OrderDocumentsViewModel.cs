@@ -24,6 +24,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.ViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
@@ -32,6 +33,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
     public class OrderDocumentsViewModel : UoWWidgetViewModelBase
     {
         private readonly ValidationContext ValidationContext;
+        private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
         private OrderBase TemplateOrder { get; set;}
         public OrderBase Order { get; set; }
         public SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; }
@@ -124,10 +126,32 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             openPrintDlgCommand = new DelegateCommand(
                 () =>
                 {
-                    //TODO Переписать на MVVM DocumentsPrinterDlg
-                    /*if(Order.OrderDocuments.OfType<PrintableOrderDocument>().Any(
+                    if(Order.OrderDocuments.OfType<PrintableOrderDocument>().Any(
                         doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
-                        TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Order));*/
+                    {
+                        //TODO заменить на нормальный uow
+                        var newUow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot();
+
+                        Type[] types =
+                        {
+                            typeof(IUnitOfWork),
+                            typeof(IEntityDocumentsPrinter),
+                            typeof(OrderBase),
+                            typeof(INavigationManager),
+                            typeof(IInteractiveService)
+                        };
+
+                        object[] objs =
+                        {
+                            newUow,
+                            _entityDocumentsPrinterFactory.CreateOrderDocumentsPrinter(Order, newUow),
+                            Order,
+                            compatibilityNavigation,
+                            commonServices.InteractiveService
+                        };
+
+                        compatibilityNavigation.OpenViewModelTypedArgs<DocumentsPrinterViewModel>(ParentTab, types, objs);
+                    }
                 },
                 () => true
             )
@@ -292,9 +316,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         private readonly OrderDocumentsModel orderDocumentsModel;
         public readonly ICommonServices commonServices;
 
+        //TODO убрать закомменченный код, как будет понятно, как будем использовать UnitOfWork
         public OrderDocumentsViewModel(
             //IUnitOfWork uow,
             OrderBase order,
+            IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
             ITdiCompatibilityNavigation compatibilityNavigation,
             ICommonServices commonServices,
             IRDLPreviewOpener rdlPreviewOpener,
@@ -305,6 +331,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         {
             //this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
             Order = order;
+            _entityDocumentsPrinterFactory =
+                entityDocumentsPrinterFactory ?? throw new ArgumentNullException(nameof(entityDocumentsPrinterFactory));
             this.commonServices = commonServices ?? throw new ArgumentException(nameof(commonServices));
             this.commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
             this.compatibilityNavigation = 

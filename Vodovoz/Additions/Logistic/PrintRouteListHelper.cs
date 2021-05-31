@@ -14,6 +14,7 @@ using QS.Report;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.PrintableDocuments;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
 
@@ -347,26 +348,6 @@ namespace Vodovoz.Additions.Logistic
 					throw new NotImplementedException("Неизвестный тип документа");
 			}
 		}
-	}
-
-	public enum RouteListPrintableDocuments
-	{
-		[Display(Name = "Все")]
-		All,
-		[Display(Name = "Маршрутный лист")]
-		RouteList,
-		[Display(Name = "Карта маршрута")]
-		RouteMap,
-		[Display(Name = "Адреса по ежедневным номерам")]
-		DailyList,
-		[Display(Name = "Лист времени")]
-		TimeList,
-		[Display(Name = "Документ погрузки")]
-		LoadDocument,
-		[Display(Name = "Погрузка Софийская")]
-		LoadSofiyskaya,
-		[Display(Name = "Отчёт по порядку адресов")]
-		OrderOfAddresses
 	}
 
 	public class RouteListPrintableDocs : IPrintableRDLDocument

@@ -24,6 +24,7 @@ using QSDocTemplates;
 using QS.DocTemplates;
 using System.IO;
 using QS.Dialog.GtkUI;
+using QS.Report;
 
 namespace Vodovoz.Additions.Accounting
 {
