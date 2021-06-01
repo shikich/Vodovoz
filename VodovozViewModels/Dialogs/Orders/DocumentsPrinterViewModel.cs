@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			_currentOrder = order;
 			DefaultPreviewDocument();
+			EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
 		}
 		
 		public DocumentsPrinterViewModel(
@@ -56,9 +57,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			Title = "Печать документов МЛ";
 			_currentRouteList = routeList;
 			DefaultPreviewDocument();
+			EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
 		}
 		
 		public event Action PreviewDocument;
+		public event EventHandler DocumentsPrinted;
 
 		public DelegateCommand PrintSelectedCommand => _printSelectedCommand ?? (_printSelectedCommand = new DelegateCommand(
 			() => EntityDocumentsPrinter.Print(SelectedDocument),
@@ -112,5 +115,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		}
 
 		public void PrintAll() => EntityDocumentsPrinter.Print();
+
+		public void ReportViewerOnReportPrinted(object o, EventArgs args) => DocumentsPrinted?.Invoke(o, args);
     }
 }

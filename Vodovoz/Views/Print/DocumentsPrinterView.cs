@@ -11,8 +11,6 @@ namespace Vodovoz.Views.Print
     [System.ComponentModel.ToolboxItem(true)]
     public partial class DocumentsPrinterView : DialogViewBase<DocumentsPrinterViewModel>
     {
-        public event EventHandler DocumentsPrinted;
-
         public DocumentsPrinterView(DocumentsPrinterViewModel viewModel) : base(viewModel)
         {
             this.Build();
@@ -30,7 +28,6 @@ namespace Vodovoz.Views.Print
             ybtnPrint.Binding.AddBinding(ViewModel, vm => vm.CanPrint, w => w.Sensitive);
             ybtnPrint.Visible = false;
             
-            ViewModel.EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
             ViewModel.PreviewDocument += PreviewDocument;
         }
 
@@ -85,8 +82,8 @@ namespace Vodovoz.Views.Print
                 }
             }
         }
-        
-        private void ReportViewerOnReportPrinted(object sender, EventArgs e) => 
-            DocumentsPrinted?.Invoke(this, new EndPrintArgs { Args = new object[] { ViewModel.SelectedDocument.Document } });
+
+        private void ReportViewerOnReportPrinted(object sender, EventArgs e) =>
+            ViewModel.ReportViewerOnReportPrinted(this, new EndPrintArgs {Args = new object[] {ViewModel.SelectedDocument.Document}});
     }
 }
