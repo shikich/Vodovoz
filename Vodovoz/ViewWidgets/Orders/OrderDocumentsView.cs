@@ -3,6 +3,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
@@ -19,6 +20,11 @@ namespace Vodovoz.ViewWidgets.Orders
 
         private void Configure()
         {
+            if(ViewModel.Order is OrderFrom1c)
+            {
+                this.Sensitive = false;
+            }
+            
             ConfigureTree();
 
             ybtnRemoveExistingDoc.Clicked +=

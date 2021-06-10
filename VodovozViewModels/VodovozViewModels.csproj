@@ -299,6 +299,7 @@
     <Compile Include="ViewModels\Rent\PaidRentPackageViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrderFrom1cInfoViewModel.cs" />
     <Compile Include="Dialogs\Orders\OrderFrom1cInfoPanelViewModel.cs" />
+    <Compile Include="Dialogs\Orders\OrderInfoPanelViewModelBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

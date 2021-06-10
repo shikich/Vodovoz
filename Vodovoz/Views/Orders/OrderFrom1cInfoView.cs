@@ -16,6 +16,8 @@ namespace Vodovoz.Views.Orders
 
         private void Configure()
         {
+            this.Sensitive = false;
+            
             CreateOrderItemsView();
             CreateSelfDeliveryOrderInfoPanelView();
         }

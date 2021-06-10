@@ -26,10 +26,15 @@ namespace Vodovoz.Views.Orders
         {
             ConfigureEntries();
             
-            //ylblOrderAuthor.Binding.AddBinding(ViewModel.Order, o => o.Author.ShortName, w => w.LabelProp).InitializeFromSource();
-            
+            ylblOrderAuthor.Binding.AddFuncBinding(
+                ViewModel.Order, o => o.Author == null ? "" : o.Author.ShortName, w => w.LabelProp).InitializeFromSource();
+            ylblOrderAuthor.Binding.AddBinding(ViewModel, vm => vm.IsAuthorVisible, w => w.Visible).InitializeFromSource();
+            ylblAuthor.Binding.AddBinding(ViewModel, vm => vm.IsAuthorVisible, w => w.Visible).InitializeFromSource();
             ylblStatusInfo.Binding.AddFuncBinding(ViewModel.Order, o => o.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
-            ylblCreationDate.Binding.AddFuncBinding(ViewModel.Order, o => o.CreateDate.HasValue ? o.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
+            ylblCreationDate.Binding.AddFuncBinding(ViewModel.Order,
+                o => o.CreateDate.HasValue ? o.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
+            ylblCreationDate.Binding.AddFuncBinding(ViewModel, vm => vm.IsCreationDateVisible, w => w.Visible).InitializeFromSource();
+            ylblCreated.Binding.AddFuncBinding(ViewModel, vm => vm.IsCreationDateVisible, w => w.Visible).InitializeFromSource();
             ylblBillDate.Binding.AddBinding(ViewModel, vm => vm.IsBillDateVisible, w => w.Visible).InitializeFromSource();
             ylblOnlineOrder.Binding.AddBinding(ViewModel, vm => vm.IsOrderNumberFromOnlineStoreVisible, w => w.Visible).InitializeFromSource();
             ylblDeliveryTime.Binding.AddBinding(ViewModel, vm => vm.IsDeliveryScheduleVisible, w => w.Visible).InitializeFromSource();

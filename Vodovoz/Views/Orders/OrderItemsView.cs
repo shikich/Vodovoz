@@ -40,6 +40,11 @@ namespace Vodovoz.Views.Orders
 
         private void Configure()
         {
+	        if(ViewModel.Order is OrderFrom1c)
+	        {
+		        this.Sensitive = false;
+	        }
+	        
             ConfigureTree();
             
             ybtnAddOrderItem.Clicked += (sender, args) => ViewModel.AddSalesItemCommand.Execute();

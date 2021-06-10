@@ -17,6 +17,11 @@ namespace Vodovoz.ViewWidgets.Orders
         //TODO Проверить свойства для комментариев ОДЗ и отдела продаж
         private void Configure()
         {
+            if(ViewModel.Order is OrderFrom1c)
+            {
+                this.Sensitive = false;
+            }
+            
             enumDiverCallType.ItemsEnum = typeof(DriverCallType);
             enumDiverCallType.Binding.AddBinding(ViewModel.Order, o => o.DriverCallType, w => w.SelectedItem).InitializeFromSource();
             enumDiverCallType.Binding.AddBinding(ViewModel, vm => vm.CanEditOrder, w => w.Sensitive).InitializeFromSource();
@@ -38,10 +43,10 @@ namespace Vodovoz.ViewWidgets.Orders
             ytxtTareComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOrder, w => w.Sensitive).InitializeFromSource();
             ytxtSalesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.SalesDepartmentComment, w => w.Buffer.Text).InitializeFromSource();
             ytxtSalesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.CanEditSalesDepartmentComment, w => w.Sensitive).InitializeFromSource();
-            ytxtSalesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.CanShowComments, w => w.Visible).InitializeFromSource();
+            yhboxSalesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.CanShowComments, w => w.Visible).InitializeFromSource();
             ytxtReceivablesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.ReceivablesDepartmentComment, w => w.Buffer.Text).InitializeFromSource();
             ytxtReceivablesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.CanEditReceivablesDepartmentComment, w => w.Sensitive).InitializeFromSource();
-            ytxtReceivablesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.CanShowComments, w => w.Visible).InitializeFromSource();
+            yhboxReceivablesDepartmentComment.Binding.AddBinding(ViewModel, vm => vm.CanShowComments, w => w.Visible).InitializeFromSource();
         }
 
         public override void Destroy()

@@ -18,15 +18,23 @@ namespace Vodovoz.ViewWidgets.Orders
 
 		private global::Gamma.GtkWidgets.yTextView ytxtTareComment;
 
+		private global::QS.Widgets.GtkUI.SpecialListComboBox specCmbNonReturnTareReasons;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxReceivablesDepartmentComment;
+
+		private global::Gamma.GtkWidgets.yLabel ylblReceivablesDepartmentComment;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindowReceivablesDepartmentComment;
 
 		private global::Gamma.GtkWidgets.yTextView ytxtReceivablesDepartmentComment;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxSalesDepartmentComment;
+
+		private global::Gamma.GtkWidgets.yLabel ylblSalesDepartmentComment;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindowSalesDepartmentComment;
 
 		private global::Gamma.GtkWidgets.yTextView ytxtSalesDepartmentComment;
-
-		private global::QS.Widgets.GtkUI.SpecialListComboBox specCmbNonReturnTareReasons;
 
 		private global::Gamma.GtkWidgets.yLabel ylblDriverCall;
 
@@ -35,10 +43,6 @@ namespace Vodovoz.ViewWidgets.Orders
 		private global::Gamma.GtkWidgets.yLabel ylblNonReturnTareReason;
 
 		private global::Gamma.GtkWidgets.yLabel ylblNumOfDriverCall;
-
-		private global::Gamma.GtkWidgets.yLabel ylblReceivablesDepartmentComment;
-
-		private global::Gamma.GtkWidgets.yLabel ylblSalesDepartmentComment;
 
 		private global::Gamma.GtkWidgets.yLabel ylblTareComment;
 
@@ -105,6 +109,35 @@ namespace Vodovoz.ViewWidgets.Orders
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
+			this.specCmbNonReturnTareReasons = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.specCmbNonReturnTareReasons.Name = "specCmbNonReturnTareReasons";
+			this.specCmbNonReturnTareReasons.AddIfNotExist = false;
+			this.specCmbNonReturnTareReasons.DefaultFirst = true;
+			this.specCmbNonReturnTareReasons.ShowSpecialStateAll = false;
+			this.specCmbNonReturnTareReasons.ShowSpecialStateNot = false;
+			this.tableMain.Add(this.specCmbNonReturnTareReasons);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.specCmbNonReturnTareReasons]));
+			w6.TopAttach = ((uint)(3));
+			w6.BottomAttach = ((uint)(4));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.yhboxReceivablesDepartmentComment = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxReceivablesDepartmentComment.Name = "yhboxReceivablesDepartmentComment";
+			this.yhboxReceivablesDepartmentComment.Spacing = 6;
+			// Container child yhboxReceivablesDepartmentComment.Gtk.Box+BoxChild
+			this.ylblReceivablesDepartmentComment = new global::Gamma.GtkWidgets.yLabel();
+			this.ylblReceivablesDepartmentComment.Name = "ylblReceivablesDepartmentComment";
+			this.ylblReceivablesDepartmentComment.Xalign = 1F;
+			this.ylblReceivablesDepartmentComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий ОДЗ:");
+			this.yhboxReceivablesDepartmentComment.Add(this.ylblReceivablesDepartmentComment);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxReceivablesDepartmentComment[this.ylblReceivablesDepartmentComment]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child yhboxReceivablesDepartmentComment.Gtk.Box+BoxChild
 			this.GtkScrolledWindowReceivablesDepartmentComment = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowReceivablesDepartmentComment.Name = "GtkScrolledWindowReceivablesDepartmentComment";
 			this.GtkScrolledWindowReceivablesDepartmentComment.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -113,15 +146,31 @@ namespace Vodovoz.ViewWidgets.Orders
 			this.ytxtReceivablesDepartmentComment.CanFocus = true;
 			this.ytxtReceivablesDepartmentComment.Name = "ytxtReceivablesDepartmentComment";
 			this.GtkScrolledWindowReceivablesDepartmentComment.Add(this.ytxtReceivablesDepartmentComment);
-			this.tableMain.Add(this.GtkScrolledWindowReceivablesDepartmentComment);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindowReceivablesDepartmentComment]));
-			w7.TopAttach = ((uint)(6));
-			w7.BottomAttach = ((uint)(7));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.yhboxReceivablesDepartmentComment.Add(this.GtkScrolledWindowReceivablesDepartmentComment);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxReceivablesDepartmentComment[this.GtkScrolledWindowReceivablesDepartmentComment]));
+			w9.Position = 1;
+			this.tableMain.Add(this.yhboxReceivablesDepartmentComment);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yhboxReceivablesDepartmentComment]));
+			w10.TopAttach = ((uint)(6));
+			w10.BottomAttach = ((uint)(7));
+			w10.RightAttach = ((uint)(3));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
+			this.yhboxSalesDepartmentComment = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxSalesDepartmentComment.Name = "yhboxSalesDepartmentComment";
+			this.yhboxSalesDepartmentComment.Spacing = 6;
+			// Container child yhboxSalesDepartmentComment.Gtk.Box+BoxChild
+			this.ylblSalesDepartmentComment = new global::Gamma.GtkWidgets.yLabel();
+			this.ylblSalesDepartmentComment.Name = "ylblSalesDepartmentComment";
+			this.ylblSalesDepartmentComment.Xalign = 1F;
+			this.ylblSalesDepartmentComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий ОП:");
+			this.yhboxSalesDepartmentComment.Add(this.ylblSalesDepartmentComment);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxSalesDepartmentComment[this.ylblSalesDepartmentComment]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child yhboxSalesDepartmentComment.Gtk.Box+BoxChild
 			this.GtkScrolledWindowSalesDepartmentComment = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowSalesDepartmentComment.Name = "GtkScrolledWindowSalesDepartmentComment";
 			this.GtkScrolledWindowSalesDepartmentComment.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -130,122 +179,87 @@ namespace Vodovoz.ViewWidgets.Orders
 			this.ytxtSalesDepartmentComment.CanFocus = true;
 			this.ytxtSalesDepartmentComment.Name = "ytxtSalesDepartmentComment";
 			this.GtkScrolledWindowSalesDepartmentComment.Add(this.ytxtSalesDepartmentComment);
-			this.tableMain.Add(this.GtkScrolledWindowSalesDepartmentComment);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindowSalesDepartmentComment]));
-			w9.TopAttach = ((uint)(5));
-			w9.BottomAttach = ((uint)(6));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(3));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.specCmbNonReturnTareReasons = new global::QS.Widgets.GtkUI.SpecialListComboBox();
-			this.specCmbNonReturnTareReasons.Name = "specCmbNonReturnTareReasons";
-			this.specCmbNonReturnTareReasons.AddIfNotExist = false;
-			this.specCmbNonReturnTareReasons.DefaultFirst = true;
-			this.specCmbNonReturnTareReasons.ShowSpecialStateAll = false;
-			this.specCmbNonReturnTareReasons.ShowSpecialStateNot = false;
-			this.tableMain.Add(this.specCmbNonReturnTareReasons);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.specCmbNonReturnTareReasons]));
-			w10.TopAttach = ((uint)(3));
-			w10.BottomAttach = ((uint)(4));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.yhboxSalesDepartmentComment.Add(this.GtkScrolledWindowSalesDepartmentComment);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxSalesDepartmentComment[this.GtkScrolledWindowSalesDepartmentComment]));
+			w13.Position = 1;
+			this.tableMain.Add(this.yhboxSalesDepartmentComment);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yhboxSalesDepartmentComment]));
+			w14.TopAttach = ((uint)(5));
+			w14.BottomAttach = ((uint)(6));
+			w14.RightAttach = ((uint)(3));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.ylblDriverCall = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDriverCall.Name = "ylblDriverCall";
 			this.ylblDriverCall.Xalign = 1F;
 			this.ylblDriverCall.LabelProp = global::Mono.Unix.Catalog.GetString("Отзвон водителя:");
 			this.tableMain.Add(this.ylblDriverCall);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblDriverCall]));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblDriverCall]));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.ylblDriverPhone = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDriverPhone.Name = "ylblDriverPhone";
 			this.ylblDriverPhone.Xalign = 1F;
 			this.ylblDriverPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Водительский телефон:");
 			this.tableMain.Add(this.ylblDriverPhone);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblDriverPhone]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblDriverPhone]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.ylblNonReturnTareReason = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblNonReturnTareReason.Name = "ylblNonReturnTareReason";
 			this.ylblNonReturnTareReason.Xalign = 1F;
 			this.ylblNonReturnTareReason.LabelProp = global::Mono.Unix.Catalog.GetString("Причина не сдачи тары:");
 			this.tableMain.Add(this.ylblNonReturnTareReason);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblNonReturnTareReason]));
-			w13.TopAttach = ((uint)(3));
-			w13.BottomAttach = ((uint)(4));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblNonReturnTareReason]));
+			w17.TopAttach = ((uint)(3));
+			w17.BottomAttach = ((uint)(4));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.ylblNumOfDriverCall = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblNumOfDriverCall.Name = "ylblNumOfDriverCall";
 			this.ylblNumOfDriverCall.Xalign = 1F;
 			this.ylblNumOfDriverCall.LabelProp = global::Mono.Unix.Catalog.GetString("Номер звонка водителя:");
 			this.tableMain.Add(this.ylblNumOfDriverCall);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblNumOfDriverCall]));
-			w14.TopAttach = ((uint)(2));
-			w14.BottomAttach = ((uint)(3));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.ylblReceivablesDepartmentComment = new global::Gamma.GtkWidgets.yLabel();
-			this.ylblReceivablesDepartmentComment.Name = "ylblReceivablesDepartmentComment";
-			this.ylblReceivablesDepartmentComment.Xalign = 1F;
-			this.ylblReceivablesDepartmentComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий ОДЗ:");
-			this.tableMain.Add(this.ylblReceivablesDepartmentComment);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblReceivablesDepartmentComment]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.ylblSalesDepartmentComment = new global::Gamma.GtkWidgets.yLabel();
-			this.ylblSalesDepartmentComment.Name = "ylblSalesDepartmentComment";
-			this.ylblSalesDepartmentComment.Xalign = 1F;
-			this.ylblSalesDepartmentComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий ОП:");
-			this.tableMain.Add(this.ylblSalesDepartmentComment);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblSalesDepartmentComment]));
-			w16.TopAttach = ((uint)(5));
-			w16.BottomAttach = ((uint)(6));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblNumOfDriverCall]));
+			w18.TopAttach = ((uint)(2));
+			w18.BottomAttach = ((uint)(3));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.ylblTareComment = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblTareComment.Name = "ylblTareComment";
 			this.ylblTareComment.Xalign = 1F;
 			this.ylblTareComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий по таре:");
 			this.tableMain.Add(this.ylblTareComment);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblTareComment]));
-			w17.TopAttach = ((uint)(4));
-			w17.BottomAttach = ((uint)(5));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblTareComment]));
+			w19.TopAttach = ((uint)(4));
+			w19.BottomAttach = ((uint)(5));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.ylblValueNumOfDriverCall = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblValueNumOfDriverCall.Name = "ylblValueNumOfDriverCall";
 			this.ylblValueNumOfDriverCall.Xalign = 0F;
 			this.ylblValueNumOfDriverCall.LabelProp = global::Mono.Unix.Catalog.GetString("Значение");
 			this.tableMain.Add(this.ylblValueNumOfDriverCall);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblValueNumOfDriverCall]));
-			w18.TopAttach = ((uint)(2));
-			w18.BottomAttach = ((uint)(3));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblValueNumOfDriverCall]));
+			w20.TopAttach = ((uint)(2));
+			w20.BottomAttach = ((uint)(3));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableMain);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
-			w19.Position = 0;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
