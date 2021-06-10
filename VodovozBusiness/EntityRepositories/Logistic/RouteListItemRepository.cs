@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -33,6 +34,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 					   .Where(i => i.Order == order)
 					   .List()
 					   .Any();
+		}
+		
+		public bool WasOrderInAnyRouteList(IUnitOfWork uow, OrderBase order)
+		{
+			throw new NotImplementedException();
 		}
 
 		public IList<RouteListItem> GetRouteListItemAtDay(IUnitOfWork uow, DateTime date, RouteListItemStatus? status)

@@ -885,7 +885,8 @@ public partial class MainWindow : Window
 		);
 		*/
 		
-		var order = new SelfDeliveryOrder();
+		//var order = new SelfDeliveryOrder();
+		var order = new OrderFrom1c();
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var comServices = autofacScope.Resolve<ICommonServices>();
 		var emplService = autofacScope.Resolve<IEmployeeService>();
@@ -913,17 +914,25 @@ public partial class MainWindow : Window
 		
 		Parameter[] parameters =
 		{
-			new TypedParameter(typeof(SelfDeliveryOrder), order),
+			//new TypedParameter(typeof(SelfDeliveryOrder), order),
+			new TypedParameter(typeof(OrderFrom1c), order),
 			new TypedParameter(typeof(OrderInfoExpandedPanelViewModel),
 				autofacScope.Resolve<OrderInfoExpandedPanelViewModel>()),
 			new TypedParameter(typeof(INomenclaturesJournalViewModelFactory), journalFactory)
 		};
-
+		/*
 		var selfDeliveryOrderInfoViewModel = autofacScope.Resolve<SelfDeliveryOrderInfoViewModel>(parameters);
 		
 		NavigationManager.OpenViewModel<
 			SelfDeliveryOrderMainViewModel, SelfDeliveryOrder, SelfDeliveryOrderInfoViewModel, ITdiCompatibilityNavigation>(
 			null, order, selfDeliveryOrderInfoViewModel, NavigationManager);
+			*/
+		
+		var orderFrom1CInfoViewModel = autofacScope.Resolve<OrderFrom1cInfoViewModel>(parameters);
+		
+		NavigationManager.OpenViewModel<
+			OrderFrom1cMainViewModel, OrderFrom1c, OrderFrom1cInfoViewModel, ITdiCompatibilityNavigation>(
+			null, order, orderFrom1CInfoViewModel, NavigationManager);
 	}
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
@@ -958,7 +967,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e) {
-		/*var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -979,15 +988,7 @@ public partial class MainWindow : Window
 													  counterpartySelectorFactory,
 													  nomenclatureRepository,
 													  UserSingletonRepository.GetInstance());
-		tdiMain.AddTab(ordersJournal);*/
-
-		var vm = new NonSerialEquipmentsForRentJournalViewModel(
-			null,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService,
-			NavigationManager);
-			
-		tdiMain.AddTab(vm);
+		tdiMain.AddTab(ordersJournal);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)

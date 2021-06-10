@@ -103,6 +103,34 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             set => SetField(ref isDepositsReturnsVisible, value);
         }
         
+        private bool isActionsForSaleVisible;
+        public bool IsActionsForSaleVisible
+        {
+            get => isActionsForSaleVisible;
+            set => SetField(ref isActionsForSaleVisible, value);
+        }
+
+        private bool isDiscountVisible;
+        public bool IsDiscountVisible
+        {
+            get => isDiscountVisible;
+            set => SetField(ref isDiscountVisible, value);
+        }
+        
+        private bool canEditMovementItems;
+        public bool CanEditMovementItems
+        {
+            get => canEditMovementItems;
+            set => SetField(ref canEditMovementItems, value);
+        }
+        
+        private bool canEditDepositItems;
+        public bool CanEditDepositItems
+        {
+            get => canEditDepositItems;
+            set => SetField(ref canEditDepositItems, value);
+        }
+        
         private NomenclaturesJournalViewModel NomenclaturesForSaleJournalViewModel { get; set; }
         private PaidRentPackagesJournalViewModel PaidRentPackagesJournalViewModel { get; set; }
         private FreeRentPackagesJournalViewModel FreeRentPackagesJournalViewModel { get; set; }
@@ -299,6 +327,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
             Order.PropertyChanged += OrderOnPropertyChanged;
             OrderMovementItemsViewModel.UpdateActiveViewModel += UpdateActiveJournalViewModel;
             OrderDepositReturnsItemsViewModel.UpdateActiveViewModel += UpdateActiveJournalViewModel;
+
+            UpdateState();
         }
 
         #region Аренда
@@ -691,6 +721,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
                 IsReturnTareReasonCategoryVisible = IsReturnTareReasonVisible = false;
                 RemoveReturnTareReason();
             }
+        }
+
+        private void UpdateState()
+        {
+            bool canDisplayed;
+            var canEdit = canDisplayed = Order.Status == OrderStatus.NewOrder;
+            IsActionsForSaleVisible = IsDiscountVisible = canDisplayed;
+            CanEditMovementItems = CanEditDepositItems = canEdit;
         }
     }
 }

@@ -65,6 +65,20 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             get => isDefaultDocumentTypeVisible;
             set => SetField(ref isDefaultDocumentTypeVisible, value);
         }
+        
+        private bool isAuthorVisible;
+        public bool IsAuthorVisible
+        {
+            get => isAuthorVisible;
+            set => SetField(ref isAuthorVisible, value);
+        }
+        
+        private bool isCreationDateVisible;
+        public bool IsCreationDateVisible
+        {
+            get => isCreationDateVisible;
+            set => SetField(ref isCreationDateVisible, value);
+        }
 
         #endregion
 
@@ -226,6 +240,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             IsBillDateSensitive = IsPaymentTypeSensitive = IsOrderNumberFromOnlineStoreSensitive = IsPaymentFromSensitive = 
                 IsNeedAddCertificatesSensitive = IsContactlessDeliverySensitive = IsPaymentBySMSSensitive = 
                     IsCounterpartySensitive = IsDefaultDocumentTypeSensitive = canEdit;
+
+            bool canView = Order.Status != OrderStatus.NewOrder;
+            IsAuthorVisible = IsCreationDateVisible = canView;
         }
 
         private void UpdateParamsDependOnCounterparty()

@@ -151,6 +151,16 @@ namespace Vodovoz.Views.Orders
 
             counterpartyEntry.ViewModel = viewModel;
             counterpartyEntry.Binding.AddBinding(ViewModel, vm => vm.IsCounterpartySensitive, w => w.Sensitive).InitializeFromSource();
+
+            var deliveryPointBuilder =
+                new CommonEEVMBuilderFactory<OrderFrom1c>(ViewModel.ParentTab, ViewModel.Order,
+                    UnitOfWorkFactory.CreateWithoutRoot(), MainClass.MainWin.NavigationManager, ViewModel.AutofacScope);
+
+            var deliveryPointViewModel = deliveryPointBuilder.ForProperty(x => x.DeliveryPoint)
+                .UseViewModelJournalAndAutocompleter<DeliveryPointJournalViewModel>()
+                .Finish();
+
+            deliveryPointEntry.ViewModel = deliveryPointViewModel;
         }
 
         private void UpdatePaymentTypeListForNaturalCounterparty(bool isClearHideList)

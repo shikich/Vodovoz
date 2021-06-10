@@ -34,8 +34,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yButton ybtnWaitingForPayment;
 
-		private global::Gamma.GtkWidgets.yButton ybtnSendingMaster;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -168,22 +166,11 @@ namespace Vodovoz.Views.Orders
 			w15.Position = 1;
 			w15.Expand = false;
 			w15.Fill = false;
-			// Container child hboxManageBtns.Gtk.Box+BoxChild
-			this.ybtnSendingMaster = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnSendingMaster.CanFocus = true;
-			this.ybtnSendingMaster.Name = "ybtnSendingMaster";
-			this.ybtnSendingMaster.UseUnderline = true;
-			this.ybtnSendingMaster.Label = global::Mono.Unix.Catalog.GetString("Выезд мастера");
-			this.hboxManageBtns.Add(this.ybtnSendingMaster);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxManageBtns[this.ybtnSendingMaster]));
-			w16.Position = 2;
+			this.vboxMain.Add(this.hboxManageBtns);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxManageBtns]));
+			w16.Position = 4;
 			w16.Expand = false;
 			w16.Fill = false;
-			this.vboxMain.Add(this.hboxManageBtns);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxManageBtns]));
-			w17.Position = 4;
-			w17.Expand = false;
-			w17.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

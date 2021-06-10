@@ -23,6 +23,13 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
         private bool isMovementItemsToClientJournalViewModelActive;
         private bool isMovementItemsFromClientJournalViewModelActive;
+
+        private bool canEditMovementItems;
+        public bool CanEditMovementItems
+        {
+            get => canEditMovementItems;
+            set => SetField(ref canEditMovementItems, value);
+        }
         
         public OrderBase Order { get; set; }
         public NomenclaturesJournalViewModel MovementItemsToClientJournalViewModel { get; private set; }

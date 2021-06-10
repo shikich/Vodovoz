@@ -18,13 +18,13 @@ namespace Vodovoz.ViewWidgets.Orders
 
 		private global::Gamma.GtkWidgets.yTextView ytxtTareComment;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+		private global::Gtk.ScrolledWindow GtkScrolledWindowReceivablesDepartmentComment;
+
+		private global::Gamma.GtkWidgets.yTextView ytxtReceivablesDepartmentComment;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowSalesDepartmentComment;
 
 		private global::Gamma.GtkWidgets.yTextView ytxtSalesDepartmentComment;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
-
-		private global::Gamma.GtkWidgets.yTextView ytxtODZComment;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox specCmbNonReturnTareReasons;
 
@@ -36,7 +36,7 @@ namespace Vodovoz.ViewWidgets.Orders
 
 		private global::Gamma.GtkWidgets.yLabel ylblNumOfDriverCall;
 
-		private global::Gamma.GtkWidgets.yLabel ylblODZComment;
+		private global::Gamma.GtkWidgets.yLabel ylblReceivablesDepartmentComment;
 
 		private global::Gamma.GtkWidgets.yLabel ylblSalesDepartmentComment;
 
@@ -105,35 +105,35 @@ namespace Vodovoz.ViewWidgets.Orders
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
-			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.ytxtSalesDepartmentComment = new global::Gamma.GtkWidgets.yTextView();
-			this.ytxtSalesDepartmentComment.CanFocus = true;
-			this.ytxtSalesDepartmentComment.Name = "ytxtSalesDepartmentComment";
-			this.GtkScrolledWindow2.Add(this.ytxtSalesDepartmentComment);
-			this.tableMain.Add(this.GtkScrolledWindow2);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindow2]));
-			w7.TopAttach = ((uint)(5));
-			w7.BottomAttach = ((uint)(6));
+			this.GtkScrolledWindowReceivablesDepartmentComment = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowReceivablesDepartmentComment.Name = "GtkScrolledWindowReceivablesDepartmentComment";
+			this.GtkScrolledWindowReceivablesDepartmentComment.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowReceivablesDepartmentComment.Gtk.Container+ContainerChild
+			this.ytxtReceivablesDepartmentComment = new global::Gamma.GtkWidgets.yTextView();
+			this.ytxtReceivablesDepartmentComment.CanFocus = true;
+			this.ytxtReceivablesDepartmentComment.Name = "ytxtReceivablesDepartmentComment";
+			this.GtkScrolledWindowReceivablesDepartmentComment.Add(this.ytxtReceivablesDepartmentComment);
+			this.tableMain.Add(this.GtkScrolledWindowReceivablesDepartmentComment);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindowReceivablesDepartmentComment]));
+			w7.TopAttach = ((uint)(6));
+			w7.BottomAttach = ((uint)(7));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(3));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
-			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
-			this.ytxtODZComment = new global::Gamma.GtkWidgets.yTextView();
-			this.ytxtODZComment.CanFocus = true;
-			this.ytxtODZComment.Name = "ytxtODZComment";
-			this.GtkScrolledWindow3.Add(this.ytxtODZComment);
-			this.tableMain.Add(this.GtkScrolledWindow3);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindow3]));
-			w9.TopAttach = ((uint)(6));
-			w9.BottomAttach = ((uint)(7));
+			this.GtkScrolledWindowSalesDepartmentComment = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowSalesDepartmentComment.Name = "GtkScrolledWindowSalesDepartmentComment";
+			this.GtkScrolledWindowSalesDepartmentComment.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowSalesDepartmentComment.Gtk.Container+ContainerChild
+			this.ytxtSalesDepartmentComment = new global::Gamma.GtkWidgets.yTextView();
+			this.ytxtSalesDepartmentComment.CanFocus = true;
+			this.ytxtSalesDepartmentComment.Name = "ytxtSalesDepartmentComment";
+			this.GtkScrolledWindowSalesDepartmentComment.Add(this.ytxtSalesDepartmentComment);
+			this.tableMain.Add(this.GtkScrolledWindowSalesDepartmentComment);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindowSalesDepartmentComment]));
+			w9.TopAttach = ((uint)(5));
+			w9.BottomAttach = ((uint)(6));
 			w9.LeftAttach = ((uint)(1));
 			w9.RightAttach = ((uint)(3));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -196,12 +196,12 @@ namespace Vodovoz.ViewWidgets.Orders
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.ylblODZComment = new global::Gamma.GtkWidgets.yLabel();
-			this.ylblODZComment.Name = "ylblODZComment";
-			this.ylblODZComment.Xalign = 1F;
-			this.ylblODZComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий ОДЗ:");
-			this.tableMain.Add(this.ylblODZComment);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblODZComment]));
+			this.ylblReceivablesDepartmentComment = new global::Gamma.GtkWidgets.yLabel();
+			this.ylblReceivablesDepartmentComment.Name = "ylblReceivablesDepartmentComment";
+			this.ylblReceivablesDepartmentComment.Xalign = 1F;
+			this.ylblReceivablesDepartmentComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий ОДЗ:");
+			this.tableMain.Add(this.ylblReceivablesDepartmentComment);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ylblReceivablesDepartmentComment]));
 			w15.TopAttach = ((uint)(6));
 			w15.BottomAttach = ((uint)(7));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));

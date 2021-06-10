@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
                 {
                     Parameter[] parameters = {
                         new TypedParameter(typeof(OrderFrom1c), OrderFrom1c),
-                        new TypedParameter(typeof(ICommonServices), AutofacScope.Resolve<ICommonServices>()),
+                        new TypedParameter(typeof(ICommonServices), CommonServices),
                         new TypedParameter(typeof(IOrderRepository), AutofacScope.Resolve<IOrderRepository>()),
                         new TypedParameter(typeof(IOrderParametersProvider), AutofacScope.Resolve<IOrderParametersProvider>())
                     };
@@ -38,8 +38,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         public OrderFrom1cInfoViewModel(
             OrderFrom1c orderFrom1C,
             OrderInfoExpandedPanelViewModel expandedPanelViewModel,
-            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory)
-            : base(orderFrom1C, expandedPanelViewModel, nomenclaturesJournalViewModelFactory)
+            INomenclaturesJournalViewModelFactory nomenclaturesJournalViewModelFactory,
+            ICommonServices commonServices)
+            : base(orderFrom1C, expandedPanelViewModel, nomenclaturesJournalViewModelFactory, commonServices)
         {
 
         }

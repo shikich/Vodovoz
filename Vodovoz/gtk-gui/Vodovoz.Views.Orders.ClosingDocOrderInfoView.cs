@@ -36,6 +36,8 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yButton ybtnSendingMaster;
 
+		private global::QSWidgetLib.MenuButton menubuttonActions;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -179,11 +181,24 @@ namespace Vodovoz.Views.Orders
 			w16.Position = 2;
 			w16.Expand = false;
 			w16.Fill = false;
-			this.vboxMain.Add(this.hboxManageBtns);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxManageBtns]));
-			w17.Position = 4;
+			// Container child hboxManageBtns.Gtk.Box+BoxChild
+			this.menubuttonActions = new global::QSWidgetLib.MenuButton();
+			this.menubuttonActions.CanFocus = true;
+			this.menubuttonActions.Name = "menubuttonActions";
+			this.menubuttonActions.UseUnderline = true;
+			this.menubuttonActions.UseMarkup = false;
+			this.menubuttonActions.LabelXAlign = 0F;
+			this.menubuttonActions.Label = global::Mono.Unix.Catalog.GetString("Действия");
+			this.hboxManageBtns.Add(this.menubuttonActions);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxManageBtns[this.menubuttonActions]));
+			w17.Position = 3;
 			w17.Expand = false;
 			w17.Fill = false;
+			this.vboxMain.Add(this.hboxManageBtns);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxManageBtns]));
+			w18.Position = 4;
+			w18.Expand = false;
+			w18.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

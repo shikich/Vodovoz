@@ -60,7 +60,8 @@ namespace Vodovoz.Domain.Orders
         }
         
         CounterpartyMovementOperation counterpartyMovementOperation;
-        public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
+        public virtual CounterpartyMovementOperation CounterpartyMovementOperation 
+        {
             get => counterpartyMovementOperation;
             set => SetField(ref counterpartyMovementOperation, value);
         }
@@ -68,7 +69,8 @@ namespace Vodovoz.Domain.Orders
         string receivingComment;
         [Display(Name = "Комментарий по забору")]
         [StringLength(200)]
-        public virtual string ReceivingComment {
+        public virtual string ReceivingComment 
+        {
             get => receivingComment;
             set => SetField(ref receivingComment, value);
         }

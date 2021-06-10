@@ -32,9 +32,9 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yButton ybtnAccept;
 
-		private global::Gamma.GtkWidgets.yButton ybtnWaitingForPayment;
-
 		private global::Gamma.GtkWidgets.yButton ybtnSendingMaster;
+
+		private global::QSWidgetLib.MenuButton menubuttonActions;
 
 		protected virtual void Build()
 		{
@@ -158,24 +158,26 @@ namespace Vodovoz.Views.Orders
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hboxManageBtns.Gtk.Box+BoxChild
-			this.ybtnWaitingForPayment = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnWaitingForPayment.CanFocus = true;
-			this.ybtnWaitingForPayment.Name = "ybtnWaitingForPayment";
-			this.ybtnWaitingForPayment.UseUnderline = true;
-			this.ybtnWaitingForPayment.Label = global::Mono.Unix.Catalog.GetString("Ожидание оплаты");
-			this.hboxManageBtns.Add(this.ybtnWaitingForPayment);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxManageBtns[this.ybtnWaitingForPayment]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
-			// Container child hboxManageBtns.Gtk.Box+BoxChild
 			this.ybtnSendingMaster = new global::Gamma.GtkWidgets.yButton();
 			this.ybtnSendingMaster.CanFocus = true;
 			this.ybtnSendingMaster.Name = "ybtnSendingMaster";
 			this.ybtnSendingMaster.UseUnderline = true;
 			this.ybtnSendingMaster.Label = global::Mono.Unix.Catalog.GetString("Выезд мастера");
 			this.hboxManageBtns.Add(this.ybtnSendingMaster);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxManageBtns[this.ybtnSendingMaster]));
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxManageBtns[this.ybtnSendingMaster]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child hboxManageBtns.Gtk.Box+BoxChild
+			this.menubuttonActions = new global::QSWidgetLib.MenuButton();
+			this.menubuttonActions.CanFocus = true;
+			this.menubuttonActions.Name = "menubuttonActions";
+			this.menubuttonActions.UseUnderline = true;
+			this.menubuttonActions.UseMarkup = false;
+			this.menubuttonActions.LabelXAlign = 0F;
+			this.menubuttonActions.Label = global::Mono.Unix.Catalog.GetString("Действия");
+			this.hboxManageBtns.Add(this.menubuttonActions);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxManageBtns[this.menubuttonActions]));
 			w16.Position = 2;
 			w16.Expand = false;
 			w16.Fill = false;

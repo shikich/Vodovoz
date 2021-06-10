@@ -44,6 +44,7 @@ namespace Vodovoz.ViewWidgets.Orders
 
             ytreeViewMovementItems.ItemsDataSource = ViewModel.Order.ObservableOrderMovements;
             ytreeViewMovementItems.Selection.Changed += TreeEquipment_Selection_Changed;
+            ytreeViewMovementItems.Binding.AddBinding(ViewModel, vm => vm.CanEditMovementItems, w => w.Sensitive).InitializeFromSource();
         }
 
         public event EventHandler<OrderEquipment> OnDeleteEquipment;

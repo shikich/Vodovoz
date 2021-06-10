@@ -60,6 +60,8 @@ namespace Vodovoz.Views.Orders
             
             yhboxReturnTareReason.Binding.AddBinding(ViewModel, vm => vm.IsReturnTareReasonCategoryVisible, w => w.Visible).InitializeFromSource();
             yhboxReasons.Binding.AddBinding(ViewModel, vm => vm.IsReturnTareReasonVisible, w => w.Visible).InitializeFromSource();
+            yhboxDiscount.Binding.AddBinding(ViewModel, vm => vm.IsDiscountVisible, w => w.Visible).InitializeFromSource();
+            yhboxBtns.Binding.AddBinding(ViewModel, vm => vm.IsActionsForSaleVisible, w => w.Visible).InitializeFromSource();
             
             yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
             yCmbReturnTareReasonCategories.ItemsList = ViewModel.ReturnTareReasonCategories;
