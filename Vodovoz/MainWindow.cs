@@ -109,6 +109,7 @@ using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -524,8 +525,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(PaidRentPackage));
-        tdiMain.AddTab(refWin);
+        NavigationManager.OpenViewModel<PaidRentPackagesJournalViewModel>(null);
     }
 
     protected void OnActionEquipmentActivated(object sender, EventArgs e)

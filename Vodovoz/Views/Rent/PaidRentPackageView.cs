@@ -1,4 +1,5 @@
 ﻿using NHibernate.Criterion;
+using QS.Navigation;
 using QS.Views.Dialog;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -16,6 +17,9 @@ namespace Vodovoz.Views.Rent
 
         private void Configure()
         {
+            buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
+            buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+            
             dataentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
             spinDeposit.Binding.AddBinding(ViewModel.Entity, e => e.Deposit, w => w.ValueAsDecimal).InitializeFromSource();
             spinPriceDaily.Binding.AddBinding(ViewModel.Entity, e => e.PriceDaily, w => w.ValueAsDecimal).InitializeFromSource();

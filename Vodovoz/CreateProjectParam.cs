@@ -334,6 +334,7 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<OrderMovementItemsViewModel, OrderMovementItemsView>()
                 .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
 				.RegisterWidgetForWidgetViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
+				.RegisterWidgetForWidgetViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
                 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
