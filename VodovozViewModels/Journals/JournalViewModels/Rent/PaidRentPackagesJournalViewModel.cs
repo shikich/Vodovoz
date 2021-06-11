@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using QS.Validation;
 using Vodovoz.Domain;
@@ -21,12 +22,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Rent
         public PaidRentPackagesJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            INavigationManager navigationManager) 
+            INavigationManager navigationManager,
+            IDeleteEntityService deleteEntityService = null) 
             : base(
                 unitOfWorkFactory, 
                 commonServices?.InteractiveService, 
                 navigationManager,
-                null, 
+                deleteEntityService, 
                 commonServices?.CurrentPermissionService)
         {
             _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
