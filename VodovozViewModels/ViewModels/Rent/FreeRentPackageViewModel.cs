@@ -1,11 +1,6 @@
-﻿using System;
-using System.Text;
-using NLog;
-using QS.Dialog;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Services;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain;
 using QS.Validation;

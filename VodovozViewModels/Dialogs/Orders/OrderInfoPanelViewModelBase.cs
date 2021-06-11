@@ -1,15 +1,9 @@
 using System;
-using System.Collections;
-using System.ComponentModel;
-using System.Linq;
 using Autofac;
-using QS.Dialog;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
@@ -152,12 +146,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
         public ICommonServices CommonServices { get; }
         public DialogViewModelBase ParentTab { get; set; }
         public ILifetimeScope AutofacScope { get; set; }
-        public object[] HidePaymentTypesForNaturalCounterparty { get; } = new object[] {PaymentType.cashless};
-        public object[] HidePaymentTypesForStopDelivery { get; } = 
-            new object[] {PaymentType.barter, PaymentType.BeveragesWorld, PaymentType.ContractDoc, PaymentType.cashless};
 
-        public IEnumerable PaymentFromList { get; protected set; }
-        
         protected OrderInfoPanelViewModelBase(
             ICommonServices commonServices,
             IOrderRepository orderRepository,

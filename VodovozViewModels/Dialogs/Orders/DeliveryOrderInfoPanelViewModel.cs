@@ -28,11 +28,14 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
             UpdateState();
         }
         
+        public DeliveryOrder Order { get; set; }
         public event Action<bool> UpdatePaymentTypeListForNaturalCounterparty;
         public event Action<object[]> UpdatePaymentTypeListForStopDelivery;
         public event Action<PaymentType> UpdateSelectedPaymentType;
-        
-        public DeliveryOrder Order { get; set; }
+        public IEnumerable PaymentFromList { get; }
+        public object[] HidePaymentTypesForNaturalCounterparty { get; } = new object[] {PaymentType.cashless};
+        public object[] HidePaymentTypesForStopDelivery { get; } = 
+            new object[] {PaymentType.barter, PaymentType.BeveragesWorld, PaymentType.ContractDoc, PaymentType.cashless};
 
         private IEnumerable FillPaymentFromList()
         {

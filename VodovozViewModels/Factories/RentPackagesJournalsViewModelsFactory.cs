@@ -9,24 +9,24 @@ namespace Vodovoz.Factories
 {
     public class RentPackagesJournalsViewModelsFactory : IRentPackagesJournalsViewModelsFactory
     {
-        private readonly IUnitOfWorkFactory uowFactory;
-        private readonly IInteractiveService interactiveService;
-        private readonly INavigationManager navigationManager;
+        private readonly IUnitOfWorkFactory _uowFactory;
+        private readonly ICommonServices _commonServices;
+        private readonly INavigationManager _navigationManager;
 
         public RentPackagesJournalsViewModelsFactory(
             IUnitOfWorkFactory uowFactory,
-            IInteractiveService interactiveService,
+            ICommonServices commonServices,
             INavigationManager navigationManager)
         {
-            this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            this.navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+            _uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+            _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+            _navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
         }
 
         public PaidRentPackagesJournalViewModel CreatePaidRentPackagesJournalViewModel(
             bool multipleSelect = false, bool isCreateVisible = true, bool isEditVisible = true, bool isDeleteVisible = true)
         {
-            var journal = new PaidRentPackagesJournalViewModel(uowFactory, interactiveService, navigationManager)
+            var journal = new PaidRentPackagesJournalViewModel(_uowFactory, _commonServices, _navigationManager)
             {
                 SelectionMode = multipleSelect == false
                     ? JournalSelectionMode.Single
@@ -42,7 +42,7 @@ namespace Vodovoz.Factories
         public FreeRentPackagesJournalViewModel CreateFreeRentPackagesJournalViewModel(
             bool multipleSelect = false, bool isCreateVisible = true, bool isEditVisible = true, bool isDeleteVisible = true)
         {
-            var journal = new FreeRentPackagesJournalViewModel(uowFactory, interactiveService, navigationManager)
+            var journal = new FreeRentPackagesJournalViewModel(_uowFactory, _commonServices, _navigationManager)
             {
                 SelectionMode = multipleSelect == false
                     ? JournalSelectionMode.Single
