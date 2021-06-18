@@ -1,6 +1,6 @@
 parallel 'Linux build': {
-	stage('Linux build'){
-		try{		
+	try{
+		stage('Linux build'){		
 			node('Vodovoz') {
 				def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
@@ -80,10 +80,11 @@ parallel 'Linux build': {
                 archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
 			}
 		}
-		catch (e) {
-			echo "Ошибка в сборке на Linux. " + e
-		}
 	}
+	catch (e) {
+		echo "Ошибка в сборке на Linux. " + e
+	}
+	
 }, 'Win build':{
 	stage('Win build'){
 		try{
