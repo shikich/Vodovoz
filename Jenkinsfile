@@ -1,82 +1,88 @@
 stage('Linux build') {
-	node('Vodovoz') {
-		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
+	try{
+	
+		node('Vodovoz') {
+			def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
-		step('Gtk.DataBindings') {		
-			checkout changelog: false, poll: false, scm:([
-				$class: 'GitSCM',
-				branches: [[name: '*/master']],
-				doGenerateSubmoduleConfigurations: false,
-				extensions: 
-					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
-					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
-				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
-			])
+			stage('Gtk.DataBindings') {		
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/master']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions: 
+						[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
+						+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
+				])
+			}
+			stage('GammaBinding') {
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/master']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+						[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GammaBinding']]
+						+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GammaBinding"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GammaBinding.git']]
+				])
+			}
+			stage('GMap.NET') {
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/master']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+						[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
+						+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
+				])
+			}
+			stage('My-FyiReporting') {
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/QSBuild']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+						[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
+						+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
+				])
+				sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+			}
+			stage('QSProjects') {
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/master']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+						[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
+						+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
+				])
+				sh 'nuget restore QSProjects/QSProjectsLib.sln'
+			}
+			stage('Vodovoz') {		
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: scm.branches,
+					doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+					extensions: scm.extensions 
+						+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
+						+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
+					userRemoteConfigs: scm.userRemoteConfigs
+				])
+				sh 'nuget restore Vodovoz/Vodovoz.sln'
+			}
+			stage('Build') {
+				sh 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
+				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
+				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
+			}
 		}
-		step('GammaBinding') {
-			checkout changelog: false, poll: false, scm:([
-				$class: 'GitSCM',
-				branches: [[name: '*/master']],
-				doGenerateSubmoduleConfigurations: false,
-				extensions:
-					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GammaBinding']]
-					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GammaBinding"]],
-				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GammaBinding.git']]
-			])
-		}
-		step('GMap.NET') {
-			checkout changelog: false, poll: false, scm:([
-				$class: 'GitSCM',
-				branches: [[name: '*/master']],
-				doGenerateSubmoduleConfigurations: false,
-				extensions:
-					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
-					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
-				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
-			])
-		}
-		step('My-FyiReporting') {
-			checkout changelog: false, poll: false, scm:([
-				$class: 'GitSCM',
-				branches: [[name: '*/QSBuild']],
-				doGenerateSubmoduleConfigurations: false,
-				extensions:
-					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
-					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
-				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
-			])
-			sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
-		}
-		step('QSProjects') {
-			checkout changelog: false, poll: false, scm:([
-				$class: 'GitSCM',
-				branches: [[name: '*/master']],
-				doGenerateSubmoduleConfigurations: false,
-				extensions:
-					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
-					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
-				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
-			])
-			sh 'nuget restore QSProjects/QSProjectsLib.sln'
-		}
-		step('Vodovoz') {		
-			checkout changelog: false, poll: false, scm:([
-				$class: 'GitSCM',
-				branches: scm.branches,
-				doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-				extensions: scm.extensions 
-					+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
-				userRemoteConfigs: scm.userRemoteConfigs
-			])
-			sh 'nuget restore Vodovoz/Vodovoz.sln'
-		}
-		step('Build') {
-			sh 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
-			fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
-			zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
-			archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
-		}
+	}
+	catch (e) {
+		echo "Ошибка в сборке версии для Linux " + e
 	}
 }
 stage('Win build'){
