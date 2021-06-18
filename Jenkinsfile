@@ -174,6 +174,7 @@ parallel 'Linux build': {
 }
 node('Vod3') {
 	stage('Deploy'){
+		echo '${JOB_NAME}'
 		echo "Checking the deployment for a branch " + env.BRANCH_NAME
 		script{
 			def OUTPUT_PATH = "F:\\WORK\\_BUILDS\\" + env.BRANCH_NAME
