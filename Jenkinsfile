@@ -2,7 +2,7 @@ stage('Linux build') {
 	node('Vodovoz') {
 		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
-		stage('Gtk.DataBindings') {		
+		step('Gtk.DataBindings') {		
 			checkout changelog: false, poll: false, scm:([
 				$class: 'GitSCM',
 				branches: [[name: '*/master']],
@@ -13,7 +13,7 @@ stage('Linux build') {
 				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
 			])
 		}
-		stage('GammaBinding') {
+		step('GammaBinding') {
 			checkout changelog: false, poll: false, scm:([
 				$class: 'GitSCM',
 				branches: [[name: '*/master']],
@@ -24,7 +24,7 @@ stage('Linux build') {
 				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GammaBinding.git']]
 			])
 		}
-		stage('GMap.NET') {
+		step('GMap.NET') {
 			checkout changelog: false, poll: false, scm:([
 				$class: 'GitSCM',
 				branches: [[name: '*/master']],
@@ -35,7 +35,7 @@ stage('Linux build') {
 				userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
 			])
 		}
-		stage('My-FyiReporting') {
+		step('My-FyiReporting') {
 			checkout changelog: false, poll: false, scm:([
 				$class: 'GitSCM',
 				branches: [[name: '*/QSBuild']],
@@ -47,7 +47,7 @@ stage('Linux build') {
 			])
 			sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 		}
-		stage('QSProjects') {
+		step('QSProjects') {
 			checkout changelog: false, poll: false, scm:([
 				$class: 'GitSCM',
 				branches: [[name: '*/master']],
@@ -59,7 +59,7 @@ stage('Linux build') {
 			])
 			sh 'nuget restore QSProjects/QSProjectsLib.sln'
 		}
-		stage('Vodovoz') {		
+		step('Vodovoz') {		
 			checkout changelog: false, poll: false, scm:([
 				$class: 'GitSCM',
 				branches: scm.branches,
@@ -71,7 +71,7 @@ stage('Linux build') {
 			])
 			sh 'nuget restore Vodovoz/Vodovoz.sln'
 		}
-		stage('Build') {
+		step('Build') {
 			sh 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
 			fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 			zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
