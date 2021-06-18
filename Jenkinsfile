@@ -168,6 +168,7 @@ parallel 'Linux build': {
         }
         catch (e) {
 			echo "Ошибка в сборке на Windows. " + e
+			error("Build failed because of this and that..")
 		}
 	}
 }
