@@ -1,4 +1,4 @@
-parallel linux: {
+parallel 'linux build': {
 	stage('Linux build'){
 		try{
 		
@@ -86,8 +86,7 @@ parallel linux: {
 			echo "Ошибка в сборке версии для Linux " + e
 		}
 	}
-}
-parallel windows:{
+}, 'Win build':{
 	stage('Win build'){
 		node('Vodovoz') {
 			def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
