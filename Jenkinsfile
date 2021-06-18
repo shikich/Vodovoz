@@ -86,8 +86,8 @@ parallel 'Linux build': {
 	}
 	
 }, 'Win build':{
-	stage('Win build'){
-		try{
+	try{
+		stage('Win build'){
             node('Vodovoz') {
                 def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
@@ -166,12 +166,11 @@ parallel 'Linux build': {
                 zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
                 archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
             }
-        }
-        catch (e) {
-			echo "Ошибка в сборке на Windows. " + e
-			error("Build failed because of this and that..")
 		}
 	}
+	catch (e) {
+		echo "Ошибка в сборке на Windows. " + e
+	}	
 }
 node('Vod3') {
 	stage('Deploy'){
