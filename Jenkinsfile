@@ -1,6 +1,4 @@
-steps {
-
-stage('Linux build') {
+parallel linux: {
 	try{
 	
 		node('Vodovoz') {
@@ -167,7 +165,6 @@ stage('Win build'){
 			archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
 		}
 	}
-}
 }
 node('Vod3') {
 	stage('Deploy'){
