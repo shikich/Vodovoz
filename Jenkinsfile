@@ -1,3 +1,5 @@
+steps {
+
 stage('Linux build') {
 	try{
 	
@@ -165,6 +167,7 @@ stage('Win build'){
 			archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
 		}
 	}
+}
 }
 node('Vod3') {
 	stage('Deploy'){
