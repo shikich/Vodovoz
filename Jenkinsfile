@@ -186,7 +186,7 @@ parallel 'Linux build': {
                 zip zipFile: 'VodovozWin.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
                 archiveArtifacts artifacts: 'VodovozWin.zip', onlyIfSuccessful: true
             }
-        }
+        //}
         // catch (e) {
         //     echo "Ошибка в сборке на Windows. " + e
         // }
