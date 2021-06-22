@@ -107,7 +107,7 @@ parallel 'Linux build': {
     }
 }, 'Win build':{
     node('Vod6') {
-        try{
+        //try{
             stage('Win build'){
                 def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
@@ -154,7 +154,7 @@ parallel 'Linux build': {
                         + [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
                     userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
                 ])
-                sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+                bat 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 
                 echo 'Prepare QSProjects'
                 checkout changelog: false, poll: false, scm:([
@@ -166,7 +166,7 @@ parallel 'Linux build': {
                         + [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
                     userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
                 ])
-                sh 'nuget restore QSProjects/QSProjectsLib.sln'
+                bat 'nuget restore QSProjects/QSProjectsLib.sln'
 
                 echo 'Prepare Vodovoz'		
                 checkout changelog: false, poll: false, scm:([
@@ -178,18 +178,18 @@ parallel 'Linux build': {
                         + [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
                     userRemoteConfigs: scm.userRemoteConfigs
                 ])
-                sh 'nuget restore Vodovoz/Vodovoz.sln'
+                bat 'nuget restore Vodovoz/Vodovoz.sln'
 
                 echo 'Build solution'
-                sh 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
+                bat 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
                 fileOperations([fileDeleteOperation(excludes: '', includes: 'VodovozWin.zip')])
                 zip zipFile: 'VodovozWin.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
                 archiveArtifacts artifacts: 'VodovozWin.zip', onlyIfSuccessful: true
             }
         }
-        catch (e) {
-            echo "Ошибка в сборке на Windows. " + e
-        }
+        // catch (e) {
+        //     echo "Ошибка в сборке на Windows. " + e
+        // }
         stage('Win deploy'){
             echo env.JOB_NAME
             echo "Checking the deployment for a branch " + env.BRANCH_NAME
