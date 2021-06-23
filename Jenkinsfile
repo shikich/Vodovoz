@@ -154,7 +154,8 @@ parallel 'Linux build': {
                         + [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
                     userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
                 ])
-                bat 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+                //bat 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+                bat 'dotnet restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 
                 echo 'Prepare QSProjects'
                 checkout changelog: false, poll: false, scm:([
@@ -166,7 +167,8 @@ parallel 'Linux build': {
                         + [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
                     userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
                 ])
-                bat 'nuget restore QSProjects/QSProjectsLib.sln'
+                //bat 'nuget restore QSProjects/QSProjectsLib.sln'
+                bat 'dotnet restore QSProjects/QSProjectsLib.sln'
 
                 echo 'Prepare Vodovoz'		
                 checkout changelog: false, poll: false, scm:([
@@ -178,10 +180,11 @@ parallel 'Linux build': {
                         + [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
                     userRemoteConfigs: scm.userRemoteConfigs
                 ])
-                bat 'nuget restore Vodovoz/Vodovoz.sln'
+                //bat 'nuget restore Vodovoz/Vodovoz.sln'
+                bat 'dotnet restore Vodovoz/Vodovoz.sln'
 
                 echo 'Build solution'
-                bat 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
+                bat 'dotnet msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
                 fileOperations([fileDeleteOperation(excludes: '', includes: 'VodovozWin.zip')])
                 zip zipFile: 'VodovozWin.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
                 archiveArtifacts artifacts: 'VodovozWin.zip', onlyIfSuccessful: true
