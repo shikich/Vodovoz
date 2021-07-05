@@ -12,10 +12,10 @@ node('Vod6') {
                 + [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
             userRemoteConfigs: scm.userRemoteConfigs
         ])
-        bat 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe Vodovoz\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
+        bat 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe Vodovoz\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
 
         echo 'Build solution'
-        bat 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe Vodovoz\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
+        bat 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe Vodovoz\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
 
         fileOperations([fileDeleteOperation(excludes: '', includes: 'VodovozWin.zip')])
         zip zipFile: 'VodovozWin.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
