@@ -122,6 +122,7 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
