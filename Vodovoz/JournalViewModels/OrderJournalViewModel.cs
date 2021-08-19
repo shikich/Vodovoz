@@ -293,6 +293,19 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.PaymentByCardFrom.Id == FilterViewModel.PaymentByCardFrom.Id);
 			}
 
+			if(FilterViewModel.SortOnlyDeliveryDate != null)
+			{
+				if(FilterViewModel.SortOnlyDeliveryDate.Value)
+				{
+					query = query.OrderBy(o => o.DeliveryDate.Value).Desc;
+				}
+
+				if(!FilterViewModel.SortOnlyDeliveryDate.Value)
+				{
+					query = query.OrderBy(o => o.Id).Desc;
+				}
+			}
+
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -419,6 +432,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 				|| FilterViewModel.RestrictLessThreeHours == true
+				|| FilterViewModel.SortOnlyDeliveryDate == true
 				|| FilterViewModel.OrderPaymentStatus != null
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null) 
@@ -527,6 +541,7 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true
+			    || FilterViewModel.SortOnlyDeliveryDate == true
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null)
@@ -656,6 +671,7 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictOnlyService != null
 			    || FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true
+			    || FilterViewModel.SortOnlyDeliveryDate == true
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null)
