@@ -140,7 +140,9 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual Counterparty RestrictCounterparty {
 			get => restrictCounterparty;
 			set {
-				if(SetField(ref restrictCounterparty, value, () => RestrictCounterparty)) {
+				if(SetField(ref restrictCounterparty, value, () => RestrictCounterparty))
+				{
+					SortDeliveryDateVisibility = true;
 					UpdateDeliveryPointRepresentationModel();
 					Update();
 					CanChangeCounterparty = false;
@@ -298,6 +300,30 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 		public bool CanChangeOnlyService { get; private set; } = true;
+
+		#endregion
+
+		#region Sorting
+
+		private bool? _sortOnlyDeliveryDate;
+		public virtual bool? SortOnlyDeliveryDate {
+			get => _sortOnlyDeliveryDate;
+			set {
+				if(SetField(ref _sortOnlyDeliveryDate, value)) 
+				{
+					Update();
+					CanChangeOnlyDeliveryDate = false;
+				}
+			}
+		}
+		public bool CanChangeOnlyDeliveryDate { get; private set; } = true;
+		
+		private bool _sortDeliveryDateVisibility;
+		public bool SortDeliveryDateVisibility
+		{
+			get => _sortDeliveryDateVisibility;
+			set => SetField(ref _sortDeliveryDateVisibility, value);
+		}
 
 		#endregion
 
