@@ -45,7 +45,9 @@ namespace Vodovoz.Filters.GtkViews
 			ycheckOnlyServices.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlyService, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
 			ycheckHideServices.Binding.AddBinding(ViewModel, vm => vm.RestrictHideService, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
 			ycheckLessThreeHours.Binding.AddBinding(ViewModel, vm => vm.RestrictLessThreeHours, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
-
+			ycheckOnlyOrderDate.Binding.AddBinding(ViewModel, vm => vm.SortOnlyDeliveryDate, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
+			ycheckOnlyOrderDate.Binding.AddBinding(ViewModel, vm => vm.SortDeliveryDateVisibility, w => w.Visible).InitializeFromSource();
+			
 			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);
 			yenumcomboboxPaymentOrder.Binding.AddBinding(ViewModel, vm => vm.PaymentOrder, w => w.SelectedItemOrNull).InitializeFromSource();
 			yenumcomboboxViewTypes.ItemsEnum = typeof(ViewTypes);
@@ -73,6 +75,7 @@ namespace Vodovoz.Filters.GtkViews
 			ycheckOnlyServices.Sensitive = ViewModel.CanChangeOnlyService;
 			ycheckHideServices.Sensitive = ViewModel.CanChangeHideService;
 			ycheckLessThreeHours.Sensitive = ViewModel.CanChangeLessThreeHours;
+			ycheckOnlyOrderDate.Sensitive = ViewModel.CanChangeOnlyDeliveryDate;
 
 			#region OrderStatusRestriction
 			if(ViewModel.AllowStatuses != null) {
