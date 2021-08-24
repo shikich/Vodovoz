@@ -233,7 +233,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
-			}
+			} //FEDOS
 
 			if(FilterViewModel.RestrictDeliveryPoint != null) {
 				query.Where(o => o.DeliveryPoint == FilterViewModel.RestrictDeliveryPoint);
