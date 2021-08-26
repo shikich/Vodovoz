@@ -8,6 +8,8 @@ namespace Vodovoz.ViewWidgets.Permissions
 
 		private global::Gtk.HBox hbox2;
 
+		private global::Gtk.VBox vbox3;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewAvailablePermissions;
@@ -37,6 +39,10 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
+			this.vbox3 = new global::Gtk.VBox();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -45,9 +51,12 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.ytreeviewAvailablePermissions.CanFocus = true;
 			this.ytreeviewAvailablePermissions.Name = "ytreeviewAvailablePermissions";
 			this.GtkScrolledWindow1.Add(this.ytreeviewAvailablePermissions);
-			this.hbox2.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.GtkScrolledWindow1]));
+			this.vbox3.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow1]));
 			w2.Position = 0;
+			this.hbox2.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox3]));
+			w3.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
@@ -59,10 +68,10 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.buttonAdd.UseUnderline = true;
 			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString(">");
 			this.vbox1.Add(this.buttonAdd);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonAdd]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonAdd]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonDelete = new global::Gtk.Button();
 			this.buttonDelete.CanFocus = true;
@@ -70,15 +79,15 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.buttonDelete.UseUnderline = true;
 			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString("<");
 			this.vbox1.Add(this.buttonDelete);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonDelete]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
-			this.hbox2.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox1]));
-			w5.Position = 1;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonDelete]));
+			w5.Position = 2;
 			w5.Expand = false;
 			w5.Fill = false;
+			this.hbox2.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox1]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -89,11 +98,11 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.ytreeviewSelectedPermissions.Name = "ytreeviewSelectedPermissions";
 			this.GtkScrolledWindow.Add(this.ytreeviewSelectedPermissions);
 			this.hbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.GtkScrolledWindow]));
-			w7.Position = 2;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.GtkScrolledWindow]));
+			w8.Position = 2;
 			this.vbox2.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
-			w8.Position = 0;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+			w9.Position = 0;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
