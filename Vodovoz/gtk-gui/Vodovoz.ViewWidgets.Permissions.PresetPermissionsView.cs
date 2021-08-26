@@ -63,6 +63,7 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.vbox3.Add(this.hboxSearch);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hboxSearch]));
 			w3.Position = 1;
+			w3.Expand = false;
 			this.hbox2.Add(this.vbox3);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox3]));
 			w4.Position = 0;
