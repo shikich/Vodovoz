@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 
         public DateTime Date { get; set; }
 
-        public string DriverSurname { get; set; }
+		public string DriverSurname { get; set; }
         public string DriverName { get; set; }
         public string DriverPatronymic { get; set; }
 

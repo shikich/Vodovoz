@@ -50,23 +50,23 @@ namespace Vodovoz.Domain.Logistic
 	[EntityPermission]
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 		private static readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
 		private static readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		
-		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
+
+		private RouteListCashOrganisationDistributor _routeListCashOrganisationDistributor =
 			new RouteListCashOrganisationDistributor(
 				_commonOrganisationProvider,
 				new RouteListItemCashDistributionDocumentRepository(),
 				new OrderRepository());
-		
-		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
+
+		private ExpenseCashOrganisationDistributor _expenseCashOrganisationDistributor =
 			new ExpenseCashOrganisationDistributor();
-		
+
 		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
@@ -77,423 +77,498 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
-		DateTime version;
+		private DateTime _version;
 		[Display(Name = "Версия")]
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value, () => Version);
+		public virtual DateTime Version
+		{
+			get => _version;
+			set => SetField(ref _version, value);
 		}
 
-		Employee driver;
+		private Employee _driver;
 
 		[Display(Name = "Водитель")]
-		public virtual Employee Driver {
-			get => driver;
-			set {
-				Employee oldDriver = driver;
-				if(SetField(ref driver, value, () => Driver)) {
+		public virtual Employee Driver
+		{
+			get => _driver;
+			set
+			{
+				Employee oldDriver = _driver;
+				if(SetField(ref _driver, value))
+				{
 					ChangeFuelDocumentsOnChangeDriver(oldDriver);
-					if(Id == 0 || oldDriver != driver)
-						Forwarder = GetDefaultForwarder(driver);
-				}
-			}
-		}
-
-		Employee forwarder;
-
-		[Display(Name = "Экспедитор")]
-		public virtual Employee Forwarder {
-			get => forwarder;
-			set {
-				if(NHibernate.NHibernateUtil.IsInitialized(Addresses) && (forwarder == null || value == null)) {
-					foreach(var address in Addresses)
-						address.WithForwarder = value != null;
-				}
-				SetField(ref forwarder, value, () => Forwarder);
-			}
-		}
-
-		Employee logistician;
-
-		[Display(Name = "Логист")]
-		public virtual Employee Logistician {
-			get => logistician;
-			set => SetField(ref logistician, value, () => Logistician);
-		}
-
-		Car car;
-
-		[Display(Name = "Машина")]
-		public virtual Car Car {
-			get => car;
-			set {
-				Car oldCar = car;
-				if(SetField(ref car, value, () => Car)) {
-					ChangeFuelDocumentsChangeCar(oldCar);
-
-					if(value?.Driver != null && value?.Driver.Status != EmployeeStatus.IsFired)
-						Driver = value.Driver;
-
-					if(Id == 0) {
-						while(ObservableGeographicGroups.Any())
-							ObservableGeographicGroups.Remove(ObservableGeographicGroups.FirstOrDefault());
-						if(value != null)
-							foreach(var group in value.GeographicGroups)
-								ObservableGeographicGroups.Add(group);
+					if(Id == 0 || oldDriver != _driver)
+					{
+						Forwarder = GetDefaultForwarder(_driver);
 					}
 				}
 			}
 		}
 
-		DeliveryShift shift;
+		private Employee _forwarder;
 
-		[Display(Name = "Смена доставки")]
-		public virtual DeliveryShift Shift {
-			get => shift;
-			set => SetField(ref shift, value, () => Shift);
+		[Display(Name = "Экспедитор")]
+		public virtual Employee Forwarder
+		{
+			get => _forwarder;
+			set
+			{
+				if(NHibernate.NHibernateUtil.IsInitialized(Addresses) && (_forwarder == null || value == null))
+				{
+					foreach(var address in Addresses)
+					{
+						address.WithForwarder = value != null;
+					}
+				}
+				SetField(ref _forwarder, value);
+			}
 		}
 
-		DateTime date;
+		private Employee _logistician;
+
+		[Display(Name = "Логист")]
+		public virtual Employee Logistician
+		{
+			get => _logistician;
+			set => SetField(ref _logistician, value);
+		}
+
+		private Car _car;
+
+		[Display(Name = "Машина")]
+		public virtual Car Car
+		{
+			get => _car;
+			set
+			{
+				Car oldCar = _car;
+				if(SetField(ref _car, value))
+				{
+					ChangeFuelDocumentsChangeCar(oldCar);
+
+					if(value?.Driver != null && value?.Driver.Status != EmployeeStatus.IsFired)
+					{
+						Driver = value.Driver;
+					}
+
+					if(Id == 0)
+					{
+						while(ObservableGeographicGroups.Any())
+						{
+							ObservableGeographicGroups.Remove(ObservableGeographicGroups.FirstOrDefault());
+						}
+
+						if(value != null)
+						{
+							foreach(var group in value.GeographicGroups)
+							{
+								ObservableGeographicGroups.Add(group);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private DeliveryShift _shift;
+
+		[Display(Name = "Смена доставки")]
+		public virtual DeliveryShift Shift
+		{
+			get => _shift;
+			set => SetField(ref _shift, value);
+		}
+
+		private DateTime _date;
 
 		[Display(Name = "Дата")]
 		[HistoryDateOnly]
-		public virtual DateTime Date {
-			get => date;
-			set => SetField(ref date, value, () => Date);
+		public virtual DateTime Date
+		{
+			get => _date;
+			set => SetField(ref _date, value);
 		}
 
-		Decimal confirmedDistance;
+		private decimal _confirmedDistance;
 
 		/// <summary>
 		/// Расстояние в километрах
 		/// </summary>
 		[Display(Name = "Подтверждённое расстояние")]
-		public virtual Decimal ConfirmedDistance {
-			get => confirmedDistance;
-			set => SetField(ref confirmedDistance, value, () => ConfirmedDistance);
+		public virtual decimal ConfirmedDistance
+		{
+			get => _confirmedDistance;
+			set => SetField(ref _confirmedDistance, value);
 		}
 
-		private decimal? planedDistance;
+		private decimal? _planedDistance;
 
 		/// <summary>
 		/// Расстояние в километрах
 		/// </summary>
 		[Display(Name = "Планируемое расстояние")]
-		public virtual decimal? PlanedDistance {
-			get => planedDistance;
-			protected set => SetField(ref planedDistance, value, () => PlanedDistance);
+		public virtual decimal? PlanedDistance
+		{
+			get => _planedDistance;
+			protected set => SetField(ref _planedDistance, value);
 		}
 
-		decimal? recalculatedDistance;
+		private decimal? _recalculatedDistance;
 
 		/// <summary>
 		/// Расстояние в километрах.
 		/// </summary>
 		[Display(Name = "Пересчитанное расстояние")]
-		public virtual decimal? RecalculatedDistance {
-			get => recalculatedDistance;
-			set => SetField(ref recalculatedDistance, value, () => RecalculatedDistance);
+		public virtual decimal? RecalculatedDistance
+		{
+			get => _recalculatedDistance;
+			set => SetField(ref _recalculatedDistance, value);
 		}
 
-		RouteListStatus status;
+		private RouteListStatus _status;
 
 		[Display(Name = "Статус")]
-		public virtual RouteListStatus Status {
-			get => status;
-			protected set => SetField(ref status, value, () => Status);
+		public virtual RouteListStatus Status
+		{
+			get => _status;
+			protected set => SetField(ref _status, value);
 		}
 
-		DateTime? closingDate;
+		private DateTime? _closingDate;
 		[Display(Name = "Дата закрытия")]
 		[HistoryDateOnly]
-		public virtual DateTime? ClosingDate {
-			get => closingDate;
-			set => SetField(ref closingDate, value, () => ClosingDate);
+		public virtual DateTime? ClosingDate
+		{
+			get => _closingDate;
+			set => SetField(ref _closingDate, value);
 		}
 
 		private DateTime? _firstClosingDate;
 		[Display(Name = "Дата первого закрытия")]
 		[HistoryDateOnly]
-		public virtual DateTime? FirstClosingDate {
+		public virtual DateTime? FirstClosingDate
+		{
 			get => _firstClosingDate;
 			set => SetField(ref _firstClosingDate, value);
 		}
 
-		string closingComment;
+		private string _closingComment;
 
 		[Display(Name = "Комментарий")]
-		public virtual string ClosingComment {
-			get => closingComment;
-			set => SetField(ref closingComment, value, () => ClosingComment);
+		public virtual string ClosingComment
+		{
+			get => _closingComment;
+			set => SetField(ref _closingComment, value);
 		}
-		
-		string logisticiansComment;
+
+		private string _logisticiansComment;
 		[Display(Name = "Комментарий ЛО")]
-		public virtual string LogisticiansComment {
-			get => logisticiansComment;
-			set => SetField(ref logisticiansComment, value);
+		public virtual string LogisticiansComment
+		{
+			get => _logisticiansComment;
+			set => SetField(ref _logisticiansComment, value);
 		}
-		
-		Employee logisticiansCommentAuthor;
+
+		private Employee _logisticiansCommentAuthor;
 		[Display(Name = "Последний редактор комментария ЛО")]
-		public virtual Employee LogisticiansCommentAuthor {
-			get => logisticiansCommentAuthor;
-			set => SetField(ref logisticiansCommentAuthor, value);
+		public virtual Employee LogisticiansCommentAuthor
+		{
+			get => _logisticiansCommentAuthor;
+			set => SetField(ref _logisticiansCommentAuthor, value);
 		}
 
-		string cashierReviewComment;
+		private string _cashierReviewComment;
 		[Display(Name = "Комментарий по закрытию кассы")]
-		public virtual string CashierReviewComment {
-			get => cashierReviewComment;
-			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
+		public virtual string CashierReviewComment
+		{
+			get => _cashierReviewComment;
+			set => SetField(ref _cashierReviewComment, value);
 		}
 
-		private bool wasAcceptedByCashier;
+		private bool _wasAcceptedByCashier;
 		[Display(Name = "Был подтверждён в диалоге закрытия МЛ")]
-		public virtual bool WasAcceptedByCashier {
-			get => wasAcceptedByCashier;
-			set => SetField(ref wasAcceptedByCashier, value);
+		public virtual bool WasAcceptedByCashier
+		{
+			get => _wasAcceptedByCashier;
+			set => SetField(ref _wasAcceptedByCashier, value);
 		}
 
-		Employee cashier;
+		private Employee _cashier;
 		[IgnoreHistoryTrace]
-		public virtual Employee Cashier {
-			get => cashier;
-			set => SetField(ref cashier, value, () => Cashier);
+		public virtual Employee Cashier
+		{
+			get => _cashier;
+			set => SetField(ref _cashier, value);
 		}
 
-		decimal fixedDriverWage;
+		private decimal _fixedDriverWage;
 
 		[Display(Name = "Фиксированная заработанная плата водителя")]
 		[IgnoreHistoryTrace]
-		public virtual decimal FixedDriverWage {
-			get => fixedDriverWage;
-			set => SetField(ref fixedDriverWage, value, () => FixedDriverWage);
+		public virtual decimal FixedDriverWage
+		{
+			get => _fixedDriverWage;
+			set => SetField(ref _fixedDriverWage, value);
 		}
 
-		decimal fixedForwarderWage;
+		private decimal _fixedForwarderWage;
 
 		[Display(Name = "Фиксированная заработанная плата экспедитора")]
 		[IgnoreHistoryTrace]
-		public virtual decimal FixedForwarderWage {
-			get => fixedForwarderWage;
-			set => SetField(ref fixedForwarderWage, value, () => FixedForwarderWage);
+		public virtual decimal FixedForwarderWage
+		{
+			get => _fixedForwarderWage;
+			set => SetField(ref _fixedForwarderWage, value);
 		}
 
-		Fine bottleFine;
+		private Fine _bottleFine;
 
 		[Display(Name = "Штраф за бутыли")]
-		public virtual Fine BottleFine {
-			get => bottleFine;
-			set => SetField(ref bottleFine, value, () => BottleFine);
+		public virtual Fine BottleFine
+		{
+			get => _bottleFine;
+			set => SetField(ref _bottleFine, value);
 		}
 
-		private FuelOperation fuelOutlayedOperation;
+		private FuelOperation _fuelOutlayedOperation;
 
 		[Display(Name = "Операции расхода топлива")]
 		[IgnoreHistoryTrace]
-		public virtual FuelOperation FuelOutlayedOperation {
-			get => fuelOutlayedOperation;
-			set => SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation);
+		public virtual FuelOperation FuelOutlayedOperation
+		{
+			get => _fuelOutlayedOperation;
+			set => SetField(ref _fuelOutlayedOperation, value);
 		}
 
-		private bool differencesConfirmed;
+		private bool _differencesConfirmed;
 
 		[Display(Name = "Расхождения подтверждены")]
-		public virtual bool DifferencesConfirmed {
-			get => differencesConfirmed;
-			set => SetField(ref differencesConfirmed, value, () => DifferencesConfirmed);
+		public virtual bool DifferencesConfirmed
+		{
+			get => _differencesConfirmed;
+			set => SetField(ref _differencesConfirmed, value);
 		}
 
-		private DateTime? lastCallTime;
+		private DateTime? _lastCallTime;
 
 		[Display(Name = "Время последнего созвона")]
-		public virtual DateTime? LastCallTime {
-			get => lastCallTime;
-			set => SetField(ref lastCallTime, value, () => LastCallTime);
+		public virtual DateTime? LastCallTime
+		{
+			get => _lastCallTime;
+			set => SetField(ref _lastCallTime, value);
 		}
 
-		private bool closingFilled;
+		private bool _closingFilled;
 
 		/// <summary>
 		/// Внутренее поле говорящее о том что первоначалная подготовка маршрутного листа к закрытию выполнена.
 		/// Эта операция выполняется 1 раз при первом открытии диалога закрытия МЛ, тут оставляется пометка о том что операция выполнена.
 		/// </summary>
-		public virtual bool ClosingFilled {
-			get => closingFilled;
-			set => SetField(ref closingFilled, value, () => ClosingFilled);
+		public virtual bool ClosingFilled
+		{
+			get => _closingFilled;
+			set => SetField(ref _closingFilled, value);
 		}
 
-		IList<RouteListItem> addresses = new List<RouteListItem>();
+		private IList<RouteListItem> _addresses = new List<RouteListItem>();
 
 		[Display(Name = "Адреса в маршрутном листе")]
-		public virtual IList<RouteListItem> Addresses {
-			get => addresses;
-			set {
-				SetField(ref addresses, value, () => Addresses);
+		public virtual IList<RouteListItem> Addresses
+		{
+			get => _addresses;
+			set
+			{
+				SetField(ref _addresses, value);
 				SetNullToObservableAddresses();
 			}
 		}
 
-		GenericObservableList<RouteListItem> observableAddresses;
+		private GenericObservableList<RouteListItem> _observableAddresses;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<RouteListItem> ObservableAddresses {
-			get {
-				if(observableAddresses == null) {
-					observableAddresses = new GenericObservableList<RouteListItem>(addresses);
-					observableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
-					observableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
+		public virtual GenericObservableList<RouteListItem> ObservableAddresses
+		{
+			get
+			{
+				if(_observableAddresses == null)
+				{
+					_observableAddresses = new GenericObservableList<RouteListItem>(_addresses);
+					_observableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
+					_observableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
 				}
-				return observableAddresses;
+				return _observableAddresses;
 			}
 		}
 
-		IList<FuelDocument> fuelDocuments = new List<FuelDocument>();
+		private IList<FuelDocument> _fuelDocuments = new List<FuelDocument>();
 
 		[Display(Name = "Документы выдачи топлива")]
-		public virtual IList<FuelDocument> FuelDocuments {
-			get => fuelDocuments;
-			set => SetField(ref fuelDocuments, value, () => FuelDocuments);
+		public virtual IList<FuelDocument> FuelDocuments
+		{
+			get => _fuelDocuments;
+			set => SetField(ref _fuelDocuments, value);
 		}
 
-		GenericObservableList<FuelDocument> observableFuelDocuments;
+		private GenericObservableList<FuelDocument> _observableFuelDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<FuelDocument> ObservableFuelDocuments {
-			get {
-				if(observableFuelDocuments == null) {
-					observableFuelDocuments = new GenericObservableList<FuelDocument>(fuelDocuments);
+		public virtual GenericObservableList<FuelDocument> ObservableFuelDocuments
+		{
+			get
+			{
+				if(_observableFuelDocuments == null)
+				{
+					_observableFuelDocuments = new GenericObservableList<FuelDocument>(_fuelDocuments);
 				}
-				return observableFuelDocuments;
+				return _observableFuelDocuments;
 			}
 		}
 
-		private bool normalWage;
+		private bool _normalWage;
 
 		/// <summary>
 		/// Расчет ЗП по нормальной ставке, вне зависимости от того какой тип ЗП стоит у водителя.
 		/// </summary>
-		public virtual bool NormalWage {
-			get => normalWage;
-			set => SetField(ref normalWage, value, () => NormalWage);
+		public virtual bool NormalWage
+		{
+			get => _normalWage;
+			set => SetField(ref _normalWage, value);
 		}
 
-		private WagesMovementOperations driverWageOperation;
+		private WagesMovementOperations _driverWageOperation;
 
 		[Display(Name = "Операция начисления зарплаты водителю")]
 		[IgnoreHistoryTrace]
-		public virtual WagesMovementOperations DriverWageOperation {
-			get => driverWageOperation;
-			set => SetField(ref driverWageOperation, value, () => DriverWageOperation);
+		public virtual WagesMovementOperations DriverWageOperation
+		{
+			get => _driverWageOperation;
+			set => SetField(ref _driverWageOperation, value);
 		}
 
-		private WagesMovementOperations forwarderWageOperation;
+		private WagesMovementOperations _forwarderWageOperation;
 
 		[Display(Name = "Операция начисления зарплаты экспедитору")]
 		[IgnoreHistoryTrace]
-		public virtual WagesMovementOperations ForwarderWageOperation {
-			get => forwarderWageOperation;
-			set => SetField(ref forwarderWageOperation, value, () => ForwarderWageOperation);
+		public virtual WagesMovementOperations ForwarderWageOperation
+		{
+			get => _forwarderWageOperation;
+			set => SetField(ref _forwarderWageOperation, value);
 		}
 
-		private bool isManualAccounting;
+		private bool _isManualAccounting;
 		[Display(Name = "Расчёт наличных вручную?")]
-		public virtual bool IsManualAccounting {
-			get => isManualAccounting;
-			set => SetField(ref isManualAccounting, value, () => IsManualAccounting);
+		public virtual bool IsManualAccounting
+		{
+			get => _isManualAccounting;
+			set => SetField(ref _isManualAccounting, value);
 		}
 
-		private TimeSpan? onLoadTimeStart;
+		private TimeSpan? _onLoadTimeStart;
 
 		[Display(Name = "На погрузку в")]
-		public virtual TimeSpan? OnLoadTimeStart {
-			get => onLoadTimeStart;
-			set => SetField(ref onLoadTimeStart, value, () => OnLoadTimeStart);
+		public virtual TimeSpan? OnLoadTimeStart
+		{
+			get => _onLoadTimeStart;
+			set => SetField(ref _onLoadTimeStart, value);
 		}
 
-		private TimeSpan? onLoadTimeEnd;
+		private TimeSpan? _onLoadTimeEnd;
 
 		[Display(Name = "Закончить погрузку в")]
-		public virtual TimeSpan? OnLoadTimeEnd {
-			get => onLoadTimeEnd;
-			set => SetField(ref onLoadTimeEnd, value, () => OnLoadTimeEnd);
+		public virtual TimeSpan? OnLoadTimeEnd
+		{
+			get => _onLoadTimeEnd;
+			set => SetField(ref _onLoadTimeEnd, value);
 		}
 
-		private int? onLoadGate;
+		private int? _onLoadGate;
 
 		[Display(Name = "Ворота на погрузку")]
-		public virtual int? OnLoadGate {
-			get => onLoadGate;
-			set => SetField(ref onLoadGate, value, () => OnLoadGate);
+		public virtual int? OnLoadGate
+		{
+			get => _onLoadGate;
+			set => SetField(ref _onLoadGate, value);
 		}
 
-		private bool onLoadTimeFixed;
+		private bool _onLoadTimeFixed;
 
 		[Display(Name = "Время погрузки установлено в ручную")]
-		public virtual bool OnloadTimeFixed {
-			get => onLoadTimeFixed;
-			set => SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed);
+		public virtual bool OnloadTimeFixed
+		{
+			get => _onLoadTimeFixed;
+			set => SetField(ref _onLoadTimeFixed, value);
 		}
 
-		private bool addressesOrderWasChangedAfterPrinted;
+		private bool _addressesOrderWasChangedAfterPrinted;
 		[Display(Name = "Был изменен порядок адресов после печати")]
-		public virtual bool AddressesOrderWasChangedAfterPrinted {
-			get => addressesOrderWasChangedAfterPrinted;
-			set => SetField(ref addressesOrderWasChangedAfterPrinted, value, () => AddressesOrderWasChangedAfterPrinted);
+		public virtual bool AddressesOrderWasChangedAfterPrinted
+		{
+			get => _addressesOrderWasChangedAfterPrinted;
+			set => SetField(ref _addressesOrderWasChangedAfterPrinted, value);
 		}
 
-		string mileageComment;
+		private string _mileageComment;
 
 		[Display(Name = "Комментарий к километражу")]
-		public virtual string MileageComment {
-			get => mileageComment;
-			set => SetField(ref mileageComment, value, () => MileageComment);
+		public virtual string MileageComment
+		{
+			get => _mileageComment;
+			set => SetField(ref _mileageComment, value);
 		}
 
-		bool mileageCheck;
+		private bool _mileageCheck;
 
 		[Display(Name = "Проверка километража")]
-		public virtual bool MileageCheck {
-			get => mileageCheck;
-			set => SetField(ref mileageCheck, value, () => MileageCheck);
+		public virtual bool MileageCheck
+		{
+			get => _mileageCheck;
+			set => SetField(ref _mileageCheck, value);
 		}
 
-		Employee closedBy;
+		private Employee _closedBy;
 		[Display(Name = "Закрыт сотрудником")]
 		[IgnoreHistoryTrace]
-		public virtual Employee ClosedBy {
-			get => closedBy;
-			set => SetField(ref closedBy, value, () => ClosedBy);
+		public virtual Employee ClosedBy
+		{
+			get => _closedBy;
+			set => SetField(ref _closedBy, value);
 		}
 
-		private Subdivision closingSubdivision;
+		private Subdivision _closingSubdivision;
 		[Display(Name = "Сдается в подразделение")]
-		public virtual Subdivision ClosingSubdivision {
-			get => closingSubdivision;
-			set => SetField(ref closingSubdivision, value, () => ClosingSubdivision);
-		}
-		
-		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
-		[Display(Name = "Группа района")]
-		public virtual IList<GeographicGroup> GeographicGroups {
-			get => geographicGroups;
-			set => SetField(ref geographicGroups, value, () => GeographicGroups);
+		public virtual Subdivision ClosingSubdivision
+		{
+			get => _closingSubdivision;
+			set => SetField(ref _closingSubdivision, value);
 		}
 
-		GenericObservableList<GeographicGroup> observableGeographicGroups;
+		private IList<GeographicGroup> _geographicGroups = new List<GeographicGroup>();
+		[Display(Name = "Группа района")]
+		public virtual IList<GeographicGroup> GeographicGroups
+		{
+			get => _geographicGroups;
+			set => SetField(ref _geographicGroups, value);
+		}
+
+		private GenericObservableList<GeographicGroup> _observableGeographicGroups;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
-			get {
-				if(observableGeographicGroups == null)
-					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
-				return observableGeographicGroups;
+		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups
+		{
+			get
+			{
+				if(_observableGeographicGroups == null)
+				{
+					_observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
+				}
+
+				return _observableGeographicGroups;
 			}
 		}
 
-		bool? notFullyLoaded;
+		private bool? _notFullyLoaded;
 		[Display(Name = "МЛ погружен не полностью")]
-		public virtual bool? NotFullyLoaded {
-			get => notFullyLoaded;
-			set => SetField(ref notFullyLoaded, value, () => NotFullyLoaded);
+		public virtual bool? NotFullyLoaded
+		{
+			get => _notFullyLoaded;
+			set => SetField(ref _notFullyLoaded, value);
 		}
 
 		private IList<DocumentPrintHistory> _printsHistory = new List<DocumentPrintHistory>();
@@ -516,7 +591,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region readonly Свойства
 
-		public virtual string Title => string.Format("МЛ №{0}", Id);
+		public virtual string Title => $"МЛ №{Id}";
 
 		public virtual decimal UniqueAddressCount => Addresses.Where(item => item.IsDelivered())
 															  .Select(item => item.Order.DeliveryPoint.Id)
@@ -525,10 +600,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.CompanyTruck && Car.IsCompanyCar;
 
-		public virtual decimal PhoneSum {
-			get {
+		public virtual decimal PhoneSum
+		{
+			get
+			{
 				if(Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster)
+				{
 					return 0;
+				}
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
 			}
@@ -536,8 +615,10 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal Total => Addresses.Sum(x => x.TotalCash) - PhoneSum;
 
-		public virtual decimal MoneyToReturn {
-			get {
+		public virtual decimal MoneyToReturn
+		{
+			get
+			{
 				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue && x.FuelPaymentType.HasValue && x.FuelPaymentType == FuelPaymentType.Cash).Sum(x => x.PayedForFuel.Value);
 
 				return Total - payedForFuel;
@@ -556,12 +637,12 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion
 
-		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			CheckAddressOrder();
 		}
 
-		void ObservableAddresses_ElementAdded(object aList, int[] aIdx)
+		private void ObservableAddresses_ElementAdded(object aList, int[] aIdx)
 		{
 			CheckAddressOrder();
 		}
@@ -593,12 +674,15 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		/// <returns>Экспедитор по умолчание если не уволен</returns>
 		/// <param name="driver">Водитель</param>
-		Employee GetDefaultForwarder(Employee driver)
+		private Employee GetDefaultForwarder(Employee driver)
 		{
-			if(driver?.DefaultForwarder?.Status == EmployeeStatus.IsFired) {
+			if(driver?.DefaultForwarder?.Status == EmployeeStatus.IsFired)
+			{
 				//если больше не с нами,то не нужно его держать умолчальным в водителе
 				driver.DefaultForwarder = null;
-			} else if(driver != null && driver.DefaultForwarder != null) {
+			}
+			else if(driver != null && driver.DefaultForwarder != null)
+			{
 				return driver.DefaultForwarder;
 			}
 			return null;
@@ -606,11 +690,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ChangeFuelDocumentsChangeCar(Car oldCar)
 		{
-			if(oldCar == null || Car == oldCar || !FuelDocuments.Any()) {
+			if(oldCar == null || Car == oldCar || !FuelDocuments.Any())
+			{
 				return;
 			}
 
-			foreach(FuelDocument item in ObservableFuelDocuments) {
+			foreach(FuelDocument item in ObservableFuelDocuments)
+			{
 				item.Car = Car;
 				item.FuelOperation.Car = Car;
 			}
@@ -619,9 +705,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void ChangeFuelDocumentsOnChangeDriver(Employee oldDriver)
 		{
 			if(Driver == null || oldDriver == null || Driver == oldDriver || !FuelDocuments.Any())
+			{
 				return;
+			}
 
-			foreach(FuelDocument item in ObservableFuelDocuments) {
+			foreach(FuelDocument item in ObservableFuelDocuments)
+			{
 				item.Driver = Driver;
 				item.FuelOperation.Driver = Driver;
 			}
@@ -629,23 +718,31 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool FuelOperationHaveDiscrepancy()
 		{
-			if(FuelOutlayedOperation == null) {
+			if(FuelOutlayedOperation == null)
+			{
 				return false;
 			}
 			var carDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Car != null && x.Car.Id != Car.Id)
-									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
+										|| (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
 			var driverDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
-										  || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
+										|| (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
 			return carDiff || driverDiff;
 		}
 
 		public virtual RouteListItem AddAddressFromOrder(Order order)
 		{
-			if(order == null) throw new ArgumentNullException(nameof(order));
+			if(order == null)
+			{
+				throw new ArgumentNullException(nameof(order));
+			}
 
 			if(order.DeliveryPoint == null)
+			{
 				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
-			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute) {
+			}
+
+			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute)
+			{
 				WithForwarder = Forwarder != null
 			};
 			ObservableAddresses.Add(item);
@@ -655,10 +752,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool TryRemoveAddress(RouteListItem address, out string msg, IRouteListItemRepository routeListItemRepository)
 		{
 			if(routeListItemRepository == null)
+			{
 				throw new ArgumentNullException(nameof(routeListItemRepository));
+			}
 
 			msg = string.Empty;
-			if(address.WasTransfered) {
+			if(address.WasTransfered)
+			{
 				var from = routeListItemRepository.GetTransferedFrom(UoW, address)?.RouteList?.Id;
 				msg = string.Format(
 					"Адрес \"{0}\" не может быть удалён, т.к. был перенесён из МЛ №{1}. Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.",
@@ -676,20 +776,26 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void RemoveAddress(RouteListItem address)
 		{
 			if(!TryRemoveAddress(address, out string message, new RouteListItemRepository()))
+			{
 				throw new NotSupportedException(string.Format("\n\n{0}\n", message));
+			}
 		}
 
 		public virtual void CheckAddressOrder()
 		{
-			for(int i = 0; i < Addresses.Count; i++) {
-				if(Addresses[i] == null) {
+			for(int i = 0; i < Addresses.Count; i++)
+			{
+				if(Addresses[i] == null)
+				{
 					Addresses.RemoveAt(i);
 					i--;
 					continue;
 				}
 
-				if(Addresses[i].IndexInRoute != i) {
-					if(PrintsHistory?.Any() ?? false) {
+				if(Addresses[i].IndexInRoute != i)
+				{
+					if(PrintsHistory?.Any() ?? false)
+					{
 						AddressesOrderWasChangedAfterPrinted = true;
 					}
 					Addresses[i].IndexInRoute = i;
@@ -699,32 +805,40 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void CheckFuelDocumentOrder()
 		{
-			for(int i = 0; i < FuelDocuments.Count; i++) {
-				if(FuelDocuments[i] == null) {
+			for(int i = 0; i < FuelDocuments.Count; i++)
+			{
+				if(FuelDocuments[i] == null)
+				{
 					FuelDocuments.RemoveAt(i);
 					i--;
 					continue;
 				}
 
 				if(FuelDocuments[i].RouteList.Id != i)
+				{
 					FuelDocuments[i].RouteList.Id = i;
+				}
 			}
 		}
 
 		private void SetNullToObservableAddresses()
 		{
-			if(observableAddresses == null)
+			if(_observableAddresses == null)
+			{
 				return;
-			observableAddresses.ElementAdded -= ObservableAddresses_ElementAdded;
-			observableAddresses.ElementRemoved -= ObservableAddresses_ElementRemoved;
-			observableAddresses = null;
+			}
+
+			_observableAddresses.ElementAdded -= ObservableAddresses_ElementAdded;
+			_observableAddresses.ElementRemoved -= ObservableAddresses_ElementRemoved;
+			_observableAddresses = null;
 		}
 
 		public virtual void RollBackEnRouteStatus()
 		{
 			Status = RouteListStatus.EnRoute;
 			ClosingFilled = false;
-			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed)) {
+			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
+			{
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
 			}
 
@@ -741,26 +855,34 @@ namespace Vodovoz.Domain.Logistic
 			var goods = _routeListRepository.GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
-			foreach(var good in goods) {
+			foreach(var good in goods)
+			{
 				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
 
-				if(good.NomenclatureId == terminalId 
+				if(good.NomenclatureId == terminalId
 					&& (loaded?.Amount ?? 0) + terminalsTransferedToThisRL == good.Amount)
 				{
 					continue;
 				}
 
-				if(loaded == null || loaded.Amount < good.Amount) {
+				if(loaded == null || loaded.Amount < good.Amount)
+				{
 					closed = false;
 					break;
 				}
 			}
 
-			if(closed) {
+			if(closed)
+			{
 				if(NotFullyLoaded.HasValue)
+				{
 					NotFullyLoaded = false;
+				}
+
 				if(new[] { RouteListStatus.Confirmed, RouteListStatus.InLoading }.Contains(Status))
+				{
 					ChangeStatusAndCreateTask(RouteListStatus.EnRoute, callTaskWorker);
+				}
 			}
 
 			return closed;
@@ -768,35 +890,43 @@ namespace Vodovoz.Domain.Logistic
 
 
 		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded,
-		                                                  List<ReturnsNode> allReturnsToWarehouse)
+														  List<ReturnsNode> allReturnsToWarehouse)
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
 			#region Товары
 
-			foreach(var address in Addresses) {
-				foreach(var orderItem in address.Order.OrderItems) {
+			foreach(var address in Addresses)
+			{
+				foreach(var orderItem in address.Order.OrderItems)
+				{
 					if(!Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category)
-						|| orderItem.Nomenclature.Category == NomenclatureCategory.bottle) 
+						|| orderItem.Nomenclature.Category == NomenclatureCategory.bottle)
 					{
 						continue;
 					}
 					Discrepancy discrepancy = null;
-					
-					if(address.TransferedTo == null) {
-						discrepancy = new Discrepancy {
-							ClientRejected = orderItem.ReturnedCount, 
-							Nomenclature = orderItem.Nomenclature, 
-							Name = orderItem.Nomenclature.Name
-						};
-					} else if(address.TransferedTo.NeedToReload) {
-						discrepancy = new Discrepancy {
-							ClientRejected = orderItem.Count, 
-							Nomenclature = orderItem.Nomenclature, 
+
+					if(address.TransferedTo == null)
+					{
+						discrepancy = new Discrepancy
+						{
+							ClientRejected = orderItem.ReturnedCount,
+							Nomenclature = orderItem.Nomenclature,
 							Name = orderItem.Nomenclature.Name
 						};
 					}
-					if(discrepancy != null && discrepancy.ClientRejected != 0) {
+					else if(address.TransferedTo.NeedToReload)
+					{
+						discrepancy = new Discrepancy
+						{
+							ClientRejected = orderItem.Count,
+							Nomenclature = orderItem.Nomenclature,
+							Name = orderItem.Nomenclature.Name
+						};
+					}
+					if(discrepancy != null && discrepancy.ClientRejected != 0)
+					{
 						AddDiscrepancy(result, discrepancy);
 					}
 				}
@@ -809,27 +939,32 @@ namespace Vodovoz.Domain.Logistic
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
-			if (loadedTerminalAmount > 0) {
+			if(loadedTerminalAmount > 0)
+			{
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
-				var discrepancyTerminal = new Discrepancy {
+				var discrepancyTerminal = new Discrepancy
+				{
 					Nomenclature = terminal,
 					PickedUpFromClient = loadedTerminalAmount,
 					Name = terminal.Name
 				};
 
-				if (unloadedTerminalAmount > 0) discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
+				if(unloadedTerminalAmount > 0)
+				{
+					discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
+				}
 
 				AddDiscrepancy(result, discrepancyTerminal);
 			}
 
 			//ОБОРУДОВАНИЕ
 
-			foreach (var address in Addresses)
+			foreach(var address in Addresses)
 			{
-				foreach (var orderEquipment in address.Order.OrderEquipments)
+				foreach(var orderEquipment in address.Order.OrderEquipments)
 				{
-					if (!Nomenclature.GetCategoriesForShipment().Contains(orderEquipment.Nomenclature.Category))
+					if(!Nomenclature.GetCategoriesForShipment().Contains(orderEquipment.Nomenclature.Category))
 					{
 						continue;
 					}
@@ -839,9 +974,9 @@ namespace Vodovoz.Domain.Logistic
 						Name = orderEquipment.Nomenclature.Name
 					};
 
-					if (address.TransferedTo == null)
+					if(address.TransferedTo == null)
 					{
-						if (orderEquipment.Direction == Direction.Deliver)
+						if(orderEquipment.Direction == Direction.Deliver)
 						{
 							discrepancy.ClientRejected = orderEquipment.ReturnedCount;
 						}
@@ -851,9 +986,9 @@ namespace Vodovoz.Domain.Logistic
 						}
 						AddDiscrepancy(result, discrepancy);
 					}
-					else if (address.TransferedTo.NeedToReload)
+					else if(address.TransferedTo.NeedToReload)
 					{
-						if (orderEquipment.Direction == Direction.Deliver)
+						if(orderEquipment.Direction == Direction.Deliver)
 						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование
 							discrepancy.ClientRejected = orderEquipment.Count;
 							AddDiscrepancy(result, discrepancy);
@@ -865,8 +1000,10 @@ namespace Vodovoz.Domain.Logistic
 			//ДОСТАВЛЕНО НА СКЛАД
 			var warehouseItems = allReturnsToWarehouse.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle)
 													  .ToList();
-			foreach(var whItem in warehouseItems) {
-				var discrepancy = new Discrepancy {
+			foreach(var whItem in warehouseItems)
+			{
+				var discrepancy = new Discrepancy
+				{
 					Nomenclature = whItem.Nomenclature,
 					ToWarehouse = whItem.Amount,
 					Name = whItem.Name
@@ -874,10 +1011,13 @@ namespace Vodovoz.Domain.Logistic
 				AddDiscrepancy(result, discrepancy);
 			}
 
-			if(itemsLoaded != null && itemsLoaded.Any()) {
+			if(itemsLoaded != null && itemsLoaded.Any())
+			{
 				var loadedItems = itemsLoaded.Where(x => x.Nomenclature.Category != NomenclatureCategory.bottle);
-				foreach(var item in loadedItems) {
-					var discrepancy = new Discrepancy {
+				foreach(var item in loadedItems)
+				{
+					var discrepancy = new Discrepancy
+					{
 						Nomenclature = item.Nomenclature,
 						FromWarehouse = item.CountNotLoaded,
 						Name = item.Nomenclature.Name
@@ -894,12 +1034,15 @@ namespace Vodovoz.Domain.Logistic
 		/// Добавляет новое расхождение если такой номенклатуры нет в списке, 
 		/// иначе прибавляет все значения к найденной в списке номенклатуре
 		/// </summary>
-		void AddDiscrepancy(List<Discrepancy> list, Discrepancy item)
+		private void AddDiscrepancy(List<Discrepancy> list, Discrepancy item)
 		{
 			var existingDiscrepancy = list.FirstOrDefault(x => x.Nomenclature == item.Nomenclature);
-			if(existingDiscrepancy == null) {
+			if(existingDiscrepancy == null)
+			{
 				list.Add(item);
-			} else {
+			}
+			else
+			{
 				existingDiscrepancy.ClientRejected += item.ClientRejected;
 				existingDiscrepancy.PickedUpFromClient += item.PickedUpFromClient;
 				existingDiscrepancy.ToWarehouse += item.ToWarehouse;
@@ -931,67 +1074,94 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void ChangeStatusAndCreateTask(RouteListStatus newStatus, CallTaskWorker callTaskWorker)
 		{
 			if(newStatus == Status)
+			{
 				return;
+			}
 
 			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {Status} на {newStatus}";
 
-			switch(newStatus) {
+			switch(newStatus)
+			{
 				case RouteListStatus.New:
-					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading) {
+					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading)
+					{
 						Status = RouteListStatus.New;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus == OrderStatus.OnLoading) {
+						foreach(var address in Addresses)
+						{
+							if(address.Order.OrderStatus == OrderStatus.OnLoading)
+							{
 								address.Order.ChangeStatusAndCreateTasks(OrderStatus.InTravelList, callTaskWorker);
 							}
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.Confirmed:
-					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
+					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading)
+					{
 						Status = RouteListStatus.Confirmed;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus < OrderStatus.OnLoading) {
+						foreach(var address in Addresses)
+						{
+							if(address.Order.OrderStatus < OrderStatus.OnLoading)
+							{
 								address.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.InLoading:
-					if(Status == RouteListStatus.EnRoute) {
+					if(Status == RouteListStatus.EnRoute)
+					{
 						Status = RouteListStatus.InLoading;
-						foreach(var item in Addresses) {
-							if(item.Order.OrderStatus != OrderStatus.OnLoading) {
+						foreach(var item in Addresses)
+						{
+							if(item.Order.OrderStatus != OrderStatus.OnLoading)
+							{
 								item.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
-					} else if(Status == RouteListStatus.Confirmed) {
+					}
+					else if(Status == RouteListStatus.Confirmed)
+					{
 						Status = RouteListStatus.InLoading;
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.EnRoute:
 					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
-					|| Status == RouteListStatus.Delivered) {
-						if(Status != RouteListStatus.Delivered) {
-							foreach(var item in Addresses) {
+					|| Status == RouteListStatus.Delivered)
+					{
+						if(Status != RouteListStatus.Delivered)
+						{
+							foreach(var item in Addresses)
+							{
 								bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 								if(!isInvalidStatus)
+								{
 									item.Order.OrderStatus = OrderStatus.OnTheWay;
+								}
 							}
 						}
 						Status = RouteListStatus.EnRoute;
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.Delivered:
-					if (Status == RouteListStatus.EnRoute)
+					if(Status == RouteListStatus.EnRoute)
 					{
 						Status = newStatus;
 					}
@@ -1005,32 +1175,43 @@ namespace Vodovoz.Domain.Logistic
 					(Status == RouteListStatus.Delivered && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
 					|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.Delivered
-					|| Status == RouteListStatus.Closed) {
+					|| Status == RouteListStatus.Closed)
+					{
 						Status = newStatus;
-						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
+						{
 							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.MileageCheck:
-					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing) {
+					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing)
+					{
 						Status = newStatus;
-						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
+						{
 							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.Closed:
 					if(Status == RouteListStatus.OnClosing
 					|| Status == RouteListStatus.MileageCheck
-					|| Status == RouteListStatus.Delivered) {
+					|| Status == RouteListStatus.Delivered)
+					{
 						Status = newStatus;
 						CloseAddressesAndCreateTask(callTaskWorker);
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
@@ -1041,72 +1222,101 @@ namespace Vodovoz.Domain.Logistic
 			UpdateDeliveryDocuments(UoW);
 			UpdateClosedInformation();
 		}
-		
+
 		public virtual void ChangeStatus(RouteListStatus newStatus)
 		{
 			if(newStatus == Status)
+			{
 				return;
+			}
 
 			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {Status} на {newStatus}";
 
-			switch(newStatus) {
+			switch(newStatus)
+			{
 				case RouteListStatus.New:
-					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading) {
+					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading)
+					{
 						Status = RouteListStatus.New;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus == OrderStatus.OnLoading) {
+						foreach(var address in Addresses)
+						{
+							if(address.Order.OrderStatus == OrderStatus.OnLoading)
+							{
 								address.Order.ChangeStatus(OrderStatus.InTravelList);
 							}
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.Confirmed:
-					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
+					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading)
+					{
 						Status = RouteListStatus.Confirmed;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus < OrderStatus.OnLoading) {
+						foreach(var address in Addresses)
+						{
+							if(address.Order.OrderStatus < OrderStatus.OnLoading)
+							{
 								address.Order.ChangeStatus(OrderStatus.OnLoading);
 							}
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.InLoading:
-					if(Status == RouteListStatus.EnRoute) {
+					if(Status == RouteListStatus.EnRoute)
+					{
 						Status = RouteListStatus.InLoading;
-						foreach(var item in Addresses) {
-							if(item.Order.OrderStatus != OrderStatus.OnLoading) {
+						foreach(var item in Addresses)
+						{
+							if(item.Order.OrderStatus != OrderStatus.OnLoading)
+							{
 								item.Order.ChangeStatus(OrderStatus.OnLoading);
 							}
 						}
-					} else if(Status == RouteListStatus.Confirmed) {
+					}
+					else if(Status == RouteListStatus.Confirmed)
+					{
 						Status = RouteListStatus.InLoading;
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.EnRoute:
-					if(Status == RouteListStatus.InLoading 
+					if(Status == RouteListStatus.InLoading
 					   || Status == RouteListStatus.Confirmed
-					   || Status == RouteListStatus.Delivered) {
-						foreach(var item in Addresses) {
+					   || Status == RouteListStatus.Delivered)
+					{
+						foreach(var item in Addresses)
+						{
 							bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 							if(!isInvalidStatus)
+							{
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
+							}
 						}
 						Status = RouteListStatus.EnRoute;
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.Delivered:
-					if (Status == RouteListStatus.EnRoute) {
+					if(Status == RouteListStatus.EnRoute)
+					{
 						Status = newStatus;
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
@@ -1114,34 +1324,45 @@ namespace Vodovoz.Domain.Logistic
 					if(
 					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
-					|| Status == RouteListStatus.MileageCheck 
+					|| Status == RouteListStatus.MileageCheck
 					|| Status == RouteListStatus.Delivered
-					|| Status == RouteListStatus.Closed) {
+					|| Status == RouteListStatus.Closed)
+					{
 						Status = newStatus;
-						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
+						{
 							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.MileageCheck:
-					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing) {
+					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing)
+					{
 						Status = newStatus;
-						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
+						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
+						{
 							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
 						}
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.Closed:
-					if(Status == RouteListStatus.OnClosing 
+					if(Status == RouteListStatus.OnClosing
 					   || Status == RouteListStatus.MileageCheck
-					   || Status == RouteListStatus.Delivered) {
+					   || Status == RouteListStatus.Delivered)
+					{
 						Status = newStatus;
 						CloseAddresses();
-					} else {
+					}
+					else
+					{
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
@@ -1173,47 +1394,59 @@ namespace Vodovoz.Domain.Logistic
 
 		private void CloseAddressesAndCreateTask(CallTaskWorker callTaskWorker)
 		{
-			if(Status != RouteListStatus.Closed) {
+			if(Status != RouteListStatus.Closed)
+			{
 				return;
 			}
 
-			foreach(var address in Addresses) {
-				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
-					if(address.Status == RouteListItemStatus.EnRoute) {
+			foreach(var address in Addresses)
+			{
+				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute)
+				{
+					if(address.Status == RouteListItemStatus.EnRoute)
+					{
 						address.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, callTaskWorker);
 					}
 					address.Order.ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 				}
 
-				if(address.Status == RouteListItemStatus.Canceled) {
+				if(address.Status == RouteListItemStatus.Canceled)
+				{
 					address.Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
 				}
 
-				if(address.Status == RouteListItemStatus.Overdue) {
+				if(address.Status == RouteListItemStatus.Overdue)
+				{
 					address.Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
 				}
 			}
 		}
-		
+
 		private void CloseAddresses()
 		{
-			if(Status != RouteListStatus.Closed) {
+			if(Status != RouteListStatus.Closed)
+			{
 				return;
 			}
 
-			foreach(var address in Addresses) {
-				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
-					if(address.Status == RouteListItemStatus.EnRoute) {
+			foreach(var address in Addresses)
+			{
+				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute)
+				{
+					if(address.Status == RouteListItemStatus.EnRoute)
+					{
 						address.UpdateStatus(UoW, RouteListItemStatus.Completed);
 					}
 					address.Order.ChangeStatus(OrderStatus.Closed);
 				}
 
-				if(address.Status == RouteListItemStatus.Canceled) {
+				if(address.Status == RouteListItemStatus.Canceled)
+				{
 					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
 				}
 
-				if(address.Status == RouteListItemStatus.Overdue) {
+				if(address.Status == RouteListItemStatus.Overdue)
+				{
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 				}
 			}
@@ -1229,7 +1462,7 @@ namespace Vodovoz.Domain.Logistic
 			};
 			_printsHistory.Add(newHistory);
 		}
-		
+
 		/// <summary>
 		/// Указывает, находится ли МЛ в таком статусе, что его надо печатать как ClosedRouteList.rdl
 		/// </summary>
@@ -1243,20 +1476,23 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-            bool cashOrderClose = false;
-            if (validationContext.Items.ContainsKey("cash_order_close"))
-            {
-                cashOrderClose = (bool)validationContext.Items["cash_order_close"];
-            }
-            if (validationContext.Items.ContainsKey("NewStatus")) {
+			bool cashOrderClose = false;
+			if(validationContext.Items.ContainsKey("cash_order_close"))
+			{
+				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
+			}
+			if(validationContext.Items.ContainsKey("NewStatus"))
+			{
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
-				switch(newStatus) {
+				switch(newStatus)
+				{
 					case RouteListStatus.New:
 					case RouteListStatus.Confirmed:
 					case RouteListStatus.InLoading:
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
-						foreach(var address in Addresses) {
+						foreach(var address in Addresses)
+						{
 							var orderValidator = new ObjectValidator();
 							orderValidator.Validate(
 									address.Order,
@@ -1265,14 +1501,16 @@ namespace Vodovoz.Domain.Logistic
 										null,
 										new Dictionary<object, object> {
 											{ "NewStatus", OrderStatus.Closed},
-                                            { "cash_order_close", cashOrderClose},
+											{ "cash_order_close", cashOrderClose},
 											{ "AddressStatus", address.Status}
 										}
 									)
 								);
 
 							foreach(var result in orderValidator.Results)
+							{
 								yield return result;
+							}
 						}
 						break;
 					case RouteListStatus.EnRoute: break;
@@ -1280,36 +1518,52 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository))) {
+			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository)))
+			{
 				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
-				foreach(var address in Addresses) {
+				foreach(var address in Addresses)
+				{
 					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, address))
+					{
 						yield return new ValidationResult($"Один из адрессов, находится в другом МЛ");
-					
-					foreach (var result in address.Validate(new ValidationContext(address)))
+					}
+
+					foreach(var result in address.Validate(new ValidationContext(address)))
+					{
 						yield return result;
+					}
 				}
-			} else {
+			}
+			else
+			{
 				throw new ArgumentException($"Для валидации МЛ должен быть доступен {typeof(IRouteListRepository)}");
 			}
 
 			if(!GeographicGroups.Any())
+			{
 				yield return new ValidationResult(
 						"Необходимо указать район",
 						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
 					);
+			}
 
 			if(ClosingSubdivision == null)
+			{
 				yield return new ValidationResult("Не выбрана касса в которую должен будет сдаваться водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ClosingSubdivision) });
+			}
 
 			if(Driver == null)
+			{
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
+			}
 
 			if(Car == null)
+			{
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
+			}
 
 			if(MileageComment?.Length > 500)
 			{
@@ -1318,9 +1572,9 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if(validationContext.Items.ContainsKey(nameof(DriverTerminalCondition)) &&
-			   (bool) validationContext.Items[nameof(DriverTerminalCondition)] && DriverTerminalCondition == null)
+			   (bool)validationContext.Items[nameof(DriverTerminalCondition)] && DriverTerminalCondition == null)
 			{
-				yield return new ValidationResult("Не указано состояние терминала водителя", new []{nameof(DriverTerminalCondition)});
+				yield return new ValidationResult("Не указано состояние терминала водителя", new[] { nameof(DriverTerminalCondition) });
 			}
 		}
 
@@ -1331,87 +1585,101 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Проверка по установленным вариантам расчета зарплаты, должен ли водитель на данном автомобилей проходить проверку километража
 		/// </summary>
-		private bool NeedMileageCheckByWage {
-			get {
-				if(Car.IsCompanyCar) {
+		private bool NeedMileageCheckByWage
+		{
+			get
+			{
+				if(Car.IsCompanyCar)
+				{
 					return true;
 				}
 				var actualWageParameter = Driver.GetActualWageParameter(Date);
 				return actualWageParameter == null || actualWageParameter.WageParameterItem.WageParameterItemType != WageParameterItemTypes.RatesLevel;
 			}
 		}
-		
+
 		public virtual void CompleteRouteAndCreateTask(
 			WageParameterService wageParameterService,
 			CallTaskWorker callTaskWorker,
 			ITrackRepository trackRepository)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			if(NeedMileageCheck) {
+			if(NeedMileageCheck)
+			{
 				ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, callTaskWorker);
-			} else {
+			}
+			else
+			{
 				ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
 			}
 
 			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
-			if(track != null) {
+			if(track != null)
+			{
 				track.CalculateDistance();
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
-			
+
 			FirstFillClosing(wageParameterService);
 			UoW.Save(this);
 		}
-		
+
 		public virtual void CompleteRoute(WageParameterService wageParameterService, ITrackRepository trackRepository)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
 			ChangeStatus(RouteListStatus.Delivered);
 
 			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
-			if(track != null) {
+			if(track != null)
+			{
 				track.CalculateDistance();
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
-			
+
 			FirstFillClosing(wageParameterService);
 			UoW.Save(this);
 		}
-		
+
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
 		public virtual void FirstFillClosing(WageParameterService wageParameterService)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
 			PerformanceHelper.StartMeasurement("Первоначальное заполнение");
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered);
-			foreach(var routeListItem in addresesDelivered) {
+			foreach(var routeListItem in addresesDelivered)
+			{
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 
-				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
+				_logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
 				routeListItem.FirstFillClosing(UoW, wageParameterService);
 				PerformanceHelper.EndPointsGroup();
 			}
 
 			PerformanceHelper.AddTimePoint("Закончили");
-			PerformanceHelper.Main.PrintAllPoints(logger);
+			PerformanceHelper.Main.PrintAllPoints(_logger);
 			ClosingFilled = true;
 		}
 
 		public virtual void UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
 		{
-			foreach(RouteListItem address in addresses.Where(x => x.Status != RouteListItemStatus.Transfered))
+			foreach(RouteListItem address in _addresses.Where(x => x.Status != RouteListItemStatus.Transfered))
+			{
 				address.Order.UpdateBottleMovementOperation(UoW, standartNomenclatures, returnByStock: address.BottlesReturned);
+			}
 		}
 
 		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations()
@@ -1420,18 +1688,24 @@ namespace Vodovoz.Domain.Logistic
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var orderItem in addresesDelivered.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.Where(item => !item.Nomenclature.IsSerial)) {
+				.Where(item => !item.Nomenclature.IsSerial))
+			{
 				var operation = orderItem.UpdateCounterpartyOperation(UoW);
 				if(operation != null)
+				{
 					result.Add(operation);
+				}
 			}
 
 			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				   ) {
+				   )
+			{
 				var operation = orderEquipment.UpdateCounterpartyOperation();
 				if(operation != null)
+				{
 					result.Add(operation);
+				}
 			}
 			return result;
 		}
@@ -1440,7 +1714,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<DepositOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-			foreach(RouteListItem item in addresesDelivered) {
+			foreach(RouteListItem item in addresesDelivered)
+			{
 
 				//Возврат залогов
 				var bottleRefundDeposit = Math.Abs(item.BottleDepositsCollected);
@@ -1457,15 +1732,21 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<MoneyMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
-			foreach(var address in addresesDelivered) {
+			foreach(var address in addresesDelivered)
+			{
 				var order = address.Order;
 				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.ActualCount ?? 0 * dep.Deposit);
 				decimal? money = null;
 				if(address.TotalCash != 0)
+				{
 					money = address.TotalCash;
+				}
+
 				MoneyMovementOperation moneyMovementOperation = order.MoneyMovementOperation;
-				if(moneyMovementOperation == null) {
-					moneyMovementOperation = new MoneyMovementOperation {
+				if(moneyMovementOperation == null)
+				{
+					moneyMovementOperation = new MoneyMovementOperation
+					{
 						OperationTime = order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						Order = order,
 						Counterparty = order.Client,
@@ -1474,7 +1755,9 @@ namespace Vodovoz.Domain.Logistic
 						Money = money,
 						Deposit = depositsTotal
 					};
-				} else {
+				}
+				else
+				{
 					moneyMovementOperation.PaymentType = order.PaymentType;
 					moneyMovementOperation.Debt = order.ActualGoodsTotalSum;
 					moneyMovementOperation.Money = money;
@@ -1491,13 +1774,16 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var messages = new List<string>();
 
-			if(Cashier?.Subdivision == null) {
+			if(Cashier?.Subdivision == null)
+			{
 				messages.Add("Создающий кассовые документы пользователь - не привязан к сотруднику!");
 				return messages.ToArray();
 			}
 
-			if(casheInput > 0) {
-				cashIncome = new Income {
+			if(casheInput > 0)
+			{
+				cashIncome = new Income
+				{
 					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
@@ -1510,9 +1796,12 @@ namespace Vodovoz.Domain.Logistic
 				};
 
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
-			} else {
-				cashExpense = new Expense {
+				_routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
+			}
+			else
+			{
+				cashExpense = new Expense
+				{
 					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
@@ -1524,7 +1813,7 @@ namespace Vodovoz.Domain.Logistic
 					RelatedToSubdivision = Cashier.Subdivision
 				};
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
+				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
 			}
 			IsManualAccounting = true;
 			return messages.ToArray();
@@ -1534,9 +1823,12 @@ namespace Vodovoz.Domain.Logistic
 		{
 			string message;
 			if(Cashier?.Subdivision == null)
+			{
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
+			}
 
-			cashExpense = new Expense {
+			cashExpense = new Expense
+			{
 				ExpenseCategory = categoryRepository.EmployeeSalaryExpenseCategory(UoW),
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
@@ -1550,27 +1842,31 @@ namespace Vodovoz.Domain.Logistic
 			};
 
 			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";
-			expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, cashExpense, true);			
+			_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, cashExpense, true);
 			return (message);
 		}
 
 		private void ConfirmAndClose(CallTaskWorker callTaskWorker)
 		{
-			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck) {
-				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
+			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck)
+			{
+				throw new InvalidOperationException(string.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
 			}
 
-			if(Driver != null && Driver.FirstWorkDay == null) {
-				Driver.FirstWorkDay = date;
+			if(Driver != null && Driver.FirstWorkDay == null)
+			{
+				Driver.FirstWorkDay = _date;
 				UoW.Save(Driver);
 			}
 
-			if(Forwarder != null && Forwarder.FirstWorkDay == null) {
-				Forwarder.FirstWorkDay = date;
+			if(Forwarder != null && Forwarder.FirstWorkDay == null)
+			{
+				Forwarder.FirstWorkDay = _date;
 				UoW.Save(Forwarder);
 			}
 
-			switch(Status) {
+			switch(Status)
+			{
 				case RouteListStatus.OnClosing:
 					CloseFromOnClosing(callTaskWorker);
 					break;
@@ -1582,14 +1878,17 @@ namespace Vodovoz.Domain.Logistic
 
 		private void CloseFromOnMileageCheck(CallTaskWorker callTaskWorker)
 		{
-			if(Status != RouteListStatus.MileageCheck) {
+			if(Status != RouteListStatus.MileageCheck)
+			{
 				return;
 			}
 
-			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument() && !HasMoneyDiscrepancy) {
+			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument() && !HasMoneyDiscrepancy)
+			{
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 			}
-			else {
+			else
+			{
 				ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
 			}
 		}
@@ -1599,18 +1898,21 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		private void CloseFromOnClosing(CallTaskWorker callTaskWorker)
 		{
-			if(Status != RouteListStatus.OnClosing) {
+			if(Status != RouteListStatus.OnClosing)
+			{
 				return;
 			}
 
-			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument() 
+			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()
 				&& new PermissionRepository().HasAccessToClosingRoutelist(
-					UoW, new SubdivisionRepository(_parametersProvider), _employeeRepository, ServicesConfig.UserService)) {
+					UoW, new SubdivisionRepository(_parametersProvider), _employeeRepository, ServicesConfig.UserService))
+			{
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;
 			}
 
-			if(NeedMileageCheck && ConfirmedDistance <= 0) {
+			if(NeedMileageCheck && ConfirmedDistance <= 0)
+			{
 				ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, callTaskWorker);
 				return;
 			}
@@ -1618,11 +1920,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void AcceptCash(CallTaskWorker callTaskWorker)
 		{
-			if(Status != RouteListStatus.OnClosing) {
+			if(Status != RouteListStatus.OnClosing)
+			{
 				return;
 			}
 
-			if(cashier == null) {
+			if(_cashier == null)
+			{
 				throw new InvalidOperationException("Должен быть заполнен кассир");
 			}
 
@@ -1631,7 +1935,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void AcceptMileage(CallTaskWorker callTaskWorker)
 		{
-			if(Status != RouteListStatus.MileageCheck) {
+			if(Status != RouteListStatus.MileageCheck)
+			{
 				return;
 			}
 
@@ -1642,17 +1947,23 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateFuelOperation()
 		{
 			//Необходимо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
-			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
+			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6))
+			{
 				return;
 			}
 
-			if(ConfirmedDistance == 0) {
-				if(FuelOutlayedOperation != null) {
+			if(ConfirmedDistance == 0)
+			{
+				if(FuelOutlayedOperation != null)
+				{
 					UoW.Delete(FuelOutlayedOperation);
 					FuelOutlayedOperation = null;
 				}
-			} else {
-				if(FuelOutlayedOperation == null) {
+			}
+			else
+			{
+				if(FuelOutlayedOperation == null)
+				{
 					FuelOutlayedOperation = new FuelOperation();
 				}
 				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * ConfirmedDistance;
@@ -1668,10 +1979,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void RecalculateFuelOutlay()
 		{
 			if(this.ConfirmedDistance == 0)
+			{
 				return;
+			}
 
-			if(FuelOutlayedOperation == null) {
-				FuelOutlayedOperation = new FuelOperation() {
+			if(FuelOutlayedOperation == null)
+			{
+				FuelOutlayedOperation = new FuelOperation()
+				{
 					OperationTime = DateTime.Now,
 					Driver = this.Driver,
 					Car = this.Car,
@@ -1706,13 +2021,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public RouteList()
 		{
-			date = DateTime.Today;
+			_date = DateTime.Today;
 		}
 
 		public virtual ReportInfo OrderOfAddressesRep(int id)
 		{
-			var reportInfo = new ReportInfo {
-				Title = String.Format("Отчёт по порядку адресов в МЛ №{0}", id),
+			var reportInfo = new ReportInfo
+			{
+				Title = string.Format("Отчёт по порядку адресов в МЛ №{0}", id),
 				Identifier = "Logistic.OrderOfAddresses",
 				Parameters = new Dictionary<string, object> {
 						{ "RouteListId",  id }
@@ -1731,17 +2047,21 @@ namespace Vodovoz.Domain.Logistic
 
 			var currentRouteListCash = _cashRepository.CurrentRouteListCash(UoW, this.Id);
 			var different = Total - currentRouteListCash;
-			if(different == 0M) {
+			if(different == 0M)
+			{
 				return messages.ToArray();
 			}
 
-			if(Cashier?.Subdivision == null) {
+			if(Cashier?.Subdivision == null)
+			{
 				messages.Add("Создающий кассовые документы пользователь - не привязан к сотруднику!");
 				return messages.ToArray();
 			}
 
-			if(different > 0) {
-				cashIncome = new Income {
+			if(different > 0)
+			{
+				cashIncome = new Income
+				{
 					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
@@ -1752,11 +2072,14 @@ namespace Vodovoz.Domain.Logistic
 					RouteListClosing = this,
 					RelatedToSubdivision = Cashier.Subdivision
 				};
-				
+
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money}");
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
-			} else {
-				cashExpense = new Expense {
+				_routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
+			}
+			else
+			{
+				cashExpense = new Expense
+				{
 					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
@@ -1767,16 +2090,19 @@ namespace Vodovoz.Domain.Logistic
 					RouteListClosing = this,
 					RelatedToSubdivision = Cashier.Subdivision
 				};
-				
+
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
-				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
+				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
 			}
 
 			// Если хотя бы один fuelDocument имеет PayedForFuel то добавить пустую строку разделитель и сообщения о расходных ордерах топлива
 			bool wasEmptyLineAdded = false;
-			foreach(var fuelDocument in fuelDocuments) {
-				if (fuelDocument.PayedForFuel != null && fuelDocument.PayedForFuel != 0 && fuelDocument.FuelPaymentType == FuelPaymentType.Cash) {
-					if(!wasEmptyLineAdded) {
+			foreach(var fuelDocument in _fuelDocuments)
+			{
+				if(fuelDocument.PayedForFuel != null && fuelDocument.PayedForFuel != 0 && fuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+				{
+					if(!wasEmptyLineAdded)
+					{
 						messages.Add("\n");
 						wasEmptyLineAdded = true;
 					}
@@ -1784,9 +2110,16 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			if (cashIncome != null) UoW.Save(cashIncome);
-			if (cashExpense != null) UoW.Save(cashExpense);
-			
+			if(cashIncome != null)
+			{
+				UoW.Save(cashIncome);
+			}
+
+			if(cashExpense != null)
+			{
+				UoW.Save(cashExpense);
+			}
+
 			return messages;
 		}
 
@@ -1819,8 +2152,10 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Для логистических расчетов
 
-		public virtual TimeSpan? FirstAddressTime {
-			get {
+		public virtual TimeSpan? FirstAddressTime
+		{
+			get
+			{
 				return Addresses.FirstOrDefault()?.Order.DeliverySchedule.From;
 			}
 		}
@@ -1829,17 +2164,24 @@ namespace Vodovoz.Domain.Logistic
 		{
 			TimeSpan minTime = new TimeSpan();
 			//Расчет минимального времени к которому нужно\можно подъехать.
-			for(int ix = 0; ix < Addresses.Count; ix++) {
+			for(int ix = 0; ix < Addresses.Count; ix++)
+			{
 
-				if(ix == 0) {
+				if(ix == 0)
+				{
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
 					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(GeographicGroups.FirstOrDefault(), Addresses[ix].Order.DeliveryPoint));
 					var onBase = minTime - timeFromBase;
 					if(Shift != null && onBase < Shift.StartTime)
+					{
 						minTime = Shift.StartTime + timeFromBase;
-				} else
+					}
+				}
+				else
+				{
 					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
+				}
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
@@ -1847,29 +2189,43 @@ namespace Vodovoz.Domain.Logistic
 			}
 			//Расчет максимального времени до которого нужно подъехать.
 			TimeSpan maxTime = new TimeSpan();
-			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
+			for(int ix = Addresses.Count - 1; ix >= 0; ix--)
+			{
 
-				if(ix == Addresses.Count - 1) {
+				if(ix == Addresses.Count - 1)
+				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
 					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, GeographicGroups.FirstOrDefault()));
 					var onBase = maxTime + timeToBase;
 					if(Shift != null && onBase > Shift.EndTime)
+					{
 						maxTime = Shift.EndTime - timeToBase;
-				} else
+					}
+				}
+				else
+				{
 					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
+				}
 
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
+				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
+				}
 
 				maxTime -= TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 
-				if(maxTime < Addresses[ix].PlanTimeStart) { //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
+				if(maxTime < Addresses[ix].PlanTimeStart)
+				{ //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
 					TimeSpan beforeMin = new TimeSpan(1, 0, 0, 0);
 					if(ix > 0)
+					{
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
 													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
 													 + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
-					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
+					}
+
+					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From)
+					{
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
 					}
 					maxTime = Addresses[ix].PlanTimeStart.Value;
@@ -1881,9 +2237,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void RecalculatePlanedDistance(RouteGeometryCalculator distanceCalculator)
 		{
 			if(Addresses.Count == 0)
+			{
 				PlanedDistance = 0;
+			}
 			else
+			{
 				PlanedDistance = distanceCalculator.GetRouteDistance(GenerateHashPointsOfRoute()) / 1000m;
+			}
 		}
 
 		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometryCalculator sputnikCache)
@@ -1899,8 +2259,9 @@ namespace Vodovoz.Domain.Logistic
 			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
 			var paralellLoading = 4;
 			var loadingPlaces = Enumerable.Range(0, paralellLoading).Select(x => new TimeSpan(1, 0, 0, 0)).ToArray();
-			foreach(var route in sorted) {
-			repeat:
+			foreach(var route in sorted)
+			{
+				repeat:
 				int selectedPlace = Array.IndexOf(loadingPlaces, loadingPlaces.Max());
 				var endLoading = loadingPlaces[selectedPlace] < route.Item1 ? loadingPlaces[selectedPlace] : route.Item1;
 				var startLoading = endLoading - TimeSpan.FromMinutes(route.Item2.TimeOnLoadMinuts);
@@ -1909,34 +2270,44 @@ namespace Vodovoz.Domain.Logistic
 				var freeplaces = interfere.Count == 0 ? paralellLoading
 										  : loadingPlaces.Count(x => x.TotalSeconds >= interfere.Min(y => y.OnLoadTimeEnd.Value.TotalSeconds));
 				if(endLoading == loadingPlaces[selectedPlace])
-					logger.Debug("Нехватило места на погрузке");
+				{
+					_logger.Debug("Нехватило места на погрузке");
+				}
 
-				if(freeplaces <= interfere.Count || endLoading <= interfere.Min(x => x.OnLoadTimeStart)) {
+				if(freeplaces <= interfere.Count || endLoading <= interfere.Min(x => x.OnLoadTimeStart))
+				{
 					var selectedTime = interfere.Max(x => x.OnLoadTimeEnd);
 					var selectedFixed = interfere.First(x => x.OnLoadTimeEnd == selectedTime);
-					if(loadingPlaces[selectedPlace] >= selectedFixed.OnLoadTimeEnd.Value) {
-						loadingPlaces[selectedPlace] = selectedFixed.onLoadTimeStart.Value;
+					if(loadingPlaces[selectedPlace] >= selectedFixed.OnLoadTimeEnd.Value)
+					{
+						loadingPlaces[selectedPlace] = selectedFixed._onLoadTimeStart.Value;
 						selectedFixed.OnLoadGate = selectedPlace + 1;
-					} else {
-						logger.Warn("Маршрутный лист {0} с фиксированным временем погрузки {1:hh\\:mm}-{2:hh\\:mm} не влезает целиком в расписание прогрузки.",
-									selectedFixed.Id, selectedFixed.onLoadTimeStart, selectedFixed.OnLoadTimeEnd
+					}
+					else
+					{
+						_logger.Warn("Маршрутный лист {0} с фиксированным временем погрузки {1:hh\\:mm}-{2:hh\\:mm} не влезает целиком в расписание прогрузки.",
+									selectedFixed.Id, selectedFixed._onLoadTimeStart, selectedFixed.OnLoadTimeEnd
 								   );
 						selectedFixed.OnLoadGate = null;
-						if(loadingPlaces[selectedPlace] < selectedFixed.onLoadTimeStart.Value)
-							loadingPlaces[selectedPlace] = selectedFixed.onLoadTimeStart.Value;
+						if(loadingPlaces[selectedPlace] < selectedFixed._onLoadTimeStart.Value)
+						{
+							loadingPlaces[selectedPlace] = selectedFixed._onLoadTimeStart.Value;
+						}
 					}
 					fixedTime.Remove(selectedFixed);
 					goto repeat;
 				}
 
 				route.Item2.OnLoadTimeEnd = endLoading;
-				route.Item2.onLoadTimeStart = loadingPlaces[selectedPlace] = startLoading;
-				route.Item2.onLoadGate = selectedPlace + 1;
+				route.Item2._onLoadTimeStart = loadingPlaces[selectedPlace] = startLoading;
+				route.Item2._onLoadGate = selectedPlace + 1;
 			}
 		}
 
-		public virtual long TimeOnLoadMinuts {
-			get {
+		public virtual long TimeOnLoadMinuts
+		{
+			get
+			{
 				return Car.TypeOfUse == CarTypeOfUse.CompanyLargus ? 15 : 30;
 			}
 		}
@@ -1996,21 +2367,30 @@ namespace Vodovoz.Domain.Logistic
 		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures(bool needTerminalAccounting, int? terminalId = null)
 		{
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
-			if(Id > 0) {
+			if(Id > 0)
+			{
 				var loadedNomenclatures = _routeListRepository.AllGoodsLoaded(UoW, this);
 				var nomenclaturesToLoad = _routeListRepository.GetGoodsAndEquipsInRL(UoW, this);
-				
-				foreach(var n in nomenclaturesToLoad) {
-					
+
+				foreach(var n in nomenclaturesToLoad)
+				{
+
 					if(!needTerminalAccounting && n.NomenclatureId == terminalId)
+					{
 						continue;
-					
+					}
+
 					var loaded = loadedNomenclatures.FirstOrDefault(x => x.NomenclatureId == n.NomenclatureId);
 					decimal loadedAmount = 0;
 					if(loaded != null)
+					{
 						loadedAmount = loaded.Amount;
-					if(loadedAmount < n.Amount) {
-						notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode {
+					}
+
+					if(loadedAmount < n.Amount)
+					{
+						notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode
+						{
 							NomenclatureId = n.NomenclatureId,
 							CountTotal = n.Amount,
 							CountNotLoaded = (n.Amount - loadedAmount)
@@ -2081,7 +2461,8 @@ namespace Vodovoz.Domain.Logistic
 
 		private IRouteListWageCalculationService GetDriverWageCalculationService(WageParameterService wageParameterService)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
@@ -2090,11 +2471,13 @@ namespace Vodovoz.Domain.Logistic
 
 		private IRouteListWageCalculationService GetForwarderWageCalculationService(WageParameterService wageParameterService)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			if(Forwarder == null) {
+			if(Forwarder == null)
+			{
 				return null;
 			}
 			return wageParameterService.ActualizeWageParameterAndGetCalculationService(UoW, Forwarder, ForwarderWageCalculationSrc);
@@ -2116,11 +2499,13 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetRecalculatedForwarderWage(WageParameterService wageParameterService)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			if(Forwarder == null) {
+			if(Forwarder == null)
+			{
 				return 0;
 			}
 
@@ -2134,7 +2519,8 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetDriversTotalWage()
 		{
-			if(FixedDriverWage > 0) {
+			if(FixedDriverWage > 0)
+			{
 				//Если все заказы не выполнены, то нет зарплаты
 				return DriverWageCalculationSrc.HasAnyCompletedAddress ? FixedDriverWage : 0;
 			}
@@ -2147,16 +2533,23 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal GetForwardersTotalWage()
 		{
 			if(Forwarder == null)
+			{
 				return 0;
+			}
+
 			if(FixedForwarderWage > 0)
+			{
 				//Если все заказы не выполнены, то нет зарплаты
 				return ForwarderWageCalculationSrc.HasAnyCompletedAddress ? FixedForwarderWage : 0;
+			}
+
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
 
 		public virtual void RecalculateWagesForRouteListItem(RouteListItem address, WageParameterService wageParameterService)
 		{
-			if(!Addresses.Contains(address)) {
+			if(!Addresses.Contains(address))
+			{
 				throw new InvalidOperationException("Расчет зарплаты возможен только для адресов текущего маршрутного листа.");
 			}
 
@@ -2164,7 +2557,8 @@ namespace Vodovoz.Domain.Logistic
 			var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
 			address.DriverWage = drvWageResult.Wage;
 			address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
-			if(Forwarder != null) {
+			if(Forwarder != null)
+			{
 				var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
 				var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
 				address.ForwarderWage = fwdWageResult.Wage;
@@ -2177,11 +2571,12 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual void CalculateWages(WageParameterService wageParameterService)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			if (Status == RouteListStatus.New)
+			if(Status == RouteListStatus.New)
 			{
 				ClearWages();
 				return;
@@ -2191,16 +2586,19 @@ namespace Vodovoz.Domain.Logistic
 			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
 
 			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
-			if(Forwarder != null) {
+			if(Forwarder != null)
+			{
 				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
 				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
 			}
 
-			foreach(var address in Addresses) {
+			foreach(var address in Addresses)
+			{
 				var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
 				address.DriverWage = drvWageResult.Wage;
 				address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
-				if(Forwarder != null) {
+				if(Forwarder != null)
+				{
 					var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
 					address.ForwarderWage = fwdWageResult.Wage;
 					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
@@ -2226,7 +2624,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculateAllWages(WageParameterService wageParameterService)
 		{
-			if(wageParameterService == null) {
+			if(wageParameterService == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
@@ -2237,14 +2636,18 @@ namespace Vodovoz.Domain.Logistic
 		{
 			decimal driverWage = GetDriversTotalWage();
 
-			if(DriverWageOperation == null) {
-				DriverWageOperation = new WagesMovementOperations {
+			if(DriverWageOperation == null)
+			{
+				DriverWageOperation = new WagesMovementOperations
+				{
 					OperationTime = this.Date,
 					Employee = Driver,
 					Money = driverWage,
 					OperationType = WagesType.AccrualWage
 				};
-			} else {
+			}
+			else
+			{
 				DriverWageOperation.Employee = Driver;
 				DriverWageOperation.Money = driverWage;
 			}
@@ -2252,32 +2655,41 @@ namespace Vodovoz.Domain.Logistic
 
 			decimal forwarderWage = GetForwardersTotalWage();
 
-			if(ForwarderWageOperation == null && forwarderWage > 0) {
-				ForwarderWageOperation = new WagesMovementOperations {
+			if(ForwarderWageOperation == null && forwarderWage > 0)
+			{
+				ForwarderWageOperation = new WagesMovementOperations
+				{
 					OperationTime = this.Date,
 					Employee = Forwarder,
 					Money = forwarderWage,
 					OperationType = WagesType.AccrualWage
 				};
-			} else if(ForwarderWageOperation != null && forwarderWage > 0) {
+			}
+			else if(ForwarderWageOperation != null && forwarderWage > 0)
+			{
 				ForwarderWageOperation.Money = forwarderWage;
 				ForwarderWageOperation.Employee = Forwarder;
-			} else if(ForwarderWageOperation != null) {
+			}
+			else if(ForwarderWageOperation != null)
+			{
 				UoW.Delete(ForwarderWageOperation);
 				ForwarderWageOperation = null;
 			}
 
 			if(ForwarderWageOperation != null)
+			{
 				UoW.Save(ForwarderWageOperation);
+			}
 
-			foreach(var address in Addresses) {
+			foreach(var address in Addresses)
+			{
 				address.SaveWageCalculationMethodics();
 			}
 		}
 
-		IRouteListWageCalculationSource DriverWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.driver);
+		private IRouteListWageCalculationSource DriverWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.driver);
 
-		IRouteListWageCalculationSource ForwarderWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.forwarder);
+		private IRouteListWageCalculationSource ForwarderWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.forwarder);
 
 		private string CreateWageCalculationDetailsTextForAddress(RouteListItemWageCalculationDetails addressWageDetails, RouteListItem address,
 			EmployeeCategory employeeCategory, string carOwner)
@@ -2340,11 +2752,11 @@ namespace Vodovoz.Domain.Logistic
 			if(routeListDriverWageCalculationService is RouteListWageCalculationService service
 			   && service.GetWageCalculationService is RouteListFixedWageCalculationService)
 			{
-				resultTextDriver +=  $"Расчёт ЗП с фиксированной суммой за МЛ ({ carOwner }) = { routeListDriverWageCalculationService.CalculateWage().FixedWage } руб.";
+				resultTextDriver += $"Расчёт ЗП с фиксированной суммой за МЛ ({ carOwner }) = { routeListDriverWageCalculationService.CalculateWage().FixedWage } руб.";
 				return resultTextDriver;
 			}
 
-			foreach(var address in addresses)
+			foreach(var address in _addresses)
 			{
 				var driverAddressWageDetails = routeListDriverWageCalculationService?
 					.GetWageCalculationDetailsForRouteListItem(address.DriverWageCalculationSrc);
@@ -2364,10 +2776,10 @@ namespace Vodovoz.Domain.Logistic
 				resultTextForwarder += CreateWageCalculationDetailsTextForAddress(forwarderAddressWageDetails, address, EmployeeCategory.forwarder, carOwner);
 			}
 
-			var routeListDriverWageSum = addressWageDetailsList.Where(w=>w.WageCalculationEmployeeCategory == EmployeeCategory.driver).Sum(a => a.WageCalculationDetailsList.Sum(d =>
-			{
-				return d.Name == WageRateTypes.PackOfBottles600ml.GetEnumTitle() ? Math.Truncate(d.Price * d.Count) : decimal.Round(d.Price * d.Count, 2);
-			}));
+			var routeListDriverWageSum = addressWageDetailsList.Where(w => w.WageCalculationEmployeeCategory == EmployeeCategory.driver).Sum(a => a.WageCalculationDetailsList.Sum(d =>
+			  {
+				  return d.Name == WageRateTypes.PackOfBottles600ml.GetEnumTitle() ? Math.Truncate(d.Price * d.Count) : decimal.Round(d.Price * d.Count, 2);
+			  }));
 
 			var routeListForwarderWageSum = addressWageDetailsList.Where(w => w.WageCalculationEmployeeCategory == EmployeeCategory.forwarder).Sum(a => a.WageCalculationDetailsList.Sum(d =>
 			{
