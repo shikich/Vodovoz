@@ -142,6 +142,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Rent;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
@@ -942,7 +943,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionComplaintsActivated(object sender, EventArgs e)
     {
-	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+	    /*ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
@@ -992,7 +993,9 @@ public partial class MainWindow : Gtk.Window
 	        new UndeliveredOrdersRepository()
         );
         
-        tdiMain.AddTab(journal);
+        tdiMain.AddTab(journal);*/
+	    
+	    NavigationManager.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, MangoManager);
     }
 
     protected void OnActionSalesReportActivated(object sender, EventArgs e)

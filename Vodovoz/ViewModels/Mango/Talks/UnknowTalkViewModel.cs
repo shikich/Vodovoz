@@ -8,7 +8,6 @@ using QS.Project.Domain;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
@@ -24,22 +23,23 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IInteractiveQuestion _interactive;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUnitOfWork _uow;
+
+		private bool _isDisposed;
+		private IPage _newCounterpartyPage;
+		private CounterpartyJournalViewModel _counterpartyJournal;
 		
 		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
 			MangoManager manager,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
+			ICounterpartyJournalFactory counterpartyJournalFactory) : base(navigation, manager)
 		{
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
@@ -47,19 +47,18 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void SelectNewConterparty()
 		{
-			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this, ActiveCall.Phone);
-			var tab = page.TdiTab as CounterpartyDlg;
-			page.PageClosed += NewCounerpatry_PageClosed;
+			_newCounterpartyPage = _tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this, ActiveCall.Phone);
+			_newCounterpartyPage.PageClosed += NewCounerpatryPageClosed;
 		}
 
 		public void SelectExistConterparty()
 		{
-			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
-			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
+			_counterpartyJournal = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null).ViewModel;
+			_counterpartyJournal.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			_counterpartyJournal.OnEntitySelectedResult += ExistingCounterpartyPageClosed;
 		}
 
-		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
+		void NewCounerpatryPageClosed(object sender, PageClosedEventArgs e)
 		{ 
 			if(e.CloseSource == CloseSource.Save) {
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
@@ -71,7 +70,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			}
 		}
 
-		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		void ExistingCounterpartyPageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
@@ -121,7 +120,21 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void Dispose()
 		{
+			if(_isDisposed)
+			{
+				return;
+			}
+			if(_newCounterpartyPage != null)
+			{
+				_newCounterpartyPage.PageClosed -= NewCounerpatryPageClosed;
+			}
+			if(_counterpartyJournal != null)
+			{
+				_counterpartyJournal.OnEntitySelectedResult -= ExistingCounterpartyPageClosed;
+			}
+			
 			_uow?.Dispose();
+			_isDisposed = true;
 		}
 	}
 }

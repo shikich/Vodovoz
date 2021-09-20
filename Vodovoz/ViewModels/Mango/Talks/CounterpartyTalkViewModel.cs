@@ -23,7 +23,7 @@ using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
+	public class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IRouteListRepository _routedListRepository;
@@ -36,6 +36,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IUnitOfWork _uow;
 		private bool _isDisposed;
+		private IPage _newOrderPage;
+		private IPage _newCounterpartyPage;
+		private CounterpartyJournalViewModel _counterpartyJournal;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -43,7 +46,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
 		public CounterpartyTalkViewModel(
-			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListRepository routedListRepository,
@@ -54,12 +56,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IOrderRepository orderRepository,
-			IParametersProvider parametersProvider) : base(navigation, manager)
+			IParametersProvider parametersProvider) : base(tdinavigation, manager)
 		{
-			NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
-			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
-
-			_routedListRepository = routedListRepository;
+			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
+			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -69,9 +69,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 
-			if(ActiveCall.CounterpartyIds.Any())
-			{
-				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
+			/*if(ActiveCall.CounterpartyIds.Any())
+			{*/
+				var clients = _uow.GetById<Counterparty>(new []{118414}/*ActiveCall.CounterpartyIds*/);
 				
 				foreach(Counterparty client in clients)
 				{
@@ -82,9 +82,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				}
 				
 				currentCounterparty = CounterpartyOrdersViewModels.FirstOrDefault().Client;
-			} else
+			/*} else
 				throw new InvalidProgramException("Открыт диалог разговора с имеющимся контрагентом, но ни одного id контрагента не найдено.");
-		}
+		*/}
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
 		{
@@ -103,19 +103,18 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 		public void NewClientCommand()
 		{
-			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg>(this);
-			var tab = page.TdiTab as CounterpartyDlg;
-			page.PageClosed += NewCounerpatry_PageClosed;
+			_newCounterpartyPage = _tdiNavigation.OpenTdiTab<CounterpartyDlg>(this);
+			_newCounterpartyPage.PageClosed += NewCounerpatryPageClosed;
 		}
 
 		public void ExistingClientCommand()
 		{
-			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
-			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
+			_counterpartyJournal = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null).ViewModel;
+			_counterpartyJournal.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			_counterpartyJournal.OnEntitySelectedResult += ExistingCounterpartyPageClosed;
 		}
 
-		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
+		void NewCounerpatryPageClosed(object sender, PageClosedEventArgs e)
 		{
 			if(e.CloseSource == CloseSource.Save) {
 				List<Counterparty> clients = new List<Counterparty>();
@@ -142,10 +141,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				MangoManager.AddCounterpartyToCall(client.Id);
 				CounterpartyOrdersModelsUpdateEvent();
 			}
-			(sender as IPage).PageClosed -= NewCounerpatry_PageClosed;
+			(sender as IPage).PageClosed -= NewCounerpatryPageClosed;
 		}
 
-		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		void ExistingCounterpartyPageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
@@ -175,11 +174,21 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
 			}
-			var model = CounterpartyOrdersViewModels.Find(m => m.Client.Id == currentCounterparty.Id);
-			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
-			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
+			
+			_newOrderPage = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
+			_newOrderPage.PageClosed += OnNewOrderPageClosed;
 		}
 
+		private void OnNewOrderPageClosed(object sender, PageClosedEventArgs e)
+		{
+			if(_isDisposed)
+			{
+				return;
+			}
+			
+			var model = CounterpartyOrdersViewModels.Find(m => m.Client.Id == currentCounterparty.Id);
+			model.RefreshOrders();
+		}
 
 		public void AddComplainCommand()
 		{
@@ -229,6 +238,18 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(_isDisposed)
 			{
 				return;
+			}
+			if(_newOrderPage != null)
+			{
+				_newOrderPage.PageClosed -= OnNewOrderPageClosed;
+			}
+			if(_newCounterpartyPage != null)
+			{
+				_newCounterpartyPage.PageClosed -= NewCounerpatryPageClosed;
+			}
+			if(_counterpartyJournal != null)
+			{
+				_counterpartyJournal.OnEntitySelectedResult -= ExistingCounterpartyPageClosed;
 			}
 			foreach(var viewModel in CounterpartyOrdersViewModels)
 			{

@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
 			EnableMinimizeMaximize = true;
-			ActiveCall.PropertyChanged += ActiveCall_PropertyChanged;
+			//ActiveCall.PropertyChanged += ActiveCall_PropertyChanged;
 		}
 
 		void Manager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -39,11 +39,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public ActiveCall ActiveCall { get; private set; }
 
-		protected bool IsTalkOnHold => ActiveCall.CallState == CallState.OnHold;
+		protected bool IsTalkOnHold => ActiveCall?.CallState == CallState.OnHold;
 
-		public string PhoneText => ActiveCall.CallerNumberText;
+		public string PhoneText => ActiveCall?.CallerNumberText;
 
-		public string CallerNameText => ActiveCall.CallerName;
+		public string CallerNameText => ActiveCall?.CallerName;
 
 		private void SetTitle()
 		{
