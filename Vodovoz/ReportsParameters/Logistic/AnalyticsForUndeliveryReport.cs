@@ -40,7 +40,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
-		protected void OnButtonRunClicked(object sender, EventArgs e)
+		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			GetGuilty();
 			OnUpdate(true);
