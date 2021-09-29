@@ -10,7 +10,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Label label3;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entVMEmployee;
+		private global::QS.Views.Control.EntityEntry operatorEntry;
 
 		private global::Gamma.GtkWidgets.yCheckButton showWithoutCheckButton;
 
@@ -74,12 +74,11 @@ namespace Vodovoz.Filters.GtkViews
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entVMEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entVMEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entVMEmployee.Name = "entVMEmployee";
-			this.entVMEmployee.CanEditReference = false;
-			this.hbox1.Add(this.entVMEmployee);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entVMEmployee]));
+			this.operatorEntry = new global::QS.Views.Control.EntityEntry();
+			this.operatorEntry.Events = ((global::Gdk.EventMask)(256));
+			this.operatorEntry.Name = "operatorEntry";
+			this.hbox1.Add(this.operatorEntry);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.operatorEntry]));
 			w2.Position = 1;
 			w2.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild

@@ -16,8 +16,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			comboboxDateType.ItemsEnum = typeof(TaskFilterDateType);
 			comboboxDateType.Binding.AddBinding(ViewModel, x => x.DateType, w => w.SelectedItem).InitializeFromSource();
-			entVMEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelectorFactory);
-			entVMEmployee.Binding.AddBinding(ViewModel, x => x.Employee, w => w.Subject).InitializeFromSource();
+			//entVMEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelectorFactory);
+			//entVMEmployee.Binding.AddBinding(ViewModel, x => x.Employee, w => w.Subject).InitializeFromSource();
 			checkbuttonHideCompleted.Binding.AddBinding(ViewModel, x => x.HideCompleted, w => w.Active).InitializeFromSource();
 			showWithoutCheckButton.Binding.AddBinding(ViewModel, x => x.ShowOnlyWithoutEmployee, w => w.Active).InitializeFromSource();
 			dateperiodpickerDateFilter.Binding.AddSource(ViewModel)
