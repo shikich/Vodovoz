@@ -5,9 +5,9 @@ using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Orders
 {
-	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "основания скидок",
-		Nominative = "основание скидки")]
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "основания для скидок",
+		Nominative = "основание для скидки")]
 	[EntityPermission]
 	public class DiscountReason : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
@@ -27,6 +27,8 @@ namespace Vodovoz.Domain.Orders
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
+
+		public virtual string Title => $"Основание для скидки \"{Name}\"";
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
