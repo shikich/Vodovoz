@@ -45,8 +45,8 @@ namespace Vodovoz.Filters.GtkViews
 			entryOldOrder.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrder, w => w.Subject).InitializeFromSource();
 
 
-			entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverEmployeeSelectorFactory);
-			entryDriver.Binding.AddBinding(ViewModel, vm => vm.RestrictDriver, w => w.Subject).InitializeFromSource();
+			//entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverEmployeeSelectorFactory);
+			//entryDriver.Binding.AddBinding(ViewModel, vm => vm.RestrictDriver, w => w.Subject).InitializeFromSource();
 
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.RestrictClient, w => w.Subject).InitializeFromSource();
@@ -54,11 +54,11 @@ namespace Vodovoz.Filters.GtkViews
 			entryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointSelectorFactory);
 			entryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.RestrictAddress, w => w.Subject).InitializeFromSource();
 
-			entryOldOrderAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
-			entryOldOrderAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrderAuthor, w => w.Subject).InitializeFromSource();
+			//entryOldOrderAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
+			//entryOldOrderAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrderAuthor, w => w.Subject).InitializeFromSource();
 
-			entryUndeliveryAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
-			entryUndeliveryAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictUndeliveryAuthor, w => w.Subject).InitializeFromSource();
+			//entryUndeliveryAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
+			//entryUndeliveryAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictUndeliveryAuthor, w => w.Subject).InitializeFromSource();
 
 			dateperiodOldOrderDate.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.RestrictOldOrderStartDate, w => w.StartDateOrNull)

@@ -38,9 +38,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 			ycheckbutton1.Toggled += (sender, args) =>
 			{
 				entityviewmodelentryCar.Sensitive = !ycheckbutton1.Active;
-				entityviewmodelentryEmployee.Sensitive = !ycheckbutton1.Active;
+				//entityviewmodelentryEmployee.Sensitive = !ycheckbutton1.Active;
 				entityviewmodelentryCar.Subject = null;
-				entityviewmodelentryEmployee.Subject = null;
+				//entityviewmodelentryEmployee.Subject = null;
 			};
 
 			validatedentryDifference.ValidationMode = ValidationType.Numeric;
@@ -48,8 +48,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void ConfigureEntries()
 		{
-			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
-				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+			driverEntry.ViewModel.IsEditable = false;
+			//entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
+			//	_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 			
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 		}
@@ -73,7 +74,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			parameters.Add("our_cars_only", ycheckbutton1.Active);
             parameters.Add("any_status", checkAnyStatus.Active);
 			parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0);
-			parameters.Add("employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0);
+			//parameters.Add("employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0);
 			
 			int temp = 0;
 			if (!String.IsNullOrEmpty(validatedentryDifference.Text) && validatedentryDifference.Text.All(char.IsDigit))

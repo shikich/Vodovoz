@@ -10,11 +10,11 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCounterparty;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryOrderAuthor;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentrySellManager;
-
 		private global::Gtk.Label label1;
+
+		private global::QS.Views.Control.EntityEntry orderAuthorEntry;
+
+		private global::QS.Views.Control.EntityEntry salesManagerEntry;
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepicker;
 
@@ -27,10 +27,10 @@ namespace Vodovoz.ReportsParameters
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.ReportsParameters.NetworkDelayReport
+			// Widget Vodovoz.ReportsParameters.ChainStoreDelayReport
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.ReportsParameters.NetworkDelayReport";
-			// Container child Vodovoz.ReportsParameters.NetworkDelayReport.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.ReportsParameters.ChainStoreDelayReport";
+			// Container child Vodovoz.ReportsParameters.ChainStoreDelayReport.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
@@ -64,38 +64,36 @@ namespace Vodovoz.ReportsParameters
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityviewmodelentryOrderAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryOrderAuthor.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryOrderAuthor.Name = "entityviewmodelentryOrderAuthor";
-			this.entityviewmodelentryOrderAuthor.CanEditReference = false;
-			this.table1.Add(this.entityviewmodelentryOrderAuthor);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryOrderAuthor]));
-			w3.TopAttach = ((uint)(3));
-			w3.BottomAttach = ((uint)(4));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entityviewmodelentrySellManager = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentrySellManager.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentrySellManager.Name = "entityviewmodelentrySellManager";
-			this.entityviewmodelentrySellManager.CanEditReference = false;
-			this.table1.Add(this.entityviewmodelentrySellManager);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentrySellManager]));
-			w4.TopAttach = ((uint)(4));
-			w4.BottomAttach = ((uint)(5));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата");
 			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.orderAuthorEntry = new global::QS.Views.Control.EntityEntry();
+			this.orderAuthorEntry.Events = ((global::Gdk.EventMask)(256));
+			this.orderAuthorEntry.Name = "orderAuthorEntry";
+			this.table1.Add(this.orderAuthorEntry);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.orderAuthorEntry]));
+			w4.TopAttach = ((uint)(3));
+			w4.BottomAttach = ((uint)(4));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.salesManagerEntry = new global::QS.Views.Control.EntityEntry();
+			this.salesManagerEntry.Events = ((global::Gdk.EventMask)(256));
+			this.salesManagerEntry.Name = "salesManagerEntry";
+			this.table1.Add(this.salesManagerEntry);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.salesManagerEntry]));
+			w5.TopAttach = ((uint)(4));
+			w5.BottomAttach = ((uint)(5));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild

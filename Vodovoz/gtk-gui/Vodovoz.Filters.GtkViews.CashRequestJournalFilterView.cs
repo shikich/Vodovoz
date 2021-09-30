@@ -10,9 +10,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table4;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry AccountableEntityviewmodelentry;
+		private global::QS.Views.Control.EntityEntry accountableEmployeeEntry;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry AuthorEntityviewmodelentry;
+		private global::QS.Views.Control.EntityEntry authroEntry;
 
 		private global::Gtk.HBox hbox3;
 
@@ -54,22 +54,20 @@ namespace Vodovoz.Filters.GtkViews
 			this.table4.RowSpacing = ((uint)(6));
 			this.table4.ColumnSpacing = ((uint)(6));
 			// Container child table4.Gtk.Table+TableChild
-			this.AccountableEntityviewmodelentry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.AccountableEntityviewmodelentry.Events = ((global::Gdk.EventMask)(256));
-			this.AccountableEntityviewmodelentry.Name = "AccountableEntityviewmodelentry";
-			this.AccountableEntityviewmodelentry.CanEditReference = false;
-			this.table4.Add(this.AccountableEntityviewmodelentry);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table4[this.AccountableEntityviewmodelentry]));
+			this.accountableEmployeeEntry = new global::QS.Views.Control.EntityEntry();
+			this.accountableEmployeeEntry.Events = ((global::Gdk.EventMask)(256));
+			this.accountableEmployeeEntry.Name = "accountableEmployeeEntry";
+			this.table4.Add(this.accountableEmployeeEntry);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table4[this.accountableEmployeeEntry]));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
-			this.AuthorEntityviewmodelentry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.AuthorEntityviewmodelentry.Events = ((global::Gdk.EventMask)(256));
-			this.AuthorEntityviewmodelentry.Name = "AuthorEntityviewmodelentry";
-			this.AuthorEntityviewmodelentry.CanEditReference = false;
-			this.table4.Add(this.AuthorEntityviewmodelentry);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table4[this.AuthorEntityviewmodelentry]));
+			this.authroEntry = new global::QS.Views.Control.EntityEntry();
+			this.authroEntry.Events = ((global::Gdk.EventMask)(256));
+			this.authroEntry.Name = "authroEntry";
+			this.table4.Add(this.authroEntry);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table4[this.authroEntry]));
 			w2.TopAttach = ((uint)(1));
 			w2.BottomAttach = ((uint)(2));
 			w2.LeftAttach = ((uint)(1));

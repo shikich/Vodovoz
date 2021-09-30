@@ -24,8 +24,9 @@ namespace Vodovoz.Views.Accounting
             dateRangeFilter.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
             dateRangeFilter.Binding.AddBinding(ViewModel, vm=> vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 
-            entryMechanic.SetEntityAutocompleteSelectorFactory(ViewModel.EntityAutocompleteSelectorFactory);
-            entryMechanic.Binding.AddBinding(ViewModel, vm => vm.Mechanic, w => w.Subject);
+			mechanicEntry.ViewModel.IsEditable = false;
+            //entryMechanic.SetEntityAutocompleteSelectorFactory(ViewModel.EntityAutocompleteSelectorFactory);
+            //entryMechanic.Binding.AddBinding(ViewModel, vm => vm.Mechanic, w => w.Subject);
 
             yPrintBtn.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
             yGenerateBtn.Clicked += (sender, e) => ViewModel.GenerateCommand.Execute();

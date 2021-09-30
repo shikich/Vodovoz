@@ -20,7 +20,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryEmployee;
+		private global::QS.Views.Control.EntityEntry employeeEntry;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryExpenseCategory;
 
@@ -134,15 +134,15 @@ namespace Vodovoz.Dialogs.Fuel
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entryEmployee.Name = "entryEmployee";
-			this.entryEmployee.CanEditReference = false;
-			this.table1.Add(this.entryEmployee);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
+			this.employeeEntry = new global::QS.Views.Control.EntityEntry();
+			this.employeeEntry.Events = ((global::Gdk.EventMask)(256));
+			this.employeeEntry.Name = "employeeEntry";
+			this.table1.Add(this.employeeEntry);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.employeeEntry]));
 			w9.TopAttach = ((uint)(2));
 			w9.BottomAttach = ((uint)(3));
 			w9.LeftAttach = ((uint)(1));

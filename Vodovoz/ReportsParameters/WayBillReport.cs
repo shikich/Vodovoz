@@ -33,9 +33,10 @@ namespace Vodovoz.ReportsParameters
 			datepicker.Date = DateTime.Today;
 			timeHourEntry.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntry.Text = DateTime.Now.Minute.ToString("00.##");
-			
-			entryDriver.SetEntityAutocompleteSelectorFactory(
-				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+
+			driverEntry.ViewModel.IsEditable = false;
+			//entryDriver.SetEntityAutocompleteSelectorFactory(
+			//	_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
 			entryCar.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory
 				<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));

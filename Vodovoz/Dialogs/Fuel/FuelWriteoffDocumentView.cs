@@ -63,10 +63,11 @@ namespace Vodovoz.Dialogs.Fuel
 			entryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
 			entryExpenseCategory.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 			entryExpenseCategory.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			
-			entryEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelectorFactory);
+
+			employeeEntry.ViewModel.IsEditable = false;
+			/*entryEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelectorFactory);
 			entryEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
-			entryEmployee.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entryEmployee.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();*/
 
 			ycomboboxCashSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
 			ycomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.AvailableSubdivisions, w => w.ItemsList).InitializeFromSource();

@@ -34,9 +34,10 @@ namespace Vodovoz.Dialogs.Fuel
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
+			driverEntry.ViewModel.IsEditable = false;
+			/*entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
-			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();*/
 
 			entryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();

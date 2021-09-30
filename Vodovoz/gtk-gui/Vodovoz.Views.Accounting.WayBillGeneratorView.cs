@@ -14,7 +14,7 @@ namespace Vodovoz.Views.Accounting
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateRangeFilter;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryMechanic;
+		private global::QS.Views.Control.EntityEntry mechanicEntry;
 
 		private global::Gamma.GtkWidgets.yButton yGenerateBtn;
 
@@ -64,12 +64,11 @@ namespace Vodovoz.Views.Accounting
 			w2.Position = 1;
 			w2.Expand = false;
 			// Container child hbox10.Gtk.Box+BoxChild
-			this.entryMechanic = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryMechanic.Events = ((global::Gdk.EventMask)(256));
-			this.entryMechanic.Name = "entryMechanic";
-			this.entryMechanic.CanEditReference = false;
-			this.hbox10.Add(this.entryMechanic);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.entryMechanic]));
+			this.mechanicEntry = new global::QS.Views.Control.EntityEntry();
+			this.mechanicEntry.Events = ((global::Gdk.EventMask)(256));
+			this.mechanicEntry.Name = "mechanicEntry";
+			this.hbox10.Add(this.mechanicEntry);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.mechanicEntry]));
 			w3.Position = 2;
 			// Container child hbox10.Gtk.Box+BoxChild
 			this.yGenerateBtn = new global::Gamma.GtkWidgets.yButton();

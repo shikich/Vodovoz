@@ -41,14 +41,17 @@ namespace Vodovoz.Views.Logistic
 			entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityVMEntryCar.CompletionPopupSetWidth(false);
 
-			entityVMEntryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
+			driverEntry.ViewModel.IsEditable = false;
+			forwarderEntry.ViewModel.IsEditable = false;
+			logisticianEntry.ViewModel.IsEditable = false;
+			/*entityVMEntryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			entityVMEntryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			entityVMEntryForwarder.SetEntityAutocompleteSelectorFactory(ViewModel.ForwarderSelectorFactory);
 			entityVMEntryForwarder.Binding.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
 
 			entityVMEntryLogistician.SetEntityAutocompleteSelectorFactory(ViewModel.LogisticanSelectorFactory);
-			entityVMEntryLogistician.Binding.AddBinding(ViewModel.Entity, rl => rl.Logistician, w => w.Subject).InitializeFromSource();
+			entityVMEntryLogistician.Binding.AddBinding(ViewModel.Entity, rl => rl.Logistician, w => w.Subject).InitializeFromSource();*/
 
 			speccomboShift.ItemsList = ViewModel.DeliveryShifts;
 			speccomboShift.Binding.AddBinding(ViewModel.Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();

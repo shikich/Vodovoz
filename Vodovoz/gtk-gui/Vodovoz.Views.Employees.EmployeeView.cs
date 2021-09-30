@@ -172,7 +172,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gamma.GtkWidgets.yEntry dataentryAndroidPassword;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry defaultForwarderEntry;
+		private global::QS.Views.Control.EntityEntry defaultForwarderEntry;
 
 		private global::Gtk.HBox hbox9;
 
@@ -1252,10 +1252,9 @@ namespace Vodovoz.Views.Employees
 			w83.XOptions = ((global::Gtk.AttachOptions)(4));
 			w83.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.defaultForwarderEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.defaultForwarderEntry = new global::QS.Views.Control.EntityEntry();
 			this.defaultForwarderEntry.Events = ((global::Gdk.EventMask)(256));
 			this.defaultForwarderEntry.Name = "defaultForwarderEntry";
-			this.defaultForwarderEntry.CanEditReference = false;
 			this.table1.Add(this.defaultForwarderEntry);
 			global::Gtk.Table.TableChild w84 = ((global::Gtk.Table.TableChild)(this.table1[this.defaultForwarderEntry]));
 			w84.TopAttach = ((uint)(3));
@@ -1416,8 +1415,6 @@ namespace Vodovoz.Views.Employees
 			this.terminalmanagementview1.Name = "terminalmanagementview1";
 			this.table1.Add(this.terminalmanagementview1);
 			global::Gtk.Table.TableChild w97 = ((global::Gtk.Table.TableChild)(this.table1[this.terminalmanagementview1]));
-			w97.TopAttach = ((uint)(2));
-			w97.BottomAttach = ((uint)(3));
 			w97.LeftAttach = ((uint)(5));
 			w97.RightAttach = ((uint)(6));
 			w97.XOptions = ((global::Gtk.AttachOptions)(4));

@@ -8,7 +8,7 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.Widgets.yEnumComboBox yEnumGuiltyType;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entVmEmployee;
+		private global::QS.Views.Control.EntityEntry employeeEntry;
 
 		private global::Gamma.Widgets.ySpecComboBox yCmbSubdivision;
 
@@ -35,12 +35,11 @@ namespace Vodovoz.Views.Complaints
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbxCreateGuilty.Gtk.Box+BoxChild
-			this.entVmEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entVmEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entVmEmployee.Name = "entVmEmployee";
-			this.entVmEmployee.CanEditReference = false;
-			this.vbxCreateGuilty.Add(this.entVmEmployee);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.entVmEmployee]));
+			this.employeeEntry = new global::QS.Views.Control.EntityEntry();
+			this.employeeEntry.Events = ((global::Gdk.EventMask)(256));
+			this.employeeEntry.Name = "employeeEntry";
+			this.vbxCreateGuilty.Add(this.employeeEntry);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.employeeEntry]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;

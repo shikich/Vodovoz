@@ -1512,8 +1512,8 @@
     <Compile Include="ViewModels\Goods\NomenclatureViewModel.cs" />
     <Compile Include="Views\Goods\NomenclatureView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureView.cs" />
-    <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NetworkDelayReport.cs" />
+    <Compile Include="ReportsParameters\ChainStoreDelayReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />

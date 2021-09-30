@@ -36,7 +36,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gtk.Label labelDriver;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDriver;
+		private global::QS.Views.Control.EntityEntry driverEntry;
 
 		private global::Gtk.Label labelCar;
 
@@ -270,12 +270,11 @@ namespace Vodovoz.Dialogs.Fuel
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
-			this.entryDriver.Name = "entryDriver";
-			this.entryDriver.CanEditReference = false;
-			this.hbox2.Add(this.entryDriver);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryDriver]));
+			this.driverEntry = new global::QS.Views.Control.EntityEntry();
+			this.driverEntry.Events = ((global::Gdk.EventMask)(256));
+			this.driverEntry.Name = "driverEntry";
+			this.hbox2.Add(this.driverEntry);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.driverEntry]));
 			w18.Position = 1;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.labelCar = new global::Gtk.Label();

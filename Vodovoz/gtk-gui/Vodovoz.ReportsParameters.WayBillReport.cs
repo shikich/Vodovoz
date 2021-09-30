@@ -10,9 +10,9 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DatePicker datepicker;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCar;
+		private global::QS.Views.Control.EntityEntry driverEntry;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDriver;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCar;
 
 		private global::Gtk.HBox hbox4;
 
@@ -65,27 +65,26 @@ namespace Vodovoz.ReportsParameters
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entryCar.Name = "entryCar";
-			this.entryCar.CanEditReference = false;
-			this.table1.Add(this.entryCar);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCar]));
-			w2.TopAttach = ((uint)(2));
-			w2.BottomAttach = ((uint)(3));
+			this.driverEntry = new global::QS.Views.Control.EntityEntry();
+			this.driverEntry.Events = ((global::Gdk.EventMask)(256));
+			this.driverEntry.Name = "driverEntry";
+			this.table1.Add(this.driverEntry);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.driverEntry]));
+			w2.TopAttach = ((uint)(1));
+			w2.BottomAttach = ((uint)(2));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
-			this.entryDriver.Name = "entryDriver";
-			this.entryDriver.CanEditReference = false;
-			this.table1.Add(this.entryDriver);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDriver]));
-			w3.TopAttach = ((uint)(1));
-			w3.BottomAttach = ((uint)(2));
+			this.entryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entryCar.Name = "entryCar";
+			this.entryCar.CanEditReference = false;
+			this.table1.Add(this.entryCar);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCar]));
+			w3.TopAttach = ((uint)(2));
+			w3.BottomAttach = ((uint)(3));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));

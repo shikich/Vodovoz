@@ -57,9 +57,9 @@ namespace Vodovoz.ReportsParameters.Logistic
             comboDriverOf.AddEnumToHideList(new Enum[] {CarTypeOfUse.CompanyTruck});
             comboDriverOf.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
-            entryEmployee.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
-            entryEmployee.CanEditReference = true;
-            entryEmployee.Changed += (sender, args) => OnEmployeeSelected();
+            //entryEmployee.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
+            //entryEmployee.CanEditReference = true;
+            //entryEmployee.Changed += (sender, args) => OnEmployeeSelected();
         }
 
         private void OnButtonRunClicked(object sender, EventArgs e)
@@ -86,7 +86,7 @@ namespace Vodovoz.ReportsParameters.Logistic
                     {"creation_date", creationDate},
                     {"driver_of", comboDriverOf.SelectedItemOrNull},
                     {"employee_category", comboCategory.SelectedItemOrNull},
-                    {"employee_id", entryEmployee.Subject?.GetIdOrNull()},
+                    //{"employee_id", entryEmployee.Subject?.GetIdOrNull()},
                     {"filters", GetSelectedFilters()}
                 }
             };
@@ -94,7 +94,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
         private string GetSelectedFilters()
         {
-            var empl = entryEmployee.GetSubject<Employee>();
+			var empl = new Employee();//entryEmployee.GetSubject<Employee>();
             var filters = "Фильтры: ";
             if (empl == null)
             {
@@ -161,7 +161,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
         private void OnEmployeeSelected()
         {
-            if (entryEmployee.Subject is Employee empl)
+            /*if (entryEmployee.Subject is Employee empl)
             {
                 if (empl.Category == EmployeeCategory.office)
                 {
@@ -187,7 +187,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             {
                 comboDriverOf.Sensitive = true;
                 comboCategory.Sensitive = true;
-            }
+            }*/
         }
     }
 }

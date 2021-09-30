@@ -16,18 +16,21 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+			/*AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
+				ViewModel.EmployeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());*/
 
 			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull);
 			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull);
-			
-			AuthorEntityviewmodelentry.Binding.AddBinding(
+
+			authroEntry.ViewModel.IsEditable = false;
+			/*AuthorEntityviewmodelentry.Binding.AddBinding(
 				ViewModel, 
 				vm => vm.Author,
 				w => w.Subject
-			).InitializeFromSource();
-			
+			).InitializeFromSource();*/
+
+			accountableEmployeeEntry.ViewModel.IsEditable = false;		
+				/*
 			AccountableEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
 				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			
@@ -35,7 +38,7 @@ namespace Vodovoz.Filters.GtkViews
 				ViewModel,
 				vm => vm.AccountableEmployee,
 				w => w.Subject
-			).InitializeFromSource();
+			).InitializeFromSource();*/
 
 			yenumcomboStatus.ItemsEnum = typeof(CashRequest.States);
 			yenumcomboStatus.Binding.AddBinding(
@@ -58,7 +61,7 @@ namespace Vodovoz.Filters.GtkViews
 			} else if (userRole == CashRequestUserRole.Cashier){
 				yenumcomboStatus.SelectedItem = CashRequest.States.GivenForTake;
 			} else if (userRole == CashRequestUserRole.Other){
-				AuthorEntityviewmodelentry.Visible = false;
+				//AuthorEntityviewmodelentry.Visible = false;
 				label3.Visible = false;
 			}
 		}

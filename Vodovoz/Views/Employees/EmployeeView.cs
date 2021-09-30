@@ -184,11 +184,12 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.IsValidNewMobileUser, w => w.Sensitive)
 				.InitializeFromSource();
 
-			defaultForwarderEntry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory());
-			defaultForwarderEntry.Binding
-				.AddBinding(ViewModel.Entity, e => e.DefaultForwarder, w => w.Subject)
-				.InitializeFromSource();
+			defaultForwarderEntry.ViewModel.IsEditable = false;
+			//defaultForwarderEntry.SetEntityAutocompleteSelectorFactory(
+			//	ViewModel.EmployeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory());
+			//defaultForwarderEntry.Binding
+			//	.AddBinding(ViewModel.Entity, e => e.DefaultForwarder, w => w.Subject)
+			//	.InitializeFromSource();
 			
 			yspinTripsPriority.Binding
 				.AddBinding(ViewModel.Entity, e => e.TripPriority, w => w.ValueAsShort)

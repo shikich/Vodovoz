@@ -22,9 +22,10 @@ namespace Vodovoz.Views.Complaints
 		{
 			yEnumGuiltyType.ItemsEnum = typeof(ComplaintGuiltyTypes);
 			yEnumGuiltyType.Binding.AddBinding(ViewModel.Entity, s => s.GuiltyType, w => w.SelectedItemOrNull).InitializeFromSource();
-			entVmEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			entVmEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
-			entVmEmployee.Binding.AddBinding(ViewModel, vm => vm.CanChooseEmployee, w => w.Visible).InitializeFromSource();
+			employeeEntry.ViewModel.IsEditable = false;
+			//entVmEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			//entVmEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
+			//entVmEmployee.Binding.AddBinding(ViewModel, vm => vm.CanChooseEmployee, w => w.Visible).InitializeFromSource();
 			yCmbSubdivision.SetRenderTextFunc<Subdivision>(
 				s => {
 					List<string> strLst = new List<string>();

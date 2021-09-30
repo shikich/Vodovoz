@@ -14,7 +14,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gtk.Table tablePremium;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry employeeViewModelEntry;
+		private global::QS.Views.Control.EntityEntry authorEntry;
 
 		private global::Gtk.HBox hbox2;
 
@@ -107,12 +107,11 @@ namespace Vodovoz.Views.Employees
 			this.tablePremium.RowSpacing = ((uint)(6));
 			this.tablePremium.ColumnSpacing = ((uint)(6));
 			// Container child tablePremium.Gtk.Table+TableChild
-			this.employeeViewModelEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.employeeViewModelEntry.Events = ((global::Gdk.EventMask)(256));
-			this.employeeViewModelEntry.Name = "employeeViewModelEntry";
-			this.employeeViewModelEntry.CanEditReference = true;
-			this.tablePremium.Add(this.employeeViewModelEntry);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tablePremium[this.employeeViewModelEntry]));
+			this.authorEntry = new global::QS.Views.Control.EntityEntry();
+			this.authorEntry.Events = ((global::Gdk.EventMask)(256));
+			this.authorEntry.Name = "authorEntry";
+			this.tablePremium.Add(this.authorEntry);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tablePremium[this.authorEntry]));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(4));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));

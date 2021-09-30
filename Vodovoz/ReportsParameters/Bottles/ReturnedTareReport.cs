@@ -28,7 +28,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 			daterangepicker.PeriodChangedByUser += Daterangepicker_PeriodChangedByUser;
 			yenumcomboboxDateType.ItemsEnum = typeof(OrderDateType);
 			yenumcomboboxDateType.SelectedItem = OrderDateType.CreationDate;
-			entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
+			authorEntry.ViewModel.IsEditable = false;
+			//entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
 			buttonHelp.Clicked += OnButtonHelpClicked;
 		}
 
@@ -65,8 +66,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 					{"end_date", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59)},
 					{"date", DateTime.Now},
 					{"date_type", ((OrderDateType) yenumcomboboxDateType.SelectedItem) == OrderDateType.CreationDate},
-					{"author_employee_id", entityviewmodelentryAuthor.Subject.GetIdOrNull()},
-					{"author_employee_name", (entityviewmodelentryAuthor.Subject as Employee)?.FullName},
+					//{"author_employee_id", entityviewmodelentryAuthor.Subject.GetIdOrNull()},
+					//{"author_employee_name", (entityviewmodelentryAuthor.Subject as Employee)?.FullName},
 					{"is_closed_order_only", chkClosedOrdersOnly.Active}
 				}
 			};

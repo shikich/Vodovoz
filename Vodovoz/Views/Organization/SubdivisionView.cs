@@ -35,9 +35,10 @@ namespace Vodovoz.Views.Organization
 			yentryrefParentSubdivision.Binding.AddBinding(ViewModel.Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
 			yentryrefParentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryChief.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			entryChief.Binding.AddBinding(ViewModel.Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
-			entryChief.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			chiefEntry.ViewModel.IsEditable = false;
+			//entryChief.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			//entryChief.Binding.AddBinding(ViewModel.Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
+			//entryChief.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			var subdivisionsVM = new SubdivisionsVM(ViewModel.UoW, ViewModel.Entity);
 			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;

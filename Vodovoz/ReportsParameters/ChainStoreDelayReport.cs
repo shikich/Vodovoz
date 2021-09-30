@@ -41,12 +41,14 @@ namespace Vodovoz.ReportsParameters
 		{
 			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
 				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
-			
-			entityviewmodelentrySellManager.SetEntityAutocompleteSelectorFactory(
+
+			salesManagerEntry.ViewModel.IsEditable = false;
+			orderAuthorEntry.ViewModel.IsEditable = false;
+			/*entityviewmodelentrySellManager.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
 			entityviewmodelentryOrderAuthor.SetEntityAutocompleteSelectorFactory(
-				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());*/
 		}
 
 		void OnButtonCreateReportClicked (object sender, EventArgs e)
@@ -69,8 +71,8 @@ namespace Vodovoz.ReportsParameters
 				Parameters = new Dictionary<string, object> {
 					{ "date", ydatepicker.Date },
 					{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1},
-					{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
-					{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
+					//{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
+					//{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
 				}
 			};
 		}

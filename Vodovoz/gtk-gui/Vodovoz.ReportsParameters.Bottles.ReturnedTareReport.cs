@@ -8,13 +8,13 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Table table1;
 
+		private global::QS.Views.Control.EntityEntry authorEntry;
+
 		private global::Gtk.Button buttonHelp;
 
 		private global::Gamma.GtkWidgets.yCheckButton chkClosedOrdersOnly;
 
 		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryAuthor;
 
 		private global::Gtk.Label label1;
 
@@ -42,20 +42,32 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
+			this.authorEntry = new global::QS.Views.Control.EntityEntry();
+			this.authorEntry.Events = ((global::Gdk.EventMask)(256));
+			this.authorEntry.Name = "authorEntry";
+			this.table1.Add(this.authorEntry);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.authorEntry]));
+			w1.TopAttach = ((uint)(1));
+			w1.BottomAttach = ((uint)(2));
+			w1.LeftAttach = ((uint)(1));
+			w1.RightAttach = ((uint)(2));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
+			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.buttonHelp = new global::Gtk.Button();
 			this.buttonHelp.CanFocus = true;
 			this.buttonHelp.Name = "buttonHelp";
 			this.buttonHelp.UseUnderline = true;
 			this.buttonHelp.Label = global::Mono.Unix.Catalog.GetString("Справка");
-			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.buttonHelp.Image = w1;
+			global::Gtk.Image w2 = new global::Gtk.Image();
+			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.buttonHelp.Image = w2;
 			this.table1.Add(this.buttonHelp);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonHelp]));
-			w2.LeftAttach = ((uint)(4));
-			w2.RightAttach = ((uint)(5));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonHelp]));
+			w3.LeftAttach = ((uint)(4));
+			w3.RightAttach = ((uint)(5));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.chkClosedOrdersOnly = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkClosedOrdersOnly.CanFocus = true;
@@ -64,13 +76,13 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.chkClosedOrdersOnly.DrawIndicator = true;
 			this.chkClosedOrdersOnly.UseUnderline = true;
 			this.table1.Add(this.chkClosedOrdersOnly);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.chkClosedOrdersOnly]));
-			w3.TopAttach = ((uint)(2));
-			w3.BottomAttach = ((uint)(3));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.chkClosedOrdersOnly]));
+			w4.TopAttach = ((uint)(2));
+			w4.BottomAttach = ((uint)(3));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
@@ -78,22 +90,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.daterangepicker.StartDate = new global::System.DateTime(0);
 			this.daterangepicker.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.daterangepicker);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.daterangepicker]));
-			w4.LeftAttach = ((uint)(2));
-			w4.RightAttach = ((uint)(3));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entityviewmodelentryAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryAuthor.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryAuthor.Name = "entityviewmodelentryAuthor";
-			this.entityviewmodelentryAuthor.CanEditReference = false;
-			this.table1.Add(this.entityviewmodelentryAuthor);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryAuthor]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.daterangepicker]));
+			w5.LeftAttach = ((uint)(2));
+			w5.RightAttach = ((uint)(3));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();

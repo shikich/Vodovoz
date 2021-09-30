@@ -12,7 +12,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Label label2;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryAuthor;
+		private global::QS.Views.Control.EntityEntry authorEntry;
 
 		private global::Gtk.Label label3;
 
@@ -60,12 +60,11 @@ namespace Vodovoz.Filters.GtkViews
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entityviewmodelentryAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryAuthor.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryAuthor.Name = "entityviewmodelentryAuthor";
-			this.entityviewmodelentryAuthor.CanEditReference = false;
-			this.hbox1.Add(this.entityviewmodelentryAuthor);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entityviewmodelentryAuthor]));
+			this.authorEntry = new global::QS.Views.Control.EntityEntry();
+			this.authorEntry.Events = ((global::Gdk.EventMask)(256));
+			this.authorEntry.Name = "authorEntry";
+			this.hbox1.Add(this.authorEntry);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.authorEntry]));
 			w4.Position = 3;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.label3 = new global::Gtk.Label();
