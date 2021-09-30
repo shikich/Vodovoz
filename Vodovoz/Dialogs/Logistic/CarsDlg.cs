@@ -75,10 +75,10 @@ namespace Vodovoz
 			yentryPTSNum.Binding.AddBinding(Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 			
-			entryDriver.SetEntityAutocompleteSelectorFactory(
-				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
-			entryDriver.Changed += OnEntryDriverChanged;
-			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			/*entryDriver.SetEntityAutocompleteSelectorFactory(
+				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());*/
+			driverEntry.ViewModel.Changed += OnEntryDriverChanged;
+			//driverEntry.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);
 			dataentryFuelType.Binding.AddBinding(Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();

@@ -470,27 +470,27 @@ namespace Vodovoz
 			emailsView.Emails = UoWGeneric.Root.Emails;
 
 			var employeeJournalFactory = new EmployeeJournalFactory();
-			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
+			/*if(SetSensitivityByPermission("can_set_personal_sales_manager", salesManagerEntry))
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
 			entrySalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
 
-			if(SetSensitivityByPermission("can_set_personal_accountant", entryAccountant))
+			if(SetSensitivityByPermission("can_set_personal_accountant", accountantEntry))
 			{
 				entryAccountant.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
 			entryAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
 
-			if(SetSensitivityByPermission("can_set_personal_bottles_manager", entryBottlesManager))
+			if(SetSensitivityByPermission("can_set_personal_bottles_manager", bottlesManagerEntry))
 			{
 				entryBottlesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
 			entryBottlesManager.CanEditReference = true;
-			entryBottlesManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
+			entryBottlesManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();*/
 
 			//FIXME данный виджет создан с Visible = false и нигде не меняется
 			dataentryMainContact.RepresentationModel = new ContactsVM(UoW, Entity);

@@ -107,8 +107,10 @@ namespace Vodovoz.Dialogs
 
 			var employeeFilterViewModel = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.office };
 			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilterViewModel);
-			entryAttachedEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			entryAttachedEmployee.Binding.AddBinding(Entity, e => e.AssignedEmployee, w => w.Subject).InitializeFromSource();
+
+			assignedEmployeeEntry.ViewModel.IsEditable = false;
+			//entryAttachedEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+			//entryAttachedEmployee.Binding.AddBinding(Entity, e => e.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
 			entityVMEntryDeliveryPoint

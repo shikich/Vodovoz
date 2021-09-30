@@ -20,6 +20,8 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.Table table1;
 
+		private global::QS.Views.Control.EntityEntry assignedEmployeeEntry;
+
 		private global::Vodovoz.Dialogs.Phones.PhonesView ClientPhonesView;
 
 		private global::Gamma.Widgets.yEnumComboBox comboboxImpotanceType;
@@ -35,8 +37,6 @@ namespace Vodovoz.Dialogs
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryCounterparty;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryDeliveryPoint;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryAttachedEmployee;
 
 		private global::Gtk.Entry entryReserve;
 
@@ -193,17 +193,29 @@ namespace Vodovoz.Dialogs
 			this.table1.RowSpacing = ((uint)(10));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.ClientPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
-			this.ClientPhonesView.Events = ((global::Gdk.EventMask)(256));
-			this.ClientPhonesView.Name = "ClientPhonesView";
-			this.table1.Add(this.ClientPhonesView);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ClientPhonesView]));
-			w8.TopAttach = ((uint)(3));
-			w8.BottomAttach = ((uint)(4));
+			this.assignedEmployeeEntry = new global::QS.Views.Control.EntityEntry();
+			this.assignedEmployeeEntry.Events = ((global::Gdk.EventMask)(256));
+			this.assignedEmployeeEntry.Name = "assignedEmployeeEntry";
+			this.table1.Add(this.assignedEmployeeEntry);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.assignedEmployeeEntry]));
+			w8.TopAttach = ((uint)(9));
+			w8.BottomAttach = ((uint)(10));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ClientPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
+			this.ClientPhonesView.Events = ((global::Gdk.EventMask)(256));
+			this.ClientPhonesView.Name = "ClientPhonesView";
+			this.table1.Add(this.ClientPhonesView);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ClientPhonesView]));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.comboboxImpotanceType = new global::Gamma.Widgets.yEnumComboBox();
 			this.comboboxImpotanceType.Name = "comboboxImpotanceType";
@@ -212,13 +224,13 @@ namespace Vodovoz.Dialogs
 			this.comboboxImpotanceType.UseShortTitle = false;
 			this.comboboxImpotanceType.DefaultFirst = false;
 			this.table1.Add(this.comboboxImpotanceType);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.comboboxImpotanceType]));
-			w9.TopAttach = ((uint)(11));
-			w9.BottomAttach = ((uint)(12));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.comboboxImpotanceType]));
+			w10.TopAttach = ((uint)(11));
+			w10.BottomAttach = ((uint)(12));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.deadlineYdatepicker = new global::QS.Widgets.GtkUI.DatePicker();
 			this.deadlineYdatepicker.Events = ((global::Gdk.EventMask)(256));
@@ -229,13 +241,13 @@ namespace Vodovoz.Dialogs
 			this.deadlineYdatepicker.IsEditable = true;
 			this.deadlineYdatepicker.AutoSeparation = false;
 			this.table1.Add(this.deadlineYdatepicker);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.deadlineYdatepicker]));
-			w10.TopAttach = ((uint)(8));
-			w10.BottomAttach = ((uint)(9));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.deadlineYdatepicker]));
+			w11.TopAttach = ((uint)(8));
+			w11.BottomAttach = ((uint)(9));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.debtByAddressEntry = new global::Gtk.Entry();
 			this.debtByAddressEntry.CanFocus = true;
@@ -243,13 +255,13 @@ namespace Vodovoz.Dialogs
 			this.debtByAddressEntry.IsEditable = false;
 			this.debtByAddressEntry.InvisibleChar = '•';
 			this.table1.Add(this.debtByAddressEntry);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByAddressEntry]));
-			w11.TopAttach = ((uint)(6));
-			w11.BottomAttach = ((uint)(7));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByAddressEntry]));
+			w12.TopAttach = ((uint)(6));
+			w12.BottomAttach = ((uint)(7));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.debtByClientEntry = new global::Gamma.GtkWidgets.yEntry();
 			this.debtByClientEntry.CanFocus = true;
@@ -257,58 +269,45 @@ namespace Vodovoz.Dialogs
 			this.debtByClientEntry.IsEditable = false;
 			this.debtByClientEntry.InvisibleChar = '•';
 			this.table1.Add(this.debtByClientEntry);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByClientEntry]));
-			w12.TopAttach = ((uint)(5));
-			w12.BottomAttach = ((uint)(6));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByClientEntry]));
+			w13.TopAttach = ((uint)(5));
+			w13.BottomAttach = ((uint)(6));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.DeliveryPointPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
 			this.DeliveryPointPhonesView.Events = ((global::Gdk.EventMask)(256));
 			this.DeliveryPointPhonesView.Name = "DeliveryPointPhonesView";
 			this.table1.Add(this.DeliveryPointPhonesView);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.DeliveryPointPhonesView]));
-			w13.TopAttach = ((uint)(4));
-			w13.BottomAttach = ((uint)(5));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.DeliveryPointPhonesView]));
+			w14.TopAttach = ((uint)(4));
+			w14.BottomAttach = ((uint)(5));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entityVMEntryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityVMEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryCounterparty.Name = "entityVMEntryCounterparty";
 			this.entityVMEntryCounterparty.CanEditReference = true;
 			this.table1.Add(this.entityVMEntryCounterparty);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryCounterparty]));
-			w14.TopAttach = ((uint)(1));
-			w14.BottomAttach = ((uint)(2));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryCounterparty]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entityVMEntryDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityVMEntryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryDeliveryPoint.Name = "entityVMEntryDeliveryPoint";
 			this.entityVMEntryDeliveryPoint.CanEditReference = true;
 			this.table1.Add(this.entityVMEntryDeliveryPoint);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryAttachedEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryAttachedEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entryAttachedEmployee.Name = "entryAttachedEmployee";
-			this.entryAttachedEmployee.CanEditReference = false;
-			this.table1.Add(this.entryAttachedEmployee);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.entryAttachedEmployee]));
-			w16.TopAttach = ((uint)(9));
-			w16.BottomAttach = ((uint)(10));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));

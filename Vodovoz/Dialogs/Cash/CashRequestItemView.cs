@@ -39,15 +39,16 @@ namespace Vodovoz.Dialogs.Cash
 				e => e.Sum, 
 				w => w.ValueAsDecimal
 			).InitializeFromSource();
-			
-			AccountableEntityviewmodelentry3.SetEntityAutocompleteSelectorFactory(
+
+			accountableEmployeeEntry.ViewModel.IsEditable = false;
+			/*AccountableEntityviewmodelentry3.SetEntityAutocompleteSelectorFactory(
 				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			
 			AccountableEntityviewmodelentry3.Binding.AddBinding(
 				ViewModel,
 				s => s.AccountableEmployee,
 				w => w.Subject
-			).InitializeFromSource();
+			).InitializeFromSource();*/
 
 			buttonAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
 			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
@@ -60,7 +61,7 @@ namespace Vodovoz.Dialogs.Cash
 			ydateDate.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label3.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 			
-			AccountableEntityviewmodelentry3.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+			//AccountableEntityviewmodelentry3.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label7.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 			
 			yentryComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();

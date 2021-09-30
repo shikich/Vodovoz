@@ -36,7 +36,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry dataentryRegNumber;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDriver;
+		private global::QS.Views.Control.EntityEntry driverEntry;
 
 		private global::Gtk.HBox hbox10;
 
@@ -383,12 +383,11 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.entryDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
-			this.entryDriver.Name = "entryDriver";
-			this.entryDriver.CanEditReference = true;
-			this.tableCarData.Add(this.entryDriver);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.entryDriver]));
+			this.driverEntry = new global::QS.Views.Control.EntityEntry();
+			this.driverEntry.Events = ((global::Gdk.EventMask)(256));
+			this.driverEntry.Name = "driverEntry";
+			this.tableCarData.Add(this.driverEntry);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.driverEntry]));
 			w16.TopAttach = ((uint)(5));
 			w16.BottomAttach = ((uint)(6));
 			w16.LeftAttach = ((uint)(1));
