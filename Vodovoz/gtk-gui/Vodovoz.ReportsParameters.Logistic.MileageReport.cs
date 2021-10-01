@@ -28,7 +28,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gtk.Label label3;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryEmployee;
+		private global::QS.Views.Control.EntityEntry driverEntry;
 
 		private global::Gtk.HBox hbox8;
 
@@ -152,12 +152,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.entityviewmodelentryEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryEmployee.Name = "entityviewmodelentryEmployee";
-			this.entityviewmodelentryEmployee.CanEditReference = false;
-			this.hbox5.Add(this.entityviewmodelentryEmployee);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.entityviewmodelentryEmployee]));
+			this.driverEntry = new global::QS.Views.Control.EntityEntry();
+			this.driverEntry.Events = ((global::Gdk.EventMask)(256));
+			this.driverEntry.Name = "driverEntry";
+			this.hbox5.Add(this.driverEntry);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.driverEntry]));
 			w11.Position = 1;
 			this.vbox2.Add(this.hbox5);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox5]));

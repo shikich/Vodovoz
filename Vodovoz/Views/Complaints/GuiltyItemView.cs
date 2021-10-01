@@ -42,7 +42,7 @@ namespace Vodovoz.Views.Complaints
 			yCmbSubdivision.SetSizeRequest(250, 30);
 
 			this.Shown += (s, ea) => {
-				entVmEmployee.Visible = ViewModel.CanChooseEmployee;
+				employeeEntry.Visible = ViewModel.CanChooseEmployee;
 				yCmbSubdivision.Visible = ViewModel.CanChooseSubdivision;
 			};
 		}
