@@ -53,6 +53,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.WageCalculation;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using Vodovoz.Factories;
 
 namespace Vodovoz
 {
@@ -67,6 +68,8 @@ namespace Vodovoz
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(new ParametersProvider()));
+
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 
 		private TerminalManagementViewModel _terminalManagementViewModel;
 		private Employee _employeeForCurrentUser;
@@ -292,11 +295,9 @@ namespace Vodovoz
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
 
-			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Employee));
-			if(Entity.Id != 0) {
-				attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				attachmentFiles.UpdateFileList();
-			}
+			attachmentsView.ViewModel = 
+				_attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
+
 			phonesView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone>();
@@ -807,7 +808,6 @@ namespace Vodovoz
 			get {
 				phonesView.RemoveEmpty();
 				return UoWGeneric.HasChanges
-					|| attachmentFiles.HasChanges
 					|| !string.IsNullOrEmpty(yentryUserLogin.Text)
 					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
@@ -892,10 +892,6 @@ namespace Vodovoz
 			logger.Info("Сохраняем сотрудника...");
 			try {
 				UoWGeneric.Save();
-				if(UoWGeneric.IsNew) {
-					attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				}
-				attachmentFiles.SaveChanges();
 			} catch(Exception ex) {
 				logger.Error(ex, "Не удалось записать сотрудника.");
 				QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
@@ -1067,5 +1063,11 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			attachmentsView.Destroy();
+			base.Destroy();
+		}
 	}
 }

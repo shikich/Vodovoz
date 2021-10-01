@@ -5,6 +5,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;

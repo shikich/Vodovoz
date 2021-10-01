@@ -52,13 +52,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
-
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
-
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
@@ -80,12 +78,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _copyDriverWorkScheduleSetCommand;
 		private DelegateCommand _removeEmployeeDocumentsCommand;
 		private DelegateCommand _removeEmployeeContractsCommand;
-		private DelegateCommand _registerDriverModileUserCommand;
+		private DelegateCommand _registerDriverModuleUserCommand;
 
 		public IReadOnlyList<Organization> organizations;
 
-		public event Action SaveAttachmentFilesChangesAction;
-		public event Func<bool> HasAttachmentFilesChangesFunc;
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		public EmployeeViewModel(
@@ -106,6 +102,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IDriverApiUserRegisterEndpointBuilder driverApiUserRegisterEndpointBuilder,
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			bool traineeToEmployee = false,
 			INavigationManager navigationManager = null,
 			ILifetimeScope scope = null
@@ -153,12 +150,16 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 				FillHiddenCategories(traineeToEmployee);
+
 				TabName = "Новый сотрудник";
 			}
 			else
 			{
 				TabName = Entity.GetPersonNameWithInitials();
 			}
+			
+			AttachmentsViewModel = (attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
+				.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			
 			if(Entity.Phones == null)
 			{
@@ -236,8 +237,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				PhonesViewModel.RemoveEmpty();
 
-				var attachmentFilesHasChanges = HasAttachmentFilesChangesFunc?.Invoke() ?? false;
-				
 				return UoWGeneric.HasChanges
 						|| attachmentFilesHasChanges
 						|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
@@ -610,8 +609,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 
-		public DelegateCommand RegisterDriverModileUserCommand =>
-			_registerDriverModileUserCommand ?? (_registerDriverModileUserCommand = new DelegateCommand(
+		public DelegateCommand RegisterDriverModuleUserCommand =>
+			_registerDriverModuleUserCommand ?? (_registerDriverModuleUserCommand = new DelegateCommand(
 					() =>
 					{
 						try
@@ -640,6 +639,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				)
 			);
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
+			{
+				OnPropertyChanged(nameof(IsValidNewMobileUser));
+			}
+		}
 
 		private void SetPermissions()
 		{
@@ -816,7 +823,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			try
 			{
 				UoWGeneric.Save();
-				SaveAttachmentFilesChangesAction?.Invoke();
 			}
 			catch(Exception ex)
 			{
@@ -840,12 +846,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private string GenerateHashName(int id)
 		{
 			return DomainHelper.GenerateDialogHashName(typeof(Employee), id);
-		}
-		
-		public override void Close(bool askSave, CloseSource source)
-		{
-			base.Close(askSave, source);
-			Dispose();
 		}
 		
 		public override void Dispose()
