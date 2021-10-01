@@ -34,7 +34,7 @@ namespace Vodovoz.Dialogs.Cash
 
 			//Автор
 			var currentEmployee = ViewModel.CurrentEmployee;
-			AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
+			/*AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
 				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			AuthorEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, x => x.Author, w => w.Subject).InitializeFromSource();
 
@@ -51,7 +51,7 @@ namespace Vodovoz.Dialogs.Cash
 					ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
 			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
 			SubdivisionEntityviewmodelentry.Sensitive = false;
-			ViewModel.Entity.Subdivision = currentEmployee.Subdivision;
+			ViewModel.Entity.Subdivision = currentEmployee.Subdivision;*/
 
 			//Причина расхода
 			ExpenseCategoryEntityviewmodelentry
