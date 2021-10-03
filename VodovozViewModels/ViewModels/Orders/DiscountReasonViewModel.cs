@@ -17,7 +17,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			TabName = UoWGeneric.IsNew ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
 		}
 
 		public override bool Save(bool close)
@@ -26,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			{
 				var matchedNames = uow.Session.QueryOver<DiscountReason>()
 					.Where(dr => dr.Id != Entity.Id)
-					.And(dr=> dr.Name == Entity.Name).List();
+					.And(dr => dr.Name == Entity.Name).List();
 				var active = matchedNames.FirstOrDefault(dr => !dr.IsArchive);
 				if(active != null)
 				{
