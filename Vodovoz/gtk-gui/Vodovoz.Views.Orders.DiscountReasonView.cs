@@ -56,6 +56,8 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.HBox hbox8;
 
+		private global::Gtk.Label label6;
+
 		private global::Gtk.Label label5;
 
 		private global::Gtk.Entry entry4;
@@ -65,6 +67,42 @@ namespace Vodovoz.Views.Orders
 		private global::Gtk.Entry entry3;
 
 		private global::Gtk.ComboBox combobox3;
+
+		private global::Gtk.HBox hbox9;
+
+		private global::Gtk.HBox hbox10;
+
+		private global::Gtk.Label label7;
+
+		private global::Gtk.ComboBox comboDiscountUsage;
+
+		private global::Gtk.HBox hbox11;
+
+		private global::Gtk.Label label8;
+
+		private global::Gtk.ComboBox combobox5;
+
+		private global::Gtk.Entry entry6;
+
+		private global::Gtk.HBox hbox12;
+
+		private global::Gtk.Button button265;
+
+		private global::Gtk.Button button266;
+
+		private global::Gtk.HBox hbox13;
+
+		private global::Gtk.HBox hbox14;
+
+		private global::Gtk.RadioButton radiobutton1;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox2;
+
+		private global::Gtk.RadioButton radiobutton2;
+
+		private global::Gtk.HBox hbox15;
+
+		private global::Gtk.RadioButton radiobutton3;
 
 		protected virtual void Build()
 		{
@@ -317,14 +355,23 @@ namespace Vodovoz.Views.Orders
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.label5 = new global::Gtk.Label();
-			this.label5.Name = "label5";
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("label5");
-			this.hbox8.Add(this.label5);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label5]));
-			w27.Position = 1;
+			this.label6 = new global::Gtk.Label();
+			this.label6.Name = "label6";
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Скидки:");
+			this.hbox8.Add(this.label6);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label6]));
+			w27.Position = 0;
 			w27.Expand = false;
 			w27.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.label5 = new global::Gtk.Label();
+			this.label5.Name = "label5";
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Мин");
+			this.hbox8.Add(this.label5);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label5]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.entry4 = new global::Gtk.Entry();
 			this.entry4.CanFocus = true;
@@ -332,17 +379,17 @@ namespace Vodovoz.Views.Orders
 			this.entry4.IsEditable = true;
 			this.entry4.InvisibleChar = '•';
 			this.hbox8.Add(this.entry4);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entry4]));
-			w28.Position = 2;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entry4]));
+			w29.Position = 2;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("label4");
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Макс");
 			this.hbox8.Add(this.label4);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label4]));
-			w29.Position = 3;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label4]));
+			w30.Position = 3;
+			w30.Expand = false;
+			w30.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.entry3 = new global::Gtk.Entry();
 			this.entry3.CanFocus = true;
@@ -350,21 +397,178 @@ namespace Vodovoz.Views.Orders
 			this.entry3.IsEditable = true;
 			this.entry3.InvisibleChar = '•';
 			this.hbox8.Add(this.entry3);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entry3]));
-			w30.Position = 4;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entry3]));
+			w31.Position = 4;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.combobox3 = global::Gtk.ComboBox.NewText();
 			this.combobox3.Name = "combobox3";
 			this.hbox8.Add(this.combobox3);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.combobox3]));
-			w31.Position = 5;
-			w31.Expand = false;
-			w31.Fill = false;
-			this.vbox1.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
-			w32.Position = 4;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.combobox3]));
+			w32.Position = 5;
 			w32.Expand = false;
 			w32.Fill = false;
+			this.vbox1.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
+			w33.Position = 4;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox9 = new global::Gtk.HBox();
+			this.hbox9.Name = "hbox9";
+			this.hbox9.Spacing = 6;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.hbox10 = new global::Gtk.HBox();
+			this.hbox10.Name = "hbox10";
+			this.hbox10.Spacing = 6;
+			// Container child hbox10.Gtk.Box+BoxChild
+			this.label7 = new global::Gtk.Label();
+			this.label7.Name = "label7";
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Время");
+			this.hbox10.Add(this.label7);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.label7]));
+			w34.Position = 0;
+			w34.Expand = false;
+			w34.Fill = false;
+			// Container child hbox10.Gtk.Box+BoxChild
+			this.comboDiscountUsage = global::Gtk.ComboBox.NewText();
+			this.comboDiscountUsage.Name = "comboDiscountUsage";
+			this.hbox10.Add(this.comboDiscountUsage);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.comboDiscountUsage]));
+			w35.Position = 1;
+			w35.Expand = false;
+			w35.Fill = false;
+			this.hbox9.Add(this.hbox10);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.hbox10]));
+			w36.Position = 0;
+			w36.Expand = false;
+			w36.Fill = false;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.hbox11 = new global::Gtk.HBox();
+			this.hbox11.Name = "hbox11";
+			this.hbox11.Spacing = 6;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.label8 = new global::Gtk.Label();
+			this.label8.Name = "label8";
+			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString("Контрагенты");
+			this.hbox11.Add(this.label8);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.label8]));
+			w37.Position = 0;
+			w37.Expand = false;
+			w37.Fill = false;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.combobox5 = global::Gtk.ComboBox.NewText();
+			this.combobox5.Name = "combobox5";
+			this.hbox11.Add(this.combobox5);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.combobox5]));
+			w38.Position = 1;
+			w38.Expand = false;
+			w38.Fill = false;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.entry6 = new global::Gtk.Entry();
+			this.entry6.CanFocus = true;
+			this.entry6.Name = "entry6";
+			this.entry6.IsEditable = true;
+			this.entry6.InvisibleChar = '•';
+			this.hbox11.Add(this.entry6);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.entry6]));
+			w39.Position = 2;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.hbox12 = new global::Gtk.HBox();
+			this.hbox12.Name = "hbox12";
+			this.hbox12.Spacing = 6;
+			// Container child hbox12.Gtk.Box+BoxChild
+			this.button265 = new global::Gtk.Button();
+			this.button265.CanFocus = true;
+			this.button265.Name = "button265";
+			this.button265.UseUnderline = true;
+			this.button265.Label = global::Mono.Unix.Catalog.GetString("GtkButton");
+			this.hbox12.Add(this.button265);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.button265]));
+			w40.Position = 0;
+			w40.Expand = false;
+			w40.Fill = false;
+			// Container child hbox12.Gtk.Box+BoxChild
+			this.button266 = new global::Gtk.Button();
+			this.button266.CanFocus = true;
+			this.button266.Name = "button266";
+			this.button266.UseUnderline = true;
+			this.button266.Label = global::Mono.Unix.Catalog.GetString("GtkButton");
+			this.hbox12.Add(this.button266);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.button266]));
+			w41.Position = 1;
+			w41.Expand = false;
+			w41.Fill = false;
+			this.hbox11.Add(this.hbox12);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.hbox12]));
+			w42.Position = 3;
+			this.hbox9.Add(this.hbox11);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.hbox11]));
+			w43.Position = 2;
+			this.vbox1.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox9]));
+			w44.Position = 6;
+			w44.Expand = false;
+			w44.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox13 = new global::Gtk.HBox();
+			this.hbox13.Name = "hbox13";
+			this.hbox13.Spacing = 6;
+			// Container child hbox13.Gtk.Box+BoxChild
+			this.hbox14 = new global::Gtk.HBox();
+			this.hbox14.Name = "hbox14";
+			this.hbox14.Spacing = 6;
+			// Container child hbox14.Gtk.Box+BoxChild
+			this.radiobutton1 = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Самовывоз"));
+			this.radiobutton1.CanFocus = true;
+			this.radiobutton1.Name = "radiobutton1";
+			this.radiobutton1.DrawIndicator = true;
+			this.radiobutton1.UseUnderline = true;
+			this.radiobutton1.Group = new global::GLib.SList(global::System.IntPtr.Zero);
+			this.hbox14.Add(this.radiobutton1);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox14[this.radiobutton1]));
+			w45.Position = 1;
+			this.hbox13.Add(this.hbox14);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.hbox14]));
+			w46.Position = 0;
+			// Container child hbox13.Gtk.Box+BoxChild
+			this.yhbox2 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox2.Name = "yhbox2";
+			this.yhbox2.Spacing = 6;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.radiobutton2 = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Промонабор"));
+			this.radiobutton2.CanFocus = true;
+			this.radiobutton2.Name = "radiobutton2";
+			this.radiobutton2.DrawIndicator = true;
+			this.radiobutton2.UseUnderline = true;
+			this.radiobutton2.Group = this.radiobutton1.Group;
+			this.yhbox2.Add(this.radiobutton2);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.radiobutton2]));
+			w47.Position = 1;
+			this.hbox13.Add(this.yhbox2);
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.yhbox2]));
+			w48.Position = 1;
+			// Container child hbox13.Gtk.Box+BoxChild
+			this.hbox15 = new global::Gtk.HBox();
+			this.hbox15.Name = "hbox15";
+			this.hbox15.Spacing = 6;
+			// Container child hbox15.Gtk.Box+BoxChild
+			this.radiobutton3 = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Обязательная рекламация"));
+			this.radiobutton3.CanFocus = true;
+			this.radiobutton3.Name = "radiobutton3";
+			this.radiobutton3.DrawIndicator = true;
+			this.radiobutton3.UseUnderline = true;
+			this.radiobutton3.Group = this.radiobutton1.Group;
+			this.hbox15.Add(this.radiobutton3);
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox15[this.radiobutton3]));
+			w49.Position = 1;
+			this.hbox13.Add(this.hbox15);
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.hbox15]));
+			w50.Position = 2;
+			this.vbox1.Add(this.hbox13);
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox13]));
+			w51.Position = 7;
+			w51.Expand = false;
+			w51.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
