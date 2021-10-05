@@ -92,17 +92,27 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.HBox hbox13;
 
-		private global::Gtk.HBox hbox14;
-
-		private global::Gtk.RadioButton radiobutton1;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckSelfdelivery;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox2;
 
-		private global::Gtk.RadioButton radiobutton2;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckForPromotionalSet;
 
 		private global::Gtk.HBox hbox15;
 
-		private global::Gtk.RadioButton radiobutton3;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckIncludeReclamation;
+
+		private global::Gtk.HBox hbox16;
+
+		private global::Gtk.HBox hbox17;
+
+		private global::Gtk.Label label9;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckWithOtherDiscounts;
+
+		private global::Gtk.ComboBox combobox1;
+
+		private global::Gtk.Table table1;
 
 		protected virtual void Build()
 		{
@@ -501,6 +511,8 @@ namespace Vodovoz.Views.Orders
 			this.hbox11.Add(this.hbox12);
 			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.hbox12]));
 			w42.Position = 3;
+			w42.Expand = false;
+			w42.Fill = false;
 			this.hbox9.Add(this.hbox11);
 			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.hbox11]));
 			w43.Position = 2;
@@ -514,61 +526,119 @@ namespace Vodovoz.Views.Orders
 			this.hbox13.Name = "hbox13";
 			this.hbox13.Spacing = 6;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.hbox14 = new global::Gtk.HBox();
-			this.hbox14.Name = "hbox14";
-			this.hbox14.Spacing = 6;
-			// Container child hbox14.Gtk.Box+BoxChild
-			this.radiobutton1 = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Самовывоз"));
-			this.radiobutton1.CanFocus = true;
-			this.radiobutton1.Name = "radiobutton1";
-			this.radiobutton1.DrawIndicator = true;
-			this.radiobutton1.UseUnderline = true;
-			this.radiobutton1.Group = new global::GLib.SList(global::System.IntPtr.Zero);
-			this.hbox14.Add(this.radiobutton1);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox14[this.radiobutton1]));
-			w45.Position = 1;
-			this.hbox13.Add(this.hbox14);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.hbox14]));
-			w46.Position = 0;
+			this.ycheckSelfdelivery = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckSelfdelivery.CanFocus = true;
+			this.ycheckSelfdelivery.Name = "ycheckSelfdelivery";
+			this.ycheckSelfdelivery.Label = global::Mono.Unix.Catalog.GetString("Самовывоз");
+			this.ycheckSelfdelivery.DrawIndicator = true;
+			this.ycheckSelfdelivery.UseUnderline = true;
+			this.hbox13.Add(this.ycheckSelfdelivery);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.ycheckSelfdelivery]));
+			w45.Position = 0;
+			w45.Expand = false;
+			w45.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
 			this.yhbox2 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox2.Name = "yhbox2";
 			this.yhbox2.Spacing = 6;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.radiobutton2 = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Промонабор"));
-			this.radiobutton2.CanFocus = true;
-			this.radiobutton2.Name = "radiobutton2";
-			this.radiobutton2.DrawIndicator = true;
-			this.radiobutton2.UseUnderline = true;
-			this.radiobutton2.Group = this.radiobutton1.Group;
-			this.yhbox2.Add(this.radiobutton2);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.radiobutton2]));
-			w47.Position = 1;
+			this.ycheckForPromotionalSet = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckForPromotionalSet.CanFocus = true;
+			this.ycheckForPromotionalSet.Name = "ycheckForPromotionalSet";
+			this.ycheckForPromotionalSet.Label = global::Mono.Unix.Catalog.GetString("Промонабор");
+			this.ycheckForPromotionalSet.DrawIndicator = true;
+			this.ycheckForPromotionalSet.UseUnderline = true;
+			this.yhbox2.Add(this.ycheckForPromotionalSet);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ycheckForPromotionalSet]));
+			w46.Position = 0;
+			w46.Expand = false;
+			w46.Fill = false;
 			this.hbox13.Add(this.yhbox2);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.yhbox2]));
-			w48.Position = 1;
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.yhbox2]));
+			w47.Position = 1;
+			w47.Expand = false;
+			w47.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
 			this.hbox15 = new global::Gtk.HBox();
 			this.hbox15.Name = "hbox15";
 			this.hbox15.Spacing = 6;
 			// Container child hbox15.Gtk.Box+BoxChild
-			this.radiobutton3 = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Обязательная рекламация"));
-			this.radiobutton3.CanFocus = true;
-			this.radiobutton3.Name = "radiobutton3";
-			this.radiobutton3.DrawIndicator = true;
-			this.radiobutton3.UseUnderline = true;
-			this.radiobutton3.Group = this.radiobutton1.Group;
-			this.hbox15.Add(this.radiobutton3);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox15[this.radiobutton3]));
-			w49.Position = 1;
+			this.ycheckIncludeReclamation = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckIncludeReclamation.CanFocus = true;
+			this.ycheckIncludeReclamation.Name = "ycheckIncludeReclamation";
+			this.ycheckIncludeReclamation.Label = global::Mono.Unix.Catalog.GetString("Обязательная рекламация");
+			this.ycheckIncludeReclamation.DrawIndicator = true;
+			this.ycheckIncludeReclamation.UseUnderline = true;
+			this.hbox15.Add(this.ycheckIncludeReclamation);
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox15[this.ycheckIncludeReclamation]));
+			w48.Position = 0;
+			w48.Expand = false;
+			w48.Fill = false;
 			this.hbox13.Add(this.hbox15);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.hbox15]));
-			w50.Position = 2;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.hbox15]));
+			w49.Position = 2;
+			w49.Expand = false;
+			w49.Fill = false;
 			this.vbox1.Add(this.hbox13);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox13]));
-			w51.Position = 7;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox13]));
+			w50.Position = 7;
+			w50.Expand = false;
+			w50.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox16 = new global::Gtk.HBox();
+			this.hbox16.Name = "hbox16";
+			this.hbox16.Spacing = 6;
+			// Container child hbox16.Gtk.Box+BoxChild
+			this.hbox17 = new global::Gtk.HBox();
+			this.hbox17.Name = "hbox17";
+			this.hbox17.Spacing = 6;
+			// Container child hbox17.Gtk.Box+BoxChild
+			this.label9 = new global::Gtk.Label();
+			this.label9.Name = "label9";
+			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("Взаимодействует с другими скидками");
+			this.hbox17.Add(this.label9);
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.label9]));
+			w51.Position = 0;
 			w51.Expand = false;
 			w51.Fill = false;
+			// Container child hbox17.Gtk.Box+BoxChild
+			this.ycheckWithOtherDiscounts = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckWithOtherDiscounts.CanFocus = true;
+			this.ycheckWithOtherDiscounts.Name = "ycheckWithOtherDiscounts";
+			this.ycheckWithOtherDiscounts.Label = "";
+			this.ycheckWithOtherDiscounts.DrawIndicator = true;
+			this.ycheckWithOtherDiscounts.UseUnderline = true;
+			this.hbox17.Add(this.ycheckWithOtherDiscounts);
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.ycheckWithOtherDiscounts]));
+			w52.Position = 1;
+			w52.Expand = false;
+			w52.Fill = false;
+			this.hbox16.Add(this.hbox17);
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.hbox17]));
+			w53.Position = 0;
+			w53.Expand = false;
+			w53.Fill = false;
+			// Container child hbox16.Gtk.Box+BoxChild
+			this.combobox1 = global::Gtk.ComboBox.NewText();
+			this.combobox1.Name = "combobox1";
+			this.hbox16.Add(this.combobox1);
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.combobox1]));
+			w54.Position = 1;
+			w54.Expand = false;
+			w54.Fill = false;
+			// Container child hbox16.Gtk.Box+BoxChild
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
+			this.table1.Name = "table1";
+			this.table1.RowSpacing = ((uint)(6));
+			this.table1.ColumnSpacing = ((uint)(6));
+			this.hbox16.Add(this.table1);
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.table1]));
+			w55.Position = 2;
+			this.vbox1.Add(this.hbox16);
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox16]));
+			w56.Position = 8;
+			w56.Expand = false;
+			w56.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
