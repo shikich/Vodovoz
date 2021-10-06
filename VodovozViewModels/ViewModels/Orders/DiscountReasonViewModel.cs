@@ -4,12 +4,13 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>
+	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>, ITdiDialog, ISingleUoWDialog
 	{
 		public DiscountReasonViewModel(
 			IEntityUoWBuilder uowBuilder,
