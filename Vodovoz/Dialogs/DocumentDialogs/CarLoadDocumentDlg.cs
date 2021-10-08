@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
+using QS.Navigation;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
@@ -15,6 +17,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using QS.Project.Services;
+using QS.Report;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -22,6 +25,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
+using Vodovoz.Views.Print;
 
 namespace Vodovoz
 {
@@ -236,7 +240,8 @@ namespace Vodovoz
 				Parameters = new System.Collections.Generic.Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }
-					}
+					},
+				PrintType =  ReportInfo.PrintingType.MultiplePrinters
 			};
 
 			TabParent.OpenTab(
