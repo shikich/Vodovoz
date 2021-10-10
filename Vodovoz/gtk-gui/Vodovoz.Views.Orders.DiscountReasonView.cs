@@ -46,7 +46,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Label labelSkill;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumSkillLevel;
+		private global::Gamma.Widgets.yListComboBox comboSkillLevel;
 
 		private global::Gtk.HBox hbox7;
 
@@ -333,14 +333,12 @@ namespace Vodovoz.Views.Orders
 			w21.Expand = false;
 			w21.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.yenumSkillLevel = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumSkillLevel.Name = "yenumSkillLevel";
-			this.yenumSkillLevel.ShowSpecialStateAll = false;
-			this.yenumSkillLevel.ShowSpecialStateNot = false;
-			this.yenumSkillLevel.UseShortTitle = false;
-			this.yenumSkillLevel.DefaultFirst = false;
-			this.hbox6.Add(this.yenumSkillLevel);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yenumSkillLevel]));
+			this.comboSkillLevel = new global::Gamma.Widgets.yListComboBox();
+			this.comboSkillLevel.Name = "comboSkillLevel";
+			this.comboSkillLevel.AddIfNotExist = false;
+			this.comboSkillLevel.DefaultFirst = false;
+			this.hbox6.Add(this.comboSkillLevel);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.comboSkillLevel]));
 			w22.Position = 3;
 			w22.Expand = false;
 			w22.Fill = false;
