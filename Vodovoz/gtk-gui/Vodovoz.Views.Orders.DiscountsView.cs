@@ -6,9 +6,9 @@ namespace Vodovoz.Views.Orders
 	{
 		private global::Gtk.VBox vbox1;
 
-		private global::Gtk.Table datatableDiscounts;
+		private global::Gtk.VBox vboxDiscounts;
 
-		private global::Gtk.Button buttonAdd;
+		private global::Gamma.GtkWidgets.yButton buttonAdd;
 
 		protected virtual void Build()
 		{
@@ -19,15 +19,18 @@ namespace Vodovoz.Views.Orders
 			// Container child Vodovoz.Views.Orders.DiscountsView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatableDiscounts = new global::Gtk.Table(((uint)(1)), ((uint)(9)), false);
-			this.datatableDiscounts.Name = "datatableDiscounts";
-			this.datatableDiscounts.ColumnSpacing = ((uint)(6));
-			this.vbox1.Add(this.datatableDiscounts);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatableDiscounts]));
+			this.vboxDiscounts = new global::Gtk.VBox();
+			this.vboxDiscounts.Name = "vboxDiscounts";
+			this.vboxDiscounts.Spacing = 6;
+			this.vbox1.Add(this.vboxDiscounts);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxDiscounts]));
 			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
