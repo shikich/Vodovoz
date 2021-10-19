@@ -18,7 +18,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox comboYear;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryEmployee;
+		private global::QS.Views.Control.EntityEntry employeeEntry;
 
 		private global::Gtk.Label label1;
 
@@ -126,12 +126,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entryEmployee.Name = "entryEmployee";
-			this.entryEmployee.CanEditReference = false;
-			this.table1.Add(this.entryEmployee);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
+			this.employeeEntry = new global::QS.Views.Control.EntityEntry();
+			this.employeeEntry.Events = ((global::Gdk.EventMask)(256));
+			this.employeeEntry.Name = "employeeEntry";
+			this.table1.Add(this.employeeEntry);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.employeeEntry]));
 			w8.TopAttach = ((uint)(3));
 			w8.BottomAttach = ((uint)(4));
 			w8.LeftAttach = ((uint)(1));

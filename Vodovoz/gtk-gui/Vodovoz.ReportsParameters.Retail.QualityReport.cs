@@ -24,17 +24,17 @@ namespace Vodovoz.ReportsParameters.Retail
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry yEntityCounterParty;
 
-		private global::Gtk.HBox hbox6;
+		private global::Gtk.HBox hbox7;
 
 		private global::Gtk.Label labelSalesChannel;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry yEntitySalesChannel;
 
-		private global::Gtk.HBox hbox8;
+		private global::Gtk.HBox hbox9;
 
 		private global::Gtk.Label labelMainFace;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry yEntityMainContact;
+		private global::QS.Views.Control.EntityEntry mainContactEntry;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -132,56 +132,55 @@ namespace Vodovoz.ReportsParameters.Retail
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox6 = new global::Gtk.HBox();
-			this.hbox6.Name = "hbox6";
-			this.hbox6.Spacing = 6;
-			// Container child hbox6.Gtk.Box+BoxChild
+			this.hbox7 = new global::Gtk.HBox();
+			this.hbox7.Name = "hbox7";
+			this.hbox7.Spacing = 6;
+			// Container child hbox7.Gtk.Box+BoxChild
 			this.labelSalesChannel = new global::Gtk.Label();
 			this.labelSalesChannel.Name = "labelSalesChannel";
 			this.labelSalesChannel.Xalign = 0F;
 			this.labelSalesChannel.LabelProp = global::Mono.Unix.Catalog.GetString("Канал сбыта:");
-			this.hbox6.Add(this.labelSalesChannel);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.labelSalesChannel]));
+			this.hbox7.Add(this.labelSalesChannel);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.labelSalesChannel]));
 			w10.Position = 0;
 			w10.Expand = false;
 			w10.Fill = false;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hbox7.Gtk.Box+BoxChild
 			this.yEntitySalesChannel = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.yEntitySalesChannel.Events = ((global::Gdk.EventMask)(256));
 			this.yEntitySalesChannel.Name = "yEntitySalesChannel";
 			this.yEntitySalesChannel.CanEditReference = true;
-			this.hbox6.Add(this.yEntitySalesChannel);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yEntitySalesChannel]));
+			this.hbox7.Add(this.yEntitySalesChannel);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yEntitySalesChannel]));
 			w11.Position = 1;
-			this.vbox2.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox6]));
+			this.vbox2.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
 			w12.Position = 3;
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox8 = new global::Gtk.HBox();
-			this.hbox8.Name = "hbox8";
-			this.hbox8.Spacing = 6;
-			// Container child hbox8.Gtk.Box+BoxChild
+			this.hbox9 = new global::Gtk.HBox();
+			this.hbox9.Name = "hbox9";
+			this.hbox9.Spacing = 6;
+			// Container child hbox9.Gtk.Box+BoxChild
 			this.labelMainFace = new global::Gtk.Label();
 			this.labelMainFace.Name = "labelMainFace";
 			this.labelMainFace.Xalign = 0F;
 			this.labelMainFace.LabelProp = global::Mono.Unix.Catalog.GetString("Ответственное лицо:");
-			this.hbox8.Add(this.labelMainFace);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.labelMainFace]));
+			this.hbox9.Add(this.labelMainFace);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.labelMainFace]));
 			w13.Position = 0;
 			w13.Expand = false;
 			w13.Fill = false;
-			// Container child hbox8.Gtk.Box+BoxChild
-			this.yEntityMainContact = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.yEntityMainContact.Events = ((global::Gdk.EventMask)(256));
-			this.yEntityMainContact.Name = "yEntityMainContact";
-			this.yEntityMainContact.CanEditReference = true;
-			this.hbox8.Add(this.yEntityMainContact);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yEntityMainContact]));
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.mainContactEntry = new global::QS.Views.Control.EntityEntry();
+			this.mainContactEntry.Events = ((global::Gdk.EventMask)(256));
+			this.mainContactEntry.Name = "mainContactEntry";
+			this.hbox9.Add(this.mainContactEntry);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.mainContactEntry]));
 			w14.Position = 1;
-			this.vbox2.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox8]));
+			this.vbox2.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox9]));
 			w15.Position = 4;
 			w15.Expand = false;
 			w15.Fill = false;
