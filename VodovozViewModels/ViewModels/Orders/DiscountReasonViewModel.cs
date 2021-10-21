@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -7,17 +8,25 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
 	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>, ITdiDialog, ISingleUoWDialog
 	{
+		public DiscountsViewModel DiscountsViewModel { get; }
+
 		public DiscountReasonViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			DiscountsViewModel = new DiscountsViewModel();
+			if(Entity.Discounts == null)
+			{
+				Entity.Discounts = new List<Discount>();
+			}
 		}
 
 		public override bool Save(bool close)

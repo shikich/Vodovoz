@@ -242,6 +242,7 @@
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverCarKindViewModel.cs" />
+    <Compile Include="ViewModels\Orders\DiscountsViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryTransferAbsenceReasonViewModel.cs" />
     <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
@@ -383,36 +384,7 @@
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\" />
-    <Folder Include="ViewModels\Complaints\" />
-    <Folder Include="ViewModels\Employees\" />
-    <Folder Include="Infrastructure\" />
-    <Folder Include="Infrastructure\Services\" />
-    <Folder Include="TempAdapters\" />
-    <Folder Include="Infrastructure\InfoProviders\" />
-    <Folder Include="ViewModels\WageCalculation\" />
-    <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />
-    <Folder Include="ViewModels\Warehouses\" />
-    <Folder Include="Infrastructure\Permissions\" />
-    <Folder Include="Infrastructure\Print\" />
-    <Folder Include="ViewModels\Contacts\" />
-    <Folder Include="ViewModels\Users\" />
-    <Folder Include="ViewModels\Permissions\" />
-    <Folder Include="Infrastructure\Report\" />
-    <Folder Include="Infrastructure\Report\SelectableParametersFilter\" />
-    <Folder Include="ViewModels\Reports\" />
-    <Folder Include="ViewModels\Logistic\" />
-    <Folder Include="Journals\" />
-    <Folder Include="Journals\JournalViewModels\" />
-    <Folder Include="Journals\JournalNodes\" />
-    <Folder Include="Journals\FilterViewModels\" />
-    <Folder Include="Journals\Nodes\" />
-    <Folder Include="Journals\Nodes\Cash\" />
-    <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ViewModels\Counterparty\" />
-    <Folder Include="ViewModels\Rent\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>

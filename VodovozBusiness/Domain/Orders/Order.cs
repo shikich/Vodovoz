@@ -3971,18 +3971,68 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="reason">Причина для скидки.</param>
 		/// <param name="discount">Значение скидки.</param>
 		/// <param name="unit">рубли или %.</param>
-		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit)
+		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, bool permission = false)
 		{
-			if(unit == DiscountUnits.money) {
-				var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-				if(sum == 0)
-					return;
-				discount = 100 * discount / sum;
+			//Если есть право на ручное изменение значения общей скидки на заказ
+			if(permission)
+			{
+				if(unit == DiscountUnits.money)
+				{
+					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+					if(sum == 0)
+						return;
+					discount = 100 * discount / sum;
+				}
+				foreach(OrderItem item in ObservableOrderItems)
+				{
+					item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
+					item.DiscountReason = reason;
+				}
 			}
-			foreach(OrderItem item in ObservableOrderItems) {
-				item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
-				item.DiscountReason = reason;
+			//Если нет права на ручное изменение значения общей скидки на заказ
+			else
+			{
+				decimal money = 0;
+				decimal percent = 0;
+				decimal resultDiscount = 0;
+				//Если общая скидка в основании - рублями
+				if(reason.DiscountValueType == DiscountValueType.Roubles)
+				{
+					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+					if(sum == 0)
+						return;
+					if(Convert.ToDecimal(reason.DiscountMaxValue) > sum)
+					{
+						resultDiscount += 100 * Convert.ToDecimal(reason.DiscountMaxValue) / sum;
+					}
+					else
+					{
+						resultDiscount += 100 * Convert.ToDecimal(reason.DiscountMinValue) / sum;
+					}
+					//Временно, пока до конца не разобрался с тмц
+				}
+				//Если общая скидка в основании - процентамиы
+				else
+				{
+
+				}
+				//Проверка на ТМЦ
+				if(reason.Discounts.Any())
+				{
+					foreach(var discountRow in reason.Discounts)
+					{
+
+					}
+				}
+
+				foreach(OrderItem item in ObservableOrderItems)
+				{
+					item.DiscountSetter = unit == DiscountUnits.money ? resultDiscount * item.Price * item.CurrentCount / 100 : resultDiscount;
+					item.DiscountReason = reason;
+				}
+
 			}
+		
 		}
 
 		#endregion

@@ -38,27 +38,75 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _discountTargetType, value);
 		}
 
-		//FEDOS Отдел - права по идее
-		private Employee _employee;
-		public virtual Employee Employee
+		private DiscountPermissionType _discountPermissionType;
+		public virtual DiscountPermissionType DiscountPermissionType
 		{
-			get => _employee;
-			set => SetField(ref _employee, value);
+			get => _discountPermissionType;
+			set => SetField(ref _discountPermissionType, value);
 		}
 
-		private Discount _discountRow;
-		public virtual Discount DiscountRow
+		private Subdivision _subdivisionPermission;
+		[Display(Name = "Право на отдел")]
+		public virtual Subdivision SubdivisionPermission
 		{
-			get => _discountRow;
-			set => SetField(ref _discountRow, value);
+			get => _subdivisionPermission;
+			set => SetField(ref _subdivisionPermission, value);
 		}
 
-		private IList<DiscountForObjectRow> _discountForObjectRows;
+		private Employee _employeePermission;
+		[Display(Name = "Право на сотрудника")]
+		public virtual Employee EmployeePermission
+		{
+			get => _employeePermission;
+			set => SetField(ref _employeePermission, value);
+		}
+
+		private EmployeePost _postPermission;
+		[Display(Name = "Право на должность")]
+		public virtual EmployeePost PostPermission
+		{
+			get => _postPermission;
+			set => SetField(ref _postPermission, value);
+		}
+
+		private int? _skillLevel;
+		[Display(Name = "Уровень квалификации")]
+		public virtual int? SkillLevel
+		{
+			get => _skillLevel;
+			set => SetField(ref _skillLevel, value);
+		}
+
+		private string _discountMinValue;
+		[Display(Name = "Минимальный размер скидки")]
+		public virtual string DiscountMinValue
+		{
+			get => _discountMinValue;
+			set => SetField(ref _discountMinValue, value);
+		}
+
+		private string _discountMaxValue;
+		[Display(Name = "Максимальный размер скидки")]
+		public virtual string DiscountMaxValue
+		{
+			get => _discountMaxValue;
+			set => SetField(ref _discountMaxValue, value);
+		}
+
+		private DiscountValueType _discountValueType;
+		[Display(Name = "Тип скидки - рубли или проценты")]
+		public virtual DiscountValueType DiscountValueType
+		{
+			get => _discountValueType;
+			set => SetField(ref _discountValueType, value);
+		}
+
+		private IList<Discount> _discounts;
 		[Display(Name = "Скидки на ТМЦ")]
-		public virtual IList<DiscountForObjectRow> DiscountForObjectRows
+		public virtual IList<Discount> Discounts
 		{
-			get => _discountForObjectRows;
-			set => SetField(ref _discountForObjectRows, value);
+			get => _discounts;
+			set => SetField(ref _discounts, value);
 		}
 
 		private DiscountUsage _discountUsage;
@@ -69,17 +117,20 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _discountUsage, value);
 		}
 
-		//Контрагенты
 		private DiscountCounterpartyType _discountCounterpartyType;
+		[Display(Name = "Тип контрагента")]
 		public virtual DiscountCounterpartyType DiscountCounterpartyType
 		{
 			get => _discountCounterpartyType;
 			set => SetField(ref _discountCounterpartyType, value);
 		}
 
-
-		//PLACEHOLDER Для текстового поля с контрагентами или точками доставки
-
+		private string _counterpartyOrDPName;
+		public virtual string CounterpartyOrDPName
+		{
+			get => _counterpartyOrDPName;
+			set => SetField(ref _counterpartyOrDPName, value);
+		}
 
 		private bool _forSelfdelivery;
 		[Display(Name = "Только для самовывоза")]
@@ -113,6 +164,15 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _useWithOtherDiscountReasons, value);
 		}
 
+		private DiscountWithOtherDiscounts _discountWithOtherDiscounts;
+		[Display(Name = "Другиме скидки")]
+		public virtual DiscountWithOtherDiscounts DiscountWithOtherDiscounts
+		{
+			get => _discountWithOtherDiscounts;
+			set => SetField(ref _discountWithOtherDiscounts, value);
+		}
+
+		public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
 
 		public virtual string Title => $"Основание для скидки \"{Name}\"";
 
@@ -137,9 +197,18 @@ namespace Vodovoz.Domain.Orders
 
 	//FEDOS Предварительные приколы, потом перенести в отдельный файл
 
-	//Пункт Д - Скидка
+	//Пункт Е - ТМЦ
 	public class Discount : PropertyChangedBase
 	{
+		public virtual int Id { get; set; }
+
+		private DiscountRowType _type;
+		public virtual DiscountRowType Type
+		{
+			get => _type;
+			set => SetField(ref _type, value);
+		}
+
 		private int _discountMinValue;
 		[Display(Name = "Минимальный размер скидки")]
 		public virtual int DiscountMinValue
@@ -163,75 +232,96 @@ namespace Vodovoz.Domain.Orders
 			get => _discountValueType;
 			set => SetField(ref _discountValueType, value);
 		}
-		
 
-	}
-
-	//Пункт Е - ТМЦ
-	public class DiscountForObjectRow : PropertyChangedBase
-	{
-		private DiscountForObjectType _type;
-		public virtual DiscountForObjectType Type
-		{
-			get => _type;
-			set => SetField(ref _type, value);
-		}
-
-		private Discount _discountRow;
-		public virtual Discount DiscountRow
-		{
-			get => _discountRow;
-			set => SetField(ref _discountRow, value);
-		}
-
-		private int _discountMinValue;
+		private int _discountMinQuantity;
 		[Display(Name = "Минимальный размер скидки")]
-		public virtual int DiscountMinValue
+		public virtual int DiscountMinQuantity
 		{
-			get => _discountMinValue;
-			set => SetField(ref _discountMinValue, value);
+			get => _discountMinQuantity;
+			set => SetField(ref _discountMinQuantity, value);
 		}
 
-		private int _discountMaxValue;
+		private int _discountMaxQuantity;
 		[Display(Name = "Максимальный размер скидки")]
-		public virtual int DiscountMaxValue
+		public virtual int DiscountMaxQuantity
 		{
-			get => _discountMaxValue;
-			set => SetField(ref _discountMaxValue, value);
+			get => _discountMaxQuantity;
+			set => SetField(ref _discountMaxQuantity, value);
+		}
+
+		private int _andBlockNum;
+		[Display(Name = "Номер блока И")]
+		public virtual int AndBlockNum
+		{
+			get => _andBlockNum;
+			set => SetField(ref _andBlockNum, value);
+		}
+
+		private DiscountReason _discountReason;
+		public virtual DiscountReason DiscountReason
+		{
+			get => _discountReason;
+			set => SetField(ref _discountReason, value);
+		}
+
+		public virtual Discount Init()
+		{
+			Type = DiscountRowType.Nomenclature;
+			DiscountMinValue = 0;
+			DiscountMaxValue = 0;
+			DiscountValueType = DiscountValueType.Percents;
+			return this;
 		}
 	}
-
 
 	//Тип объекта скидки
 	public enum DiscountTargetType
 	{
-		//Скидка относится к товару
+		[Display(Name = "На товары")]
 		Goods,
-		//Скидка относится к заказу
+		[Display(Name = "На заказы")]
 		Orders
+	}
+
+	//Тип права 
+	public enum DiscountPermissionType
+	{
+		[Display(Name = "Отдел")]
+		Subdivision,
+		[Display(Name = "Сотрудник")]
+		Employee,
+		[Display(Name = "Должность")]
+		Post,
+		[Display(Name = "Должность + квалификация")]
+		PostWithSkillLevel
+
 	}
 
 	//Значение скидки (в процентах или в рублях)
 	public enum DiscountValueType
 	{
+		[Display(Name = "Рубли")]
 		Roubles,
+		[Display(Name = "Проценты")]
 		Percents
 	}
 
 	//Тип конкретного объекта применения скидки
-	public enum DiscountForObjectType
+	public enum DiscountRowType
 	{
-		//Скидка на конкретный товар
+		[Display(Name = "На товар")]
 		Nomenclature,
-		//Скидка на группу товаров
+		[Display(Name = "На группу товаров")]
 		NomenclatureGroup,
-		//Скидка на тип товаров
+		[Display(Name = "На тип товаров")]
 		NomenclatureType
 	}
 
-	//Пункт F - условие применения скидки
+	//Условие применения скидки
 	public enum DiscountUsage
 	{
+		[Display(Name = "Не указано")]
+		None,
 		[Display(Name = "Один раз по контрагенту")]
 		OnceForCounterparty,
 		[Display(Name = "Один раз по точке доставки")]
@@ -240,8 +330,11 @@ namespace Vodovoz.Domain.Orders
 		OrderNumberForDay
 	}
 
+	//Тип контрагента
 	public enum DiscountCounterpartyType
 	{
+		[Display(Name = "Не указано")]
+		None,
 		[Display(Name = "Физическое лицо")]
 		PhysicalCounterparty,
 		[Display(Name = "Юридическое лицо")]
@@ -250,6 +343,66 @@ namespace Vodovoz.Domain.Orders
 		SpecificCounterparty,
 		[Display(Name = "Конкретная точка доставки")]
 		SpecificDeliveryPoint
+	}
+
+	//С другими скидками
+	public enum DiscountWithOtherDiscounts
+	{
+		[Display(Name = "Нет")]
+		Never,
+		[Display(Name = "Со всеми")]
+		Anything,
+		[Display(Name = "С некоторыми")]
+		OnlySome
+	}
+
+	public class DiscoutTargetTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DiscoutTargetTypeStringType() : base(typeof(DiscountTargetType))
+		{
+		}
+	}
+
+	public class DiscountPermissionTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DiscountPermissionTypeStringType() : base(typeof(DiscountPermissionType))
+		{
+		}
+	}
+
+	public class DiscountRowTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DiscountRowTypeStringType() : base(typeof(DiscountRowType))
+		{
+		}
+	}
+
+	public class DiscountUsageStringType : NHibernate.Type.EnumStringType
+	{
+		public DiscountUsageStringType() : base(typeof(DiscountUsage))
+		{
+		}
+	}
+
+	public class DiscountCounterpartyTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DiscountCounterpartyTypeStringType() : base(typeof(DiscountCounterpartyType))
+		{
+		}
+	}
+
+	public class DiscountWithOtherDiscountsStringType : NHibernate.Type.EnumStringType
+	{
+		public DiscountWithOtherDiscountsStringType() : base(typeof(DiscountWithOtherDiscounts))
+		{
+		}
+	}
+
+	public class DiscountValueTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DiscountValueTypeStringType() : base(typeof(DiscountValueType))
+		{
+		}
 	}
 
 }

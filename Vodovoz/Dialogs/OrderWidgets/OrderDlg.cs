@@ -1139,6 +1139,11 @@ namespace Vodovoz
 			}
 		}
 
+		private void ValidateDiscount()
+		{
+			
+		}
+
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
 		{
 			Entity.SaveOrderComment();
@@ -2783,7 +2788,10 @@ namespace Vodovoz
 
 		void SetDiscountUnitEditable(bool? canEdit = null)
 		{
-			enumDiscountUnit.Sensitive = canEdit ?? ycomboboxReason.SelectedItem != null;
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value"))
+			{
+				enumDiscountUnit.Sensitive = canEdit ?? ycomboboxReason.SelectedItem != null;
+			}
 		}
 
 		/// <summary>
