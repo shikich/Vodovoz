@@ -83,8 +83,7 @@ namespace Vodovoz
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()),
-				EmailServiceSetting.GetEmailService());
+					new GtkInteractiveService()), null);
 			
 
 			TabName = "Новый сотрудник";
@@ -104,8 +103,7 @@ namespace Vodovoz
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()),
-				EmailServiceSetting.GetEmailService());
+					new GtkInteractiveService()), null);
 
 			ConfigureDlg();
 		}
@@ -132,7 +130,7 @@ namespace Vodovoz
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
 					new GtkInteractiveService()),
-				EmailServiceSetting.GetEmailService());
+				null);
 			
 			ConfigureDlg();
 		}
@@ -205,7 +203,7 @@ namespace Vodovoz
 			GenderComboBox.Binding
 				.AddBinding(Entity, e => e.Gender, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			subdivisionService = SubdivisionParametersProvider.Instance;
+			subdivisionService = new SubdivisionParametersProvider(new ParametersProvider());
 
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddBinding(Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
@@ -786,8 +784,7 @@ namespace Vodovoz
 			if(canManageDriversAndForwarders && !canManageOfficeWorkers) {
 				var entityentrySubdivision = new EntityViewModelEntry();
 				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
-					new SubdivisionJournalFactory().CreateLogisticSubdivisionAutocompleteSelectorFactory(
-						new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory()));
+					new SubdivisionJournalFactory().CreateLogisticSubdivisionAutocompleteSelectorFactory(MainClass.AppDIContainer));
 				entityentrySubdivision.Binding
 					.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
 				hboxSubdivision.Add(entityentrySubdivision);
@@ -955,7 +952,7 @@ namespace Vodovoz
 				terminalManagementView.ViewModel = _terminalManagementViewModel ??
 				                                   (_terminalManagementViewModel =
 					                                   new TerminalManagementViewModel(
-						                                   CurrentUserSettings.Settings.DefaultWarehouse,
+						                                  new CurrentUserSettings().Settings.DefaultWarehouse,
 						                                   Entity,
 						                                   this as ITdiTab,
 						                                   _employeeRepository,

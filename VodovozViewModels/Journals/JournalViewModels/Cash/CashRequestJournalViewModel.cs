@@ -1,24 +1,25 @@
 using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services.Interactive;
 using QS.Services;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
@@ -31,36 +32,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             CashRequestJournalFilterViewModel
         >
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly IFileChooserProvider fileChooserProvider;
-        private readonly IEmployeeRepository employeeRepository;
-        private readonly CashRepository cashRepository;
-        private readonly ConsoleInteractiveService consoleInteractiveService;
-        private readonly IEmployeeJournalFactory _employeeJournalFactory;
-        private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IEmployeeRepository employeeRepository;
         
         public CashRequestJournalViewModel(
             CashRequestJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
             IEmployeeRepository employeeRepository,
-            CashRepository cashRepository,
-            ConsoleInteractiveService consoleInteractiveService,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
-        ) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			INavigationManager navigationManager
+        ) : base(unitOfWorkFactory, commonServices, filterViewModel, scope, navigationManager)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-            this.cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-            this.consoleInteractiveService = consoleInteractiveService ?? throw new ArgumentNullException(nameof(consoleInteractiveService));
-            _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-            _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
-            TabName = "Журнал заявок ДС";
-            
+			TabName = "Журнал заявок ДС";
+
+			CreateBindingsForFilter();
+			
             UpdateOnChanges(
                 typeof(CashRequest),
                 typeof(CashRequestSumItem),
@@ -68,6 +56,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 typeof(Employee)
             );
         }
+		
+		private void CreateBindingsForFilter()
+		{
+			var builder =
+				new CommonEEVMBuilderFactory<CashRequestJournalFilterViewModel>(this, FilterViewModel, UoW, NavigationManager, Scope);
+
+			var authorViewModel = builder.ForProperty(f => f.Author)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+			
+			var accountableEmployeeViewModel = builder.ForProperty(f => f.AccountableEmployee)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			FilterViewModel.SetEntriesViewModels(authorViewModel, accountableEmployeeViewModel);
+		}
 
         protected override Func<IUnitOfWork, IQueryOver<CashRequest>> ItemsSourceQueryFunction => (uow) =>
         {
@@ -222,26 +228,48 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             NodeActionsList.Add(deleteAction);
         }
 
-        protected override Func<CashRequestViewModel> CreateDialogFunction => () => new CashRequestViewModel( 
-            EntityUoWBuilder.ForCreate(),
-            unitOfWorkFactory,
-            commonServices,
-            fileChooserProvider,
-            employeeRepository,
-            cashRepository,
-            _employeeJournalFactory,
-            _subdivisionJournalFactory
-        );
+		private CashRequestViewModel ResolveViewModel(TypedParameter entityUowBuilderParam)
+		{
+			var scope = Scope.BeginLifetimeScope();
+			var fileChooser = scope.Resolve<IFileChooserProvider>(new TypedParameter(typeof(string), "Категории расхода.csv"));
+			
+			return scope.Resolve<CashRequestViewModel>(
+				entityUowBuilderParam,
+				new TypedParameter(typeof(IFileChooserProvider), fileChooser));
+		}
+
+        protected override Func<CashRequestViewModel> CreateDialogFunction => () =>
+		{
+			var entityUowBuilderParam = new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate());
+			return ResolveViewModel(entityUowBuilderParam);
+
+			/*return new CashRequestViewModel(
+				EntityUoWBuilder.ForCreate(),
+				unitOfWorkFactory,
+				commonServices,
+				fileChooserProvider,
+				employeeRepository,
+				cashRepository,
+				_employeeJournalFactory,
+				_subdivisionJournalFactory
+			);*/
+		};
         protected override Func<CashRequestJournalNode, CashRequestViewModel> OpenDialogFunction =>
-            node => new CashRequestViewModel(
-                EntityUoWBuilder.ForOpen(node.Id),
-                unitOfWorkFactory,
-                commonServices,
-                fileChooserProvider,
-                employeeRepository,
-                cashRepository,
-                _employeeJournalFactory,
-                _subdivisionJournalFactory
-            );
+            node =>
+			{
+				var entityUowBuilderParam = new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id));
+				return ResolveViewModel(entityUowBuilderParam);
+				
+				/*return new CashRequestViewModel(
+					EntityUoWBuilder.ForOpen(node.Id),
+					unitOfWorkFactory,
+					commonServices,
+					fileChooserProvider,
+					employeeRepository,
+					cashRepository,
+					_employeeJournalFactory,
+					_subdivisionJournalFactory
+				);*/
+			};
     }
 }

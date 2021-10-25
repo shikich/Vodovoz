@@ -129,7 +129,7 @@ namespace Vodovoz.ViewWidgets
 				email.ManualSending = true;
 			}
 
-			IEmailService service = EmailServiceSetting.GetEmailService();
+			IEmailService service = null;
 			if(service == null) {
 				return;
 			}

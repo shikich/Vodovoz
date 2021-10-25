@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using Autofac;
 using Vodovoz.Domain;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -14,8 +15,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 	public class EquipmentKindJournalViewModel : SingleEntityJournalViewModelBase<EquipmentKind, EquipmentKindViewModel,
 		EquipmentKindJournalNode>
 	{
-		public EquipmentKindJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+		public EquipmentKindJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null)
+			: base(unitOfWorkFactory, commonServices, scope)
 		{
 			TabName = "Журнал видов оборудования";
 

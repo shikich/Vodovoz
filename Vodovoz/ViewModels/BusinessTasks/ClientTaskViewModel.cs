@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
@@ -145,15 +146,20 @@ namespace Vodovoz.ViewModels.BusinessTasks
 																						CounterpartyJournalViewModel, 
 																						CounterpartyJournalFilterViewModel>(CommonServices);
 
-			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			//EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			DeliveryPointFactory = CreateDeliveryPointFactory();
 		}
 
 		private IEntityAutocompleteSelectorFactory CreateDeliveryPointFactory()
 		{
-			var dpFilter = new DeliveryPointJournalFilterViewModel{Counterparty = Entity.Counterparty, HidenByDefault = true};
-			return new DeliveryPointJournalFactory(dpFilter).CreateDeliveryPointByClientAutocompleteSelectorFactory();
+			var filterParams = new Action<DeliveryPointJournalFilterViewModel>[]
+			{
+				x => x.Counterparty = Entity.Counterparty,
+				x => x.HidenByDefault = true
+			};
+			return new DeliveryPointJournalFactory().CreateDeliveryPointByClientAutocompleteSelectorFactory(
+				MainClass.AppDIContainer, filterParams);
 		}
 
 		private PhonesViewModel CreatePhonesViewModel()

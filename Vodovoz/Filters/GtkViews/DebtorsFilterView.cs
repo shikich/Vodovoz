@@ -60,10 +60,11 @@ namespace Vodovoz.Filters.GtkViews
 				ViewModel.Address = null;
 			}
 
-			if(ViewModel?.DeliveryPointJournalFilterViewModel != null)
-			{
-				ViewModel.DeliveryPointJournalFilterViewModel.Counterparty = ViewModel.Client;
-			}
+			ViewModel?.DeliveryPointJournalFactory?.SetDeliveryPointJournalFilterViewModel(
+				new Action<DeliveryPointJournalFilterViewModel>[]
+				{
+					x => x.Counterparty = ViewModel.Client
+				});
 		}
 	}
 }

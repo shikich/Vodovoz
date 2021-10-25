@@ -1,35 +1,35 @@
-﻿using System.ServiceModel;
+﻿using System;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace EmailService
 {
-	public class EmailServiceSetting
+	public class EmailServiceSetting : /*IEmailServiceSetting,*/ IDisposable
 	{
-		private static EmailServiceSetting settingInstance;
+		private IEmailService _channel;
 
-		public static bool SendingAllowed => settingInstance != null;
+		public static bool SendingAllowed => !string.IsNullOrEmpty(_serviceUrl);
 
-		public static IEmailService GetEmailService()
+		private static string _serviceUrl;
+
+		public /*static*/ IEmailService GetEmailService()
 		{
-			if(!SendingAllowed) {
+			if(!SendingAllowed)
+			{
 				return null;
 			}
-			return new ChannelFactory<IEmailService>(new BasicHttpBinding(), string.Format("http://{0}/EmailService", settingInstance.serviceUrl))
+
+			_channel = new ChannelFactory<IEmailService>(new BasicHttpBinding(), $"http://{_serviceUrl}/EmailService")
 				.CreateChannel();
+
+			return _channel;
 		}
 
-		public static void Init(string serviceUrl)
+		public EmailServiceSetting(string serviceUrl = null)
 		{
-			if(string.IsNullOrWhiteSpace(serviceUrl)) {
-				return;
-			}
-			settingInstance = new EmailServiceSetting(serviceUrl);
+			_serviceUrl = serviceUrl;
 		}
 
-		private string serviceUrl;
-
-		private EmailServiceSetting(string serviceUrl)
-		{
-			this.serviceUrl = serviceUrl;
-		}
+		public void Dispose() => (_channel as IChannel).Close();
 	}
 }

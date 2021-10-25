@@ -10,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.Reports
 {

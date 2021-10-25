@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 			NomenclatureBalanceByStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(unitOfWorkFactory, commonServices, filterViewModel)
 		{
 			UpdateOnChanges(
 				typeof(Warehouse),

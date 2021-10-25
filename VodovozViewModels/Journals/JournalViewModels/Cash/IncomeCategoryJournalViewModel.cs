@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -10,10 +11,8 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Cash;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -28,28 +27,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             IncomeCategoryJournalFilterViewModel
         >
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly IFileChooserProvider fileChooserProvider;
-        private readonly IEmployeeJournalFactory _employeeJournalFactory;
-        private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+        private readonly IFileChooserProvider _fileChooserProvider;
 
         public IncomeCategoryJournalViewModel(
-            IncomeCategoryJournalFilterViewModel journalFilterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
-        ) : base(journalFilterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			params Action<IncomeCategoryJournalFilterViewModel>[] filterParams
+        ) : base(unitOfWorkFactory, commonServices,  null, scope, null, false, false, filterParams)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-            _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-            _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-
             TabName = "Категории прихода";
             
-            UpdateOnChanges(
+			_fileChooserProvider = Scope.Resolve<IFileChooserProvider>(
+				new TypedParameter(typeof(string), "Категории прихода.csv"));
+
+			UpdateOnChanges(
                 typeof(IncomeCategory),
                 typeof(Subdivision)
             );
@@ -128,26 +120,42 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             );
             return query;
         };
-        
-        protected override Func<IncomeCategoryViewModel> CreateDialogFunction => () => new IncomeCategoryViewModel(
-            EntityUoWBuilder.ForCreate(),
-            unitOfWorkFactory,
-            commonServices,
-            fileChooserProvider,
-            FilterViewModel,
-            _employeeJournalFactory,
-            _subdivisionJournalFactory
-        );
-        protected override Func<IncomeCategoryJournalNode, IncomeCategoryViewModel> OpenDialogFunction =>
-            node => new IncomeCategoryViewModel(
-                EntityUoWBuilder.ForOpen(node.Id), 
-                unitOfWorkFactory, 
-                commonServices, 
-                fileChooserProvider, 
-                FilterViewModel,
-                _employeeJournalFactory,
-                _subdivisionJournalFactory
-        );
+
+		protected override Func<IncomeCategoryViewModel> CreateDialogFunction => 
+			() =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<IncomeCategoryViewModel>(
+					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+
+				/*return () => new IncomeCategoryViewModel(
+					EntityUoWBuilder.ForCreate(),
+					unitOfWorkFactory,
+					commonServices,
+					_fileChooserProvider,
+					FilterViewModel,
+					_employeeJournalFactory,
+					_subdivisionJournalFactory
+				);*/
+			};
+
+		protected override Func<IncomeCategoryJournalNode, IncomeCategoryViewModel> OpenDialogFunction =>
+            node =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<IncomeCategoryViewModel>(
+					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+				
+				/*return new IncomeCategoryViewModel(
+					EntityUoWBuilder.ForOpen(node.Id),
+					unitOfWorkFactory,
+					commonServices,
+					_fileChooserProvider,
+					FilterViewModel,
+					_employeeJournalFactory,
+					_subdivisionJournalFactory
+				);*/
+			};
 
         protected override void CreatePopupActions()
         {
@@ -169,7 +177,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                         CSVbuilder.Append(incomeCategoryJournalNode.Subdivision + "\n");
                     }
 
-                    var fileChooserPath = fileChooserProvider.GetExportFilePath();
+                    var fileChooserPath = _fileChooserProvider.GetExportFilePath();
                     var res = CSVbuilder.ToString();
                     if (fileChooserPath == "") return;
                     Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
@@ -178,7 +186,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                         writer.Write("\"sep=,\"\n");
                         writer.Write(res.ToString());
                     }               
-                    fileChooserProvider.CloseWindow(); 
+                    _fileChooserProvider.CloseWindow(); 
                 })
             );
 

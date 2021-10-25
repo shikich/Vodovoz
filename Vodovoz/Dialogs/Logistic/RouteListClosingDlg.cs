@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -47,6 +48,8 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -117,7 +120,6 @@ namespace Vodovoz
 			TransferAddressesToThisRL,
 			[Display(Name = "Перенести адреса из этого МЛ")]
 			TransferAddressesToAnotherRL
-
 		}
 
 		public enum RouteListPrintDocuments
@@ -544,7 +546,8 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-			var dlg = new OrderReturnsView(node, UoW);
+			var dlg = new OrderReturnsView(
+				node, UoW, MainClass.AppDIContainer, MainClass.AppDIContainer.Resolve<IDeliveryPointJournalFactory>());
 			TabParent.AddSlaveTab(this, dlg);
 		}
 

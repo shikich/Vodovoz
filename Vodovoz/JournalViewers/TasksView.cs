@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using Gtk;
 using QS.Deletion;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
@@ -12,13 +14,9 @@ using Vodovoz.Representations;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 
 namespace Vodovoz.JournalViewers
 {
@@ -27,37 +25,34 @@ namespace Vodovoz.JournalViewers
 	{
 		private CallTasksVM _callTasksVm;
 		private CallTaskFilterView _callTaskFilterView;
-
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IBottlesRepository _bottleRepository;
-		private readonly ICallTaskRepository _callTaskRepository;
-		private readonly IPhoneRepository _phoneRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly ILifetimeScope _scope;
+		private readonly ICallTaskDlgFactory _callTaskDlgFactory;
 
 		public TasksView(
-			IEmployeeRepository employeeRepository,
-			IBottlesRepository bottleRepository,
-			ICallTaskRepository callTaskRepository,
-			IPhoneRepository phoneRepository,
-			IEmployeeJournalFactory employeeJournalFactory,
-			IDeliveryPointRepository deliveryPointRepository)
+			IDeliveryPointRepository deliveryPointRepository,
+			ILifetimeScope scope,
+			INavigationManager navigationManager,
+			ICallTaskDlgFactory callTaskDlgFactory)
 		{
+			if(navigationManager == null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			this.Build();
 
-			_employeeRepository = employeeRepository;
-			_bottleRepository = bottleRepository;
-			_callTaskRepository = callTaskRepository;
-			_phoneRepository = phoneRepository;
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_callTaskDlgFactory = callTaskDlgFactory ?? throw new ArgumentNullException(nameof(callTaskDlgFactory));
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.TabName = "Журнал задач для обзвона";
-			ConfigureDlg();
+			ConfigureDlg(scope, navigationManager);
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg(ILifetimeScope scope, INavigationManager navigationManager)
 		{
 			representationentryEmployee.RepresentationModel = new EmployeesVM(UoW);
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
@@ -65,8 +60,7 @@ namespace Vodovoz.JournalViewers
 			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()));
 			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
-			_callTasksVm.Filter =
-				new CallTaskFilterViewModel(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), _deliveryPointRepository);
+			_callTasksVm.Filter = new CallTaskFilterViewModel(_deliveryPointRepository, scope, this, navigationManager);
 			_callTasksVm.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = _callTasksVm;
 			CreateCallTaskFilterView(_callTasksVm.Filter, EventArgs.Empty);
@@ -102,8 +96,9 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnAddTaskButtonClicked(object sender, EventArgs e)
 		{
-			CallTaskDlg dlg = new CallTaskDlg();
-			TabParent.AddTab(dlg, this);
+			/*CallTaskDlg dlg = new CallTaskDlg();
+			TabParent.AddTab(dlg, this);*/
+			MainClass.MainWin.NavigationManager.OpenTdiTabOnTdi<CallTaskDlg>(this, OpenPageOptions.IgnoreHash);
 
 			/*
 			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
@@ -125,8 +120,9 @@ namespace Vodovoz.JournalViewers
 				return;
 			}
 
-			CallTaskDlg dlg = new CallTaskDlg(selected.Id);
-			OpenSlaveTab(dlg);
+			/*CallTaskDlg dlg = new CallTaskDlg(selected.Id);
+			OpenSlaveTab(dlg);*/
+			OpenSlaveTab(_callTaskDlgFactory.OpenCallTaskDlg(selected.Id));
 
 			/*
 			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();

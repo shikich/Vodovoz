@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate.Criterion;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -17,9 +20,8 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using VodovozInfrastructure.Interfaces;
+using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
@@ -31,8 +33,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 		private readonly IReportViewOpener reportViewOpener;
-		public readonly IFileChooserProvider fileChooserProvider;
-		public readonly ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel;
 
 		public FuelWriteoffDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder, 
@@ -41,25 +41,47 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IFuelRepository fuelRepository,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
 			IReportViewOpener reportViewOpener,
-			IFileChooserProvider fileChooserProvider,
-			ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel,
-			ISubdivisionJournalFactory subdivisionJournalFactory
-		) 
-		: base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null
+		) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-			this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
-			this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 
+			ExpenseCategoryJournalFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
+				() => {
+					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+						x => x.Name,
+						() => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory,
+							ServicesConfig.CommonServices,
+							SubdivisionJournalFactory,
+							Scope.BeginLifetimeScope()
+						),
+						(node) => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							UnitOfWorkFactory,
+							ServicesConfig.CommonServices,
+							SubdivisionJournalFactory,
+							Scope.BeginLifetimeScope()
+						),
+						UnitOfWorkFactory,
+						this.commonServices
+					) {
+						SelectionMode = JournalSelectionMode.Single
+					};
+					return expenseCategoryJournalViewModel;
+				}
+			);
+			
 			CreateCommands();
 			UpdateCashSubdivisions();
 
@@ -101,13 +123,14 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void ConfigureEntries()
 		{
-			EmployeeAutocompleteSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			//EmployeeAutocompleteSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 		}
 		
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; private set; }
 		
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
+		
+		public IEntityAutocompleteSelectorFactory ExpenseCategoryJournalFactory { get; }
 
 		#endregion Entries
 

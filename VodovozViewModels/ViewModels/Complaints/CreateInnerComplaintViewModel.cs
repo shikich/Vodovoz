@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -18,8 +18,6 @@ namespace Vodovoz.ViewModels.Complaints
 	public class CreateInnerComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		private readonly IEmployeeService _employeeService;
-		private readonly ISubdivisionRepository _subdivisionRepository;
-		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
         private readonly IFilePickerService _filePickerService;
         private readonly IUserRepository _userRepository;
         private IList<ComplaintObject> _complaintObjectSource;
@@ -30,18 +28,16 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
             IFilePickerService filePickerService,
-			IUserRepository userRepository
-            ) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null
+		) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
 		{
             _filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 
@@ -91,8 +87,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(guiltyItemsViewModel == null)
 				{
-					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory);
+					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, Scope, this);
 				}
 
 				return guiltyItemsViewModel;

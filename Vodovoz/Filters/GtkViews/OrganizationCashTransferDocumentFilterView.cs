@@ -19,7 +19,9 @@ namespace Vodovoz.Filters.GtkViews
             dateperiodCashTransfer.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
             dateperiodCashTransfer.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 
-			authorEntry.ViewModel.IsEditable = false;
+			//TODO
+			authorEntry.ViewModel = ViewModel.WorkingEmployeeViewModel;
+			//authorEntry.ViewModel.IsEditable = false;
             //entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
             //entityviewmodelentryAuthor.Binding.AddBinding(ViewModel, vm => vm.Author, w => w.Subject).InitializeFromSource();
 

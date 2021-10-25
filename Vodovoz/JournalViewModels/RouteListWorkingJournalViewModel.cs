@@ -10,7 +10,9 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using Autofac;
 using NHibernate.Linq;
+using QS.Navigation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -48,7 +50,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 
 		public RouteListWorkingJournalViewModel(
-			RouteListJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IRouteListRepository routeListRepository,
@@ -58,8 +59,11 @@ namespace Vodovoz.JournalViewModels
 			IExpenseParametersProvider expenseParametersProvider,
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
-			IGtkTabsOpener gtkTabsOpener)
-		: base(filterViewModel, unitOfWorkFactory, commonServices)
+			IGtkTabsOpener gtkTabsOpener,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<RouteListJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
 			TabName = "Работа кассы с МЛ";
 

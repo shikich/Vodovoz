@@ -41,6 +41,8 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
+using QS.Navigation;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -52,9 +54,13 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.Nodes.Counterparties;
 using Vodovoz.JournalViewers;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 
@@ -72,11 +78,6 @@ namespace Vodovoz
 		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
-		private IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private ISubdivisionRepository _subdivisionRepository;
-		private IRouteListItemRepository _routeListItemRepository;
-		private IFilePickerService _filePickerService;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private INomenclatureRepository _nomenclatureRepository;
@@ -86,22 +87,6 @@ namespace Vodovoz
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
-
-		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
-			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
-
-		public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory =>
-			_employeeSelectorFactory ??
-			(_employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory());
-
-		public virtual ISubdivisionRepository SubdivisionRepository =>
-			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
-
-		public virtual IRouteListItemRepository RouteListItemRepository =>
-			_routeListItemRepository ?? (_routeListItemRepository = new RouteListItemRepository());
-
-		public virtual IFilePickerService FilePickerService =>
-			_filePickerService ?? (_filePickerService = new GtkFilePicker());
 
 		public virtual INomenclatureRepository NomenclatureRepository =>
 			_nomenclatureRepository ?? (_nomenclatureRepository =
@@ -114,7 +99,7 @@ namespace Vodovoz
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(MainClass.AppDIContainer),
 					NomenclatureRepository, _userRepository));
 
 		#region Список каналов сбыта
@@ -353,11 +338,11 @@ namespace Vodovoz
 			entryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
 
 			entryMainCounterparty
-				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(MainClass.AppDIContainer));
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 
 			entryPreviousCounterparty
-				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(MainClass.AppDIContainer));
 			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
@@ -469,7 +454,7 @@ namespace Vodovoz
 
 			emailsView.Emails = UoWGeneric.Root.Emails;
 
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			//var employeeJournalFactory = new EmployeeJournalFactory();
 			/*if(SetSensitivityByPermission("can_set_personal_sales_manager", salesManagerEntry))
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
@@ -512,7 +497,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(permission);
 		}
 
-		private IEntityAutocompleteSelectorFactory GetEmployeeFactoryWithResetFilter(IEmployeeJournalFactory employeeJournalFactory)
+		/*private IEntityAutocompleteSelectorFactory GetEmployeeFactoryWithResetFilter(IEmployeeJournalFactory employeeJournalFactory)
 		{
 			var filter = new EmployeeFilterViewModel
 			{
@@ -521,7 +506,7 @@ namespace Vodovoz
 			};
 			employeeJournalFactory.SetEmployeeFilterViewModel(filter);
 			return employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-		}
+		}*/
 
 		private void ConfigureTabRequisites()
 		{
@@ -620,6 +605,7 @@ namespace Vodovoz
 		private void ConfigureTabDeliveryPoints()
 		{
 			deliveryPointsManagementView.DeliveryPointUoW = UoWGeneric;
+			deliveryPointsManagementView.ParrentTab = this;
 		}
 
 		private void ConfigureTabDocuments()
@@ -636,7 +622,7 @@ namespace Vodovoz
 					this,
 					ServicesConfig.CommonServices,
 					_employeeService,
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(MainClass.AppDIContainer),
 					NomenclatureSelectorFactory,
 					NomenclatureRepository,
 					_userRepository);
@@ -714,35 +700,37 @@ namespace Vodovoz
 
 		private void AllOrders_Activated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+			/*var curUserSettings = MainClass.AppDIContainer.Resolve<ICurrentUserSettings>();
 
 			var orderJournalFilter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory()) { RestrictCounterparty = Entity };
+				new DeliveryPointJournalFactory(),
+				curUserSettings)
+			{
+				RestrictCounterparty = Entity
+			};
+			
 			var orderJournalViewModel = new OrderJournalViewModel(
 				orderJournalFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				NomenclatureRepository,
-				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureSelectorFactory(),
 				new UndeliveredOrdersRepository()
 			);
 
-			TabParent.AddTab(orderJournalViewModel, this, false);
+			TabParent.AddTab(orderJournalViewModel, this, false);*/
+			var filterParams = new Action<OrderJournalFilterViewModel>[]
+			{
+				x => x.RestrictCounterparty = Entity
+			};
+			var page = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<OrderJournalViewModel, Action<OrderJournalFilterViewModel>[]>(
+				this, filterParams, OpenPageOptions.IgnoreHash);
 		}
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+			/*ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var filter = new ComplaintFilterViewModel(
 				ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory,
@@ -756,7 +744,7 @@ namespace Vodovoz
 				_employeeService,
 				CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 				RouteListItemRepository,
-				SubdivisionParametersProvider.Instance,
+				new SubdivisionParametersProvider(new ParametersProvider()),
 				filter,
 				FilePickerService,
 				SubdivisionRepository,
@@ -774,7 +762,13 @@ namespace Vodovoz
 				new UndeliveredOrdersRepository()
 			);
 
-			TabParent.AddTab(complaintsJournalViewModel, this, false);
+			TabParent.AddTab(complaintsJournalViewModel, this, false);*/
+			var filterParams = new Action<ComplaintFilterViewModel>[]
+			{
+				x => x.Counterparty = Entity
+			};
+			MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>[]>(
+				this, filterParams, OpenPageOptions.IgnoreHash);
 		}
 
 		private bool _canClose = true;
@@ -1188,45 +1182,6 @@ namespace Vodovoz
 			}
 
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
-		}
-	}
-
-	public class SalesChannelSelectableNode : PropertyChangedBase
-	{
-		private int _id;
-
-		public virtual int Id
-		{
-			get => _id;
-			set => SetField(ref _id, value);
-		}
-
-		private bool _selected;
-
-		public virtual bool Selected
-		{
-			get => _selected;
-			set => SetField(ref _selected, value);
-		}
-
-		private string _name;
-
-		public virtual string Name
-		{
-			get => _name;
-			set => SetField(ref _name, value);
-		}
-
-		public string Title => Name;
-
-		public SalesChannelSelectableNode()
-		{
-		}
-
-		public SalesChannelSelectableNode(SalesChannel salesChannel)
-		{
-			Id = salesChannel.Id;
-			Name = salesChannel.Name;
 		}
 	}
 }

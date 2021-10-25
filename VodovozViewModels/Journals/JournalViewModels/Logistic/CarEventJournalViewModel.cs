@@ -6,15 +6,14 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using Autofac;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using QS.Navigation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -23,29 +22,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class CarEventJournalViewModel : FilterableSingleEntityJournalViewModelBase<CarEvent, CarEventViewModel, CarEventJournalNode,
 		CarEventFilterViewModel>
 	{
-		private readonly ICarJournalFactory _carJournalFactory;
-		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
-		private readonly IEmployeeService _employeeService;
-
 		public CarEventJournalViewModel(
-			CarEventFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICarJournalFactory carJournalFactory,
-			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			IEmployeeService employeeService)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager)
 		{
 			TabName = "Журнал событий ТС";
 
-			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-
 			UpdateOnChanges(
 				typeof(CarEvent),
-				typeof(CarEventType)
-				);
+				typeof(CarEventType));
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<CarEvent>> ItemsSourceQueryFunction => (uow) =>
@@ -157,21 +145,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<CarEventViewModel> CreateDialogFunction =>
-			() => new CarEventViewModel(
-				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory,
-				commonServices,
-				_carJournalFactory,
-				_carEventTypeJournalFactory,
-				_employeeService);
+			() =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<CarEventViewModel>(
+					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+			};
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
-			node => new CarEventViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory,
-				commonServices,
-				_carJournalFactory,
-				_carEventTypeJournalFactory,
-				_employeeService);
+			node =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<CarEventViewModel>(
+					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+			};
 	}
 }

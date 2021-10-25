@@ -6,6 +6,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {

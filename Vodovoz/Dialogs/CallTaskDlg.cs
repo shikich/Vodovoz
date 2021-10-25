@@ -1,7 +1,10 @@
 ﻿using System;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
@@ -18,8 +21,10 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Models;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Contacts;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.Dialogs
@@ -27,6 +32,7 @@ namespace Vodovoz.Dialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CallTaskDlg : EntityDialogBase<CallTask>
 	{
+		private readonly ILifetimeScope _scope;
 		private IOrganizationProvider _organizationProvider;
 		private ICounterpartyContractRepository _counterpartyContractRepository;
 		private CounterpartyContractFactory _counterpartyContractFactory;
@@ -37,42 +43,58 @@ namespace Vodovoz.Dialogs
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private string _lastComment;
 
-		public CallTaskDlg()
+		public CallTaskDlg(
+			ILifetimeScope scope,
+			IEmployeeRepository employeeRepository,
+			IBottlesRepository bottleRepository,
+			ICallTaskRepository callTaskRepository,
+			IPhoneRepository phoneRepository)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
-			_employeeRepository = new EmployeeRepository();
-			_bottleRepository = new BottlesRepository();
-			_callTaskRepository = new CallTaskRepository();
-			_phoneRepository = new PhoneRepository();
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
+			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
 			Entity.Source = TaskSource.Handmade;
-			Entity.TaskCreator = _employeeRepository.GetEmployeeForCurrentUser(UoW);;
+			Entity.TaskCreator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.EndActivePeriod = DateTime.Now.AddDays(1);
 			createTaskButton.Sensitive = false;
 			ConfigureDlg();
 		}
 
-		public CallTaskDlg(int counterpartyId, int deliveryPointId) : this()
+		public CallTaskDlg(
+			int counterpartyId,
+			int deliveryPointId,
+			ILifetimeScope scope,
+			IEmployeeRepository employeeRepository,
+			IBottlesRepository bottleRepository,
+			ICallTaskRepository callTaskRepository,
+			IPhoneRepository phoneRepository) : this(scope, employeeRepository, bottleRepository, callTaskRepository, phoneRepository)
 		{
 			Entity.Counterparty = UoW.GetById<Counterparty>(counterpartyId);
 			Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPointId);
 		}
 
-		public CallTaskDlg(CallTask task) : this(task.Id)
+		public CallTaskDlg(
+			int callTaskId,
+			ILifetimeScope scope,
+			IEmployeeRepository employeeRepository,
+			IBottlesRepository bottleRepository,
+			ICallTaskRepository callTaskRepository,
+			IPhoneRepository phoneRepository)
 		{
-		}
-
-		public CallTaskDlg(int callTaskId)
-		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
-			_employeeRepository = new EmployeeRepository();
-			_bottleRepository = new BottlesRepository();
-			_callTaskRepository = new CallTaskRepository();
-			_phoneRepository = new PhoneRepository();
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
+			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			TabName = Entity.Counterparty?.Name;
 			labelCreator.Text = $"Создатель : {Entity.TaskCreator?.ShortName}";
@@ -105,21 +127,24 @@ namespace Vodovoz.Dialogs
 				w => w.Buffer.Text).InitializeFromSource();
 			vboxOldComments.Visible = true;
 
-			var employeeFilterViewModel = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.office };
-			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilterViewModel);
+			var builder = new LegacyEEVMBuilderFactory<CallTask>(this, Entity, UoW, MainClass.MainWin.NavigationManager, _scope);
+			assignedEmployeeEntry.ViewModel = builder.ForProperty(c => c.AssignedEmployee)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					x => x.RestrictCategory = EmployeeCategory.office)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+			
+			//TODO isEditable?
+			//assignedEmployeeEntry.ViewModel.IsEditable = false;
 
-			assignedEmployeeEntry.ViewModel.IsEditable = false;
-			//entryAttachedEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			//entryAttachedEmployee.Binding.AddBinding(Entity, e => e.AssignedEmployee, w => w.Subject).InitializeFromSource();
-
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
+			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			entityVMEntryDeliveryPoint
-				.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointAutocompleteSelectorFactory(_scope));
 			entityVMEntryDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 			entityVMEntryCounterparty
-				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_scope));
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
 			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance);
@@ -228,10 +253,13 @@ namespace Vodovoz.Dialogs
 
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
-			var newTask = new CallTaskDlg();
+			var page = MainClass.MainWin.NavigationManager.OpenTdiTabOnTdi<CallTaskDlg>(this, OpenPageOptions.IgnoreHash);
+			CallTaskSingletonFactory.GetInstance().CopyTask(UoW, _employeeRepository, Entity, (page.TdiTab as CallTaskDlg).Entity);
+			(page.TdiTab as CallTaskDlg).UpdateAddressFields();
+			/*var newTask = new CallTaskDlg();
 			CallTaskSingletonFactory.GetInstance().CopyTask(UoW, _employeeRepository, Entity, newTask.Entity);
 			newTask.UpdateAddressFields();
-			TabParent.AddTab(newTask, this);
+			TabParent.AddTab(newTask, this);*/
 		}
 
 		public override bool Save()

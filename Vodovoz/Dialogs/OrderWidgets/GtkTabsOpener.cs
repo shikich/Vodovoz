@@ -6,6 +6,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.Dialogs.OrderWidgets

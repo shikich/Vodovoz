@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.CommonEnums;
@@ -12,12 +14,19 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class CarJournalViewModel : FilterableSingleEntityJournalViewModelBase<Car, CarsDlg, CarJournalNode, CarJournalFilterViewModel>
 	{
-		public CarJournalViewModel(CarJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CarJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<CarJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
 			TabName = "Журнал автомобилей";
 			UpdateOnChanges(
@@ -101,8 +110,8 @@ namespace Vodovoz.JournalViewModels
 			return result;
 		};
 
-		protected override Func<CarsDlg> CreateDialogFunction => () => new CarsDlg();
+		protected override Func<CarsDlg> CreateDialogFunction => () => new CarsDlg(Scope.BeginLifetimeScope());
 
-		protected override Func<CarJournalNode, CarsDlg> OpenDialogFunction => (node) => new CarsDlg(node.Id);
+		protected override Func<CarJournalNode, CarsDlg> OpenDialogFunction => node => new CarsDlg(node.Id, Scope.BeginLifetimeScope());
 	}
 }

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Client;
@@ -22,19 +24,14 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using QS.Tdi;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -43,53 +40,24 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private readonly bool _userHasAccessToRetail = false;
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 
 		public OrderJournalViewModel(
-			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository,
-			IOrderSelectorFactory orderSelectorFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<OrderJournalFilterViewModel>[] filterParams) 
+			: base(unitOfWorkFactory, commonServices, navigationManager, scope, filterParams)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-
-			_counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
-			_nomenclatureSelectorFactory = nomenclatureSelector?.GetDefaultNomenclatureSelectorFactory()
-				?? throw new ArgumentNullException(nameof(nomenclatureSelector));
-			_undeliveredOrdersJournalOpener =
-				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 
@@ -771,31 +739,19 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<OrderWithoutShipmentForAdvancePayment>(GetOrdersWithoutShipmentForAdvancePaymentQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderWithoutShipmentForAdvancePaymentViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
-						_nomenclatureRepository,
-						_userRepository,
-						new OrderRepository(),
-						new ParametersProvider()
-					),
+					() =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<OrderWithoutShipmentForAdvancePaymentViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+					},
 					//функция диалога открытия документа
-					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
-						EntityUoWBuilder.ForOpen(node.Id),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
-						_nomenclatureRepository,
-						_userRepository,
-						new OrderRepository(),
-						new ParametersProvider()
-					),
+					(OrderJournalNode node) =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<OrderWithoutShipmentForAdvancePaymentViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+					},
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",
@@ -852,33 +808,13 @@ namespace Vodovoz.JournalViewModels
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
-
-						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-							_commonServices,
-							_orderSelectorFactory,
-							_employeeJournalFactory, 
-							_counterpartyJournalFactory, 
-							_deliveryPointJournalFactory, 
-							_subdivisionJournalFactory)
-						{
-							HidenByDefault = true,
-							RestrictOldOrder = order,
-							RestrictOldOrderStartDate = order.DeliveryDate,
-							RestrictOldOrderEndDate = order.DeliveryDate
-						};
-
-						var dlg = new UndeliveredOrdersJournalViewModel(
-							undeliveredOrdersFilter,
-							UnitOfWorkFactory,
-							_commonServices,
-							_gtkDialogsOpener,
-							_employeeJournalFactory,
-							_employeeService,
-							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory,
-							_undeliveredOrdersRepository);
-
-						MainClass.MainWin.TdiMain.AddTab(dlg);
+						
+						var page = NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel>(
+							this, OpenPageOptions.IgnoreHash);
+						page.ViewModel.FilterViewModel.SetAndRefilterAtOnce(
+							f => f.RestrictOldOrder = order,
+							f => f.RestrictOldOrderStartDate = order.DeliveryDate,
+							f => f.RestrictOldOrderEndDate = order.DeliveryDate);
 					}
 				)
 			);

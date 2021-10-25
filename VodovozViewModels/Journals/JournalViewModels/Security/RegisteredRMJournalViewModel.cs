@@ -15,8 +15,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
 {
     public class RegisteredRMJournalViewModel : FilterableSingleEntityJournalViewModelBase<RegisteredRM, RegisteredRMViewModel, RegisteredRMJournalNode, RegisteredRMJournalFilterViewModel>
     {
-        public RegisteredRMJournalViewModel(RegisteredRMJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public RegisteredRMJournalViewModel(
+			RegisteredRMJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Журнал зарегистрированных RM";
 

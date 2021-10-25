@@ -12,11 +12,11 @@ namespace Vodovoz.Factories
 {
 	public class AuthorizationServiceFactory : IAuthorizationServiceFactory
 	{
-		public IAuthorizationService CreateNewAuthorizationService() =>
+		/*public IAuthorizationService CreateNewAuthorizationService() =>
 			new AuthorizationService(
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService()),
-				EmailServiceSetting.GetEmailService());
+				EmailServiceSetting.GetEmailService());*/
 	}
 }

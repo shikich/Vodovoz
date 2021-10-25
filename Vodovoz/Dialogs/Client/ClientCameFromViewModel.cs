@@ -8,7 +8,10 @@ namespace Vodovoz.Dialogs.Client
 {
 	public class ClientCameFromViewModel : EntityTabViewModelBase<ClientCameFrom>
 	{
-		public ClientCameFromViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		public ClientCameFromViewModel(
+			IEntityUoWBuilder uoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Откуда клиент знает о нас";
 		}

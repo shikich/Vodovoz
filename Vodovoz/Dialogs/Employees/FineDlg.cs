@@ -3,6 +3,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Dialogs;
 using QSOrmProject;
 using Vodovoz.Domain;
@@ -17,6 +18,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
@@ -268,34 +270,19 @@ namespace Vodovoz
 
 		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
 		{
-			var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-				ServicesConfig.CommonServices,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory(),
-				new SubdivisionJournalFactory())
-			{
-				HidenByDefault = true,
-				RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
-				RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
-				RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
-				RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
-			};
-
-			var dlg = new UndeliveredOrdersJournalViewModel(
-				undeliveredOrdersFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new GtkTabsOpener(),
-				new EmployeeJournalFactory(),
-				VodovozGtkServicesConfig.EmployeeService,
-				new UndeliveredOrdersJournalOpener(),
-				new OrderSelectorFactory(),
-				new UndeliveredOrdersRepository()
-				);
-
-			TabParent.AddSlaveTab(this, dlg);
+			var filterParams = new UndeliveredOrdersFilterViewModelParameters(new CustomUndeliveredOrdersFilterParameters(
+				new Action<UndeliveredOrdersFilterViewModel>[]
+				{
+					x => x.HidenByDefault = true,
+					x => x.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
+					x => x.RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+					x => x.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+					x => x.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
+				},
+				true));
+			MainClass.MainWin.NavigationManager
+				.OpenViewModelOnTdi<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModelParameters>(
+					this, filterParams, OpenPageOptions.AsSlave);
 		}
 	}
 }

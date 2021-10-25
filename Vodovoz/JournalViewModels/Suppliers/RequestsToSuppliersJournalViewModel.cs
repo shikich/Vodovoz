@@ -25,7 +25,6 @@ namespace Vodovoz.JournalViewModels.Suppliers
 {
 	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
 	{
-		private readonly RequestsToSuppliersFilterViewModel filterViewModel;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		private readonly IEmployeeService employeeService;
@@ -44,13 +43,12 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(unitOfWorkFactory, commonServices, filterViewModel)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			this.filterViewModel = filterViewModel;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));

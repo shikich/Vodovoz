@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -8,12 +9,12 @@ using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
 using QS.Tdi;
 using QS.Navigation;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -21,7 +22,13 @@ namespace Vodovoz.JournalViewModels
 	{
 		private bool userHaveAccessToRetail = false;
 
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CounterpartyJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null,
+			INavigationManager navigationManager = null,
+			params Action<CounterpartyJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
 			TabName = "Журнал контрагентов";
 

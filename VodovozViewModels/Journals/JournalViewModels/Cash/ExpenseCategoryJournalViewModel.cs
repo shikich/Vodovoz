@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -10,10 +11,8 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Cash;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -21,34 +20,22 @@ using VodovozInfrastructure.Interfaces;
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
 	public class ExpenseCategoryJournalViewModel : FilterableSingleEntityJournalViewModelBase
-	<
-		ExpenseCategory,
-		ExpenseCategoryViewModel,
-		ExpenseCategoryJournalNode,
-		ExpenseCategoryJournalFilterViewModel
-	>
+	<ExpenseCategory, ExpenseCategoryViewModel, ExpenseCategoryJournalNode, ExpenseCategoryJournalFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IFileChooserProvider _fileChooserProvider;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 
 		public ExpenseCategoryJournalViewModel(
-			ExpenseCategoryJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IFileChooserProvider fileChooserProvider,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			params Action<ExpenseCategoryJournalFilterViewModel>[] filterParams
+		) : base(unitOfWorkFactory, commonServices, null, scope, null, false, false, filterParams)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-
 			TabName = "Категории расхода";
-
+			
+			_fileChooserProvider = Scope.Resolve<IFileChooserProvider>(
+				new TypedParameter(typeof(string), "Категории расхода.csv"));
+			
 			UpdateOnChanges(
 				typeof(ExpenseCategory),
 				typeof(Subdivision)
@@ -125,7 +112,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		};
 
 		protected override Func<ExpenseCategoryViewModel> CreateDialogFunction => () =>
-			new ExpenseCategoryViewModel(
+		{
+			var scope = Scope.BeginLifetimeScope();
+			return scope.Resolve<ExpenseCategoryViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+			
+			/*return new ExpenseCategoryViewModel(
 				EntityUoWBuilder.ForCreate(),
 				_unitOfWorkFactory,
 				commonServices,
@@ -133,10 +125,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				FilterViewModel,
 				_employeeJournalFactory,
 				_subdivisionJournalFactory
-			);
+			);*/
+		};
 
 		protected override Func<ExpenseCategoryJournalNode, ExpenseCategoryViewModel> OpenDialogFunction => node =>
-			new ExpenseCategoryViewModel(
+		{
+			var scope = Scope.BeginLifetimeScope();
+			return scope.Resolve<ExpenseCategoryViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+			
+			/*return new ExpenseCategoryViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
 				_unitOfWorkFactory,
 				commonServices,
@@ -144,7 +142,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				FilterViewModel,
 				_employeeJournalFactory,
 				_subdivisionJournalFactory
-			);
+			);*/
+		};
 
 		protected override void CreatePopupActions()
 		{

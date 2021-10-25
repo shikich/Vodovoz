@@ -39,7 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IPermissionRepository permissionRepository,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
@@ -48,7 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		{
 			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
-			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			SalesPlanSelectorFactory = (salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory)))
 				.CreateSalesPlanAutocompleteSelectorFactory(nomenclatureSelectorFactory);
 			ConfigureEntityChangingRelations();

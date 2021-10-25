@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Report;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.Dialogs

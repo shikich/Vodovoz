@@ -6,10 +6,15 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
 	{
-		public PaymentsJournalFilterViewModel()
+		public PaymentsJournalFilterViewModel(params Action<PaymentsJournalFilterViewModel>[] filterParams)
 		{
 			StartDate = null;
 			EndDate = null;
+
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
 		}
 
 		private DateTime? startDate;

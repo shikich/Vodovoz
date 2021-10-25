@@ -15,7 +15,7 @@ namespace Vodovoz.Journals
     public class UserJournalViewModel : FilterableSingleEntityJournalViewModelBase<User, UserViewModel, UserJournalNode, UserJournalFilterViewModel>
     {
         public UserJournalViewModel(UserJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Журнал пользователей";
         }

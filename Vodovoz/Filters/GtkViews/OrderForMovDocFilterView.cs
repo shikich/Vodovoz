@@ -3,6 +3,7 @@ using Gamma.Widgets.Additions;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 
 namespace Vodovoz.Filters.GtkViews
 {

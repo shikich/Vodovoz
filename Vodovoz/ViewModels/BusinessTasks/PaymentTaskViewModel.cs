@@ -16,6 +16,8 @@ using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -56,7 +58,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 																						CounterpartyJournalViewModel,
 																						CounterpartyJournalFilterViewModel>(CommonServices);
 
-			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			EmployeeSelectorFactory = null;
 
 			OrderSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order,
 																				OrderJournalViewModel,

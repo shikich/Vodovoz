@@ -13,6 +13,7 @@ using QSOrmProject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -44,8 +45,6 @@ namespace Vodovoz
 		private readonly bool _canEditDate =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
 
-		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IWagesMovementRepository _wagesMovementRepository = new WagesMovementRepository();
@@ -183,27 +182,12 @@ namespace Vodovoz
 				{
 					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
 						x => x.Name,
-						() => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							fileChooserProvider,
-							filterViewModel,
-							_employeeJournalFactory,
-							_subdivisionJournalFactory
-						),
-						node => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForOpen(node.Id),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							fileChooserProvider,
-							filterViewModel,
-							_employeeJournalFactory,
-							_subdivisionJournalFactory
-						),
+						() => MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ExpenseCategoryViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
+						node => MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ExpenseCategoryViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
 						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices
-					)
+						ServicesConfig.CommonServices)
 					{
 						SelectionMode = JournalSelectionMode.Single
 					};

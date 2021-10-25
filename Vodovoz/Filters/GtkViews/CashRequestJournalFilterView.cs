@@ -16,29 +16,11 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			/*AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());*/
-
 			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull);
 			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull);
 
-			authroEntry.ViewModel.IsEditable = false;
-			/*AuthorEntityviewmodelentry.Binding.AddBinding(
-				ViewModel, 
-				vm => vm.Author,
-				w => w.Subject
-			).InitializeFromSource();*/
-
-			accountableEmployeeEntry.ViewModel.IsEditable = false;		
-				/*
-			AccountableEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			
-			AccountableEntityviewmodelentry.Binding.AddBinding(
-				ViewModel,
-				vm => vm.AccountableEmployee,
-				w => w.Subject
-			).InitializeFromSource();*/
+			authroEntry.ViewModel = ViewModel.AuthorViewModel;
+			accountableEmployeeEntry.ViewModel = ViewModel.AccountableEmployeeViewModel;
 
 			yenumcomboStatus.ItemsEnum = typeof(CashRequest.States);
 			yenumcomboStatus.Binding.AddBinding(
@@ -46,7 +28,6 @@ namespace Vodovoz.Filters.GtkViews
 				e => e.State,
 				w => w.SelectedItemOrNull);
 			yenumcomboStatus.ShowSpecialStateAll = true;
-			
 
 			CashRequestUserRole? userRole = ViewModel.GetUserRole();
 			//Для Роли Согласователя по-умолчанию Создана Подана,

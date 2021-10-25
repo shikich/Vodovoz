@@ -23,6 +23,7 @@ using System.Security.Principal;
 using Vodovoz.Domain.Security;
 using System.Linq;
 using System.Reflection;
+using Autofac;
 using GMap.NET.MapProviders;
 using MySql.Data.MySqlClient;
 using QS.BaseParameters;
@@ -275,9 +276,13 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 			
 			//Настройка сервисов
-			if(parametersProvider.ContainsParameter("email_send_enabled_database") && parametersProvider.ContainsParameter("email_service_address")) {
-				if(parametersProvider.GetParameterValue("email_send_enabled_database") == loginDialogName) {
-					EmailServiceSetting.Init(parametersProvider.GetParameterValue("email_service_address"));
+			if(parametersProvider.ContainsParameter("email_send_enabled_database")
+				&& parametersProvider.ContainsParameter("email_service_address"))
+			{
+				if(parametersProvider.GetParameterValue("email_send_enabled_database") == loginDialogName)
+				{
+					AppDIContainer.Resolve<EmailServiceSetting>(
+						new TypedParameter(typeof(string), parametersProvider.GetParameterValue("email_service_address")));
 				}
 			}
 			if(parametersProvider.ContainsParameter("instant_sms_enabled_database") && parametersProvider.ContainsParameter("sms_service_address")) {

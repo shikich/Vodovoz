@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Additions.Printing;
@@ -44,6 +45,7 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 
 namespace Vodovoz
 {
@@ -60,10 +62,9 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
-		private IWarehouseRepository _warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private WageParameterService _wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
-
+		
 		private bool _isEditable;
 		private bool _canClose = true;
 		private Employee _oldDriver;
@@ -99,12 +100,10 @@ namespace Vodovoz
 			}
 		}
 
-		public RouteListCreateDlg(RouteList sub) : this(sub.Id) { }
-
-		public RouteListCreateDlg(int id)
+		public RouteListCreateDlg(int routeListId)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
 			if(ConfigSubdivisionCombo())
 			{
@@ -200,6 +199,7 @@ namespace Vodovoz
 			}
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
+			createroutelistitemsview1.SetParrentDialog(this);
 
 			buttonAccept.Visible = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed;
 			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)

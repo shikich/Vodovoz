@@ -1,45 +1,33 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
 	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
 	{
-		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
-		private readonly IEmployeeService employeeService;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
-		private readonly ICommonServices commonServices;
-
 		public FinesJournalViewModel(
-			FineFilterViewModel filterViewModel,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IEmployeeService employeeService,
-			IEntitySelectorFactory employeeSelectorFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory,  commonServices)
+			ICommonServices commonServices,
+			ILifetimeScope scope,
+			INavigationManager navigationManager,
+			params Action<FineFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory,  commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
-			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
 			TabName = "Журнал штрафов";
 		}
 
@@ -111,22 +99,18 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
 		};
 
-		protected override Func<FineViewModel> CreateDialogFunction => () => new FineViewModel(
-			EntityUoWBuilder.ForCreate(),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			undeliveryViewOpener,
-			employeeService,
-			employeeSelectorFactory,
-			commonServices
-		);
+		protected override Func<FineViewModel> CreateDialogFunction => () =>
+		{
+			var scope = Scope.BeginLifetimeScope();
+			return scope.Resolve<FineViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+		};
 
-		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			undeliveryViewOpener,
-			employeeService,
-			employeeSelectorFactory,
-			commonServices
-		);
+		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) =>
+		{
+			var scope = Scope.BeginLifetimeScope();
+			return scope.Resolve<FineViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+		};
 	}
 }

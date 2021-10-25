@@ -5,6 +5,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using Autofac;
+using QS.Navigation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
@@ -22,15 +24,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			IEmployeeService employeeService)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			IEmployeeService employeeService,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
 		{
 			if(employeeService == null)
 			{
 				throw new ArgumentNullException(nameof(employeeService));
 			}
+			if(scope == null)
+			{
+				throw new ArgumentNullException(nameof(scope));
+			}
 			
-			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
+			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory(scope);
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
 
 			TabName = "Событие ТС";

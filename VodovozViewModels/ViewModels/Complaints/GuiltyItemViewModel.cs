@@ -1,31 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
+using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class GuiltyItemViewModel : EntityWidgetViewModelBase<ComplaintGuiltyItem>
 	{
+		private readonly DialogTabViewModelBase _parrentViewModel;
+
 		public GuiltyItemViewModel(
 			ComplaintGuiltyItem entity,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			IUnitOfWork uow
+			IUnitOfWork uow,
+			ILifetimeScope scope,
+			DialogTabViewModelBase parrentViewModel
 		) : base(entity, commonServices)
 		{
-			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
-			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			if(subdivisionRepository == null) {
+			if(scope == null)
+			{
+				throw new ArgumentNullException(nameof(scope));
+			}
+			if(subdivisionRepository == null)
+			{
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}
+
+			_parrentViewModel = parrentViewModel ?? throw new ArgumentNullException(nameof(parrentViewModel));
+
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			ConfigureEntityPropertyChanges();
+			CreateBindings(scope.Resolve<INavigationManager>(), scope);
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
+		}
+
+		private void CreateBindings(INavigationManager navigationManager, ILifetimeScope scope)
+		{
+			var builder = new CommonEEVMBuilderFactory<ComplaintGuiltyItem>(_parrentViewModel, Entity, UoW, navigationManager, scope);
+
+			EmployeeViewModel = builder.ForProperty(e => e.Employee)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
 		}
 
 		public event EventHandler OnGuiltyItemReady;
@@ -40,7 +65,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public bool CanChooseSubdivision => Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision;
 
-		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+		public IEntityEntryViewModel EmployeeViewModel { get; private set; }
 
 		void ConfigureEntityPropertyChanges()
 		{

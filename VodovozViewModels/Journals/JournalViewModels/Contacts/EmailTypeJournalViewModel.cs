@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -16,8 +17,10 @@ namespace Vodovoz.Journals.JournalViewModels
 		public EmailTypeJournalViewModel
 		(
 			IEmailRepository emailRepository,
-			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null)
+			: base(unitOfWorkFactory, commonServices, scope)
 		{
 			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

@@ -10,6 +10,7 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 
 namespace Vodovoz
 {

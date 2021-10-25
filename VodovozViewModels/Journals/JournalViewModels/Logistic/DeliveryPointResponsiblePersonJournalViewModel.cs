@@ -7,6 +7,8 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using Autofac;
+using QS.Navigation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -20,7 +22,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
     /// </summary>
     public class DeliveryPointResponsiblePersonJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPointResponsiblePerson, DeliveryPointResponsiblePersonViewModel, DeliveryPointResponsiblePersonJournalNode, DeliveryPointResponsiblePersonJournalFilterViewModel>
     {
-        public DeliveryPointResponsiblePersonJournalViewModel(DeliveryPointResponsiblePersonJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false) : base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+        public DeliveryPointResponsiblePersonJournalViewModel(
+			DeliveryPointResponsiblePersonJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null,
+			INavigationManager navigationManager = null, 
+			bool hideJournalForOpen = false,
+			bool hideJournalForCreate = false)
+			: base(unitOfWorkFactory, commonServices, filterViewModel, scope, navigationManager, hideJournalForOpen, hideJournalForCreate)
         {
             TabName = "Журнал ответственных за точку доставки лиц";
         }

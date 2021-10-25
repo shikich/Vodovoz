@@ -7,10 +7,13 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
+using Autofac;
+using QS.Navigation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -23,9 +26,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _divideAtAllCommand;
 		private DelegateCommand _getReasonFromTemplateCommand;
 
-		public PremiumViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory uowFactory, ICommonServices commonServices,
-			IEmployeeService employeeService, IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
-			: base(uowBuilder, uowFactory, commonServices)
+		public PremiumViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory uowFactory,
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IPremiumTemplateJournalFactory premiumTemplateJournalFactory,
+			ILifetimeScope scope,
+			INavigationManager navigationManager)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager, scope)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 
@@ -33,7 +42,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) || (Entity.Id != 0 && PermissionResult.CanUpdate);
 			Entity.ObservableItems.ListContentChanged += OnObservableItemsListContentChanged;
-			EmployeeAutocompleteSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			PremiumTemplateAutocompleteSelectorFactory = premiumTemplateJournalFactory.CreatePremiumTemplateAutocompleteSelectorFactory();
 		}
 
@@ -43,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			set => SetField(ref _employeesSum, value);
 		}
 
-		public bool CanEdit { get; private set; }
+		public bool CanEdit { get; }
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory PremiumTemplateAutocompleteSelectorFactory { get; }
 
@@ -52,9 +60,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public DelegateCommand AddEmployeeCommand => _addEmployeeCommand ?? (_addEmployeeCommand =
 			new DelegateCommand(() =>
 				{
-					var selectorEmployee = EmployeeAutocompleteSelectorFactory.CreateAutocompleteSelector();
-					selectorEmployee.OnEntitySelectedResult += OnEmployeeAdd;
-					this.TabParent.AddSlaveTab(this, selectorEmployee);
+					var page = NavigationManager.OpenViewModel<EmployeesJournalViewModel>(this, OpenPageOptions.AsSlave);
+					page.ViewModel.OnSelectResult += OnEmployeeAdd;
 				},
 				() => CanEdit
 				));
@@ -96,9 +103,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		#endregion
 
 		#region Events
-		private void OnEmployeeAdd(object sender, JournalSelectedNodesEventArgs e)
+		private void OnEmployeeAdd(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedEmplyeeNode = e.SelectedNodes.FirstOrDefault();
+			var selectedEmplyeeNode = e.GetSelectedObjects<JournalEntityNodeBase>().FirstOrDefault();
 			if(selectedEmplyeeNode == null)
 			{
 				return;

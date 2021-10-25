@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {

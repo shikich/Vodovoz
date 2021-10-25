@@ -15,6 +15,7 @@ using QS.Commands;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using QS.Dialog;
 using QS.Project.Services;
 using QS.Services;
@@ -54,7 +55,9 @@ namespace Vodovoz.Dialogs.Email
 		private readonly IEmailRepository emailRepository;
 		private readonly IInteractiveService interactiveService;
 		private readonly IParametersProvider _parametersProvider;
+		private readonly ILifetimeScope _scope;
 		private readonly Employee _currentEmployee;
+		
 		private IDocument Document { get; set; }
 
 		public GenericObservableList<StoredEmail> StoredEmails { get; set; }
@@ -68,12 +71,14 @@ namespace Vodovoz.Dialogs.Email
 			Employee currentEmployee,
 			IInteractiveService interactiveService,
 			IParametersProvider parametersProvider,
-			IUnitOfWork uow = null)
+			IUnitOfWork uow = null,
+			ILifetimeScope scope = null)
 		{
 			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_currentEmployee = currentEmployee;
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             _parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+            _scope = scope;
             StoredEmails = new GenericObservableList<StoredEmail>();
 			UoW = uow;
 
@@ -270,12 +275,14 @@ namespace Vodovoz.Dialogs.Email
 			email.AuthorId = _currentEmployee?.Id ?? 0;
 			email.ManualSending = true;
 
-			IEmailService service = EmailServiceSetting.GetEmailService();
+			var settings = _scope.Resolve<EmailServiceSetting>();
+			IEmailService service = settings.GetEmailService();
 			if(service == null) {
 				return;
 			}
 			var result = service.SendOrderEmail(email);
-
+			settings.Dispose();
+			
 			switch (Document.Type)
 			{
 				case OrderDocumentType.BillWSForDebt:

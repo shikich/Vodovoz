@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -108,9 +109,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
-			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			Domain.Client.Counterparty client = null)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			Domain.Client.Counterparty client = null,
+			ILifetimeScope scope = null)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, null, scope)
 		{
 			if(client != null && uowBuilder.IsNewEntity)
 			{

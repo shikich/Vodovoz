@@ -15,6 +15,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Autofac;
+using QS.Project.Domain;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -30,7 +33,9 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
@@ -51,7 +56,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
-		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 
@@ -62,8 +66,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DriverWorkScheduleSet _selectedDriverScheduleSet;
 		private DriverDistrictPrioritySet _selectedDistrictPrioritySet;
 		private Employee _employeeForCurrentUser;
-		private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
-		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
+		private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = Array.Empty<EmployeeDocument>();
+		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = Array.Empty<EmployeeContract>();
 		private ValidationContext _validationContext;
 		private TerminalManagementViewModel _terminalManagementViewModel;
 
@@ -87,7 +91,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public EmployeeViewModel(
 			IAuthorizationService authorizationService,
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
@@ -95,26 +98,25 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmailServiceSettingAdapter emailServiceSettingAdapter,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
-			IUnitOfWorkGeneric<Employee> uowGeneric,
+			IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
-			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
 			IWarehouseRepository warehouseRepository,
 			IRouteListRepository routeListRepository,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
-			UserSettings userSettings,
+			IDriverApiUserRegisterEndpointBuilder driverApiUserRegisterEndpointBuilder,
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
 			bool traineeToEmployee = false,
-			INavigationManager navigationManager = null
-			) : base(commonServices?.InteractiveService, navigationManager)
+			INavigationManager navigationManager = null,
+			ILifetimeScope scope = null
+		) : base(commonServices?.InteractiveService, navigationManager, scope)
 		{
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			EmployeeWageParametersFactory =
 				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
-			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
-			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
+			EmployeePostsJournalFactory =
+				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory));
+			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			
 			if(commonOrganisationProvider == null)
 			{
@@ -127,19 +129,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
-			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
+			_driverApiUserRegisterEndpoint =
+				(driverApiUserRegisterEndpointBuilder ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpointBuilder)))
+				.CreateNewEndpoint();
+			UoWGeneric =
+				(uowBuilder ?? throw new ArgumentNullException(nameof(uowBuilder)))
+				.CreateUoW<Employee>(UnitOfWorkFactory.GetDefaultFactory);
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 
-			if(validationContextFactory == null)
-			{
-				throw new ArgumentNullException(nameof(validationContextFactory));
-			}
-
-			ConfigureValidationContext(validationContextFactory);
+			CreateBindings();
+			ConfigureValidationContext();
 
 			if(phonesViewModelFactory == null)
 			{
@@ -172,12 +173,25 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			CanRegisterMobileUser = string.IsNullOrWhiteSpace(Entity.AndroidLogin) && string.IsNullOrWhiteSpace(Entity.AndroidPassword);
 
-			var permissionResult = 
+			var permissionResult =
 				_commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
 			
-			if(!permissionResult.CanRead) {
+			if(!permissionResult.CanRead)
+			{
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
 			}
+		}
+
+		private void CreateBindings()
+		{
+			var builder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, Scope);
+
+			DefaultForwarderViewModel = builder.ForProperty(e => e.DefaultForwarder)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Category = EmployeeCategory.forwarder,
+					f => f.Status = EmployeeStatus.IsWorking)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -188,7 +202,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
-		private Employee EmployeeForCurrentUser => 
+		private Employee EmployeeForCurrentUser =>
 			_employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
 
 		public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
@@ -212,7 +226,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public Employee Entity => UoWGeneric.Root;
 		public IUnitOfWorkGeneric<Employee> UoWGeneric { get; }
 		public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public IEntityEntryViewModel DefaultForwarderViewModel { get; private set; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 		
@@ -225,9 +239,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				var attachmentFilesHasChanges = HasAttachmentFilesChangesFunc?.Invoke() ?? false;
 				
 				return UoWGeneric.HasChanges
-					   || attachmentFilesHasChanges
-					   || !string.IsNullOrEmpty(Entity.LoginForNewUser)
-					   || (_terminalManagementViewModel?.HasChanges ?? false);
+						|| attachmentFilesHasChanges
+						|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
+						|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
 		
@@ -236,18 +250,30 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public PhonesViewModel PhonesViewModel { get; }
 
-		public TerminalManagementViewModel TerminalManagementViewModel => _terminalManagementViewModel ??
-		                                                                  (_terminalManagementViewModel =
-			                                                                  new TerminalManagementViewModel(
-				                                                                  _userSettings.DefaultWarehouse,
-				                                                                  Entity,
-				                                                                  this as ITdiTab,
-				                                                                  _employeeRepository,
-				                                                                  _warehouseRepository,
-				                                                                  _routeListRepository,
-				                                                                  _commonServices,
-				                                                                  UoW,
-				                                                                  _baseParametersProvider));
+		public TerminalManagementViewModel TerminalManagementViewModel
+		{
+			get
+			{
+				if(_terminalManagementViewModel == null)
+				{
+					var defWarehouse = Scope.Resolve<ICurrentUserSettings>().Settings.DefaultWarehouse;
+					
+					_terminalManagementViewModel =
+						new TerminalManagementViewModel(
+							defWarehouse,
+							Entity,
+							this,
+							_employeeRepository,
+							_warehouseRepository,
+							_routeListRepository,
+							_commonServices,
+							UoW,
+							_baseParametersProvider);
+				}
+
+				return _terminalManagementViewModel;
+			}
+		}
 
 		public bool CanReadEmployeeDocuments { get; private set; }
 		public bool CanAddEmployeeDocument { get; private set; }
@@ -669,9 +695,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 		
-		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
+		private void ConfigureValidationContext()
 		{
-			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
+			_validationContext = Scope.Resolve<IValidationContextFactory>().CreateNewValidationContext(Entity);
 			
 			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);

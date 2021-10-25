@@ -1,34 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
+using QS.Navigation;
 using QS.Report;
-using QS.Services;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AddressesOverpaymentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IEntityAutocompleteSelectorFactory _driverSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _officeSelectorFactory;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ILifetimeScope _scope;
+		private readonly INavigationManager _navigationManager;
+		private readonly ITdiTab _parrentDialog;
+		private IEntityEntryViewModel _driverViewModel;
+		private IEntityEntryViewModel _logisticianViewModel;
 
 		public AddressesOverpaymentsReport(
-			IEntityAutocompleteSelectorFactory driverSelectorFactory,
-			IEntityAutocompleteSelectorFactory officeSelectorFactory,
-			IInteractiveService interactiveService)
+			IInteractiveService interactiveService,
+			ILifetimeScope scope,
+			INavigationManager navigationManager,
+			ITdiTab parrentDialog)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_driverSelectorFactory = driverSelectorFactory ?? throw new ArgumentNullException(nameof(driverSelectorFactory));
-			_officeSelectorFactory = officeSelectorFactory ?? throw new ArgumentNullException(nameof(officeSelectorFactory));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_parrentDialog = parrentDialog ?? throw new ArgumentNullException(nameof(parrentDialog));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -43,14 +53,34 @@ namespace Vodovoz.ReportsParameters.Logistic
 			buttonRun.Clicked += OnButtonRunClicked;
 			buttonRun.Sensitive = false;
 			datePicker.StartDateChanged += (sender, e) => { buttonRun.Sensitive = true; };
-
+			
 			comboDriverOf.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOf.ChangedByUser += (sender, args) => OnDriverOfSelected();
+			
+			ConfigureEntries();
+		}
+		
+		private void ConfigureEntries()
+		{
+			var builder = new LegacyEEVMBuilderFactory(_parrentDialog, UoW, _navigationManager, _scope);
 
-			entryDriver.SetEntityAutocompleteSelectorFactory(_driverSelectorFactory);
-			entryDriver.Changed += (sender, args) => OnEmployeeSelected();
+			_driverViewModel = builder.ForEntity<Employee>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					x => x.RestrictCategory = EmployeeCategory.driver)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
 
-			entryLogistician.SetEntityAutocompleteSelectorFactory(_officeSelectorFactory);
+			driverEntry.ViewModel = _driverViewModel;
+			_driverViewModel.Changed += (sender, args) => OnEmployeeSelected();
+			
+			_logisticianViewModel = builder.ForEntity<Employee>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					x => x.Category = EmployeeCategory.office,
+					x => x.Status = EmployeeStatus.IsWorking)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			logisticianEntry.ViewModel = _logisticianViewModel;
 		}
 
 		private void OnButtonRunClicked(object sender, EventArgs e)
@@ -69,8 +99,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{"end_date", datePicker.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59)},
 					{"creation_date", DateTime.Now},
 					{"driver_of", comboDriverOf.SelectedItemOrNull},
-					{"employee_id", entryDriver.Subject?.GetIdOrNull()},
-					{"logistician_id", entryLogistician.Subject?.GetIdOrNull()},
+					{"employee_id", _driverViewModel.Entity.GetIdOrNull()},
+					{"logistician_id", _logisticianViewModel.Entity.GetIdOrNull()},
 					{"filters", GetSelectedFilters()}
 				}
 			};
@@ -79,7 +109,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private string GetSelectedFilters()
 		{
 			var filters = "Фильтры: водитель: ";
-			var empl = entryDriver.GetSubject<Employee>();
+			var empl = _driverViewModel.GetEntity<Employee>();
 			if (empl != null)
 			{
 				filters += $"{empl.ShortName}";
@@ -93,7 +123,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 					: ((CarTypeOfUse)comboDriverOf.SelectedItem).GetEnumTitle();
 				filters += driver_of;
 			}
-			var logistician = entryLogistician.GetSubject<Employee>();
+			var logistician = _logisticianViewModel.GetEntity<Employee>();
 			filters += ", логист: ";
 			if (logistician != null)
 			{
@@ -145,23 +175,23 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			if(comboDriverOf.SelectedItemOrNull != null)
 			{
-				entryDriver.Sensitive = false;
-				entryDriver.Subject = null;
+				driverEntry.Sensitive = false;
+				_driverViewModel.Entity = null;
 			}
 			else
 			{
-				entryDriver.Sensitive = true;
+				driverEntry.Sensitive = true;
 			}
 		}
 
 		private void OnEmployeeSelected()
 		{
-			if(entryDriver.Subject is Employee empl)
+			if(_driverViewModel.Entity is Employee empl)
 			{
 				if(empl.Category != EmployeeCategory.driver)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Можно выбрать только водителя");
-					entryDriver.Subject = null;
+					_driverViewModel.Entity = null;
 					return;
 				}
 

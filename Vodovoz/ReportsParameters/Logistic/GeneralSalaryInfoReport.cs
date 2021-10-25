@@ -1,43 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
+using QS.Navigation;
 using QS.Report;
-using QS.Services;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSReport;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
     [System.ComponentModel.ToolboxItem(true)]
     public partial class GeneralSalaryInfoReport : SingleUoWWidgetBase, IParametersWidget
     {
+		private readonly IInteractiveService _interactiveService;
+		private readonly ILifetimeScope _scope;
+		private readonly INavigationManager _navigationManager;
+		private readonly ITdiTab _parrentDialog;
+		private IEntityEntryViewModel _employeeViewModel;
+		
+		public string Title => "Основная информация по ЗП";
+		public event EventHandler<LoadReportEventArgs> LoadReport;
+
         public GeneralSalaryInfoReport(
-            IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-            IInteractiveService interactiveService)
+            IInteractiveService interactiveService,
+			ILifetimeScope scope,
+			INavigationManager navigationManager,
+			ITdiTab parrentDialog)
         {
             _interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            this.employeeSelectorFactory = employeeSelectorFactory ??
-                                           throw new ArgumentNullException(nameof(employeeSelectorFactory));
-            this.Build();
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_parrentDialog = parrentDialog ?? throw new ArgumentNullException(nameof(parrentDialog));
+
+			this.Build();
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
             Configure();
         }
 
-        public string Title => "Основная информация по ЗП";
-        public event EventHandler<LoadReportEventArgs> LoadReport;
-
-        private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
-        private readonly IInteractiveService _interactiveService;
-
-        private void Configure()
+		private void Configure()
         {
             buttonInfo.Clicked += ShowInfoWindow;
 
@@ -57,12 +68,23 @@ namespace Vodovoz.ReportsParameters.Logistic
             comboDriverOf.AddEnumToHideList(new Enum[] {CarTypeOfUse.CompanyTruck});
             comboDriverOf.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
-            //entryEmployee.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
-            //entryEmployee.CanEditReference = true;
-            //entryEmployee.Changed += (sender, args) => OnEmployeeSelected();
-        }
+			ConfigureEntry();
+		}
 
-        private void OnButtonRunClicked(object sender, EventArgs e)
+		private void ConfigureEntry()
+		{
+			//TODO
+			var builder = new LegacyEEVMBuilderFactory(_parrentDialog, UoW, _navigationManager, _scope);
+
+			_employeeViewModel = builder.ForEntity<Employee>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+			
+			_employeeViewModel.Changed += (sender, args) => OnEmployeeSelected();
+		}
+
+		private void OnButtonRunClicked(object sender, EventArgs e)
         {
             LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo()));
         }
@@ -86,7 +108,7 @@ namespace Vodovoz.ReportsParameters.Logistic
                     {"creation_date", creationDate},
                     {"driver_of", comboDriverOf.SelectedItemOrNull},
                     {"employee_category", comboCategory.SelectedItemOrNull},
-                    //{"employee_id", entryEmployee.Subject?.GetIdOrNull()},
+                    {"employee_id", _employeeViewModel.Entity.GetIdOrNull()},
                     {"filters", GetSelectedFilters()}
                 }
             };
@@ -94,7 +116,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
         private string GetSelectedFilters()
         {
-			var empl = new Employee();//entryEmployee.GetSubject<Employee>();
+			var empl = _employeeViewModel.GetEntity<Employee>();
             var filters = "Фильтры: ";
             if (empl == null)
             {
@@ -161,12 +183,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 
         private void OnEmployeeSelected()
         {
-            /*if (entryEmployee.Subject is Employee empl)
+            if (_employeeViewModel.Entity is Employee empl)
             {
                 if (empl.Category == EmployeeCategory.office)
                 {
                     _interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя выбрать офисного сотрудника");
-                    entryEmployee.Subject = null;
+					_employeeViewModel.Entity = null;
                     return;
                 }
 
@@ -174,7 +196,7 @@ namespace Vodovoz.ReportsParameters.Logistic
                 {
                     _interactiveService.ShowMessage(ImportanceLevel.Warning,
                         "Нельзя выбрать водителя, управляющего фурой");
-                    entryEmployee.Subject = null;
+					_employeeViewModel.Entity = null;
                     return;
                 }
 
@@ -187,7 +209,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             {
                 comboDriverOf.Sensitive = true;
                 comboCategory.Sensitive = true;
-            }*/
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -20,8 +21,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
         public EmployeePostsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices)
-            : base(unitOfWorkFactory, commonServices)
+            ICommonServices commonServices,
+			ILifetimeScope scope = null)
+            : base(unitOfWorkFactory, commonServices, scope)
         {
             _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 

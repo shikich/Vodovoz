@@ -1,40 +1,35 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
-    public class OrganizationCashTransferDocumentJournalViewModel : FilterableSingleEntityJournalViewModelBase<OrganizationCashTransferDocument, OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentFilterViewModel>
+    public class OrganizationCashTransferDocumentJournalViewModel :
+		FilterableSingleEntityJournalViewModelBase<OrganizationCashTransferDocument, OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentFilterViewModel>
     {
-        private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
-        private readonly IEmployeeService _employeeService;
-        
         public OrganizationCashTransferDocumentJournalViewModel(
-	        OrganizationCashTransferDocumentFilterViewModel filterViewModel,
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        ICommonServices commonServices,
-	        IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
-	        IEmployeeService employeeService)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			INavigationManager navigationManager,
+			params Action<OrganizationCashTransferDocumentFilterViewModel>[] filterParams)
+            : base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
         {
-            _entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
-            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-
-            TabName = "Журнал перемещения д/с для юр.лиц";
+           TabName = "Журнал перемещения д/с для юр.лиц";
             UpdateOnChanges(typeof(OrganizationCashTransferDocument));
         }
 
@@ -97,11 +92,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         };
 
         protected override Func<OrganizationCashTransferDocumentViewModel> CreateDialogFunction =>
-            () => new OrganizationCashTransferDocumentViewModel(
-	            EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _entityExtendedPermissionValidator, _employeeService);
+            () =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<OrganizationCashTransferDocumentViewModel>(
+					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+				/*return new OrganizationCashTransferDocumentViewModel(
+					EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _entityExtendedPermissionValidator, _employeeService);*/
+			};
 
         protected override Func<OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentViewModel> OpenDialogFunction =>
-            node => new OrganizationCashTransferDocumentViewModel(
-	            EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _entityExtendedPermissionValidator, _employeeService);
+            node =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<OrganizationCashTransferDocumentViewModel>(
+					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+				/*return new OrganizationCashTransferDocumentViewModel(
+					EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _entityExtendedPermissionValidator,
+					_employeeService);*/
+			};
     }
 }

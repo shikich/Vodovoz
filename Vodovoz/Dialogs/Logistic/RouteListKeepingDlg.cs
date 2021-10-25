@@ -34,6 +34,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz

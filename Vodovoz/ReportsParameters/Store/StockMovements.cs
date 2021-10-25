@@ -18,6 +18,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Reports
 {
@@ -27,16 +28,16 @@ namespace Vodovoz.Reports
 
 		private GenericObservableList<SelectableSortTypeNode> selectableSortTypeNodes = new GenericObservableList<SelectableSortTypeNode>();
 
-		public StockMovements()
+		public StockMovements(ICurrentUserSettings currentUserSettings)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 			filter = new SelectableParametersReportFilter(UoW);
 			
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if(currentUserSettings.Settings.DefaultWarehouse != null)
 			{
-				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
+				yentryrefWarehouse.Subject = currentUserSettings.Settings.DefaultWarehouse;
 			}
 			
 			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")

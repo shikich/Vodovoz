@@ -1,33 +1,31 @@
 ﻿using System;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class GuiltyItemsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		readonly ISubdivisionRepository subdivisionRepository;
-		readonly ICommonServices commonServices;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly ILifetimeScope _scope;
+		private readonly DialogViewModelBase _parrentViewModel;
 
 		public GuiltyItemsViewModel(
 			Complaint entity,
 			IUnitOfWork uow,
 			ICommonServices commonServices,
-			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
-		) : base(entity, commonServices)
+			ILifetimeScope scope,
+			DialogViewModelBase parrentViewModel) : base(entity, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.commonServices = commonServices;
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_parrentViewModel = parrentViewModel ?? throw new ArgumentNullException(nameof(parrentViewModel));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			
 			CreateCommands();
 		}
 
@@ -65,13 +63,9 @@ namespace Vodovoz.ViewModels.Complaints
 
 		void CreateItem()
 		{
-			CurrentGuiltyVM = new GuiltyItemViewModel(
-				new ComplaintGuiltyItem(),
-				commonServices,
-				subdivisionRepository,
-				employeeSelectorFactory,
-				UoW
-			);
+			CurrentGuiltyVM = _scope.Resolve<GuiltyItemViewModel>(
+				new TypedParameter(typeof(DialogViewModelBase), _parrentViewModel),
+				new TypedParameter(typeof(IUnitOfWork), UoW));
 			UpdateAcessibility();
 		}
 

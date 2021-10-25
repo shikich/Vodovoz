@@ -16,8 +16,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 	public class ProductGroupJournalViewModel : FilterableSingleEntityJournalViewModelBase<ProductGroup, ProductGroupViewModel, ProductGroupJournalNode, ProductGroupJournalFilterViewModel>
 	{
 		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
-        public ProductGroupJournalViewModel(ProductGroupJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IProductGroupJournalFactory productGroupJournalFactory)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public ProductGroupJournalViewModel(
+			ProductGroupJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IProductGroupJournalFactory productGroupJournalFactory)
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
 	        _productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
 			TabName = "Журнал групп продуктов";

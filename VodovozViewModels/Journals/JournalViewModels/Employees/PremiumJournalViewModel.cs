@@ -1,6 +1,4 @@
 ﻿using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
@@ -9,10 +7,10 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using Autofac;
+using QS.Navigation;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -23,19 +21,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 	public class PremiumJournalViewModel : FilterableMultipleEntityJournalViewModelBase<PremiumJournalNode, PremiumJournalFilterViewModel>
 	{
 		private readonly ICommonServices _commonServices;
-		private readonly IEmployeeService _employeeService;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IPremiumTemplateJournalFactory _premiumTemplateJournalFactory;
-		public PremiumJournalViewModel(PremiumJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IEmployeeService employeeService,
-			IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		
+		public PremiumJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			ILifetimeScope scope,
+			params Action<PremiumJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, navigationManager, scope, filterParams)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_premiumTemplateJournalFactory = premiumTemplateJournalFactory 
-			                                     ?? throw new ArgumentNullException(nameof(premiumTemplateJournalFactory));
 
 			TabName = "Журнал премий";
 
@@ -68,23 +63,35 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			var premiumsConfig = RegisterEntity<Premium>(GetPremiumsQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new PremiumViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						_employeeJournalFactory,
-						_premiumTemplateJournalFactory
-					),
+					() =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<PremiumViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+						
+						/*return new PremiumViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory,
+							_commonServices,
+							_employeeService,
+							_premiumTemplateJournalFactory
+						);*/
+					},
 					//функция диалога открытия документа
-					(PremiumJournalNode node) => new PremiumViewModel(
-						EntityUoWBuilder.ForOpen(node.Id),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						_employeeJournalFactory,
-						_premiumTemplateJournalFactory
-					),
+					(PremiumJournalNode node) =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<PremiumViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+						
+						/*return new PremiumViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							UnitOfWorkFactory,
+							_commonServices,
+							_employeeService,
+							_premiumTemplateJournalFactory
+						);*/
+					},
 					//функция идентификации документа 
 					(PremiumJournalNode node) => node.EntityType == typeof(Premium),
 					"Премия",

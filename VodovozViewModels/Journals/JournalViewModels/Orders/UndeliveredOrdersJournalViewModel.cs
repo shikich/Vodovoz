@@ -10,6 +10,9 @@ using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
+using Autofac;
+using QS.Navigation;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -23,8 +26,12 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
@@ -32,26 +39,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	{
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly bool _canCloseUndeliveries;
-		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 
 		private Employee _currentEmployee;
 
-		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		public UndeliveredOrdersJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IGtkTabsOpener gtkDialogsOpener,
+			IEmployeeService employeeService,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ILifetimeScope scope,
+			UndeliveredOrdersFilterViewModelParameters filterParams,
+			INavigationManager navigationManager)
+			: base(unitOfWorkFactory, commonServices, navigationManager, scope, filterParams.FilterParamsForUndeliveries.FilterParams)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -70,10 +76,42 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 
 			FinishJournalConfiguration();
+			CreateBuilderAndBindingsForFilterProperties();
 		}
 
-		private Employee CurrentEmployee => _currentEmployee ??
-		    (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId));
+		private void CreateBuilderAndBindingsForFilterProperties()
+		{
+			var builder =
+				new CommonEEVMBuilderFactory<UndeliveredOrdersFilterViewModel>(
+					this, FilterViewModel, FilterViewModel.UoW, NavigationManager, Scope);
+
+			FilterViewModel.UndeliveryAuthorViewModel =
+				builder.ForProperty(f => f.RestrictUndeliveryAuthor)
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						x => x.Status = EmployeeStatus.IsWorking,
+						x => x.Category = EmployeeCategory.office)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.Finish();
+			
+			FilterViewModel.OldOrderAuthorViewModel =
+				builder.ForProperty(f => f.RestrictOldOrderAuthor)
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						x => x.Status = EmployeeStatus.IsWorking,
+						x => x.Category = EmployeeCategory.office)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.Finish();
+			
+			FilterViewModel.DriverEmployeeViewModel =
+				builder.ForProperty(f => f.RestrictDriver)
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						x => x.Category = EmployeeCategory.driver,
+						x => x.Status = EmployeeStatus.IsWorking)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.Finish();
+		}
+
+		private Employee CurrentEmployee =>
+			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId));
 
 		private void RegisterUndeliveredOrders()
 		{
@@ -119,6 +157,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			Subdivision inProcessAtSubdivisionAlias = null;
 			Subdivision authorSubdivisionAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+
+			#region subqueries
 
 			var subqueryDrivers = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 				.Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
@@ -212,6 +252,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					)
 				);
 
+			#endregion
+
 			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 				.Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
 				.Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
@@ -227,6 +269,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(u => u.Author.Subdivision, () => authorSubdivisionAlias)
 				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
 				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
+
+			#region Filter
 
 			if(FilterViewModel?.RestrictDriver != null)
 			{
@@ -321,6 +365,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				query.Where(u => u.Author == FilterViewModel.RestrictUndeliveryAuthor);
 			}
 
+			#endregion
+			
 			var addressProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String,
 					"CONCAT_WS(', ', ?1, CONCAT('д.', ?2), CONCAT('лит.', ?3), CONCAT('кв/оф ', ?4))"),
@@ -550,7 +596,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							return;
 						}
 
-						FineViewModel fineViewModel = new FineViewModel(
+						/*FineViewModel fineViewModel = new FineViewModel(
 							EntityUoWBuilder.ForCreate(),
 							UnitOfWorkFactory,
 							_undeliveryViewOpener,
@@ -559,10 +605,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							_commonServices
 						);
 
-						var undeliveredOrder = UoW.GetById<UndeliveredOrder>(selectedNode.Id);
+						
 						fineViewModel.UndeliveredOrder = undeliveredOrder;
 						fineViewModel.RouteList = new RouteListItemRepository().GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
-						TabParent.AddSlaveTab(this, fineViewModel);
+						TabParent.AddSlaveTab(this, fineViewModel);*/
+						var undeliveredOrder = UoW.GetById<UndeliveredOrder>(selectedNode.Id);
+						var employeeFilterParams = new Action<EmployeeFilterViewModel>[]
+						{
+							x => x.Category = EmployeeCategory.driver,
+							x => x.Status = EmployeeStatus.IsWorking
+						};
+						var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder, Action<EmployeeFilterViewModel>[]>(
+							this, EntityUoWBuilder.ForCreate(), employeeFilterParams, OpenPageOptions.AsSlave);
+						page.ViewModel.UndeliveredOrder = undeliveredOrder;
+						page.ViewModel.RouteList =
+							Scope.Resolve<RouteListItemRepository>().GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
 					}
 				)
 			);
@@ -590,6 +647,52 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.UndeliveredOrdersPanelView };
+
 		public UndeliveredOrdersFilterViewModel UndeliveredOrdersFilterViewModel => FilterViewModel;
+	}
+
+	public class UndeliveredOrdersFilterViewModelParameters
+	{
+		public UndeliveredOrdersFilterViewModelParameters(
+			DefaultUndeliveredOrdersFilterParameters filterParamsForUndeliveries)
+		{
+			FilterParamsForUndeliveries = filterParamsForUndeliveries;
+		}
+
+		public DefaultUndeliveredOrdersFilterParameters FilterParamsForUndeliveries { get; }
+	}
+
+	public class DefaultUndeliveredOrdersFilterParameters
+	{
+		public Action<UndeliveredOrdersFilterViewModel>[] FilterParams { get; protected set; }
+
+		protected DefaultUndeliveredOrdersFilterParameters()
+		{
+			SetFilterParams();
+		}
+
+		protected virtual void SetFilterParams(Action<UndeliveredOrdersFilterViewModel>[] customParams = null, bool isNewOldOrderDate = false)
+		{
+			FilterParams = DefaultParams;
+		}
+		
+		protected Action<UndeliveredOrdersFilterViewModel>[] DefaultParams { get; } = 
+		{
+			x => x.RestrictOldOrderStartDate = DateTime.Today.AddMonths(-1),
+			x => x.RestrictOldOrderEndDate = DateTime.Today.AddMonths(1)
+		};
+	}
+
+	public class CustomUndeliveredOrdersFilterParameters : DefaultUndeliveredOrdersFilterParameters
+	{
+		public CustomUndeliveredOrdersFilterParameters(Action<UndeliveredOrdersFilterViewModel>[] customParams, bool isNewOldOrderDate)
+		{
+			SetFilterParams(customParams, isNewOldOrderDate);
+		}
+		
+		protected override void SetFilterParams(Action<UndeliveredOrdersFilterViewModel>[] customParams = null, bool isNewOldOrderDate = false)
+		{
+			FilterParams = isNewOldOrderDate ? customParams : customParams.Concat(DefaultParams).ToArray();
+		}
 	}
 }

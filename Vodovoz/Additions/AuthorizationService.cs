@@ -15,27 +15,29 @@ namespace Vodovoz.Additions
     {
         public AuthorizationService(IPasswordGenerator passwordGenerator,
             MySQLUserRepository mySQLUserRepository,
-            IEmailService emailService)
+            EmailServiceSetting emailService)
         {
             this.passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
             this.mySQLUserRepository =
                 mySQLUserRepository ?? throw new ArgumentNullException(nameof(mySQLUserRepository));
-            this.emailService = emailService;
+            emailServiceSettings = emailService;
         }
 
         private readonly IPasswordGenerator passwordGenerator;
         private readonly MySQLUserRepository mySQLUserRepository;
-        private readonly IEmailService emailService;
+        private readonly EmailServiceSetting emailServiceSettings;
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         private const int passwordLength = 8;
 
         public bool ResetPassword(string userLogin, string password, string email)
         {
+	        var emailService = emailServiceSettings.GetEmailService();
             if (emailService == null)
             {
                 return false;
             }
+            
             mySQLUserRepository.ChangePassword(userLogin, password);
 
             using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
@@ -49,7 +51,7 @@ namespace Vodovoz.Additions
                 }
             }
 
-            return SendCredentialsToEmail(userLogin, password, email);
+            return SendCredentialsToEmail(userLogin, password, email, emailService);
         }
 
         public bool ResetPasswordToGenerated(string userLogin, string email) 
@@ -57,7 +59,7 @@ namespace Vodovoz.Additions
 
         public bool TryToSaveUser(Employee employee, IUnitOfWork uow)
         {
-            if (string.IsNullOrWhiteSpace(employee.Email))
+	       if (string.IsNullOrWhiteSpace(employee.Email))
             {
                 MessageDialogHelper.RunQuestionDialog("Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
                 return false;
@@ -92,7 +94,7 @@ namespace Vodovoz.Additions
             	logger.Info("Идёт отправка почты");
             	bool sendResult = false;
             	try {
-            		sendResult = SendCredentialsToEmail(user.Login, password, employee.Email);
+            		sendResult = SendCredentialsToEmail(user.Login, password, employee.Email, emailServiceSettings.GetEmailService());
             	} catch(TimeoutException) {
             		RemoveUserData(uow, user);
             		logger.Info(emailSendErrorMessage);
@@ -118,7 +120,7 @@ namespace Vodovoz.Additions
             return true;
         }
 
-        private bool SendCredentialsToEmail(string login, string password, string mailAddress)
+        private bool SendCredentialsToEmail(string login, string password, string mailAddress, IEmailService emailService)
         {
             string messageText = $"Логин: {login}\nПароль: {password}";
 
@@ -131,7 +133,9 @@ namespace Vodovoz.Additions
                 Sender = new EmailContact("vodovoz-spb.ru", new ParametersProvider().GetParameterValue("email_for_email_delivery")),
             };
 
-            return emailService.SendEmail(email);
+            var result = emailService.SendEmail(email);
+            emailServiceSettings.Dispose();
+            return result;
         }
         
         private void RemoveUserData(IUnitOfWork uow, User user)

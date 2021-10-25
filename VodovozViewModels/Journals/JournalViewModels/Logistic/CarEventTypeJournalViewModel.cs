@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using Autofac;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -15,8 +16,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class CarEventTypeJournalViewModel : SingleEntityJournalViewModelBase<CarEventType, CarEventTypeViewModel,
 		CarEventTypeJournalNode>
 	{
-		public CarEventTypeJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+		public CarEventTypeJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null)
+			: base(unitOfWorkFactory, commonServices, scope)
 		{
 			TabName = "Виды событий ТС";
 

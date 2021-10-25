@@ -1,20 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate.Criterion;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Core;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Store;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Additions.Store
 {
 	public static class StoreDocumentHelper
 	{
+		private static readonly UserSettings _userSettings = MainClass.AppDIContainer.Resolve<ICurrentUserSettings>().Settings;
+		
 		public static Warehouse GetDefaultWarehouse(IUnitOfWork uow, WarehousePermissions edit)
 		{
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null) {
-				var warehouse = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			if(_userSettings.DefaultWarehouse != null) {
+				var warehouse = uow.GetById<Warehouse>(_userSettings.DefaultWarehouse.Id);
 				if(CurrentPermissions.Warehouse[WarehousePermissions.WarehouseView, warehouse] && CurrentPermissions.Warehouse[edit, warehouse])
 					return warehouse;
 			}

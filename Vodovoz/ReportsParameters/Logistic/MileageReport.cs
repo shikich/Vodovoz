@@ -1,29 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.UoW;
+using Autofac;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.Report;
 using QSReport;
-using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QS.Widgets;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ILifetimeScope _scope;
+		private readonly INavigationManager _navigationManager;
 		private readonly ICarJournalFactory _carJournalFactory;
+		private readonly ITdiTab _parrentDialog;
+		private IEntityEntryViewModel _driverViewModel;
 		
 		public MileageReport(
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICarJournalFactory carJournalFactory)
+			ILifetimeScope scope,
+			INavigationManager navigationManager,
+			ICarJournalFactory carJournalFactory,
+			ITdiTab parrentDialog)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
+			_parrentDialog = parrentDialog ?? throw new ArgumentNullException(nameof(parrentDialog));
 
 			Build();
 			Configure();
@@ -32,15 +47,14 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private void Configure()
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			
 			ConfigureEntries();
 
 			ycheckbutton1.Toggled += (sender, args) =>
 			{
 				entityviewmodelentryCar.Sensitive = !ycheckbutton1.Active;
-				//entityviewmodelentryEmployee.Sensitive = !ycheckbutton1.Active;
+				driverEntry.Sensitive = !ycheckbutton1.Active;
 				entityviewmodelentryCar.Subject = null;
-				//entityviewmodelentryEmployee.Subject = null;
+				_driverViewModel.Entity = null;
 			};
 
 			validatedentryDifference.ValidationMode = ValidationType.Numeric;
@@ -48,11 +62,20 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void ConfigureEntries()
 		{
-			driverEntry.ViewModel.IsEditable = false;
-			//entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
-			//	_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+			//TODO
+			var builder = new LegacyEEVMBuilderFactory(_parrentDialog, UoW, _navigationManager, _scope);
+
+			_driverViewModel = builder.ForEntity<Employee>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					x => x.Category = EmployeeCategory.driver,
+					x => x.Status = EmployeeStatus.IsWorking)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
 			
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
+			driverEntry.ViewModel = _driverViewModel;
+			//driverEntry.ViewModel.IsEditable = false;
+
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_scope));
 		}
 
 		#region IParametersWidget implementation
@@ -67,15 +90,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			var parameters = new Dictionary<string, object>();
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "our_cars_only", ycheckbutton1.Active },
+				{ "any_status", checkAnyStatus.Active },
+				{ "car_id", entityviewmodelentryCar.Subject.GetIdOrNull() ?? 0 },
+				{ "employee_id", _driverViewModel.Entity.GetIdOrNull() ?? 0 }
+			};
 
-			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
-			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
-			parameters.Add("our_cars_only", ycheckbutton1.Active);
-            parameters.Add("any_status", checkAnyStatus.Active);
-			parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0);
-			//parameters.Add("employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0);
-			
 			int temp = 0;
 			if (!String.IsNullOrEmpty(validatedentryDifference.Text) && validatedentryDifference.Text.All(char.IsDigit))
 			{

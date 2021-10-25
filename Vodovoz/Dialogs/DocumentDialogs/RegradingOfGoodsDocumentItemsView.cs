@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz
 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -566,22 +567,13 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && AnalysisViewModelStatuses.Contains(selectedNode.StatusEnum))
+						{
 							MainClass.MainWin.TdiMain.AddTab(
-								new RouteListAnalysisViewModel(
-									EntityUoWBuilder.ForOpen(selectedNode.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									new OrderSelectorFactory(),
-									new EmployeeJournalFactory(),
-									new CounterpartyJournalFactory(),
-									new DeliveryPointJournalFactory(), 
-									new SubdivisionJournalFactory(),
-									new GtkTabsOpener(),
-									new UndeliveredOrdersJournalOpener(),
-									new DeliveryShiftRepository(),
-									new UndeliveredOrdersRepository()
+								MainClass.AppDIContainer.BeginLifetimeScope().Resolve<RouteListAnalysisViewModel>(
+									new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(selectedNode.Id))
 								)
 							);
+						}
 					},
 					(selectedItems) => selectedItems.Any(x => AnalysisViewModelStatuses.Contains((x as RouteListsVMNode).StatusEnum))
 				));

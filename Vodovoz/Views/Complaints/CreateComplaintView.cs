@@ -1,6 +1,6 @@
 ﻿using System;
+using Autofac;
 using Gamma.Widgets;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -8,11 +8,8 @@ using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -31,7 +28,8 @@ namespace Vodovoz.Views.Complaints
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text).InitializeFromSource();
 			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(
+				ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(ViewModel.Scope));
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			EntryCounterparty_ChangedByUser(this, new EventArgs());
@@ -48,29 +46,7 @@ namespace Vodovoz.Views.Complaints
 
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
-			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
-				var filter = new OrderJournalFilterViewModel(ViewModel.CounterpartyJournalFactory, ViewModel.DeliveryPointJournalFactory);
-				if(ViewModel.Entity.Counterparty != null) {
-					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
-				}
-				return new OrderJournalViewModel(filter, 
-												UnitOfWorkFactory.GetDefaultFactory, 
-												ServicesConfig.CommonServices,
-												ViewModel.EmployeeService,
-												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository,
-												ViewModel.OrderSelectorFactory,
-												ViewModel.EmployeeJournalFactory,
-												ViewModel.CounterpartyJournalFactory,
-												ViewModel.DeliveryPointJournalFactory,
-												ViewModel.SubdivisionJournalFactory,
-												ViewModel.GtkDialogsOpener,
-												ViewModel.UndeliveredOrdersJournalOpener,
-												ViewModel.NomenclatureSelector,
-												ViewModel.UndeliveredOrdersRepository);
-			});
-
-			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);
+			entryOrder.SetEntitySelectorFactory(ViewModel.OrderSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();

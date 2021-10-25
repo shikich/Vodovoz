@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using Autofac;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 
 namespace Vodovoz.TempAdapters
 {
 	public interface IOrderSelectorFactory
 	{
-		IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses);
+		IEntitySelector CreateOrderSelectorForDocument(
+			ILifetimeScope scope, params Action<OrderForMovDocJournalFilterViewModel>[] filterParams);
 
-		IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory(
+			ILifetimeScope scope, params Action<OrderJournalFilterViewModel>[] filterParams);
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using QS.ViewModels;
@@ -14,6 +15,7 @@ using Vodovoz.EntityRepositories.Fuel;
 using QS.Project.Domain;
 using QS.Services;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.TempAdapters;
@@ -25,7 +27,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly IEmployeeService employeeService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
-		private readonly IEmployeeJournalFactory employeeJournalFactory;
 		private readonly ICarJournalFactory carJournalFactory;
 		private readonly IReportViewOpener reportViewOpener;
 
@@ -36,15 +37,15 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
 			ICarJournalFactory carJournalFactory,
-			IReportViewOpener reportViewOpener
-			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IReportViewOpener reportViewOpener,
+			ILifetimeScope scope,
+			INavigationManager navigationManager
+			) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			TabName = "Документ перемещения топлива";
@@ -138,8 +139,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void ConfigureEntries()
 		{
-			DriverSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
+			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory(Scope);
 		}
 		
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory;

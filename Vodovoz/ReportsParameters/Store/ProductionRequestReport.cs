@@ -7,10 +7,12 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Store
 {
@@ -19,10 +21,12 @@ namespace Vodovoz.ReportsParameters.Store
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly UserSettings _userSettings;
 
-		public ProductionRequestReport(IEmployeeRepository employeeRepository)
+		public ProductionRequestReport(IEmployeeRepository employeeRepository, UserSettings userSettings)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -35,9 +39,9 @@ namespace Vodovoz.ReportsParameters.Store
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
 
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if(_userSettings.DefaultWarehouse != null)
 			{
-				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
+				yentryrefWarehouse.Subject = _userSettings.DefaultWarehouse;
 			}
 
 			dateperiodpickerMaxSales.StartDate = DateTime.Today.AddYears(-1);

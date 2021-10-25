@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using QS.Commands;
+using QS.Navigation;
 using QS.Project.Filter;
-using QS.Project.Journal.EntitySelector;
+using QS.Tdi;
 using QS.Utilities;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -28,22 +32,36 @@ namespace Vodovoz.Filters.ViewModels
 		private GeographicGroup _geographicGroup;
 
 		public CallTaskFilterViewModel(
-			IEntityAutocompleteSelectorFactory employeeAutocompleteSelectorFactory,
-			IDeliveryPointRepository deliveryPointRepository)
+			IDeliveryPointRepository deliveryPointRepository,
+			ILifetimeScope scope,
+			ITdiTab tdiTab,
+			INavigationManager navigationManager)
 		{
-			EmployeeAutocompleteSelectorFactory =
-				employeeAutocompleteSelectorFactory
-				?? throw new ArgumentNullException(nameof(employeeAutocompleteSelectorFactory));
+			if(navigationManager == null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			ActiveDeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			
 			StartDate = DateTime.Today.AddDays(-14);
 			EndDate = DateTime.Today.AddDays(14);
 			GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List();
+
+			var builder =
+				new LegacyEEVMBuilderFactory<CallTaskFilterViewModel>(tdiTab, this, UoW, navigationManager, scope);
+
+			EmployeeEntryViewModel = builder.ForProperty(x => x.Employee)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+			
 			CreateCommands();
 		}
 
-		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
+		public IEntityEntryViewModel EmployeeEntryViewModel { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> ActiveDeliveryPointCategories { get; }
 
 		public DateTime StartDate

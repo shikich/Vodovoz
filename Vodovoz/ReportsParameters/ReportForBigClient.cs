@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Dialog;
 using QS.Report;
@@ -16,24 +17,25 @@ namespace Vodovoz.ReportsParameters
 	public partial class ReportForBigClient : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 
-		public ReportForBigClient()
+		public ReportForBigClient(ILifetimeScope scope)
 		{
+			if(scope == null)
+			{
+				throw new ArgumentNullException(nameof(scope));
+			}
+			
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			_counterpartyJournalFactory = new CounterpartyJournalFactory();
-			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
-			_deliveryPointJournalFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
+			_deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 
 			evmeCounterparty
-				.SetEntityAutocompleteSelectorFactory(_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(new CounterpartyJournalFactory().CreateCounterpartyAutocompleteSelectorFactory(scope));
 			evmeCounterparty.Changed += OnCounterpartyChanged;
 
 			evmeDeliveryPoint
 				.SetEntityAutocompleteSelectorFactory(_deliveryPointJournalFactory
-					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+					.CreateDeliveryPointByClientAutocompleteSelectorFactory(scope));
 		}
 
 		#region IParametersWidget implementation
@@ -79,6 +81,7 @@ namespace Vodovoz.ReportsParameters
 			buttonRun.Sensitive = evmeCounterparty.Subject != null;
 		}
 
+		//TODO проверить работоспособность
 		private void OnCounterpartyChanged(object sender, EventArgs e)
 		{
 			ValidateParameters();
@@ -89,7 +92,11 @@ namespace Vodovoz.ReportsParameters
 			}
 			else
 			{
-				_deliveryPointJournalFilterViewModel.Counterparty = evmeCounterparty.Subject as Counterparty;
+				_deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(
+					new Action<DeliveryPointJournalFilterViewModel>[]
+					{
+						x => x.Counterparty = evmeCounterparty.Subject as Counterparty
+					});
 				evmeDeliveryPoint.Subject = null;
 				evmeDeliveryPoint.Sensitive = true;
 			}

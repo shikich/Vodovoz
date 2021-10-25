@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Gamma.Utilities;
 using NHibernate.Criterion;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -18,17 +20,14 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
     public class CashRequestViewModel: EntityTabViewModelBase<CashRequest>
     {
-        public Action UpdateNodes;
         public Employee CurrentEmployee { get; }
         public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
         public IEnumerable<CashRequestUserRole> UserRoles { get; }
@@ -42,47 +41,32 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
             IEmployeeRepository employeeRepository,
             ICashRepository cashRepository,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
-        ) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			ILifetimeScope scope
+        ) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
         {
             this.uowBuilder = uowBuilder ?? throw new ArgumentNullException(nameof(uowBuilder));
             _cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-            EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-            SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-            var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
-                ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
-                HidenByDefault = true
-            };
 
-            ExpenseCategoryAutocompleteSelectorFactory =
+			//TODO проверить работу
+			ExpenseCategoryAutocompleteSelectorFactory =
                 new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
                     () =>
-                    {
+					{
+						var newScope = Scope.BeginLifetimeScope();
+						var filterViewModel = newScope.Resolve<ExpenseCategoryJournalFilterViewModel>();
+						filterViewModel.ExcludedIds =
+							newScope.Resolve<ICategoryRepository>().ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id);
+						
                         var expenseCategoryJournalViewModel =
                             new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
                                 x => x.Name,
-                                () => new ExpenseCategoryViewModel(
-                                    EntityUoWBuilder.ForCreate(),
-                                    unitOfWorkFactory,
-                                    ServicesConfig.CommonServices,
-                                    fileChooserProvider,
-                                    filterViewModel,
-                                    EmployeeJournalFactory,
-                                    SubdivisionJournalFactory
-                                ),
-                                node => new ExpenseCategoryViewModel(
-                                    EntityUoWBuilder.ForOpen(node.Id),
-                                    unitOfWorkFactory,
-                                    ServicesConfig.CommonServices,
-                                    fileChooserProvider,
-                                    filterViewModel,
-                                    EmployeeJournalFactory,
-                                    SubdivisionJournalFactory
-                                ),
+                                () => newScope.BeginLifetimeScope().Resolve<ExpenseCategoryViewModel>(
+									new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
+                                node => newScope.BeginLifetimeScope().Resolve<ExpenseCategoryViewModel>(
+									new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
                                 unitOfWorkFactory,
                                 ServicesConfig.CommonServices
                             )
@@ -94,13 +78,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
                         return expenseCategoryJournalViewModel;
                     });
-                
-                var expenseCategorySelectorFactory = 
+			
             CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-            if(uowBuilder.IsNewEntity)
-                TabName = "Создание новой заявки на выдачу ДС";
-            else
+			if(uowBuilder.IsNewEntity)
+			{
+				TabName = "Создание новой заявки на выдачу ДС";
+				Entity.Author = CurrentEmployee;
+				Entity.Subdivision = CurrentEmployee.Subdivision;
+			}
+			else
                 TabName = $"{Entity.Title}";
 
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
@@ -112,11 +99,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IsNewEntity = uowBuilder.IsNewEntity;
             ConfigureEntityChangingRelations();
         }
-        
-        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-        public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 
-        protected void ConfigureEntityChangingRelations()
+		protected void ConfigureEntityChangingRelations()
         {
             SetPropertyChangeRelation(e => e.State, () => StateName);
             SetPropertyChangeRelation(e => e.State, () => CanEditOnlyCoordinator);
@@ -139,7 +123,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand AddSumCommand => addSumCommand ?? (addSumCommand = new DelegateCommand(
             () =>
             {
-                var cashRequestItemViewModel = new CashRequestItemViewModel(
+                /*var cashRequestItemViewModel = new CashRequestItemViewModel(
                     UoW,
                     CommonServices.InteractiveService,
                     NavigationManager,
@@ -160,15 +144,31 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
                 TabParent.AddSlaveTab(
                     this, cashRequestItemViewModel
-                );
-            }, () => true
+                );*/
+				var page = NavigationManager.OpenViewModel<CashRequestItemViewModel, CashRequestUserRole>(
+					this, UserRole, OpenPageOptions.AsSlave);
+				
+				page.ViewModel.Entity = new CashRequestSumItem
+				{
+					AccountableEmployee = CurrentEmployee
+				};
+				
+				page.ViewModel.EntityAccepted += (sender, args) =>
+				{
+					if(args is CashRequestSumItemAcceptedEventArgs acceptedArgs)
+					{
+						Entity.AddItem(acceptedArgs.AcceptedEntity);
+						acceptedArgs.AcceptedEntity.CashRequest = Entity;
+					}
+				};
+			}, () => true
         ));
         
         private DelegateCommand editSumCommand;
         public DelegateCommand EditSumCommand => editSumCommand ?? (editSumCommand = new DelegateCommand(
             () =>
             {
-                var cashRequestItemViewModel = new CashRequestItemViewModel(
+                /*var cashRequestItemViewModel = new CashRequestItemViewModel(
                     UoW,
                     CommonServices.InteractiveService,
                     NavigationManager,
@@ -180,7 +180,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
                 TabParent.AddSlaveTab(
                     this,
-                    cashRequestItemViewModel);
+                    cashRequestItemViewModel);*/
+				var page = NavigationManager.OpenViewModel<CashRequestItemViewModel, CashRequestUserRole>(
+					this, UserRole, OpenPageOptions.AsSlave);
+				
+				page.ViewModel.Entity = SelectedItem;
             }, () => true
         ));
         
@@ -513,9 +517,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 }
             }, () => true
         ));
-        
-        #endregion
-    }
+
+		public Action UpdateNodes { get; set; }
+
+		#endregion
+	}
 
     public enum CashRequestUserRole
     {

@@ -62,7 +62,7 @@ namespace Vodovoz.Views.Users
 
 				};
 
-				yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory());
+				yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
 				yentrySubdivision.Binding.AddBinding(ViewModel.Entity, s => s.DefaultSubdivision, w => w.Subject).InitializeFromSource();
 			}
 		}

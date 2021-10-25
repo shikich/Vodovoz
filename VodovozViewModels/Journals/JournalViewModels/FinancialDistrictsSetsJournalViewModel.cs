@@ -1,9 +1,11 @@
 using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -38,9 +40,18 @@ namespace Vodovoz.Journals.JournalViewModels
             ICommonServices commonServices,
             IEmployeeService employeeService,
             IEntityDeleteWorker entityDeleteWorker,
-            bool hideJournalForOpenDialog = false, 
+			ILifetimeScope scope = null,
+			INavigationManager navigationManager = null,
+            bool hideJournalForOpen = false, 
             bool hideJournalForCreateDialog = false)
-            : base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+            : base(
+				unitOfWorkFactory,
+				commonServices,
+				filterViewModel,
+				scope,
+				navigationManager,
+				hideJournalForOpen,
+				hideJournalForCreateDialog)
         {
             this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

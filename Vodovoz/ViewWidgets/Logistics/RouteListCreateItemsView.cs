@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -10,25 +11,21 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
-using Vodovoz.Dialogs.OrderWidgets;
+using QS.Tdi;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -44,6 +41,7 @@ namespace Vodovoz
 		private bool isEditable = true;
 
 		private IList<RouteColumn> _columnsInfo;
+		private ITdiTab _parrentDialog;
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
 
@@ -113,6 +111,11 @@ namespace Vodovoz
 		public void OnForwarderChanged()
 		{
 			UpdateColumns();
+		}
+		
+		public void SetParrentDialog(ITdiTab parrentDialog)
+		{
+			_parrentDialog = parrentDialog;
 		}
 
 		private void UpdateColumns()
@@ -229,17 +232,11 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory())
-			{
-				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
-			};
-
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
+			int[] districtIds = null;
 			if(geoGrpIds.Any()) {
 				GeographicGroup geographicGroupAlias = null;
-				var districtIds = RouteListUoW.Session.QueryOver<District>()
+				districtIds = RouteListUoW.Session.QueryOver<District>()
 					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
 					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
 					.Select
@@ -250,30 +247,26 @@ namespace Vodovoz
 					)
 					.List<int>()
 					.ToArray();
-
-				filter.IncludeDistrictsIds = districtIds;
 			}
 
-			//Filter Creating
-			filter.SetAndRefilterAtOnce(
+			var filterParams = new Action<OrderJournalFilterViewModel>[]
+			{
+				x => x.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray(),
+				x => x.IncludeDistrictsIds = districtIds,
 				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictStatus = OrderStatus.Accepted,
 				x => x.RestrictWithoutSelfDelivery = true,
 				x => x.RestrictOnlySelfDelivery = false,
 				x => x.RestrictHideService = true
-			);
-
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository())
-			{
-				SelectionMode = JournalSelectionMode.Multiple
 			};
 
+			var page = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>[]>(
+				_parrentDialog, filterParams, OpenPageOptions.AsSlave);
+			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+
 			//Selected Callback
-			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
+			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>
 			{
 				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
 				if(!selectedIds.Any()) {
@@ -287,9 +280,6 @@ namespace Vodovoz
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-
-			//OpenTab
-			MyTab.TabParent.AddSlaveTab(MyTab, orderSelectDialog);
 		}
 
 		protected void AddOrdersFromRegion()

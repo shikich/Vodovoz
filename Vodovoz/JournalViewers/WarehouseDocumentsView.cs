@@ -15,16 +15,9 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Warehouses;
 using QS.Project.Domain;
-using Vodovoz.Services.Permissions;
 using QS.Project.Services;
-using Vodovoz.PermissionExtensions;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.TempAdapters;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz
@@ -35,11 +28,16 @@ namespace Vodovoz
 
 		IUnitOfWork uow;
 
-		public WarehouseDocumentsView ()
+		public WarehouseDocumentsView(UserSettings userSettings)
 		{
+			if(userSettings == null)
+			{
+				throw new ArgumentNullException(nameof(userSettings));
+			}
+			
 			this.Build ();
 			this.TabName = "Журнал документов";
-			tableDocuments.RepresentationModel = new DocumentsVM ();
+			tableDocuments.RepresentationModel = new DocumentsVM(userSettings);
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
 			uow = tableDocuments.RepresentationModel.UoW;
@@ -88,7 +86,7 @@ namespace Vodovoz
 			DocumentType type = (DocumentType)e.ItemEnum;
 			switch(type) {
 				case DocumentType.MovementDocument:
-					TabParent.OpenTab(
+					/*TabParent.OpenTab(
 						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
 						() => {
 							return new MovementDocumentViewModel(
@@ -108,10 +106,12 @@ namespace Vodovoz
 							);
 						},
 						this
-					);
+					);*/
+					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingInvoice:
-					TabParent.OpenTab(
+					/*TabParent.OpenTab(
 						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
 						() => {
 							return new IncomingInvoiceViewModel(
@@ -130,7 +130,9 @@ namespace Vodovoz
 							);
 						},
 						this
-					);
+					);*/
+					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingWater:
 				case DocumentType.WriteoffDocument:
@@ -158,13 +160,15 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
 		{
-			if (tableDocuments.GetSelectedObjects ().GetLength (0) > 0) {
+			if (tableDocuments.GetSelectedObjects ().GetLength (0) > 0)
+			{
 				int id = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).Id;
 				DocumentType DocType = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).DocTypeEnum;
 
-				switch (DocType) {
+				switch (DocType)
+				{
 					case DocumentType.IncomingInvoice:
-						TabParent.OpenTab(
+						/*TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<IncomingInvoice>(id),
 							() => {
 								return new IncomingInvoiceViewModel(
@@ -183,8 +187,9 @@ namespace Vodovoz
 								);
 							},
 							this
-						);
-						
+						);*/
+						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.IncomingWater:
 						TabParent.OpenTab(
@@ -193,7 +198,7 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.MovementDocument:
-						TabParent.OpenTab(
+						/*TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<MovementDocument>(id),
 							() => {
 								return new MovementDocumentViewModel(
@@ -213,7 +218,9 @@ namespace Vodovoz
 								);
 							},
 							this
-						);
+						);*/
+						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.DriverTerminalGiveout:
 						TabParent.OpenTab(

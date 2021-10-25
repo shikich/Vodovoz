@@ -6,39 +6,38 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
 using QS.Project.Journal;
 using Vodovoz.Domain;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
-using QS.Project.Journal.EntitySelector;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Employees
 {
 	public class FineViewModel : EntityTabViewModelBase<Fine>
 	{
 		private readonly IUnitOfWorkFactory uowFactory;
-		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly Action<EmployeeFilterViewModel>[] _employeeFilterParams;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
-			IEntitySelectorFactory employeeSelectorFactory,
-			ICommonServices commonServices
-		) : base(uowBuilder, uowFactory, commonServices)
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			params Action<EmployeeFilterViewModel>[] employeeFilterParams) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeFilterParams = employeeFilterParams ?? throw new ArgumentNullException(nameof(employeeFilterParams));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateEmployeeList();
@@ -176,7 +175,20 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateAttachFineCommand()
 		{
 			OpenUndeliveryCommand = new DelegateCommand(
-				() => undeliveryViewOpener.OpenFromFine(this, Entity.UndeliveredOrder.OldOrder, Entity.UndeliveredOrder.OldOrder.DeliveryDate, Entity.UndeliveredOrder.UndeliveryStatus),
+				() =>
+				{
+					var filterParams = new UndeliveredOrdersFilterViewModelParameters(
+						new CustomUndeliveredOrdersFilterParameters(new Action<UndeliveredOrdersFilterViewModel>[]
+						{
+							x => x.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
+							x => x.RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+							x => x.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+							x => x.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
+						},
+						true));
+					NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModelParameters>(
+						this, filterParams, OpenPageOptions.AsSlave);
+				},
 				() => true
 			);
 		}
@@ -236,8 +248,22 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateAddFineItemCommand()
 		{
 			AddFineItemCommand = new DelegateCommand(
-				() => {
-					var employeeSelector = employeeSelectorFactory.CreateSelector();
+				() =>
+				{
+					var page = NavigationManager.OpenViewModel<EmployeesJournalViewModel, Action<EmployeeFilterViewModel>[]>(
+						this, _employeeFilterParams);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnSelectResult += (sender, e) =>
+					{
+						var node = e.GetSelectedObjects<JournalEntityNodeBase>().FirstOrDefault();
+						if(node == null)
+						{
+							return;
+						}
+
+						Entity.AddItem(UoW.GetById<Employee>(node.Id));
+					};
+					/*var employeeSelector = employeeSelectorFactory.CreateSelector();
 					employeeSelector.OnEntitySelectedResult += (sender, e) => {
 						var node = e.SelectedNodes.FirstOrDefault();
 						if(node == null) {
@@ -246,7 +272,7 @@ namespace Vodovoz.ViewModels.Employees
 
 						Entity.AddItem(UoW.GetById<Employee>(node.Id));
 					};
-					TabParent.AddSlaveTab(this, employeeSelector);
+					TabParent.AddSlaveTab(this, employeeSelector);*/
 				},
 				() => Entity.RouteList == null && IsStandartFine
 			);

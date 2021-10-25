@@ -18,6 +18,7 @@ using Gtk;
 using Gdk;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Operations;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModel
 {
@@ -796,9 +797,9 @@ namespace Vodovoz.ViewModel
 			Filter = filter;
 		}
 
-		public DocumentsVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
+		public DocumentsVM(UserSettings userSettings) : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			CreateRepresentationFilter = () => new StockDocumentsFilter(UoW);
+			CreateRepresentationFilter = () => new StockDocumentsFilter(UoW, userSettings);
 		}
 
 		public DocumentsVM(IUnitOfWork uow) : base(

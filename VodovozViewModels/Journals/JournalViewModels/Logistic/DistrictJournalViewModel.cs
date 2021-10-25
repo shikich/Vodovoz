@@ -16,8 +16,11 @@ namespace Vodovoz.Journals.JournalViewModels
 {
     public sealed class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<District, DistrictViewModel, DistrictJournalNode, DistrictJournalFilterViewModel>
     {
-        public DistrictJournalViewModel(DistrictJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
-            filterViewModel, unitOfWorkFactory, commonServices)
+        public DistrictJournalViewModel(
+			DistrictJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Журнал районов";
             

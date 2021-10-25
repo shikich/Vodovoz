@@ -1,6 +1,7 @@
 ﻿using QS.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Cash;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.TempAdapters

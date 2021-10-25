@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Widgets.GtkUI;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
+using QS.Views.Control;
 using QSWidgetLib;
 using Vodovoz.Domain.Client;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -17,7 +21,6 @@ namespace Vodovoz.Views.Logistic
     public partial class DeliveryPointResponsiblePersonsView : Gtk.Bin
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
         private GenericObservableList<DeliveryPointResponsiblePerson> responsiblePersonsList;
         private IList<DeliveryPointResponsiblePersonType> responsiblePersonTypes;
         private IUnitOfWork uow;
@@ -32,6 +35,8 @@ namespace Vodovoz.Views.Logistic
         }
 
         public DeliveryPoint DeliveryPoint { get; set; }
+        public DialogViewModelBase ParrentDialog { get; set; }
+        public ILifetimeScope Scope { get; set; }
 
         private IList<DeliveryPointResponsiblePerson> responsiblePersons;
 
@@ -126,12 +131,17 @@ namespace Vodovoz.Views.Logistic
                 (uint)4, (uint)5, rowsCount, rowsCount + 1,
                 (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
-            var employeeEntry = new EntityViewModelEntry();
-            employeeEntry.WidthRequest = 50;
-            employeeEntry.SetEntityAutocompleteSelectorFactory(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-
-            employeeEntry.Binding.AddBinding(responsiblePerson, e => e.Employee, w => w.Subject).InitializeFromSource();
-            datatableResponsiblePersons.Attach(
+            
+			var employeeEntry = new EntityEntry();
+			var builder = new CommonEEVMBuilderFactory<DeliveryPointResponsiblePerson>(
+				ParrentDialog, responsiblePerson, UoW, MainClass.MainWin.NavigationManager, Scope);
+			employeeEntry.ViewModel = builder.ForProperty(x => x.Employee)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+            
+			//employeeEntry.WidthRequest = 50;
+			datatableResponsiblePersons.Attach(
                 employeeEntry,
                 (uint)5, (uint)6, rowsCount, rowsCount + 1,
                 AttachOptions.Expand | AttachOptions.Fill,

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
@@ -34,9 +35,11 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
+	//TODO проверить работу энтри точки доставки
     public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
     {
 	    private class OrderNode : PropertyChangedBase
@@ -104,7 +107,9 @@ namespace Vodovoz
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 		private readonly RouteListItem _routeListItem;
-		
+		private readonly ILifetimeScope _scope;
+		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+
 		private IUnitOfWork _uow;
 		private bool _canEditPrices;
 		private OrderNode _orderNode;
@@ -138,8 +143,16 @@ namespace Vodovoz
 		
 		#endregion
 
-		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
+		public OrderReturnsView(
+			RouteListItem routeListItem,
+			IUnitOfWork uow,
+			ILifetimeScope scope,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_deliveryPointJournalFactory =
+				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+
 			Build();
 			_routeListItem = routeListItem;
 			TabName = "Изменение заказа №" + routeListItem.Order.Id;
@@ -385,12 +398,13 @@ namespace Vodovoz
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
 		{
-			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel
+			var filterParams = new Action<DeliveryPointJournalFilterViewModel>[]
 			{
-				Counterparty = client
+				x => x.Counterparty = _orderNode.Client
 			};
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(deliveryPointFilter)
-				.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+			_deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(filterParams);
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(
+				_deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory(_scope));
 			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
@@ -471,7 +485,12 @@ namespace Vodovoz
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
 		{
-			ConfigureDeliveryPointRefference(_orderNode.Client);
+			var filterParams = new Action<DeliveryPointJournalFilterViewModel>[]
+			{
+				x => x.Counterparty = _orderNode.Client
+			};
+			_deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(filterParams);
+			//ConfigureDeliveryPointRefference(_orderNode.Client);
 			entityVMEntryDeliveryPoint.OpenSelectDialog();
 		}
 

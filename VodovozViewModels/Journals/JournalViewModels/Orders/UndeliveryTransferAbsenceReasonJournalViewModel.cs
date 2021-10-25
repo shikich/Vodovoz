@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	{
 		public UndeliveryTransferAbsenceReasonJournalViewModel(UndeliveryTransferAbsenceReasonJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(unitOfWorkFactory, commonServices, filterViewModel)
 		{
 			TabName = "Журнал причин отсутствий переноса";
 			UpdateOnChanges(typeof(UndeliveryTransferAbsenceReason));

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Report;
 using QS.Services;
@@ -22,6 +24,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
@@ -48,8 +51,10 @@ namespace Vodovoz.ViewModels.Warehouses
             IWarehouseRepository warehouseRepository,
             IRDLPreviewOpener rdlPreviewOpener,
             ICommonServices commonServices,
-            IStockRepository stockRepository) 
-            : base(uowBuilder, unitOfWorkFactory, commonServices)
+            IStockRepository stockRepository,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null) 
+            : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
         {
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
             this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
@@ -242,10 +247,14 @@ namespace Vodovoz.ViewModels.Warehouses
 			get {
 				if(fillFromOrdersCommand == null) {
 					fillFromOrdersCommand = new DelegateCommand(
-						() => {
-							bool IsOnlineStoreOrders = true;
-							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
-							var orderSelector = orderSelectorFactory.CreateOrderSelectorForDocument(IsOnlineStoreOrders, orderStatuses);
+						() =>
+						{
+							var filterParams = new Action<OrderForMovDocJournalFilterViewModel>[]
+							{
+								x => x.IsOnlineStoreOrders = true,
+								x => x.OrderStatuses = new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading }
+							};
+							var orderSelector = orderSelectorFactory.CreateOrderSelectorForDocument(Scope, filterParams);
 							orderSelector.OnEntitySelectedResult += (sender, e) => {
 								IEnumerable<OrderForMovDocJournalNode> selectedNodes = e.SelectedNodes.Cast<OrderForMovDocJournalNode>();
 								if(!selectedNodes.Any()) {
@@ -318,8 +327,7 @@ namespace Vodovoz.ViewModels.Warehouses
                 return printCommand;
             }
         }
-        
-
+		
         #endregion
        
     }

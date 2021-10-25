@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -9,6 +10,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.JournalNodes;
 using NHibernate;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -16,9 +18,14 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public LateArrivalReasonsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public LateArrivalReasonsJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null,
+			INavigationManager navigationManager = null,
+			bool hideJournalForOpen = false,
+			bool hideJournalForCreate = false)
+			: base(unitOfWorkFactory, commonServices, scope, navigationManager, hideJournalForOpen, hideJournalForCreate)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 

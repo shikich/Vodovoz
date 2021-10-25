@@ -1,23 +1,31 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Services;
 using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class RetailCounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, RetailCounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		public RetailCounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public RetailCounterpartyJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<CounterpartyJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
 			TabName = "Журнал контрагентов";
 			UpdateOnChanges(

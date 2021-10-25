@@ -22,24 +22,15 @@ namespace Vodovoz.ViewModels.Mango.Talks
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IInteractiveQuestion _interactive;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUnitOfWork _uow;
 		
-		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
-			ITdiCompatibilityNavigation navigation, 
+		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory,
+			ITdiCompatibilityNavigation navigation,
 			IInteractiveQuestion interactive,
-			MangoManager manager,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
+			MangoManager manager) : base(navigation, manager)
 		{
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
@@ -88,18 +79,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void CreateComplaintCommand()
 		{
-			var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-
-			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
-
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
-				//Autofac: IEmployeeService 
-				{"employeeSelectorFactory", employeeSelectorFactory},
-				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				//Autofac: ICommonServices
-				//Autofac: IUserRepository
 				{"phone", "+7" + ActiveCall.Phone.Number }
 			};
 			

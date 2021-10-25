@@ -16,7 +16,11 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public ClientCameFromJournalViewModel(
+			ClientCameFromFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(unitOfWorkFactory, commonServices, filterViewModel)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 

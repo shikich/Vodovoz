@@ -18,13 +18,11 @@ using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using System.Threading.Tasks;
 using System.Threading;
-using FluentNHibernate.Data;
-using FluentNHibernate.Utils;
-using QS.Dialog.Gtk;
-using Vodovoz.Parameters;
+using Autofac;
+using QS.Navigation;
+using Vodovoz.Factories;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
@@ -34,8 +32,18 @@ namespace Vodovoz.Representations
 	{
 		private readonly IDebtorsParameters _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly ICallTaskDlgFactory _callTaskDlgFactory;
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public DebtorsJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeRepository employeeRepository,
+			IGtkTabsOpener gtkTabsOpener,
+			IDebtorsParameters debtorsParameters,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<DebtorsJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
@@ -43,6 +51,7 @@ namespace Vodovoz.Representations
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
 			_debtorsParameters = debtorsParameters;
 			_gtkTabsOpener = gtkTabsOpener;
+			_callTaskDlgFactory = Scope.Resolve<ICallTaskDlgFactory>();
 		}
 
 		IEmployeeRepository employeeRepository { get; set; }
@@ -545,12 +554,10 @@ namespace Vodovoz.Representations
 				}
 			});
 		}
-		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
+		protected override Func<CallTaskDlg> CreateDialogFunction => () => _callTaskDlgFactory.CreateNewCallTaskDlg();
 
-		protected override Func<DebtorJournalNode, CallTaskDlg> OpenDialogFunction => (node) =>
-		{
-			return new CallTaskDlg(node.ClientId, node.AddressId);
-		};
+		protected override Func<DebtorJournalNode, CallTaskDlg> OpenDialogFunction =>
+			node => _callTaskDlgFactory.OpenCallTaskDlg(node.ClientId, node.AddressId);
 
 		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
 		{

@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	public class ComplaintObjectJournalViewModel : FilterableSingleEntityJournalViewModelBase<ComplaintObject, ComplaintObjectViewModel, ComplaintObjectJournalNode, ComplaintObjectJournalFilterViewModel>
 	{
 		public ComplaintObjectJournalViewModel(ComplaintObjectJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(unitOfWorkFactory, commonServices, filterViewModel)
 		{
 			TabName = "Объекты рекламаций";
 

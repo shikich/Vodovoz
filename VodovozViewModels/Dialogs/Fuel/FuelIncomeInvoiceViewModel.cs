@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate.Criterion;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -39,8 +41,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			ICommonServices commonServices
-		) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null
+		) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
 		{
 			this.employeeService = employeeService;
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -158,7 +162,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void ConfigureEntries()
 		{
-			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(Scope);
 		}
 		
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; private set; }

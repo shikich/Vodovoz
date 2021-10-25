@@ -1,10 +1,12 @@
 ﻿using System;
+using Autofac;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -16,8 +18,11 @@ namespace Vodovoz
 		{
 			speccomboStock.SetRenderTextFunc<Warehouse>(x => x.Name);
 			speccomboStock.ItemsList =new WarehouseRepository().GetActiveWarehouse(UoW);
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-				speccomboStock.SelectedItem = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+
+			var defWarehouse = MainClass.AppDIContainer.Resolve<ICurrentUserSettings>().Settings.DefaultWarehouse;
+			
+			if(defWarehouse != null)
+				speccomboStock.SelectedItem = UoW.GetById<Warehouse>(defWarehouse.Id);
 		}
 
 		bool showArchive;

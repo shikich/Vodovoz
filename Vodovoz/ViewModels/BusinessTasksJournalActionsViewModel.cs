@@ -50,11 +50,11 @@ namespace Vodovoz.ViewModels
 		public Action<object[], BusinessTaskStatus> ChangeTasksStateAction { get; set; }
 		public Action<object[], DateTime> ChangeDeadlineDateAction { get; set; }
 
-		public BusinessTasksJournalActionsViewModel(IEmployeeJournalFactory employeeJournalFactory)
+		public BusinessTasksJournalActionsViewModel()
 		{
 			CreateCommands();
 
-			EmployeeSelectorFactory = employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			//EmployeeSelectorFactory = employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 		}
 
 		private void CreateCommands()

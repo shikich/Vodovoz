@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gdk;
@@ -10,72 +11,71 @@ using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Service.BaseParametersServices;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Infrastructure.Services;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
-		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly DriverApiUserRegisterEndpoint _driverApiRegistrationEndpoint;
-		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
-		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
-		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory = new EmployeePostsJournalFactory();
-		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly ICarRepository _carRepository = new CarRepository();
-		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
-		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-        private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		
+		private readonly Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
+		private readonly bool canReturnDriver;
+		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
+		private readonly ILifetimeScope _scope;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ICarRepository _carRepository;
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
+		private IList<AtWorkDriver> driversAtDay;
+		private IList<AtWorkForwarder> forwardersAtDay;
+		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
+		private GenericObservableList<AtWorkDriver> observableDriversAtDay;
+		private GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
+
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
-			IEmployeeJournalFactory employeeJournalFactory,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint)
+			ILifetimeScope scope,
+			ITdiCompatibilityNavigation navigationManager,
+			IEmployeeRepository employeeRepository,
+			ICarRepository carRepository,
+			IGeographicGroupRepository geographicGroupRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
 				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			}
+			
+			if(geographicGroupRepository == null)
+			{
+				throw new ArgumentNullException(nameof(geographicGroupRepository));
+			}
 
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			_scheduleRestrictionRepository =
+				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+
 			this.Build();
+
+			var geographicGroupsWithCoordinates = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
 
 			var colorWhite = new Color(0xff, 0xff, 0xff);
 			var colorLightRed = new Color(0xff, 0x66, 0x66);
@@ -108,7 +108,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+					.FillItems(geographicGroupsWithCoordinates)
 					.AddSetter(
 						(c, n) => {
 							c.Editable = true;
@@ -147,18 +147,6 @@ namespace Vodovoz.Dialogs.Logistic
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 			SetButtonClearDriverScreenSensitive();
 		}
-		
-		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		
-		private readonly Gdk.Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
-
-		private IList<AtWorkDriver> driversAtDay;
-		private IList<AtWorkForwarder> forwardersAtDay;
-		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
-		private GenericObservableList<AtWorkDriver> observableDriversAtDay;
-		private GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
-		private readonly bool canReturnDriver;
-		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
 		public bool HasChanges => UoW.HasChanges;
@@ -198,7 +186,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		#endregion
 		
-
 		#region Events
 
 		#region Buttons
@@ -237,12 +224,18 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{
-			var selectDrivers = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
-			selectDrivers.SelectionMode = JournalSelectionMode.Multiple;
-			selectDrivers.TabName = "Водители";
-			
-			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
-			TabParent.AddSlaveTab(this, selectDrivers);
+			var filterParams = new Action<EmployeeFilterViewModel>[]
+			{
+				f => f.Category = EmployeeCategory.driver,
+				f => f.Status = EmployeeStatus.IsWorking
+			};
+
+			var page = _navigationManager.OpenViewModelOnTdi<EmployeesJournalViewModel, Action<EmployeeFilterViewModel>[]>(
+				this, filterParams, OpenPageOptions.AsSlave);
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+			page.ViewModel.TabName = "Водители";
+			page.ViewModel.OnSelectResult += OnSelectDriversResult;
 			SetButtonClearDriverScreenSensitive();
 		}
 
@@ -354,10 +347,7 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonOpenCarClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
-			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected[0].Car.Id),
-				() => new CarsDlg(selected[0].Car)
-			);
+			_navigationManager.OpenTdiTabOnTdi<CarsDlg, int>(this, selected[0].Car.Id);
 		}
 		
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)
@@ -369,36 +359,10 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
 			
-			foreach(var one in selected) 
+			foreach(var one in selected)
 			{
-				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Id);
-
-				var employeeViewModel = new EmployeeViewModel(
-					_authorizationService,
-					_employeeWageParametersFactory,
-					_employeeJournalFactory,
-					_subdivisionJournalFactory,
-					_employeePostsJournalFactory,
-					_cashDistributionCommonOrganisationProvider,
-					_subdivisionService,
-					_emailServiceSettingAdapter,
-					_wageCalculationRepository,
-					_employeeRepository,
-					employeeUow,
-					ServicesConfig.CommonServices,
-					_validationContextFactory,
-					_phonesViewModelFactory,
-					_warehouseRepository,
-					_routeListRepository,
-					_driverApiRegistrationEndpoint,
-					CurrentUserSettings.Settings,
-					_userRepository,
-					_baseParametersProvider);
-				
-				TabParent.OpenTab(
-					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),
-					() => employeeViewModel
-				);
+				_navigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+					this, EntityUoWBuilder.ForOpen(one.Employee.Id));
 			}
 		}
 		
@@ -466,9 +430,9 @@ namespace Vodovoz.Dialogs.Logistic
 			SetButtonClearDriverScreenSensitive();
 		}
 
-		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		void OnSelectDriversResult(object sender, JournalSelectedEventArgs e)
 		{
-			var addDrivers = e.SelectedNodes;
+			var addDrivers = e.GetSelectedObjects<JournalEntityNodeBase>();
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
 			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());

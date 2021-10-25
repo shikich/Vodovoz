@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using FluentNHibernate.Utils;
+using Autofac;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -36,20 +36,20 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListsOnDayViewModel : TabViewModelBase
 	{
 		private readonly IRouteListRepository routeListRepository;
-		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IAtWorkRepository atWorkRepository;
 		private readonly IGtkTabsOpener gtkTabsOpener;
 		private readonly IUserRepository userRepository;
 		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 		private readonly int closingDocumentDeliveryScheduleId;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		public IUnitOfWork UoW;
 
@@ -65,9 +65,9 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
-			IEmployeeJournalFactory employeeJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
-			IScheduleRestrictionRepository scheduleRestrictionRepository) : base(commonServices?.InteractiveService, navigationManager)
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			ILifetimeScope scope) : base(commonServices?.InteractiveService, navigationManager, scope)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
@@ -77,14 +77,18 @@ namespace Vodovoz.ViewModels.Logistic
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			GeographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			ScheduleRestrictionRepository =
 				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			
+			if(subdivisionRepository == null)
+			{
+				throw new ArgumentNullException(nameof(subdivisionRepository));
+			}
+			
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			
 			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
@@ -227,12 +231,18 @@ namespace Vodovoz.ViewModels.Logistic
 			AddDriverCommand = new DelegateCommand(
 				() =>
 				{
-					var drvJournalViewModel = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
-					drvJournalViewModel.SelectionMode = JournalSelectionMode.Multiple;
-					drvJournalViewModel.TabName = "Водители";
+					var filterParams = new Action<EmployeeFilterViewModel>[]
+					{
+						x => x.Category = EmployeeCategory.driver,
+						x => x.Status = EmployeeStatus.IsWorking
+					};
+					var page = NavigationManager.OpenViewModel<EmployeesJournalViewModel, Action<EmployeeFilterViewModel>[]>(
+						this, filterParams, OpenPageOptions.AsSlave);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+					page.ViewModel.TabName = "Водители";
 					
-					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-						var selectedNodes = e.SelectedNodes;
+					page.ViewModel.OnSelectResult += (sender, e) => {
+						var selectedNodes = e.GetSelectedObjects<JournalEntityNodeBase>();
 						var onlyNew = selectedNodes.Where(x => ObservableDriversOnDay.All(y => y.Employee.Id != x.Id)).ToList();
 						var allCars = CarRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
@@ -266,7 +276,6 @@ namespace Vodovoz.ViewModels.Logistic
 							ObservableDriversOnDay.Add(driver);
 						}
 					};
-					TabParent.AddSlaveTab(this, drvJournalViewModel);
 				},
 				() => true
 			);
@@ -307,11 +316,17 @@ namespace Vodovoz.ViewModels.Logistic
 			AddForwarderCommand = new DelegateCommand(
 				() =>
 				{
-					var fwdJournalViewModel = _employeeJournalFactory.CreateWorkingForwarderEmployeeJournal();
-					fwdJournalViewModel.SelectionMode = JournalSelectionMode.Multiple;
+					var filterParams = new Action<EmployeeFilterViewModel>[]
+					{
+						x => x.Category = EmployeeCategory.forwarder,
+						x => x.Status = EmployeeStatus.IsWorking
+					};
+					var page = NavigationManager.OpenViewModel<EmployeesJournalViewModel, Action<EmployeeFilterViewModel>[]>(
+						this, filterParams, OpenPageOptions.AsSlave);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 					
-					fwdJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-						var selectedNodes = e.SelectedNodes;
+					page.ViewModel.OnSelectResult += (sender, e) => {
+						var selectedNodes = e.GetSelectedObjects<JournalEntityNodeBase>();
 						foreach(var n in selectedNodes) {
 							var fwd = UoW.GetById<Employee>(n.Id);
 							if(ObservableForwardersOnDay.Any(x => x.Employee.Id == n.Id)) {
@@ -321,7 +336,6 @@ namespace Vodovoz.ViewModels.Logistic
 							ObservableForwardersOnDay.Add(new AtWorkForwarder(fwd, DateForRouting));
 						}
 					};
-					TabParent.AddSlaveTab(this, fwdJournalViewModel);
 				},
 				() => true
 			);

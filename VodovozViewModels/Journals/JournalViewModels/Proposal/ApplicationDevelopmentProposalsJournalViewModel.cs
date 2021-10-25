@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
 		    ApplicationDevelopmentProposalsJournalFilterViewModel filterViewModel,
 		    IEmployeeService employeeService,
 		    IUnitOfWorkFactory uowFactory,
-		    ICommonServices commonServices) : base(filterViewModel, uowFactory, commonServices)
+		    ICommonServices commonServices) : base(uowFactory, commonServices, filterViewModel)
 	    {
 		    this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 		    this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));

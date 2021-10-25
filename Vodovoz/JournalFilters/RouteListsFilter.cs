@@ -12,8 +12,11 @@ using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 using Gamma.ColumnConfig;
 using System.ComponentModel;
+using Autofac;
 using Gamma.GtkWidgets;
+using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -23,6 +26,7 @@ namespace Vodovoz
 	{
 		private bool _showDriversWithTerminal;
 		private bool _hasAccessToDriverTerminal;
+		private readonly UserSettings _userSettings = MainClass.AppDIContainer.Resolve<ICurrentUserSettings>().Settings;
 
 		protected override void ConfigureWithUow()
 		{
@@ -136,18 +140,16 @@ namespace Vodovoz
 
 		private void LoadAddressesTypesDefaults()
 		{
-			var currentUserSettings = CurrentUserSettings.Settings;
-			
 			foreach(var addressTypeNode in AddressTypes) {
 				switch(addressTypeNode.AddressType) {
 					case AddressType.Delivery:
-						addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
+						addressTypeNode.Selected = _userSettings.LogisticDeliveryOrders;
 						break;
 					case AddressType.Service:
-						addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
+						addressTypeNode.Selected = _userSettings.LogisticServiceOrders;
 						break;
 					case AddressType.ChainStore:
-						addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
+						addressTypeNode.Selected = _userSettings.LogisticChainStoreOrders;
 						break;
 				}
 			}

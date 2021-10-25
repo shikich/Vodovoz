@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
 using System.IO;
 using Autofac;
+using EmailService;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -12,8 +15,13 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Osm;
+using QS.Osm.Loaders;
 using QS.Permissions;
+using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Dialogs.GtkUI.ServiceDlg;
+using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Report;
@@ -28,6 +36,7 @@ using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
 using QSReport;
+using Vodovoz.Additions;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Cash;
@@ -95,8 +104,14 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
+using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.EntityFactories;
+using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -131,9 +146,19 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
+using Vodovoz.ReportsParameters.Bottles;
+using Vodovoz.ReportsParameters.Logistic;
+using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Flyers;
@@ -142,6 +167,7 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
 using Vodovoz.Views.Print;
 using Vodovoz.Views.Rent;
+using EmployeeFilterView = Vodovoz.Views.Journals.Filters.Employees.EmployeeFilterView;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 
 namespace Vodovoz
@@ -389,16 +415,25 @@ namespace Vodovoz
 			var builder = new ContainerBuilder();
 
 			#region База
+			
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
-			builder.RegisterType<BaseParametersProvider>().As<ITerminalNomenclatureProvider>().AsSelf();
+			builder.RegisterType<BaseParametersProvider>()
+				.As<ITerminalNomenclatureProvider>()
+				.As<IDefaultDeliveryDayScheduleSettings>()
+				.As<IProfitCategoryProvider>()
+				.AsSelf();
+			builder.RegisterType<MySQLProvider>().As<IMySQLProvider>();
+			
 			#endregion
 
 			#region Сервисы
 			
 			#region GtkUI
+			
 			builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 			builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 			builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
+			
 			#endregion GtkUI
 			
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
@@ -406,19 +441,44 @@ namespace Vodovoz
 			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
+			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
+			builder.RegisterType<GtkRunOperationService>().As<IRunOperationService>();
+			builder.RegisterType<CitiesDataLoader>().As<ICitiesDataLoader>();
+			builder.RegisterType<StreetsDataLoader>().As<IStreetsDataLoader>();
+			builder.RegisterType<HousesDataLoader>().As<IHousesDataLoader>();
+			builder.Register(c => OsmWorker.GetOsmService()).As<IOsmService>();
 
 			#endregion
 
-			builder.RegisterType<ExpenseParametersProvider>().As<IExpenseParametersProvider>();
-			builder.RegisterType<OrganizationParametersProvider>().As<IOrganizationParametersProvider>();
+			#region Репозитории
+
+			builder.RegisterType<MySQLUserRepository>().AsSelf();
+
+			#endregion
 
 			#region Vodovoz
 
+			#region Сущности
+
+			builder.RegisterType<ComplaintGuiltyItem>().AsSelf();
+
+			#endregion
+			
 			#region Adapters
 
-			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
+			builder.RegisterType<EmployeePostsJournalFactory>().As<IEmployeePostsJournalFactory>();
 			
+			#endregion
+
+			#region Factories
+
+			builder.RegisterType<EmployeeWageParametersFactory>().As<IEmployeeWageParametersFactory>();
+			builder.RegisterType<ValidationContextFactory>().As<IValidationContextFactory>();
+			builder.RegisterType<PhonesViewModelFactory>().As<IPhonesViewModelFactory>();
+			builder.RegisterType<DriverApiUserRegisterEndpointBuilder>().As<IDriverApiUserRegisterEndpointBuilder>();
+			builder.RegisterType<NomenclatureFixedPriceFactory>().AsSelf();
+
 			#endregion
 			
 			#region Services
@@ -431,28 +491,51 @@ namespace Vodovoz
 			builder.RegisterType<ParametersProvider>().As<IParametersProvider>();
 			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
-			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
+			builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
+			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
+			builder.RegisterType<EmailServiceSetting>().AsSelf().SingleInstance();
+			builder.RegisterType<CashDistributionCommonOrganisationProvider>().As<ICashDistributionCommonOrganisationProvider>();
+			builder.RegisterType<SubdivisionParametersProvider>().As<ISubdivisionService>();
+			builder.RegisterType<EmailServiceSettingAdapter>().As<IEmailServiceSettingAdapter>();
+			builder.RegisterType<CurrentUserSettings>().As<ICurrentUserSettings>().SingleInstance();
+			builder.Register(c => ContactParametersProvider.Instance).As<IContactsParameters>();
+			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
+			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
+			builder.RegisterType<DeliveryRulesParametersProvider>().As<IDeliveryRulesParametersProvider>();
+			builder.RegisterType<DebtorsParameters>().As<IDebtorsParameters>().AsSelf();
+			builder.RegisterType<ExpenseParametersProvider>().As<IExpenseParametersProvider>();
+			builder.RegisterType<OrganizationParametersProvider>().As<IOrganizationParametersProvider>();
 
 			#endregion
 			
 			#region Selectors
 			
-			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
-			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
-			builder.RegisterType<DeliveryPointJournalFactory>().As<IDeliveryPointJournalFactory>();
-			builder.RegisterType<EmployeeJournalFactory>().As<IEmployeeJournalFactory>();
-			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
-			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();
-			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
 			
+			#region JournalFactories
+
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CarEventTypeJournalFactory)))
+				.Where(t => t.Namespace == typeof(CarEventTypeJournalFactory).Namespace)
+				.AsImplementedInterfaces();
+
 			#endregion
 			
+			#endregion
+
+			#region TempAdapters
+
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(DeliveryScheduleSelectorFactory)))
+				.Where(t => t.Namespace == typeof(DeliveryScheduleSelectorFactory).Namespace)
+				.AsImplementedInterfaces();
+
+			#endregion
+
 			#region Репозитории
 
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
 				.Where(t => t.Name.EndsWith("Repository"))
-				.AsImplementedInterfaces();
+				.AsImplementedInterfaces()
+				.SingleInstance();
 
 			#endregion
 
@@ -478,13 +561,29 @@ namespace Vodovoz
 			#endregion
 
 			#region Старые диалоги
+			
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyDlg)))
 				.Where(t => t.IsAssignableTo<ITdiTab>())
 				.AsSelf();
+			
+			#endregion
+
+			#region Отчеты
+
+			builder.RegisterType<MileageReport>().Keyed<IParametersWidget>(nameof(MileageReport));
+			builder.RegisterType<WayBillReport>().Keyed<IParametersWidget>(nameof(WayBillReport));
+			builder.RegisterType<ReturnedTareReport>().Keyed<IParametersWidget>(nameof(ReturnedTareReport));
+			builder.RegisterType<QualityReport>().Keyed<IParametersWidget>(nameof(QualityReport));
+			builder.RegisterType<GeneralSalaryInfoReport>().Keyed<IParametersWidget>(nameof(GeneralSalaryInfoReport));
+			builder.RegisterType<ChainStoreDelayReport>().Keyed<IParametersWidget>(nameof(ChainStoreDelayReport));
+			builder.RegisterType<AddressesOverpaymentsReport>().Keyed<IParametersWidget>(nameof(AddressesOverpaymentsReport));
+
 			#endregion
 
 			#region Старые общие диалоги
+			
 			builder.RegisterType<ReportViewDlg>().AsSelf();
+
 			#endregion
 
 			#region ViewModels

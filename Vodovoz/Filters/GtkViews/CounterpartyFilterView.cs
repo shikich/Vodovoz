@@ -2,6 +2,8 @@
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.Nodes.Counterparties;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -16,8 +18,10 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			yentryTag.RepresentationModel = ViewModel.TagVM;
-			yentryTag.Binding.AddBinding(ViewModel, vm => vm.Tag, w => w.Subject).InitializeFromSource();
+			//TODO разобраться с Tag
+			yentryTag.Sensitive = false;
+			//yentryTag.RepresentationModel = ViewModel.TagVM;
+			//yentryTag.Binding.AddBinding(ViewModel, vm => vm.Tag, w => w.Subject).InitializeFromSource();
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yenumCounterpartyType.Binding.AddBinding(ViewModel, vm => vm.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			checkIncludeArhive.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active).InitializeFromSource();

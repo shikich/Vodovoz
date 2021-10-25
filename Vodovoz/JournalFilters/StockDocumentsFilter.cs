@@ -8,16 +8,17 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
 	public partial class StockDocumentsFilter : RepresentationFilterBase<StockDocumentsFilter>
 	{
+		private readonly UserSettings _userSettings;
+		
 		protected override void ConfigureWithUow()
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
@@ -31,9 +32,9 @@ namespace Vodovoz
 				yentryrefWarehouse.Sensitive = yentryrefWarehouse.CanEditReference = false;
 			}
 			
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if(_userSettings.DefaultWarehouse != null)
 			{
-				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(_userSettings.DefaultWarehouse.Id);
 			}
 
 			var filter = new EmployeeRepresentationFilterViewModel();
@@ -48,8 +49,9 @@ namespace Vodovoz
 			comboMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
 		}
 
-		public StockDocumentsFilter(IUnitOfWork uow) : this()
+		public StockDocumentsFilter(IUnitOfWork uow, UserSettings userSettings) : this()
 		{
+			_userSettings = userSettings;
 			UoW = uow;
 		}
 

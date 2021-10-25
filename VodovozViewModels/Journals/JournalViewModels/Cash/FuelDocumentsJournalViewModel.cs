@@ -1,8 +1,10 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -11,64 +13,27 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
     public class FuelDocumentsJournalViewModel : MultipleEntityJournalViewModelBase<FuelDocumentJournalNode>
     {
-	    private readonly ICommonServices commonServices;
-	    private readonly IEmployeeService employeeService;
-	    private readonly ISubdivisionRepository subdivisionRepository;
 	    private readonly IFuelRepository fuelRepository;
-	    private readonly ICounterpartyJournalFactory counterpartyJournalFactory;
-	    private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
-	    private readonly IEmployeeJournalFactory employeeJournalFactory;
-	    private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-	    private readonly ICarJournalFactory carJournalFactory;
-	    private readonly IReportViewOpener reportViewOpener;
-	    private readonly IFileChooserProvider fileChooserProvider;
-	    private readonly ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel;
 
+		//TODO filechooserProvider new Vodovoz.FileChooser("Категория Расхода.csv")
 	    public FuelDocumentsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IEmployeeService employeeService,
-            ISubdivisionRepository subdivisionRepository,
             IFuelRepository fuelRepository,
-            ICounterpartyJournalFactory counterpartyJournalFactory,
-            INomenclatureSelectorFactory nomenclatureSelectorFactory,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory,
-            ICarJournalFactory carJournalFactory,
-            IReportViewOpener reportViewOpener,
-            IFileChooserProvider fileChooserProvider,
-            ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel
-            ) :
-            base(unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null
+            ) : base(unitOfWorkFactory, commonServices, navigationManager, scope)
         {
-	        this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-	        this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-	        this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 	        this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-	        this.counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-	        this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-	        this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-	        _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-	        this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-	        this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-	        this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-	        this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
-	        
 
-	        TabName = "Журнал учета топлива";
+			TabName = "Журнал учета топлива";
 
 			var loader = new ThreadDataLoader<FuelDocumentJournalNode>(unitOfWorkFactory);
 			loader.MergeInOrderBy(x => x.CreationDate, true);
@@ -145,27 +110,41 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		    var complaintConfig = RegisterEntity<FuelIncomeInvoice>(GetFuelIncomeQuery)
 			    .AddDocumentConfiguration(
 				    //функция диалога создания документа
-				    () => new FuelIncomeInvoiceViewModel(
-					    EntityUoWBuilder.ForCreate(),
-					    UnitOfWorkFactory,
-					    employeeService,
-					    nomenclatureSelectorFactory,
-					    subdivisionRepository,
-					    fuelRepository,
-					    counterpartyJournalFactory,
-					    commonServices
-				    ),
+				    () =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<FuelIncomeInvoiceViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+						
+						/*return new FuelIncomeInvoiceViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory,
+							employeeService,
+							nomenclatureSelectorFactory,
+							subdivisionRepository,
+							fuelRepository,
+							counterpartyJournalFactory,
+							commonServices
+						);*/
+					},
 				    //функция диалога открытия документа
-				    (FuelDocumentJournalNode node) => new FuelIncomeInvoiceViewModel(
-					    EntityUoWBuilder.ForOpen(node.Id),
-					    UnitOfWorkFactory,
-					    employeeService,
-					    nomenclatureSelectorFactory,
-					    subdivisionRepository,
-					    fuelRepository,
-					    counterpartyJournalFactory,
-					    commonServices
-				    ),
+				    (FuelDocumentJournalNode node) =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<FuelIncomeInvoiceViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+						
+						/*return new FuelIncomeInvoiceViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							UnitOfWorkFactory,
+							employeeService,
+							nomenclatureSelectorFactory,
+							subdivisionRepository,
+							fuelRepository,
+							counterpartyJournalFactory,
+							commonServices
+						);*/
+					},
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelIncomeInvoice);
@@ -226,29 +205,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		    var complaintConfig = RegisterEntity<FuelTransferDocument>(GetTransferDocumentQuery)
 			    .AddDocumentConfiguration(
 				    //функция диалога создания документа
-				    () => new FuelTransferDocumentViewModel(
-					    EntityUoWBuilder.ForCreate(),
-					    UnitOfWorkFactory,
-					    employeeService,
-					    subdivisionRepository,
-					    fuelRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    carJournalFactory,
-					    reportViewOpener
-				    ),
+				    () =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<FuelTransferDocumentViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+					},
 				    //функция диалога открытия документа
-				    (FuelDocumentJournalNode node) => new FuelTransferDocumentViewModel(
-					    EntityUoWBuilder.ForOpen(node.Id),
-					    UnitOfWorkFactory,
-					    employeeService,
-					    subdivisionRepository,
-					    fuelRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    carJournalFactory,
-					    reportViewOpener
-				    ),
+				    (FuelDocumentJournalNode node) =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<FuelTransferDocumentViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+					},
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelTransferDocument);
@@ -318,33 +287,47 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		    var complaintConfig = RegisterEntity<FuelWriteoffDocument>(GetWriteoffDocumentQuery)
 			    .AddDocumentConfiguration(
 				    //функция диалога создания документа
-				    () => new FuelWriteoffDocumentViewModel(
-					    EntityUoWBuilder.ForCreate(),
-					    UnitOfWorkFactory,
-					    employeeService,
-					    fuelRepository,
-					    subdivisionRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    reportViewOpener,
-					    fileChooserProvider,
-					    expenseCategoryJournalFilterViewModel,
-					    _subdivisionJournalFactory
-				    ),
+				    () =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<FuelIncomeInvoiceViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+						
+						/*return new FuelWriteoffDocumentViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory,
+							employeeService,
+							fuelRepository,
+							subdivisionRepository,
+							commonServices,
+							employeeJournalFactory,
+							reportViewOpener,
+							fileChooserProvider,
+							expenseCategoryJournalFilterViewModel,
+							_subdivisionJournalFactory
+						);*/
+					},
 				    //функция диалога открытия документа
-				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
-					    EntityUoWBuilder.ForOpen(node.Id),
-					    UnitOfWorkFactory,
-					    employeeService,
-					    fuelRepository,
-					    subdivisionRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    reportViewOpener,
-					    fileChooserProvider,
-					    expenseCategoryJournalFilterViewModel,
-					    _subdivisionJournalFactory
-				    ),
+				    (FuelDocumentJournalNode node) =>
+					{
+						var scope = Scope.BeginLifetimeScope();
+						return scope.Resolve<FuelIncomeInvoiceViewModel>(
+							new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+						
+						/*return new FuelWriteoffDocumentViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							UnitOfWorkFactory,
+							employeeService,
+							fuelRepository,
+							subdivisionRepository,
+							commonServices,
+							employeeJournalFactory,
+							reportViewOpener,
+							fileChooserProvider,
+							expenseCategoryJournalFilterViewModel,
+							_subdivisionJournalFactory
+						);*/
+					},
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelWriteoffDocument);

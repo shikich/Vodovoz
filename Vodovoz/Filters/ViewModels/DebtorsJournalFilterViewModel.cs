@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -13,11 +14,14 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Filters.ViewModels
 {
 	public class DebtorsJournalFilterViewModel : FilterViewModelBase<DebtorsJournalFilterViewModel>
 	{
+		private readonly ILifetimeScope _scope;
 		private Counterparty _client;
 		private DeliveryPoint _address;
 		private PersonType? _opf;
@@ -37,9 +41,12 @@ namespace Vodovoz.Filters.ViewModels
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
 
-
-		public DebtorsJournalFilterViewModel()
+		public DebtorsJournalFilterViewModel(
+			ILifetimeScope scope,
+			params Action<DebtorsJournalFilterViewModel>[] filterParams)
 		{
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+
 			UpdateWith(
 				x => x.Client,
 				x => x.Address,
@@ -56,6 +63,11 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.ShowSuspendedCounterparty,
 				x => x.ShowCancellationCounterparty
 			);
+			
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
 		}
 
 		public Counterparty Client {
@@ -138,13 +150,11 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _discountReason, value, () => DiscountReason);
 		}
 		
-		public DeliveryPointJournalFilterViewModel DeliveryPointJournalFilterViewModel { get; set; } 
-			= new DeliveryPointJournalFilterViewModel();
-
+		public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; } = new DeliveryPointJournalFactory();
+		
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory =>
 			_deliveryPointSelectorFactory ?? (_deliveryPointSelectorFactory =
-				new DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel)
-					.CreateDeliveryPointAutocompleteSelectorFactory());
+				DeliveryPointJournalFactory.CreateDeliveryPointAutocompleteSelectorFactory(_scope));
 
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =

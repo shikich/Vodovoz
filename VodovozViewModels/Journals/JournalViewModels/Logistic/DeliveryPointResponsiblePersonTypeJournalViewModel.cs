@@ -17,8 +17,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
     /// </summary>
     public class DeliveryPointResponsiblePersonTypeJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPointResponsiblePersonType, DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeJournalNode, DeliveryPointResponsiblePersonTypeJournalFilterViewModel>
     {
-        public DeliveryPointResponsiblePersonTypeJournalViewModel(DeliveryPointResponsiblePersonTypeJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public DeliveryPointResponsiblePersonTypeJournalViewModel(
+			DeliveryPointResponsiblePersonTypeJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Журнал типов ответственного за точку доставки лица";
 

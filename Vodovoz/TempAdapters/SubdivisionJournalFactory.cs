@@ -1,6 +1,7 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using System.Collections;
+using Autofac;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -9,75 +10,41 @@ namespace Vodovoz.TempAdapters
 {
 	public class SubdivisionJournalFactory : ISubdivisionJournalFactory
 	{
-		private readonly SubdivisionFilterViewModel _filterViewModel;
-		private IEmployeeJournalFactory _employeeJournalFactory;
-		private ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private INomenclatureSelectorFactory _nomenclatureSelectorFactory;
-
-		public SubdivisionJournalFactory(SubdivisionFilterViewModel filterViewModel = null)
+		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(ILifetimeScope scope)
 		{
-			_filterViewModel = filterViewModel;
-		}
-		
-		private void CreateNewDependencies()
-		{
-			_employeeJournalFactory = new EmployeeJournalFactory();
-			_salesPlanJournalFactory = new SalesPlanJournalFactory();
-			_nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
-		}
-		
-		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
-		{
-			CreateNewDependencies();
-			
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
-					_filterViewModel ?? new SubdivisionFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+				() => ResolveJournal(scope.BeginLifetimeScope()));
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
+			ILifetimeScope scope)
 		{
-			CreateNewDependencies();
-			
-			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
-				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel
+			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision),
+				() => ResolveJournal(
+					scope.BeginLifetimeScope(),
+					new Action<SubdivisionFilterViewModel>[]
 					{
-						SubdivisionType = SubdivisionType.Default
-					},
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+						x => x.SubdivisionType = SubdivisionType.Default	
+					}));
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateLogisticSubdivisionAutocompleteSelectorFactory(
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
+		public IEntityAutocompleteSelectorFactory CreateLogisticSubdivisionAutocompleteSelectorFactory(ILifetimeScope scope)
 		{
-			CreateNewDependencies();
-			
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel
+				() => ResolveJournal(
+					scope.BeginLifetimeScope(),
+					new Action<SubdivisionFilterViewModel>[]
 					{
-						SubdivisionType = SubdivisionType.Logistic
-					},
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+						x => x.SubdivisionType = SubdivisionType.Logistic	
+					}));
 		}
+
+		private SubdivisionsJournalViewModel ResolveJournal(ILifetimeScope scope, IEnumerable filterParams = null) =>
+			filterParams == null
+				? scope.Resolve<SubdivisionsJournalViewModel>()
+				: scope.Resolve<SubdivisionsJournalViewModel>(
+					new TypedParameter(typeof(Action<SubdivisionFilterViewModel>[]), filterParams));
 	}
 }

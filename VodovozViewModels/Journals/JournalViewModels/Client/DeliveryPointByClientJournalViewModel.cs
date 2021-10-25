@@ -1,7 +1,9 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Client;
@@ -22,12 +24,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 
 		public DeliveryPointByClientJournalViewModel(
 			IDeliveryPointViewModelFactory deliveryPointViewModelFactory,
-			DeliveryPointJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			bool hideJournalForOpen,
-			bool hideJournalForCreate)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
+			bool hideJournalForCreate,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<DeliveryPointJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, hideJournalForOpen, hideJournalForCreate, filterParams)
 		{
 			TabName = "Журнал точек доставки клиента";
 

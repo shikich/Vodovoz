@@ -25,6 +25,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
@@ -38,9 +39,6 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		private readonly IRouteListRepository _routedListRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
@@ -62,9 +60,6 @@ namespace Vodovoz.ViewModels.Mango
 			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
 			IOrderParametersProvider orderParametersProvider,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository,
 			IParametersProvider parametersProvider,
 			int count = 5)
 		{
@@ -73,9 +68,6 @@ namespace Vodovoz.ViewModels.Mango
 			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
@@ -106,12 +98,11 @@ namespace Vodovoz.ViewModels.Mango
 		
 		public void OpenMoreInformationAboutCounterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
-			var tab = page.TdiTab as CounterpartyDlg;
+			tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
 		}
 		public void OpenMoreInformationAboutOrder(int id)
 		{
-			var page = tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
+			tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
 		}
 
 		public void RepeatOrder(Order order)
@@ -138,19 +129,22 @@ namespace Vodovoz.ViewModels.Mango
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
-					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
+					tdiNavigation.OpenTdiTab<RouteListClosingDlg, RouteList>(null, routeList);
 			}
 		}
 
 		public void OpenUndelivery(Order order)
 		{
-			var page = tdiNavigation.OpenTdiTab<UndeliveredOrdersJournalViewModel>(null);
-			var dlg = page.TdiTab as UndeliveredOrdersJournalViewModel;
-			var filter = dlg.UndeliveredOrdersFilterViewModel;
-			filter.HidenByDefault = true;
-			filter.RestrictOldOrder = order;
-			filter.RestrictOldOrderStartDate = order.DeliveryDate;
-			filter.RestrictOldOrderEndDate = order.DeliveryDate;
+			var filterParams = new UndeliveredOrdersFilterViewModelParameters(new CustomUndeliveredOrdersFilterParameters(
+				new Action<UndeliveredOrdersFilterViewModel>[]
+				{
+					x => x.HidenByDefault = true,
+					x => x.RestrictOldOrder = order,
+					x => x.RestrictOldOrderStartDate = order.DeliveryDate,
+					x => x.RestrictOldOrderEndDate = order.DeliveryDate
+				},
+				true));
+			tdiNavigation.OpenTdiTab<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModelParameters>(null, filterParams);
 		}
 
 		public void CancelOrder(Order order)
@@ -200,18 +194,11 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void CreateComplaint(Order order)
 		{
-			if (order != null)
+			if(order != null)
 			{
-				var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-
-				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
-
 				var parameters = new Dictionary<string, object> {
 					{"order", order},
 					{"uowBuilder", EntityUoWBuilder.ForCreate()},
-					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
-					{"employeeSelectorFactory", employeeSelectorFactory},
-					{"counterpartySelectorFactory", counterpartySelectorFactory},
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
 				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);

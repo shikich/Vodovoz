@@ -1,15 +1,15 @@
 ﻿using System;
+using Autofac;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
-using VodovozInfrastructure.Interfaces;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -19,29 +19,22 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IFileChooserProvider fileChooserProvider,
-			ExpenseCategoryJournalFilterViewModel journalFilterViewModel,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory
-			) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null
+		) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager, scope)
 		{
-			if(employeeJournalFactory == null)
-			{
-				throw new ArgumentNullException(nameof(employeeJournalFactory));
-			}
-			
 			if(subdivisionJournalFactory == null)
 			{
 				throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			}
 			
 			ExpenseCategoryAutocompleteSelectorFactory = 
-				new ExpenseCategoryAutoCompleteSelectorFactory(
-					commonServices, journalFilterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory);
+				new EntityAutocompleteSelectorFactory<ExpenseCategoryJournalViewModel>(
+					typeof(IncomeCategory),
+					() => Scope.Resolve<ExpenseCategoryJournalViewModel>());
 
-			SubdivisionAutocompleteSelectorFactory =
-				subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
-					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+			SubdivisionAutocompleteSelectorFactory = subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(Scope);
 			
 			if(uowBuilder.IsNewEntity)
 				TabName = "Создание новой категории расхода";

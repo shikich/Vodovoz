@@ -1,16 +1,20 @@
 using System;
 using System.IO;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Journal.EntitySelector;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Additions.Accounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Accounting
 {
@@ -24,11 +28,9 @@ namespace Vodovoz.ViewModels.Accounting
             INavigationManager navigation,
             IWayBillDocumentRepository wayBillDocumentRepository,
             RouteGeometryCalculator calculator,
-            IEntityAutocompleteSelectorFactory entityAutocompleteSelectorFactory,
-            IDocTemplateRepository docTemplateRepository) : base(unitOfWorkFactory, interactiveService, navigation)
+			IDocTemplateRepository docTemplateRepository,
+			ILifetimeScope scope) : base(unitOfWorkFactory, interactiveService, navigation, scope)
         {
-            EntityAutocompleteSelectorFactory = entityAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(entityAutocompleteSelectorFactory));
-
             if (wayBillDocumentRepository == null)
                 throw new ArgumentNullException(nameof(wayBillDocumentRepository));
             
@@ -40,9 +42,10 @@ namespace Vodovoz.ViewModels.Accounting
             
             TabName = "Путевые листы для ФО";
             CreateCommands();
-        }
+			CreateEntryViewModel();
+		}
 
-        #region Properties
+		#region Properties
 
         private Employee mechanic;
         public Employee Mechanic {
@@ -64,7 +67,7 @@ namespace Vodovoz.ViewModels.Accounting
             set => Entity.EndDate = value;
         }
 
-        public IEntityAutocompleteSelectorFactory EntityAutocompleteSelectorFactory { get; }
+        public IEntityEntryViewModel WorkingEmployeeViewModel { get; private set; }
 
         #endregion
         
@@ -109,5 +112,15 @@ namespace Vodovoz.ViewModels.Accounting
         public DelegateCommand UnloadCommand { get; private set; }
         public DelegateCommand PrintCommand { get; private set; }
         #endregion
+		
+		private void CreateEntryViewModel()
+		{
+			var builder = new CommonEEVMBuilderFactory<WayBillGeneratorViewModel>(this, this, UoW, NavigationManager, Scope);
+			WorkingEmployeeViewModel = builder.ForProperty(x => x.Mechanic)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					x => x.Status = EmployeeStatus.IsWorking)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+		}
     }
 }

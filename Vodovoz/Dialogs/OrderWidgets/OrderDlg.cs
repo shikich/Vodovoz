@@ -84,6 +84,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
+using Vodovoz.ViewModels.TempAdapters;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -140,7 +142,8 @@ namespace Vodovoz
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
-		
+		private IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		private  INomenclatureRepository nomenclatureRepository;
@@ -379,6 +382,9 @@ namespace Vodovoz
 			{
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
+			
+			//TODO проверить scope
+			_deliveryPointJournalFactory = MainClass.AppDIContainer.Resolve<IDeliveryPointJournalFactory>();
 
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
@@ -500,10 +506,15 @@ namespace Vodovoz
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
 			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; };
 
-			var counterpartyFilter = new CounterpartyJournalFilterViewModel() { IsForRetail = this.IsForRetail, RestrictIncludeArchive = false };
+			var filterParams = new Action<CounterpartyJournalFilterViewModel>[]
+			{
+				x => x.IsForRetail = this.IsForRetail,
+				x => x.RestrictIncludeArchive = false
+			};
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty), 
-				() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
+				() => new CounterpartyJournalViewModel(
+					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, null, null, filterParams))
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -1647,8 +1658,10 @@ namespace Vodovoz
 				return;
 
 			var defaultCategory = NomenclatureCategory.water;
-			if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
-				defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+			var userSettings = MainClass.AppDIContainer.Resolve<ICurrentUserSettings>().Settings;
+			
+			if(userSettings.DefaultSaleCategory.HasValue)
+				defaultCategory = userSettings.DefaultSaleCategory.Value;
 
 			var nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.SetAndRefilterAtOnce(
@@ -1951,9 +1964,15 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
 			if(Entity.Client != null)
 			{
-				var filter = new DeliveryPointJournalFilterViewModel() {Counterparty = Entity.Client, HidenByDefault = true};
-				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(filter)
-					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+				//TODO проверить работоспособность
+				var filterParams = new Action<DeliveryPointJournalFilterViewModel>[]
+				{
+					x => x.Counterparty = Entity.Client,
+					x => x.HidenByDefault = true
+				};
+				_deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(filterParams);
+				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(
+					_deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory(MainClass.AppDIContainer));
 				evmeDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
@@ -2517,7 +2536,7 @@ namespace Vodovoz
 		/// дополнительном соглашении
 		/// </summary>
 		private bool OrderItemEquipmentCountHasChanges;
-
+		
 		/// <summary>
 		/// При изменении количества оборудования в списке товаров меняет его
 		/// также в доп. соглашении и списке оборудования заказа
@@ -2859,7 +2878,7 @@ namespace Vodovoz
 			email.AuthorId = _currentEmployee?.Id ?? 0;
 			email.ManualSending = false;
 			
-			IEmailService service = EmailServiceSetting.GetEmailService();
+			IEmailService service = MainClass.AppDIContainer.Resolve<EmailServiceSetting>().GetEmailService();
 			if(service == null) {
 				return;
 			}

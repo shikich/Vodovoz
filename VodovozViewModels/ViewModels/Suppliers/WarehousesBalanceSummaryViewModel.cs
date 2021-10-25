@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Multi;
@@ -31,8 +32,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private BalanceSummaryReport _report;
 
 		public WarehousesBalanceSummaryViewModel(
-			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation)
-			: base(unitOfWorkFactory, interactiveService, navigation)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
+			INavigationManager navigation,
+			ILifetimeScope scope = null)
+			: base(unitOfWorkFactory, interactiveService, navigation, scope)
 		{
 			TabName = "Остатки по складам";
 		}

@@ -4,6 +4,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels;
 using System;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Navigation;
@@ -33,14 +34,16 @@ namespace Vodovoz.JournalViewModels
 		private readonly IPaymentsRepository _paymentsRepository;
 
 		public PaymentsJournalViewModel(
-			PaymentsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IOrderRepository orderRepository,
 			IOrganizationParametersProvider organizationParametersProvider,
 			IProfitCategoryProvider profitCategoryProvider,
-			IPaymentsRepository paymentsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IPaymentsRepository paymentsRepository,
+			ILifetimeScope scope,
+			params Action<PaymentsJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, navigationManager, scope, filterParams)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

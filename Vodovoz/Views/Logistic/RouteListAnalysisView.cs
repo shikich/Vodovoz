@@ -14,6 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic

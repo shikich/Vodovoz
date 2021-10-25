@@ -58,7 +58,7 @@ namespace Vodovoz.JournalViewModels
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
 			this.employeeRepository = employeeRepository;
@@ -71,7 +71,7 @@ namespace Vodovoz.JournalViewModels
 			this.footerViewModel = footerViewModel;
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
+			actionsViewModel = new BusinessTasksJournalActionsViewModel();
 
 			RegisterTasks();
 			

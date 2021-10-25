@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -16,8 +17,9 @@ namespace Vodovoz.Journals.JournalViewModels
 		public PhoneTypeJournalViewModel(
 			IPhoneRepository phoneRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			ILifetimeScope scope = null)
+			: base(unitOfWorkFactory, commonServices, scope)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));

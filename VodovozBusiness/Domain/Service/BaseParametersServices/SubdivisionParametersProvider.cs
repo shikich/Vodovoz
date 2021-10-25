@@ -6,16 +6,11 @@ namespace Vodovoz.Domain.Service.BaseParametersServices
 {
 	public class SubdivisionParametersProvider : ISubdivisionService
 	{
-		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
-		public static SubdivisionParametersProvider Instance { get; private set; }
-
-		static SubdivisionParametersProvider()
+		private readonly IParametersProvider _parametersProvider;
+		
+		public SubdivisionParametersProvider(IParametersProvider parametersProvider)
 		{
-			Instance = new SubdivisionParametersProvider();
-		}
-
-		private SubdivisionParametersProvider()
-		{
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
 
 		public int GetOkkId()

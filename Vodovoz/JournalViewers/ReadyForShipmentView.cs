@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Linq;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
 	public partial class ReadyForShipmentView : QS.Dialog.Gtk.TdiTabBase
 	{
+		private readonly ICurrentUserSettings _currentUserSettings;
 		private IUnitOfWork uow;
 
 		ReadyForShipmentVM viewModel;
@@ -21,13 +22,16 @@ namespace Vodovoz
 				viewModel = new ReadyForShipmentVM(value);
 				readyforshipmentfilter1.UoW = value;
 				viewModel.Filter = readyforshipmentfilter1;
+				viewModel.Filter.DefaultWarehouse = _currentUserSettings.Settings.DefaultWarehouse;
 				tableReadyForShipment.RepresentationModel = viewModel;
 				tableReadyForShipment.RepresentationModel.UpdateNodes();
 			}
 		}
 
-		public ReadyForShipmentView()
+		public ReadyForShipmentView(ICurrentUserSettings currentUserSettings)
 		{
+			_currentUserSettings = currentUserSettings ?? throw new ArgumentNullException(nameof(currentUserSettings));
+
 			this.Build();
 			this.TabName = "Готовые к погрузке";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();

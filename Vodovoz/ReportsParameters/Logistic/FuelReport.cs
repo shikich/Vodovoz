@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals.JournalViewModels;
 using QS.Project.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 
 namespace Vodovoz.Reports
 {
@@ -76,7 +74,7 @@ namespace Vodovoz.Reports
 			if(radioSumm.Active) {
 				parameters.Add("car_id", -1);
 				parameters.Add("driver_id", -1);
-				parameters.Add("author", yentryAuthor.Subject == null ? -1 : (yentryAuthor.Subject as Employee).Id);
+				parameters.Add("author", (yentryAuthor.Subject as Employee).GetIdOrNull() ?? -1);
 
 				return new ReportInfo {
 					Identifier = yCheckButtonDatailedSummary.Active?"Logistic.FuelReportSummaryDetailed":"Logistic.FuelReportSummaryBasic",

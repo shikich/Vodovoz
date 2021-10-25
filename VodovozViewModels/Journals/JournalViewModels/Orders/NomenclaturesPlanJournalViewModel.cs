@@ -10,6 +10,7 @@ using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -22,7 +23,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	        NomenclaturePlanFilterViewModel filterViewModel,
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Журнал План продаж для КЦ";
             UpdateOnChanges(typeof(Nomenclature));

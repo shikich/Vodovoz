@@ -1183,7 +1183,7 @@ namespace Vodovoz
 				}
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id),
-					() => new RouteListCreateDlg(routeList)
+					() => new RouteListCreateDlg(routeList.Id)
 				);
 			}
 		}

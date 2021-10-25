@@ -6,6 +6,8 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
+using Autofac;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
@@ -61,16 +63,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IInteractiveService interactiveService, 
             INavigationManager navigation,
             CashRequestUserRole userRole,
-            IEmployeeJournalFactory employeeJournalFactory) 
-            : base(interactiveService, navigation)
+            ILifetimeScope scope)
+            : base(interactiveService, navigation, scope)
         {
-	        EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 	        UoW = uow;
             UserRole = userRole;
         }
 
         public EventHandler EntityAccepted;
-        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+        public IEntityEntryViewModel EmployeeJournalFactory { get; }
 
         //Создана - только для невыданных сумм - Заявитель, Согласователь
         //Согласована - Согласователь

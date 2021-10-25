@@ -19,7 +19,7 @@ namespace Vodovoz.Journals.JournalViewModels
             DriverCarKindJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Виды наёмных автомобилей";
             UpdateOnChanges(typeof(DriverCarKind));

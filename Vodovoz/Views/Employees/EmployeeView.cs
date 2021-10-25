@@ -184,13 +184,10 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.IsValidNewMobileUser, w => w.Sensitive)
 				.InitializeFromSource();
 
-			defaultForwarderEntry.ViewModel.IsEditable = false;
-			//defaultForwarderEntry.SetEntityAutocompleteSelectorFactory(
-			//	ViewModel.EmployeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory());
-			//defaultForwarderEntry.Binding
-			//	.AddBinding(ViewModel.Entity, e => e.DefaultForwarder, w => w.Subject)
-			//	.InitializeFromSource();
-			
+			defaultForwarderEntry.ViewModel = ViewModel.DefaultForwarderViewModel;
+			//TODO разобраться с IsEditable
+			//defaultForwarderEntry.ViewModel.IsEditable = false;
+
 			yspinTripsPriority.Binding
 				.AddBinding(ViewModel.Entity, e => e.TripPriority, w => w.ValueAsShort)
 				.InitializeFromSource();
@@ -577,12 +574,12 @@ namespace Vodovoz.Views.Employees
 
 		private void ConfigureSubdivision()
 		{
+			//TODO просмотреть и возможно все на новый энтри переделать
 			if(ViewModel.CanManageDriversAndForwarders && !ViewModel.CanManageOfficeWorkers)
 			{
 				var entityentrySubdivision = new EntityViewModelEntry();
 				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
-					ViewModel.SubdivisionJournalFactory.CreateLogisticSubdivisionAutocompleteSelectorFactory(
-						ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
+					ViewModel.SubdivisionJournalFactory.CreateLogisticSubdivisionAutocompleteSelectorFactory(ViewModel.Scope));
 				entityentrySubdivision.Binding
 					.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject)
 					.InitializeFromSource();

@@ -1,46 +1,32 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Journals.JournalViewModels.Organization
 {
 	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
-
 		public SubdivisionsJournalViewModel(
-			SubdivisionFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<SubdivisionFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			TabName = "Выбор подразделения";
 		}
 
@@ -87,13 +73,30 @@ namespace Vodovoz.Journals.JournalViewModels.Organization
 		};
 
 		protected override Func<SubdivisionViewModel> CreateDialogFunction =>
-			() => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory,
-				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()));
+			() =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<SubdivisionViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+				
+				/*return new SubdivisionViewModel(
+					EntityUoWBuilder.ForCreate(),
+					unitOfWorkFactory,
+					commonServices,
+					new PermissionRepository(),
+					_salesPlanJournalFactory,
+					_nomenclatureSelectorFactory,
+					new SubdivisionRepository(new ParametersProvider()));*/
+			};
 
 		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction =>
-			node => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory,
-				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()));
+			node =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<SubdivisionViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+				
+				/*return new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices,
+					new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
+					new SubdivisionRepository(new ParametersProvider()));*/
+			};
 	}
 }

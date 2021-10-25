@@ -1,115 +1,70 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
-using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
-	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeViewModel, EmployeeJournalNode, EmployeeFilterViewModel>
+	public class EmployeesJournalViewModel : EntityJournalViewModelBase<Employee, EmployeeViewModel, EmployeeJournalNode>
 	{
-		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
+		private EmployeeFilterViewModel FilterViewModel;
 		private readonly IAuthorizationService _authorizationService;
-		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory;
-		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
-		private readonly ISubdivisionService _subdivisionService;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
-		private readonly IWageCalculationRepository _wageCalculationRepository;
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IValidationContextFactory _validationContextFactory;
-		private readonly IPhonesViewModelFactory _phonesViewModelFactory;
-		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
-		private readonly IWarehouseRepository _warehouseRepository;
-		private readonly IRouteListRepository _routeListRepository;
-		private readonly UserSettings _userSettings;
 		
 		public EmployeesJournalViewModel(
-			EmployeeFilterViewModel filterViewModel,
-			IAuthorizationServiceFactory authorizationServiceFactory,
-			IEmployeeWageParametersFactory employeeWageParametersFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IEmployeePostsJournalFactory employeePostsJournalFactory,
-			ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
-			ISubdivisionService subdivisionService,
-			IEmailServiceSettingAdapter emailServiceSettingAdapter,
-			IWageCalculationRepository wageCalculationRepository,
-			IEmployeeRepository employeeRepository,
-			IWarehouseRepository warehouseRepository,
-			IRouteListRepository routeListRepository,
-			UserSettings userSettings,
-			IValidationContextFactory validationContextFactory,
-			IPhonesViewModelFactory phonesViewModelFactory,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
-			ICommonServices commonServices,
-			IUnitOfWorkFactory unitOfWorkFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUnitOfWorkFactory uowFactory,
+			IInteractiveService interactiveService,
+			INavigationManager navigationManager,
+			ICurrentPermissionService currentPermissionService = null,
+			IDeleteEntityService deleteEntityService = null,
+			ILifetimeScope scope = null,
+			Action<EmployeeFilterViewModel>[] filterParams = null)
+			: base(uowFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService, scope)
 		{
 			TabName = "Журнал сотрудников";
-		
-			_authorizationServiceFactory =
-				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
-			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
-			_employeeWageParametersFactory =
-				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_employeePostsJournalFactory =
-				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory));
-			_cashDistributionCommonOrganisationProvider =
-				cashDistributionCommonOrganisationProvider ??
-				throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
-			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
-			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
-			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
-			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
-			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
-			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-
-			UpdateOnChanges(typeof(Employee));
+			
+			_authorizationService = Scope.Resolve<IAuthorizationService>();
+			ConfigureFilter(filterParams);
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) => 
+		private void ConfigureFilter(Action<EmployeeFilterViewModel>[] filterParams)
+		{
+			JournalFilter = FilterViewModel = Scope.Resolve<EmployeeFilterViewModel>();
+			
+			if(filterParams != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterParams);
+			}
+
+			FilterViewModel.OnFiltered += (s, args) => Refresh();
+		}
+
+		protected override IQueryOver<Employee> ItemsQuery(IUnitOfWork uow) 
 		{
 			EmployeeJournalNode resultAlias = null;
 			Employee employeeAlias = null;
 
 			var query = uow.Session.QueryOver(() => employeeAlias);
 
+			#region Фильтр
+			
 			if(FilterViewModel?.Status != null)
 			{
 				query.Where(e => e.Status == FilterViewModel.Status);
@@ -138,8 +93,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				DriverAttachedTerminalGiveoutDocument giveoutAlias = null;
 				var baseQuery = QueryOver.Of(() => baseAlias)
 					.Where(doc => doc.Driver.Id == employeeAlias.Id)
-					.Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
-				var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
+					.Select(doc => doc.Id)
+					.OrderBy(doc => doc.CreationDate)
+					.Desc.Take(1);
+				var giveoutQuery = QueryOver.Of(() => giveoutAlias)
+					.WithSubquery.WhereProperty(giveout => giveout.Id)
+					.Eq(baseQuery)
 					.Select(doc => doc.Driver.Id);
 
 				if(relation == DriverTerminalRelation.WithTerminal)
@@ -227,6 +186,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				query.Where(e => e.IsRussianCitizen);
 			}
 
+			#endregion
+			
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
 				() => employeeAlias.LastName,
@@ -316,22 +277,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 					.OrderBy(x => x.Patronymic).Asc
 					.TransformUsing(Transformers.AliasToBean<EmployeeJournalNode>());
 			return result;
-		};
+		}
 
 		private void ResetPasswordForEmployee(Employee employee)
 		{
 			if (string.IsNullOrWhiteSpace(employee.Email))
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
+				ShowInfoMessage("Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
 				return;
 			}
 			if (_authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email))
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
+				ShowInfoMessage("Email с паролем отправлена успешно");
 			}
 			else
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
+				ShowInfoMessage("Ошибка при отправке Email");
 			}
 		}
 
@@ -355,21 +316,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 						if(employee.User == null)
 						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"К сотруднику не привязан пользователь!");
-
+							ShowErrorMessage("К сотруднику не привязан пользователь!");
 							return;
 						}
 
 						if(string.IsNullOrEmpty(employee.User.Login))
 						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"У пользователя не заполнен логин!");
-
+							ShowErrorMessage("У пользователя не заполнен логин!");
 							return;
 						}
 
-						if(commonServices.InteractiveService.Question("Вы уверены?"))
+						if(AskQuestion("Вы уверены?"))
 						{
 							ResetPasswordForEmployee(employee);
 						}
@@ -380,50 +337,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			PopupActionsList.Add(resetPassAction);
 			NodeActionsList.Add(resetPassAction);
 		}
-
-		protected override Func<EmployeeViewModel> CreateDialogFunction => () => new EmployeeViewModel(
-			_authorizationServiceFactory.CreateNewAuthorizationService(),
-			_employeeWageParametersFactory,
-			_employeeJournalFactory,
-			_subdivisionJournalFactory,
-			_employeePostsJournalFactory,
-			_cashDistributionCommonOrganisationProvider,
-			_subdivisionService,
-			_emailServiceSettingAdapter,
-			_wageCalculationRepository,
-			_employeeRepository,
-			EntityUoWBuilder.ForCreate().CreateUoW<Employee>(UnitOfWorkFactory),
-			commonServices,
-			_validationContextFactory,
-			_phonesViewModelFactory,
-			_warehouseRepository,
-			_routeListRepository,
-			_driverApiUserRegisterEndpoint,
-			_userSettings,
-			new UserRepository(),
-			new BaseParametersProvider(new ParametersProvider()));
-
-		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
-			n => new EmployeeViewModel(
-				_authorizationServiceFactory.CreateNewAuthorizationService(),
-				_employeeWageParametersFactory,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_employeePostsJournalFactory,
-				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
-				_emailServiceSettingAdapter,
-				_wageCalculationRepository,
-				_employeeRepository,
-				EntityUoWBuilder.ForOpen(n.Id).CreateUoW<Employee>(UnitOfWorkFactory),
-				commonServices,
-				_validationContextFactory,
-				_phonesViewModelFactory,
-				_warehouseRepository,
-				_routeListRepository,
-				_driverApiUserRegisterEndpoint,
-				_userSettings,
-				new UserRepository(),
-				new BaseParametersProvider(new ParametersProvider()));
 	}
 }

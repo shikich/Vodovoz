@@ -26,6 +26,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 
 namespace Vodovoz
 {

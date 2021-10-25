@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using fyiReporting.RdlGtkViewer;
 using RdlEngine;
 
@@ -19,13 +20,18 @@ namespace Vodovoz.Additions
 {
 	public class ManualEmailSender
 	{
-		public ManualEmailSender()
+		private readonly ILifetimeScope _scope;
+
+		public ManualEmailSender(ILifetimeScope scope)
 		{
+			_scope = scope;
 		}
 
 		public void ResendEmailWithErrorSendingStatus(DateTime date)
 		{
-			IEmailService service = EmailServiceSetting.GetEmailService();
+			var settings = _scope.Resolve<EmailServiceSetting>();
+			var service = settings.GetEmailService();
+			
 			if(service == null) {
 				return;
 			}
@@ -91,6 +97,7 @@ namespace Vodovoz.Additions
 					service.SendOrderEmail(email);
 				}
 			}
+			settings.Dispose();
 		}
 	}
 }

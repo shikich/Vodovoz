@@ -65,6 +65,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters.Cash;
@@ -90,6 +91,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -494,24 +498,21 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
+		var factory = autofacScope.Resolve<ICallTaskDlgFactory>();
+		
 		tdiMain.OpenTab(
 			"CRM",
-			() => new TasksView(new EmployeeRepository(),
-								new BottlesRepository(),
-								new CallTaskRepository(),
-								new PhoneRepository(),
-								new EmployeeJournalFactory(),
-								new DeliveryPointRepository()), null
+			() => new TasksView(
+				new DeliveryPointRepository(),
+				autofacScope.BeginLifetimeScope(),
+				NavigationManager,
+				factory)
 		);
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
-		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
-		var debtorsJournal = new DebtorsJournalViewModel(
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), new DebtorsParameters(new ParametersProvider()));
-
-		tdiMain.AddTab(debtorsJournal);
+		NavigationManager.OpenViewModel<DebtorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
@@ -585,24 +586,7 @@ public partial class MainWindow : Window
 
 	void ActionAtWorks_Activated(object sender, EventArgs e)
 	{
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
-
-		cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
-
-		var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
-
-		var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
-
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(
-				new BaseParametersProvider(new ParametersProvider()),
-				employeeJournalFactory,
-				driverApiRegisterEndpoint
-				)
-		);
+		NavigationManager.OpenTdiTab<AtWorksDlg>(null);
 	}
 
 	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
@@ -616,25 +600,7 @@ public partial class MainWindow : Window
 				() => new RoutesAtDayDlg()
 			);
 		else
-			tdiMain.OpenTab(
-				"AutoRouting",
-				() => new RouteListsOnDayViewModel(
-					ServicesConfig.CommonServices,
-					new DeliveryScheduleParametersProvider(parametersProvider),
-					new GtkTabsOpener(),
-					new RouteListRepository(new StockRepository(), baseParametersProvider),
-					new SubdivisionRepository(parametersProvider),
-					new OrderRepository(),
-					new AtWorkRepository(),
-					new CarRepository(),
-					NavigationManagerProvider.NavigationManager,
-					new UserRepository(),
-					baseParametersProvider,
-					new EmployeeJournalFactory(),
-					new GeographicGroupRepository(),
-					new ScheduleRestrictionRepository()
-				)
-			);
+			NavigationManager.OpenViewModel<RouteListsOnDayViewModel>(null);
 	}
 
 	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
@@ -663,7 +629,7 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
-		var filter = new PaymentsJournalFilterViewModel();
+		/*var filter = new PaymentsJournalFilterViewModel();
 		var paymentsRepository = new PaymentsRepository();
 		var parametersProvider = new ParametersProvider();
 
@@ -678,12 +644,13 @@ public partial class MainWindow : Window
 			paymentsRepository
 		);
 
-		tdiMain.AddTab(paymentsJournalViewModel);
+		tdiMain.AddTab(paymentsJournalViewModel);*/
+		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
 	{
-		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
+		/*var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
 
 		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
 			filter,
@@ -693,9 +660,9 @@ public partial class MainWindow : Window
 			new EntityDeleteWorker(),
 			true,
 			true
-		);
+		);*/
 
-		tdiMain.AddTab(paymentsJournalViewModel);
+		NavigationManager.OpenViewModel<FinancialDistrictsSetsJournalViewModel, bool, bool>(null, true, true);
 	}
 
 
@@ -712,11 +679,11 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		/*var counterpartyJournalFactory = new CounterpartyJournalFactory();
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var parametersProvider = new ParametersProvider();
 
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
+		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, _currentUserSettings);
 
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new [] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
@@ -744,7 +711,21 @@ public partial class MainWindow : Window
 			VodovozGtkServicesConfig.EmployeeService
 		);
 
-		tdiMain.AddTab(selfDeliveriesJournal);
+		tdiMain.AddTab(selfDeliveriesJournal);*/
+		var filterParams = new Action<OrderJournalFilterViewModel>[]
+		{
+			x => x.AllowStatuses = new [] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
+			x => x.RestrictOnlySelfDelivery = true,
+			x => x.RestrictWithoutSelfDelivery = false,
+			x => x.RestrictHideService = true,
+			x => x.RestrictOnlyService = false,
+			x => x.RestrictLessThreeHours = false,
+			x => x.SortDeliveryDate = false,
+			x => x.HidenByDefault = true
+		};
+
+		NavigationManager.OpenViewModel<SelfDeliveriesJournalViewModel, Action<OrderJournalFilterViewModel>[]>(
+			null, filterParams, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)
@@ -767,7 +748,7 @@ public partial class MainWindow : Window
 
 	void ActionFuelTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		/*ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		IFuelRepository fuelRepository = new FuelRepository();
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
 		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
@@ -793,12 +774,14 @@ public partial class MainWindow : Window
 			fileChooserProvider,
 			expenseCategoryJournalFilterViewModel
 		);
-		tdiMain.AddTab(fuelDocumentsJournalViewModel);
+		tdiMain.AddTab(fuelDocumentsJournalViewModel);*/
+		
+		NavigationManager.OpenViewModel<FuelDocumentsJournalViewModel>(null);
 	}
 
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
-		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
+		/*var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
 			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
 
 		var employeeFilter = new EmployeeFilterViewModel
@@ -817,7 +800,14 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator,
 			VodovozGtkServicesConfig.EmployeeService)
-		);
+		);*/
+		var filterParams = new Action<OrganizationCashTransferDocumentFilterViewModel>[]
+		{
+			x => x.HidenByDefault = true
+		};
+		NavigationManager
+			.OpenViewModel<OrganizationCashTransferDocumentJournalViewModel, Action<OrganizationCashTransferDocumentFilterViewModel>[]>(
+				null, filterParams);
 	}
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
@@ -838,10 +828,10 @@ public partial class MainWindow : Window
 
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-		IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
+		//IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		//IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
 
-		var subdivisionAutocompleteSelectorFactory =
+		/*var subdivisionAutocompleteSelectorFactory =
 			new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
 			{
 				return new SubdivisionsJournalViewModel(
@@ -852,9 +842,9 @@ public partial class MainWindow : Window
 					new SalesPlanJournalFactory(),
 					new NomenclatureSelectorFactory()
 				);
-			});
+			});*/
 
-		tdiMain.OpenTab(() => new PremiumJournalViewModel(
+		/*tdiMain.OpenTab(() => new PremiumJournalViewModel(
 			new PremiumJournalFilterViewModel(subdivisionAutocompleteSelectorFactory) { HidenByDefault = true },
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
@@ -862,7 +852,8 @@ public partial class MainWindow : Window
 			employeeJournalFactory,
 			premiumTemplateJournalFactory
 			)
-		);
+		);*/
+		NavigationManager.OpenViewModel<PremiumJournalViewModel>(null);
 	}
 
 	void ActionCarProxiesJournal_Activated(object sender, System.EventArgs e)
@@ -992,7 +983,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ReadyForShipmentView>(),
-			() => new ReadyForShipmentView()
+			() => new ReadyForShipmentView(_currentUserSettings)
 		);
 	}
 
@@ -1000,7 +991,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ReadyForReceptionView>(),
-			() => new ReadyForReceptionView()
+			() => new ReadyForReceptionView(_currentUserSettings)
 		);
 	}
 
@@ -1034,16 +1025,15 @@ public partial class MainWindow : Window
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
 		}
-
-		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+		
 		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory())
 		{
 			ShowArchive = true
 		};
 
-		if(userHasOnlyAccessToWarehouseAndComplaints && defaultWarehouse != null)
+		if(userHasOnlyAccessToWarehouseAndComplaints && _currentUserSettings.Settings.DefaultWarehouse != null)
 		{
-			filter.RestrictWarehouse = defaultWarehouse;
+			filter.RestrictWarehouse = _currentUserSettings.Settings.DefaultWarehouse;
 		}
 
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
@@ -1059,7 +1049,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<WarehouseDocumentsView>(),
-			() => new WarehouseDocumentsView()
+			() => new WarehouseDocumentsView(_currentUserSettings.Settings)
 		);
 	}
 
@@ -1073,34 +1063,49 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		/*var counterpartyJournalFactory = new CounterpartyJournalFactory();
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, _currentUserSettings)
 		{
 			IsForRetail = false
-		};
+		};*/
 
-		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, filter, OpenPageOptions.IgnoreHash);
+		var filterParams = new Action<OrderJournalFilterViewModel>[]
+		{
+			x => x.IsForRetail = false
+		};
+		NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>[]>(
+			null, filterParams, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+		/*ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(new OrderSelectorFactory(), new EmployeeJournalFactory(),
+			new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
 		{
 			HidenByDefault = true,
 			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
 			RestrictNotIsProblematicCases = true
 		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+		*/
+		var filterParams = new UndeliveredOrdersFilterViewModelParameters(new CustomUndeliveredOrdersFilterParameters(
+			new Action<UndeliveredOrdersFilterViewModel>[]
+			{
+				x => x.HidenByDefault = true,
+				x => x.RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
+				x => x.RestrictNotIsProblematicCases = true
+			},
+			false));
+		
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModelParameters>(
+			null, filterParams, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
-		IMoneyRepository moneyRepository = new MoneyRepository();
+		/*IMoneyRepository moneyRepository = new MoneyRepository();
 		IDepositRepository depositRepository = new DepositRepository();
 		IBottlesRepository bottlesRepository = new BottlesRepository();
 		ResidueFilterViewModel filter = new ResidueFilterViewModel();
@@ -1117,7 +1122,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
 		);
-		tdiMain.AddTab(residueJournalViewModel);
+		tdiMain.AddTab(residueJournalViewModel);*/
+		NavigationManager.OpenViewModel<ResidueJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionTransferOperationJournal_Activated(object sender, System.EventArgs e)
@@ -1138,15 +1144,16 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
+		/*var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
 		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
-			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
+			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));*/
+		NavigationManager.OpenViewModel<DistrictsSetJournalViewModel, bool, bool>(null, true, true);
 	}
 
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)
 	{
-		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		/*ICarJournalFactory carJournalFactory = new CarJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 
 		var carEventFilter = new CarEventFilterViewModel(carJournalFactory, carEventTypeJournalFactory) { HidenByDefault = true };
@@ -1158,6 +1165,7 @@ public partial class MainWindow : Window
 			carJournalFactory,
 			carEventTypeJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService)
-		);
+		);*/
+		NavigationManager.OpenViewModel<CarEventJournalViewModel>(null);
 	}
 }

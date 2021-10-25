@@ -6,6 +6,14 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class ResidueFilterViewModel : FilterViewModelBase<ResidueFilterViewModel>
 	{
+		public ResidueFilterViewModel(params Action<ResidueFilterViewModel>[] filterParams)
+		{
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
+		}
+		
 		private DateTime? startDate;
 		public virtual DateTime? StartDate {
 			get => startDate;

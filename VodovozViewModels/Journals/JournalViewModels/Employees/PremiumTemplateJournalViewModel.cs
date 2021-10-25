@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -15,8 +16,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 	public class PremiumTemplateJournalViewModel : SingleEntityJournalViewModelBase<PremiumTemplate, PremiumTemplateViewModel,
 		PremiumTemplateJournalNode>
 	{
-		public PremiumTemplateJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+		public PremiumTemplateJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null)
+			: base(unitOfWorkFactory, commonServices, scope)
 		{
 			TabName = "Журнал шаблонов премий";
 

@@ -14,8 +14,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Retail
 {
     public class SalesChannelJournalViewModel : FilterableSingleEntityJournalViewModelBase<SalesChannel, SalesChannelViewModel, SalesChannelJournalNode, SalesChannelJournalFilterViewModel>
     {
-        public SalesChannelJournalViewModel(SalesChannelJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public SalesChannelJournalViewModel(
+			SalesChannelJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Журнал каналов сбыта";
 

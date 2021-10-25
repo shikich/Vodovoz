@@ -1,69 +1,52 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using System.Collections.Generic;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain.Client;
+using Autofac;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 
 namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
-		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
+		public IEntitySelector CreateOrderSelectorForDocument(
+			ILifetimeScope scope, params Action<OrderForMovDocJournalFilterViewModel>[] filterParams)
 		{
-			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
-			orderFilterVM.IsOnlineStoreOrders = IsOnlineStoreOrders;
-			orderFilterVM.OrderStatuses = orderStatuses;
+			var newScope = scope.BeginLifetimeScope();
+			OrderJournalViewModel journal;
+			
+			if(filterParams != null)
+			{
+				journal = newScope.Resolve<OrderJournalViewModel>(
+					new TypedParameter(typeof(Action<OrderJournalFilterViewModel>[]), filterParams));
+			}
+			else
+			{
+				journal = newScope.Resolve<OrderJournalViewModel>();
+			}
 
-			OrderForMovDocJournalViewModel vm = new OrderForMovDocJournalViewModel(
-				orderFilterVM,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			) {
-				SelectionMode = JournalSelectionMode.Multiple
-			};
-
-			return vm;
+			journal.SelectionMode = JournalSelectionMode.Multiple;
+			
+			return journal;
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory(
+			ILifetimeScope scope, params Action<OrderJournalFilterViewModel>[] filterParams)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-			var counterpartyJournalFactory = new CounterpartyJournalFactory();
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
-
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order),
-				() => new OrderJournalViewModel(
-					new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					VodovozGtkServicesConfig.EmployeeService,
-					nomenclatureRepository,
-					userRepository,
-					new OrderSelectorFactory(),
-					new EmployeeJournalFactory(),
-					counterpartyJournalFactory,
-					new DeliveryPointJournalFactory(),
-					subdivisionJournalFactory,
-					new GtkTabsOpener(),
-					new UndeliveredOrdersJournalOpener(),
-					new NomenclatureSelectorFactory(),
-					new UndeliveredOrdersRepository()
-				)
+				() =>
+				{
+					var newScope = scope.BeginLifetimeScope();
+
+					if(filterParams != null)
+					{
+						return newScope.Resolve<OrderJournalViewModel>(
+							new TypedParameter(typeof(Action<OrderJournalFilterViewModel>[]), filterParams));
+					}
+
+					return newScope.Resolve<OrderJournalViewModel>();
+				}
 			);
 		}
 	}

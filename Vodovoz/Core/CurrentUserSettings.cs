@@ -1,32 +1,27 @@
 ﻿using QSOrmProject.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
-	public static class CurrentUserSettings
+	public class CurrentUserSettings : ICurrentUserSettings
 	{
-		static UserSettingsManager<UserSettings> manager = new UserSettingsManager<UserSettings>();
+		private readonly UserSettingsManager<UserSettings> _manager;
+		private readonly IUserRepository _userRepository = new UserRepository();
 
-		static CurrentUserSettings()
+		public CurrentUserSettings()
 		{
-			var userRepository = new UserRepository();
-			manager.CreateUserSettings = uow => new UserSettings(userRepository.GetCurrentUser(uow));
-			manager.LoadUserSettings = userRepository.GetCurrentUserSettings;
-		}
-
-		public static UserSettings Settings
-		{
-			get
+			_manager = new UserSettingsManager<UserSettings>
 			{
-				return manager.Settings;
-			}
+				CreateUserSettings = uow => new UserSettings(_userRepository.GetCurrentUser(uow)),
+				LoadUserSettings = _userRepository.GetCurrentUserSettings
+			};
 		}
 
-		public static void SaveSettings()
-		{
-			manager.SaveSettings();
-		}
+		public UserSettings Settings => _manager.Settings;
+
+		public void SaveSettings() => _manager.SaveSettings();
 	}
 }
 

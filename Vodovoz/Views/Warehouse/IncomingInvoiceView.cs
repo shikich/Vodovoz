@@ -8,6 +8,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.Views.Warehouse

@@ -1,27 +1,34 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class OrderForMovDocJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForMovDocJournalNode, OrderForMovDocJournalFilterViewModel>
 	{
-		public OrderForMovDocJournalViewModel(OrderForMovDocJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public OrderForMovDocJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<OrderForMovDocJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
 			TabName = "Журнал заказов";
-			filterViewModel.SetAndRefilterAtOnce(x => x.IsOnlineStoreOrders = true);
 		}
 
 		protected override void CreateNodeActions()

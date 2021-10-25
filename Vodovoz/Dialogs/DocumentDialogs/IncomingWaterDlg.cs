@@ -21,6 +21,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz
 {

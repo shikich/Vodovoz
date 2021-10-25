@@ -15,6 +15,7 @@ namespace Vodovoz
 	public partial class ReadyForReceptionFilter : RepresentationFilterBase<ReadyForReceptionFilter>, ISingleUoWDialog
 	{
         public Warehouse RestrictWarehouse { get; set; }
+        public Warehouse DefaultWarehouse { get; set; }
 
         protected override void ConfigureWithUow()
 		{
@@ -27,7 +28,7 @@ namespace Vodovoz
             
             if (warehousesList.Count > 5)
             {
-                entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+                entryWarehouses.Subject = DefaultWarehouse;
                 entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory());
 
                 entryWarehouses.Visible = true;
@@ -36,7 +37,7 @@ namespace Vodovoz
             else
             {
                 comboWarehouses.ItemsList = warehousesList;
-                comboWarehouses.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+                comboWarehouses.SelectedItem = DefaultWarehouse;
 
                 entryWarehouses.Visible = false;
                 comboWarehouses.Visible = true;

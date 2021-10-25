@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
 using QS.Services;
 using QS.Utilities;
@@ -16,10 +17,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 
@@ -28,7 +27,6 @@ namespace Vodovoz.ViewModels
 	public class ResidueViewModel : EntityTabViewModelBase<Residue>
 	{
 		private readonly IEmployeeService employeeService;
-		private readonly IRepresentationEntityPicker entityPicker;
 		private readonly IBottlesRepository bottlesRepository;
 		private readonly IDepositRepository depositRepository;
 		private readonly IMoneyRepository moneyRepository;
@@ -37,17 +35,15 @@ namespace Vodovoz.ViewModels
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			IEmployeeService employeeService,
-			IRepresentationEntityPicker entityPicker,
 			IBottlesRepository bottlesRepository,
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
-		)
-		: base(uowBuilder, uowFactory, commonServices)
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager, scope)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
@@ -63,8 +59,7 @@ namespace Vodovoz.ViewModels
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
-			GuiltyItemsVM = new GuiltyItemsViewModel(
-				new Complaint(), UoW, commonServices, new SubdivisionRepository(new ParametersProvider()), employeeSelectorFactory);
+			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), UoW, commonServices, Scope, this);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;
 		}

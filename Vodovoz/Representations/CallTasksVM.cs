@@ -29,10 +29,10 @@ namespace Vodovoz.Representations
 		private int taskCount = 0;
 
 		private CallTaskFilterViewModel filter;
-		public CallTaskFilterViewModel Filter 
+		public CallTaskFilterViewModel Filter
 		{
 			get => filter;
-			set 
+			set
 			{
 				if(filter != value) {
 					filter = value;

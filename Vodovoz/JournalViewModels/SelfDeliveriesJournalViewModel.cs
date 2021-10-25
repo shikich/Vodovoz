@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -10,6 +11,7 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Permissions;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -28,37 +30,40 @@ using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-        private readonly CallTaskWorker _callTaskWorker;
-        private readonly Employee _currentEmployee;
-        private readonly OrderPaymentSettings _orderPaymentSettings;
-        private readonly OrderParametersProvider _orderParametersProvider;
-        private readonly bool _userCanChangePayTypeToByCard;
+		private readonly CallTaskWorker _callTaskWorker;
+		private readonly Employee _currentEmployee;
+		private readonly OrderPaymentSettings _orderPaymentSettings;
+		private readonly OrderParametersProvider _orderParametersProvider;
+		private readonly bool _userCanChangePayTypeToByCard;
 
-        public SelfDeliveriesJournalViewModel(
-	        OrderJournalFilterViewModel filterViewModel, 
-            IUnitOfWorkFactory unitOfWorkFactory, 
+		public SelfDeliveriesJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
-            CallTaskWorker callTaskWorker,
-            OrderPaymentSettings orderPaymentSettings,
+			CallTaskWorker callTaskWorker,
+			OrderPaymentSettings orderPaymentSettings,
 			OrderParametersProvider orderParametersProvider,
-	        IEmployeeService employeeService) 
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			IEmployeeService employeeService,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<OrderJournalFilterViewModel>[] filterParams) 
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
-            _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-            _orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
-            _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-            _currentEmployee =
-	            (employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
-		            UoW,
-		            commonServices.UserService.CurrentUserId);
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_currentEmployee =
+				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
+					UoW,
+					commonServices.UserService.CurrentUserId);
 
-            TabName = "Журнал самовывозов";
+			TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
 				typeof(VodovozOrder),
@@ -67,7 +72,7 @@ namespace Vodovoz.Representations
 			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
 
-        protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
 			SelfDeliveryJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -258,8 +263,8 @@ namespace Vodovoz.Representations
 					"Оплата по карте",
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
-                        var selectedNode = selectedNodes.First();
-                        return selectedNodes.Count() == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
+						var selectedNode = selectedNodes.First();
+						return selectedNodes.Count() == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {
@@ -269,10 +274,10 @@ namespace Vodovoz.Representations
 							TabParent.AddTab(
 								new PaymentByCardViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
-                                    UnitOfWorkFactory,
+									UnitOfWorkFactory,
 									commonServices,
-                                    _callTaskWorker,
-                                    _orderPaymentSettings,
+									_callTaskWorker,
+									_orderPaymentSettings,
 									_orderParametersProvider,
 									_currentEmployee), 
 								this

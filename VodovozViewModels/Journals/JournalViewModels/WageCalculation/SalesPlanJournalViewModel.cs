@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -18,8 +19,11 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
-		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
-			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(unitOfWorkFactory, commonServices)
+		public SalesPlanJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices, 
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			ILifetimeScope scope = null) : base(unitOfWorkFactory, commonServices, scope)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));

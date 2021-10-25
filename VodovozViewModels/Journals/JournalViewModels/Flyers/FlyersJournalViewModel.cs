@@ -1,7 +1,9 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -18,20 +20,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 	{
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private readonly IFlyerRepository _flyerRepository;
-		
+
 		public FlyersJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			IFlyerRepository flyerRepository,
-			bool hideJournalForOpenDialog = false,
-			bool hideJournalForCreateDialog = false
-		) : base(uowFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			ILifetimeScope scope = null,
+			INavigationManager navigationManager = null,
+			bool hideJournalForOpen = false,
+			bool hideJournalForCreate = false
+		) : base(uowFactory, commonServices, scope, navigationManager, hideJournalForOpen, hideJournalForCreate)
 		{
 			_nomenclatureSelectorFactory =
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
-			
+
 			TabName = "Журнал рекламных листовок";
 			
 			UpdateOnChanges(

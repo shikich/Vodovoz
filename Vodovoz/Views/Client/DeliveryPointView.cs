@@ -224,6 +224,8 @@ namespace Vodovoz.Views.Client
 				//FIXME этот виджет следовало бы переписать на VM + V
 				deliverypointresponsiblepersonsview1.UoW = ViewModel.UoW;
 				deliverypointresponsiblepersonsview1.DeliveryPoint = ViewModel.DeliveryPoint;
+				deliverypointresponsiblepersonsview1.ParrentDialog = ViewModel;
+				deliverypointresponsiblepersonsview1.Scope = ViewModel.Scope;
 				deliverypointresponsiblepersonsview1.ResponsiblePersons = ViewModel.ResponsiblePersons;
 			}
 			else

@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Journals.Filters.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
@@ -44,7 +45,7 @@ namespace Vodovoz.Filters.GtkViews
 			entryOldOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderSelectorFactory);
 			entryOldOrder.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrder, w => w.Subject).InitializeFromSource();
 
-
+			driverEntry.ViewModel = ViewModel.DriverEmployeeViewModel;
 			//entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverEmployeeSelectorFactory);
 			//entryDriver.Binding.AddBinding(ViewModel, vm => vm.RestrictDriver, w => w.Subject).InitializeFromSource();
 
@@ -54,9 +55,11 @@ namespace Vodovoz.Filters.GtkViews
 			entryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointSelectorFactory);
 			entryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.RestrictAddress, w => w.Subject).InitializeFromSource();
 
+			oldOrderAuthorEntry.ViewModel = ViewModel.OldOrderAuthorViewModel;
 			//entryOldOrderAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
 			//entryOldOrderAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrderAuthor, w => w.Subject).InitializeFromSource();
 
+			undeliveryAuthorEntry.ViewModel = ViewModel.UndeliveryAuthorViewModel;
 			//entryUndeliveryAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
 			//entryUndeliveryAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictUndeliveryAuthor, w => w.Subject).InitializeFromSource();
 

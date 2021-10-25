@@ -1,22 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Loaders;
+using QS.Navigation;
 using QS.Project.Domain;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
+using QS.Tdi;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
@@ -25,7 +16,7 @@ namespace Vodovoz
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		public ITdiTab ParrentTab { get; set; }
 
 		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
 		{
@@ -88,16 +79,16 @@ namespace Vodovoz
 			}
 
 			var client = DeliveryPointUoW.Root;
-			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(client);
-			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
+			MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<DeliveryPointViewModel, IEntityUoWBuilder, Counterparty>(
+				ParrentTab, EntityUoWBuilder.ForCreate(), client, OpenPageOptions.AsSlave);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
-			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
-			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
+			var dpId = treeDeliveryPoints.GetSelectedObject<ClientDeliveryPointVMNode>().Id;
+			MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<DeliveryPointViewModel, IEntityUoWBuilder>(
+				ParrentTab, EntityUoWBuilder.ForOpen(dpId), OpenPageOptions.AsSlave);
 		}
 
 		protected void OnTreeDeliveryPointsRowActivated(object o, Gtk.RowActivatedArgs args)

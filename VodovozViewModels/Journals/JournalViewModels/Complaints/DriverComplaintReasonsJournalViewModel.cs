@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	{
 		public DriverComplaintReasonsJournalViewModel(
 			DriverComplaintReasonJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(unitOfWorkFactory, commonServices, filterViewModel)
 		{
 			TabName = "Журнал причин оценки адреса";
 

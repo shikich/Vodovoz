@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 using Gamma.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -23,6 +24,8 @@ namespace Vodovoz.JournalFilters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UndeliveredOrdersFilter : RepresentationFilterBase<UndeliveredOrdersFilter>, ISingleUoWDialog
 	{
+		private readonly ILifetimeScope _scope;
+		
 		protected override void ConfigureWithUow()
 		{
 			yEnumCMBGuilty.ItemsEnum = typeof(GuiltyTypes);
@@ -65,9 +68,8 @@ namespace Vodovoz.JournalFilters
 			};
 			
 			//Подразделение
-			var employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory();
 			var subdivisionSelectorFactory =
-				new SubdivisionJournalFactory().CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory);
+				new SubdivisionJournalFactory().CreateDefaultSubdivisionAutocompleteSelectorFactory(_scope);
 			
 			AuthorSubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(subdivisionSelectorFactory);
 			

@@ -2,12 +2,14 @@
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Tdi;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
 
 	public partial class ReadyForReceptionView : QS.Dialog.Gtk.TdiTabBase
 	{
+		private readonly ICurrentUserSettings _currentUserSettings;
 		private IUnitOfWork uow;
 
 		ViewModel.ReadyForReceptionVM viewModel;
@@ -23,14 +25,16 @@ namespace Vodovoz
 				viewModel = new ViewModel.ReadyForReceptionVM (value);
 				readyforreceptionfilter1.UoW = value;
 				viewModel.Filter = readyforreceptionfilter1;
+				viewModel.Filter.DefaultWarehouse = _currentUserSettings.Settings.DefaultWarehouse;
 				tableReadyForReception.RepresentationModel = viewModel;
 				tableReadyForReception.RepresentationModel.UpdateNodes ();
 			}
 		}
 
 
-		public ReadyForReceptionView ()
+		public ReadyForReceptionView(ICurrentUserSettings currentUserSettings)
 		{
+			_currentUserSettings = currentUserSettings ?? throw new ArgumentNullException(nameof(currentUserSettings));
 			this.Build ();
 			this.TabName = "Готовые к разгрузке";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();

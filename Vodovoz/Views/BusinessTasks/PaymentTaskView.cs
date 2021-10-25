@@ -45,9 +45,9 @@ namespace Vodovoz.Views.BusinessTasks
 			//orderSumEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.OrderSum, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			//textViewPaymentPurpose.Binding.AddBinding(ViewModel.Entity, vm => vm.PaymentPurpose, w => w.Buffer.Text).InitializeFromSource();
 
-			employeeViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			employeeViewModelEntry.CanEditReference = true;
-			employeeViewModelEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.AssignedEmployee, v => v.Subject).InitializeFromSource();
+			//employeeViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			//employeeViewModelEntry.CanEditReference = true;
+			//employeeViewModelEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.AssignedEmployee, v => v.Subject).InitializeFromSource();
 
 			counterpartyViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			counterpartyViewModelEntry.CanEditReference = true;

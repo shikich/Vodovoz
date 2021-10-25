@@ -33,26 +33,11 @@ namespace Vodovoz.Dialogs.Cash
 			#region EntityViewModelEntry
 
 			//Автор
-			var currentEmployee = ViewModel.CurrentEmployee;
-			/*AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			AuthorEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, x => x.Author, w => w.Subject).InitializeFromSource();
-
-			if (ViewModel.IsNewEntity)
-			{
-				ViewModel.Entity.Author = currentEmployee;
-			}
-
-			AuthorEntityviewmodelentry.Sensitive = false;
-
+			authorLbl.Binding.AddBinding(ViewModel.Entity.Author, x => x.ShortName, w => w.LabelProp).InitializeFromSource();
+			
 			//Подразделение
-			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.SubdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
-					ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
-			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
-			SubdivisionEntityviewmodelentry.Sensitive = false;
-			ViewModel.Entity.Subdivision = currentEmployee.Subdivision;*/
-
+			authorSubdivisionLbl.Binding.AddBinding(ViewModel.Entity.Subdivision, x => x.Name, w => w.LabelProp).InitializeFromSource();
+			
 			//Причина расхода
 			ExpenseCategoryEntityviewmodelentry
 				.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);

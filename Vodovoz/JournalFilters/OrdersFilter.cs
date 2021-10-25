@@ -1,24 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
 	public partial class OrdersFilter : RepresentationFilterBase<OrdersFilter>
 	{
+		private ICurrentUserSettings _currentUserSettings;
+		
 		protected override void ConfigureWithUow()
 		{
+			_currentUserSettings = MainClass.AppDIContainer.Resolve<ICurrentUserSettings>();
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
 			enumcomboPaymentType.ItemsEnum = typeof(PaymentType);
 			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
-			daysToAft = -CurrentUserSettings.Settings.JournalDaysToAft;
-			daysToFwd = CurrentUserSettings.Settings.JournalDaysToFwd;
+			daysToAft = -_currentUserSettings.Settings.JournalDaysToAft;
+			daysToFwd = _currentUserSettings.Settings.JournalDaysToFwd;
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(daysToAft);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(daysToFwd);
 		}
@@ -220,11 +226,11 @@ namespace Vodovoz
 		protected void OnDateperiodOrdersPeriodChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
-			if(CurrentUserSettings.Settings.JournalDaysToAft != daysToAft
-			   || CurrentUserSettings.Settings.JournalDaysToFwd != daysToFwd) {
-				CurrentUserSettings.Settings.JournalDaysToAft = daysToAft;
-				CurrentUserSettings.Settings.JournalDaysToFwd = daysToFwd;
-				CurrentUserSettings.SaveSettings();
+			if(_currentUserSettings.Settings.JournalDaysToAft != daysToAft
+			   || _currentUserSettings.Settings.JournalDaysToFwd != daysToFwd) {
+				_currentUserSettings.Settings.JournalDaysToAft = daysToAft;
+				_currentUserSettings.Settings.JournalDaysToFwd = daysToFwd;
+				_currentUserSettings.SaveSettings();
 			}
 		}
 

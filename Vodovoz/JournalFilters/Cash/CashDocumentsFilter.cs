@@ -7,6 +7,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.JournalFilters;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate.Criterion;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -16,7 +17,6 @@ using VodovozInfrastructure.Interfaces;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz
@@ -38,7 +38,6 @@ namespace Vodovoz
 
 		private void ConfigureEntityViewModelEntry()
 		{
-			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
 			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel {
 				ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
@@ -47,9 +46,7 @@ namespace Vodovoz
 			var commonServices = ServicesConfig.CommonServices;
 			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
 			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			
+
 			var incomeCategoryAutocompleteSelectorFactory =
 				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
 					() =>
@@ -57,34 +54,18 @@ namespace Vodovoz
 						var incomeCategoryJournalViewModel =
 							new SimpleEntityJournalViewModel<IncomeCategory, IncomeCategoryViewModel>(
 								x => x.Name,
-								() => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForCreate(),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									chooserIncomeProvider,
-									incomeCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								node => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForOpen(node.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									chooserIncomeProvider,
-									incomeCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
+								() => MainClass.AppDIContainer.BeginLifetimeScope().Resolve<IncomeCategoryViewModel>(
+									new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
+								node => MainClass.AppDIContainer.BeginLifetimeScope().Resolve<IncomeCategoryViewModel>(
+									new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
 								UnitOfWorkFactory.GetDefaultFactory,
-								commonServices
-							)
+								commonServices)
 							{
 								SelectionMode = JournalSelectionMode.Single
 							};
 						return incomeCategoryJournalViewModel;
 					});
 			
-
 			var expenseCategoryAutocompleteSelectorFactory =
 				new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
 					() =>
@@ -92,24 +73,10 @@ namespace Vodovoz
 						var expenseCategoryJournalViewModel =
 							new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
 								x => x.Name,
-								() => new ExpenseCategoryViewModel(
-									EntityUoWBuilder.ForCreate(),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									chooserExpenseProvider,
-									expenseCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								node => new ExpenseCategoryViewModel(
-									EntityUoWBuilder.ForOpen(node.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									chooserExpenseProvider,
-									expenseCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
+								() => MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ExpenseCategoryViewModel>(
+									new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
+								node => MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ExpenseCategoryViewModel>(
+									new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
 								UnitOfWorkFactory.GetDefaultFactory,
 								ServicesConfig.CommonServices
 							)

@@ -16,6 +16,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.Filters.Cars;
 
 namespace Vodovoz.Dialogs.Employees
 {

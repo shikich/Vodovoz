@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -15,6 +16,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.TempAdapters
 {
@@ -215,7 +217,7 @@ namespace Vodovoz.TempAdapters
 				}
 			);
 
-		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory()
+		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(ILifetimeScope scope)
 		{
 			var filter = new NomenclatureFilterViewModel();
 
@@ -228,7 +230,7 @@ namespace Vodovoz.TempAdapters
 			var counterpartySelectorFactory = new CounterpartyJournalFactory();
 
 			return new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				filter, counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				filter, counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(scope),
 				nomenclatureRepository, userRepository);
 		}
 	}

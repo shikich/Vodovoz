@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NLog;
 using QS.Commands;
 using QS.DomainModel.Entity;
@@ -11,36 +12,28 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IFilePickerService _filePickerService;
-		private readonly ISubdivisionRepository _subdivisionRepository;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private DelegateCommand _changeDeliveryPointCommand;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
@@ -51,44 +44,19 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
-			ISubdivisionRepository subdivisionRepository,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			IOrderSelectorFactory orderSelectorFactory,
-			IEmployeeJournalFactory driverJournalFactory, 
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(uowBuilder, uowFactory, commonServices)
+			INavigationManager navigationManager,
+			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices, navigationManager, scope)
 		{
 			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
-			UndeliveredOrdersRepository =
-				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-
-			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
-			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -103,7 +71,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			ConfigureEntityChangingRelations();
-
+			CreateOrderSelectorFactory();
 			CreateCommands();
 
 			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
@@ -148,6 +116,21 @@ namespace Vodovoz.ViewModels.Complaints
 				e => e.Counterparty,
 				() => CanSelectDeliveryPoint
 			);
+		}
+		
+		private void CreateOrderSelectorFactory()
+		{
+			if(Entity.Counterparty != null)
+			{
+				OrderSelectorFactory =
+					Scope.Resolve<IOrderSelectorFactory>().CreateOrderAutocompleteSelectorFactory(
+						Scope, x => x.RestrictCounterparty = Entity.Counterparty);
+			}
+			else
+			{
+				OrderSelectorFactory =
+					Scope.Resolve<IOrderSelectorFactory>().CreateOrderAutocompleteSelectorFactory(Scope);
+			}
 		}
 
 		void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
@@ -204,10 +187,8 @@ namespace Vodovoz.ViewModels.Complaints
 						_filePickerService,
 						EmployeeService,
 						CommonServices,
-						_employeeSelectorFactory,
-						_salesPlanJournalFactory,
-						NomenclatureSelector,
-						UserRepository
+						UserRepository,
+						NavigationManager
 					);
 				}
 				return discussionsViewModel;
@@ -221,8 +202,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(guiltyItemsViewModel == null)
 				{
-					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory);
+					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, Scope, this);
 				}
 
 				return guiltyItemsViewModel;
@@ -349,26 +329,35 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateAttachFineCommand()
 		{
 			AttachFineCommand = new DelegateCommand(
-				() => {
-					var fineFilter = new FineFilterViewModel();
+				() =>
+				{
+					/*var fineFilter = new FineFilterViewModel();
 					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
 					var fineJournalViewModel = new FinesJournalViewModel(
 						fineFilter,
-						_undeliveryViewOpener,
 						EmployeeService,
 						_employeeSelectorFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
-					);
-					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					fineJournalViewModel.OnEntitySelectedResult += (sender, e) => {
+						CommonServices,
+						NavigationManager
+					);*/
+					var filterParams = new Action<FineFilterViewModel>[]
+					{
+						x => x.ExcludedIds = Entity.Fines.Select(fine => fine.Id).ToArray()
+					};
+					var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>[]>(
+						this, filterParams, OpenPageOptions.AsSlave);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnEntitySelectedResult += (sender, e) =>
+					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null) {
+						if(selectedNode == null)
+						{
 							return;
 						}
 						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 					};
-					TabParent.AddSlaveTab(this, fineJournalViewModel);
+					//TabParent.AddSlaveTab(this, fineJournalViewModel);
 				},
 				() => CanAttachFine
 			);
@@ -379,13 +368,13 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#region AddFineCommand
 
-		public DelegateCommand<ITdiTab> AddFineCommand { get; private set; }
+		public DelegateCommand<DialogViewModelBase> AddFineCommand { get; private set; }
 
 		private void CreateAddFineCommand()
 		{
-			AddFineCommand = new DelegateCommand<ITdiTab>(
-				t => {
-					FineViewModel fineViewModel = new FineViewModel(
+			AddFineCommand = new DelegateCommand<DialogViewModelBase>(
+				journal => {
+					/*FineViewModel fineViewModel = new FineViewModel(
 						EntityUoWBuilder.ForCreate(),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						_undeliveryViewOpener,
@@ -397,7 +386,14 @@ namespace Vodovoz.ViewModels.Complaints
 					fineViewModel.EntitySaved += (sender, e) => {
 						Entity.AddFine(e.Entity as Fine);
 					};
-					t.TabParent.AddSlaveTab(t, fineViewModel);
+					t.TabParent.AddSlaveTab(t, fineViewModel);*/
+					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(
+						journal, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+					page.ViewModel.FineReasonString = Entity.GetFineReason();
+					page.ViewModel.EntitySaved += (sender, e) =>
+					{
+						Entity.AddFine(e.Entity as Fine);
+					};
 				},
 				t => CanAddFine
 			);
@@ -422,43 +418,7 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion ChangeDeliveryPointCommand
 
 		#endregion Commands
-
-		public IOrderSelectorFactory OrderSelectorFactory { get; }
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
-		public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
-		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
-		public IGtkTabsOpener GtkDialogsOpener { get; }
-		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
-		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
-		public INomenclatureSelectorFactory NomenclatureSelector { get; }
-
-		public override void Close(bool askSave, CloseSource source)
-		{
-			_logger.Debug("Вызываем Close()");
-			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
-			{
-				return;
-			}
-			
-			base.Close(askSave, source);
-		}
-
-		public override bool Save(bool close)
-		{
-			_logger.Debug("Вызываем Save()");
-			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
-			{
-				return false;
-			}
-			
-			return base.Save(close);
-		}
-
-		public override void Dispose()
-		{
-			_logger.Debug("Вызываем Dispose()");
-			base.Dispose();
-		}
+		
+		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; private set; }
 	}
 }

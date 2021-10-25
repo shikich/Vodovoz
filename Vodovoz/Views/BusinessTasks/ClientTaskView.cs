@@ -53,9 +53,9 @@ namespace Vodovoz.Views.BusinessTasks
 			yentryTareReturn.ValidationMode = ValidationType.numeric;
 			yentryTareReturn.Binding.AddBinding(ViewModel.Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			employeeViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			employeeViewModelEntry.CanEditReference = true;
-			employeeViewModelEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.AssignedEmployee, v => v.Subject).InitializeFromSource();
+			//employeeViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			//employeeViewModelEntry.CanEditReference = true;
+			//employeeViewModelEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.AssignedEmployee, v => v.Subject).InitializeFromSource();
 
 			deliveryPointVMEntry.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointFactory);
 			deliveryPointVMEntry.CanEditReference = true;

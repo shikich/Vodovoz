@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Services;
@@ -28,9 +30,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			SalaryByEmployeeJournalFilterViewModel filterViewModel,
 			IGtkTabsOpener gtkTabsOpener,
 			IPermissionService permissionService,
-			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope = null,
+			INavigationManager navigationManager = null,
+			bool hideJournalForOpen = false,
+			bool hideJournalForCreate = false)
+			: base(unitOfWorkFactory, commonServices,filterViewModel, scope, navigationManager, hideJournalForOpen, hideJournalForCreate)
 		{
 			TabName = "Журнал выдач З/П";
 

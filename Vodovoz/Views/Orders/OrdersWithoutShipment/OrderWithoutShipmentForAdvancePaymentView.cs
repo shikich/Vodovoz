@@ -11,6 +11,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Utilities;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {

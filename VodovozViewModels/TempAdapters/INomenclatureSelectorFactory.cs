@@ -1,5 +1,6 @@
 ﻿using QS.Project.Journal.EntitySelector;
 using System.Collections.Generic;
+using Autofac;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
@@ -15,6 +16,6 @@ namespace Vodovoz.TempAdapters
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
-		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory();
+		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(ILifetimeScope scope);
 	}
 }

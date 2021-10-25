@@ -25,7 +25,7 @@ namespace Vodovoz.JournalViewModels
 			NomenclatureStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(unitOfWorkFactory, commonServices, filterViewModel)
 		{
 			TabName = "Складские остатки";
 

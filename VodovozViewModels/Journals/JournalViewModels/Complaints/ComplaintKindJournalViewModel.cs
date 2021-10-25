@@ -5,34 +5,26 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
-using System.Linq;
-using NHibernate.Criterion;
+using Autofac;
+using QS.Navigation;
 using QS.Project.DB;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
 	public class ComplaintKindJournalViewModel : FilterableSingleEntityJournalViewModelBase<ComplaintKind, ComplaintKindViewModel, ComplaintKindJournalNode, ComplaintKindJournalFilterViewModel>
 	{
-		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
-
-		public ComplaintKindJournalViewModel(ComplaintKindJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IEntityAutocompleteSelectorFactory employeeSelectorFactory, ISalesPlanJournalFactory salesPlanJournalFactory, 
-			INomenclatureSelectorFactory nomenclatureSelectorFactory)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		public ComplaintKindJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ILifetimeScope scope,
+			INavigationManager navigationManager = null,
+			params Action<ComplaintKindJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, commonServices, null, scope, navigationManager, false, false, filterParams)
 		{
-			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-
 			TabName = "Виды рекламаций";
 
 			UpdateOnChanges(
@@ -89,11 +81,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		}
 
 		protected override Func<ComplaintKindViewModel> CreateDialogFunction => () =>
-			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh, 
-				_salesPlanJournalFactory, _nomenclatureSelectorFactory);
+		{
+			var scope = Scope.BeginLifetimeScope();
+			return scope.Resolve<ComplaintKindViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+		};
 
 		protected override Func<ComplaintKindJournalNode, ComplaintKindViewModel> OpenDialogFunction =>
-			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh,
-				_salesPlanJournalFactory, _nomenclatureSelectorFactory);
+			node =>
+			{
+				var scope = Scope.BeginLifetimeScope();
+				return scope.Resolve<ComplaintKindViewModel>(
+					new TypedParameter(typeof(IEntityUoWBuilder),
+					EntityUoWBuilder.ForOpen(node.Id)));
+			};
 	}
 }

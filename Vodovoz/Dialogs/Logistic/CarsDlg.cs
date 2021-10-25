@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.ColumnConfig;
 using NLog;
 using QS.DomainModel.UoW;
@@ -12,7 +13,11 @@ using Vodovoz.Domain.Sale;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
-using Vodovoz.TempAdapters;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Domain.Employees;
+using Vodovoz.ViewModels.Journals.Filters.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -21,27 +26,28 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private ICarRepository carRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
-
+		private readonly ILifetimeScope _scope;
 		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
 
-		public CarsDlg()
+		public CarsDlg(ILifetimeScope scope)
 		{
-			this.Build();
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Car>();
 			TabName = "Новый автомобиль";
 			ConfigureDlg();
 		}
 
-		public CarsDlg(int id)
+		public CarsDlg(int id, ILifetimeScope scope)
 		{
-			this.Build();
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Car>(id);
 			ConfigureDlg();
 		}
-
-		public CarsDlg(Car sub) : this(sub.Id) { }
-
+		
 		private void ConfigureDlg()
 		{
 			notebook1.Page = 0;
@@ -74,11 +80,8 @@ namespace Vodovoz
 
 			yentryPTSNum.Binding.AddBinding(Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
-			
-			/*entryDriver.SetEntityAutocompleteSelectorFactory(
-				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());*/
-			driverEntry.ViewModel.Changed += OnEntryDriverChanged;
-			//driverEntry.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+
+			ConfigureDriverEntry();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);
 			dataentryFuelType.Binding.AddBinding(Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
@@ -157,6 +160,20 @@ namespace Vodovoz
 			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
 
 			UpdateSensitivity();
+		}
+
+		private void ConfigureDriverEntry()
+		{
+			var builder = new LegacyEEVMBuilderFactory<Car>(this, Entity, UoW, MainClass.MainWin.NavigationManager, _scope);
+
+			driverEntry.ViewModel = builder.ForProperty(c => c.Driver)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Category = EmployeeCategory.driver,
+					f => f.Status = EmployeeStatus.IsWorking)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+			
+			driverEntry.ViewModel.Changed += OnEntryDriverChanged;
 		}
 
 		bool CarTypeIsEditable() => Entity.Id == 0;

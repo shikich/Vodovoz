@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -26,6 +27,8 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -36,7 +39,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IParametersProvider _parametersProvider;
 
 		private object selectedItem;
 		public object SelectedItem {
@@ -56,20 +58,30 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderRepository orderRepository,
-			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
+			IParametersProvider parametersProvider,
+			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices, null, scope)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			
+			if(parametersProvider == null)
+			{ 
+				throw new ArgumentNullException(nameof(parametersProvider));
+			}
+
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_nomenclatureSelectorFactory =
+				(nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory)))
+				.GetDefaultNomenclatureSelectorFactory(Scope);
+			_counterpartySelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(Scope);
 			
 			bool canCreateBillsWithoutShipment = 
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
@@ -98,7 +110,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			EntityUoWBuilder = uowBuilder;
 			
 			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
+				new EmailRepository(), currentEmployee, commonServices.InteractiveService, parametersProvider, UoW);
 		}
 		
 		public IOrderRepository OrderRepository { get; }
@@ -113,8 +125,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					return;
 
 				var defaultCategory = NomenclatureCategory.water;
-				if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
-					defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+				var userSettings = Scope.Resolve<ICurrentUserSettings>().Settings;
+				
+				if(userSettings.DefaultSaleCategory.HasValue)
+					defaultCategory = userSettings.DefaultSaleCategory.Value;
 
 				var nomenclatureFilter = new NomenclatureFilterViewModel();
 				nomenclatureFilter.SetAndRefilterAtOnce(

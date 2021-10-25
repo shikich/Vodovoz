@@ -31,6 +31,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Representations;
+using Vodovoz.ViewModels.Journals.Filters.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz

@@ -14,8 +14,11 @@ namespace Vodovoz.Journals
 {
     public class MovementWagonJournalViewModel : FilterableSingleEntityJournalViewModelBase<MovementWagon, MovementWagonViewModel, MovementWagonJournalNode, MovementWagonJournalFilterViewModel>
     {
-        public MovementWagonJournalViewModel(MovementWagonJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) 
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public MovementWagonJournalViewModel(
+			MovementWagonJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) 
+            : base(unitOfWorkFactory, commonServices, filterViewModel)
         {
             TabName = "Журнал фур";
         }
