@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Factories;
 using Vodovoz.ViewModels.Journals.Filters.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -25,9 +26,10 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private ICarRepository carRepository;
+		private ICarRepository _carRepository;
+		private AttachmentsViewModel _attachmentsViewModel;
 		private readonly ILifetimeScope _scope;
-		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
+		public override bool HasChanges => UoWGeneric.HasChanges;
 
 		public CarsDlg(ILifetimeScope scope)
 		{
@@ -102,7 +104,7 @@ namespace Vodovoz
 
 			attachmentsView.ViewModel = _attachmentsViewModel;
 			
-			_carRepository = new CarRepository();
+			_carRepository = _scope.Resolve<ICarRepository>();
 
 			checkIsRaskat.Active = Entity.IsRaskat;
 
@@ -159,6 +161,12 @@ namespace Vodovoz
 			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
 
 			UpdateSensitivity();
+		}
+
+		private void CreateAttachmentsViewModel()
+		{
+			_attachmentsViewModel =
+				_scope.Resolve<IAttachmentsViewModelFactory>().CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 		}
 
 		private void ConfigureDriverEntry()

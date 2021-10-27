@@ -16,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Autofac;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Project.Domain;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.DataService;
@@ -183,26 +184,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
-		private void CreateBindings()
-		{
-			var builder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, Scope);
-
-			DefaultForwarderViewModel = builder.ForProperty(e => e.DefaultForwarder)
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					f => f.Category = EmployeeCategory.forwarder,
-					f => f.Status = EmployeeStatus.IsWorking)
-				.UseViewModelDialog<EmployeeViewModel>()
-				.Finish();
-		}
-
-		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
-			{
-				OnPropertyChanged(nameof(IsValidNewMobileUser));
-			}
-		}
-
 		private Employee EmployeeForCurrentUser =>
 			_employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
 
@@ -238,7 +219,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				PhonesViewModel.RemoveEmpty();
 
 				return UoWGeneric.HasChanges
-						|| attachmentFilesHasChanges
 						|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
 						|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
@@ -246,9 +226,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		
 		public IPermissionResult DriverDistrictPrioritySetPermission { get; private set; }
 		public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
-
+		public AttachmentsViewModel AttachmentsViewModel { get; }
 		public PhonesViewModel PhonesViewModel { get; }
-
 		public TerminalManagementViewModel TerminalManagementViewModel
 		{
 			get
@@ -358,9 +337,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
-		public bool CanEditEmployeeDocument => (_employeeDocumentsPermissionsSet.CanRead 
-												|| _employeeDocumentsPermissionsSet.CanUpdate) 
-											&& SelectedEmployeeDocuments.Any();
+		public bool CanEditEmployeeDocument =>
+			(_employeeDocumentsPermissionsSet.CanRead || _employeeDocumentsPermissionsSet.CanUpdate) && SelectedEmployeeDocuments.Any();
 		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any();
 
 		public IEnumerable<EmployeeContract> SelectedEmployeeContracts
@@ -640,6 +618,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 		
+		private void CreateBindings()
+		{
+			var builder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, Scope);
+
+			DefaultForwarderViewModel = builder.ForProperty(e => e.DefaultForwarder)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Category = EmployeeCategory.forwarder,
+					f => f.Status = EmployeeStatus.IsWorking)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+		}
+
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))

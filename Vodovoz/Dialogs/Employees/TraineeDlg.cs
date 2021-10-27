@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Banks.Domain;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -13,6 +14,7 @@ using QS.Validation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using QS.Project.Domain;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -20,6 +22,8 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class TraineeDlg : QS.Dialog.Gtk.EntityDialogBase<Trainee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		private AttachmentsViewModel _attachmentsViewModel;
 
 		public TraineeDlg()
 		{

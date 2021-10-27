@@ -478,6 +478,7 @@ namespace Vodovoz
 			builder.RegisterType<PhonesViewModelFactory>().As<IPhonesViewModelFactory>();
 			builder.RegisterType<DriverApiUserRegisterEndpointBuilder>().As<IDriverApiUserRegisterEndpointBuilder>();
 			builder.RegisterType<NomenclatureFixedPriceFactory>().AsSelf();
+			builder.RegisterType<AttachmentsViewModelFactory>().As<IAttachmentsViewModelFactory>();
 
 			#endregion
 			
