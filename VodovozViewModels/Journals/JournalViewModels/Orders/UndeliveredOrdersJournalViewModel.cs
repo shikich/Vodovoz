@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using System;
 using System.Collections;
@@ -67,7 +68,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			RegisterUndeliveredOrders();
 
 			DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
-			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
+			(DataLoader as IListLoader).PostLoadProcessingFunc = BeforeItemsUpdated;
 
 			FinishJournalConfiguration();
 		}

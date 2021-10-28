@@ -1,9 +1,9 @@
-﻿using System;
+﻿using QS.Project.Journal;
 using System.Collections.Generic;
-using QS.Project.Journal;
+
 namespace Vodovoz.Journals.JournalNodes
 {
-	public class SubdivisionJournalNode : JournalEntityNodeBase
+	public class SubdivisionJournalNode : JournalEntityNodeBase, IHierarchicalNode<SubdivisionJournalNode, SubdivisionJournalNode>
 	{
 		protected SubdivisionJournalNode() : base(typeof(Subdivision))
 		{

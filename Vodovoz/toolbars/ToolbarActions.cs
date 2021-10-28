@@ -841,7 +841,6 @@ public partial class MainWindow : Window
 			new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
 			{
 				return new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),

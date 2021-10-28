@@ -49,10 +49,13 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using Gamma.Binding;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-    public static class JournalsColumnsConfigs
+	public static class JournalsColumnsConfigs
 	{
 		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color(0xfe, 0x5c, 0x5c);
@@ -75,31 +78,31 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-            //WarehouseJournalViewModel
-            TreeViewColumnsConfigFactory.Register<WarehouseJournalViewModel>(
-                () => FluentColumnsConfig<WarehouseJournalNode>.Create()
-                    .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Название").AddTextRenderer(node => node.Name)
-                    .AddColumn("")
-                    .Finish()
-            );
+			//WarehouseJournalViewModel
+			TreeViewColumnsConfigFactory.Register<WarehouseJournalViewModel>(
+				() => FluentColumnsConfig<WarehouseJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("")
+					.Finish()
+			);
 
-            TreeViewColumnsConfigFactory.Register<NomenclatureBalanceByStockJournalViewModel>(
-                () => FluentColumnsConfig<NomenclatureBalanceByStockJournalNode>.Create()
-                    .AddColumn("Склад").AddTextRenderer(node => node.WarehouseName)
-                    .AddColumn("Кол-во").AddTextRenderer(node => $"{node.NomenclatureAmount:N0}")
-                    .AddColumn("")
-                    .Finish()
-            );
+			TreeViewColumnsConfigFactory.Register<NomenclatureBalanceByStockJournalViewModel>(
+				() => FluentColumnsConfig<NomenclatureBalanceByStockJournalNode>.Create()
+					.AddColumn("Склад").AddTextRenderer(node => node.WarehouseName)
+					.AddColumn("Кол-во").AddTextRenderer(node => $"{node.NomenclatureAmount:N0}")
+					.AddColumn("")
+					.Finish()
+			);
 
-            TreeViewColumnsConfigFactory.Register<DiscountReasonJournalViewModel>(
-	            () => FluentColumnsConfig<DiscountReasonJournalNode>.Create()
-		            .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-		            .AddColumn("Название").AddTextRenderer(node => node.Name)
-		            .AddColumn("В архиве?").AddTextRenderer(node => node.IsArchive ? "Да" : "")
-		            .AddColumn("")
-		            .Finish()
-            );
+			TreeViewColumnsConfigFactory.Register<DiscountReasonJournalViewModel>(
+				() => FluentColumnsConfig<DiscountReasonJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("В архиве?").AddTextRenderer(node => node.IsArchive ? "Да" : "")
+					.AddColumn("")
+					.Finish()
+			);
 
 			//DistrictsSetJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DistrictsSetJournalViewModel>(
@@ -352,21 +355,23 @@ namespace Vodovoz.JournalColumnsConfigs
 			//SubdivisionsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
 				() => FluentColumnsConfig<SubdivisionJournalNode>.Create()
+					.SetTreeModel((items) => new RecursiveTreeModel<SubdivisionJournalNode>(
+						(IList<SubdivisionJournalNode>)items, x => x.Parent, x => x.Children))
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName)
 					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.Finish()
 			);
 
-            TreeViewColumnsConfigFactory.Register<EmployeePostsJournalViewModel>(
-                () => FluentColumnsConfig<EmployeePostJournalNode>.Create()
-                    .AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Название").AddTextRenderer(node => node.EmployeePostName)
-                    .Finish()
-            );
+			TreeViewColumnsConfigFactory.Register<EmployeePostsJournalViewModel>(
+				() => FluentColumnsConfig<EmployeePostJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.EmployeePostName)
+					.Finish()
+			);
 
-            //SubdivisionsJournalViewModel
-            TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
+			//SubdivisionsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
 				() => FluentColumnsConfig<FineJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
@@ -748,22 +753,22 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Level1)
 						.XAlign(0.5f)
-                    .AddColumn("Уровень 2")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level2)
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 3")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level3)
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 4")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level4)
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 5")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level5)
-                        .XAlign(0.5f)
+					.AddColumn("Уровень 2")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level2)
+						.XAlign(0.5f)
+					.AddColumn("Уровень 3")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level3)
+						.XAlign(0.5f)
+					.AddColumn("Уровень 4")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level4)
+						.XAlign(0.5f)
+					.AddColumn("Уровень 5")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level5)
+						.XAlign(0.5f)
 					.AddColumn("В архиве?")
 						.HeaderAlignment(0.5f)
 						.AddToggleRenderer(n => n.IsArchive)
@@ -783,40 +788,40 @@ namespace Vodovoz.JournalColumnsConfigs
 			//IncomeCategoryJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ExpenseCategoryJournalViewModel>(
 				() => FluentColumnsConfig<ExpenseCategoryJournalNode>.Create()
-                    .AddColumn("Код")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Id.ToString())
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 1")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level1)
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 2")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level2)
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 3")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level3)
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 4")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level4)
-                        .XAlign(0.5f)
-                    .AddColumn("Уровень 5")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Level5)
-                        .XAlign(0.5f)
-                    .AddColumn("В архиве?")
-                        .HeaderAlignment(0.5f)
-                        .AddToggleRenderer(n => n.IsArchive)
-                        .Editing(false)
-                        .XAlign(0.5f)
-                    .AddColumn("Подразделение")
-                        .HeaderAlignment(0.5f)
-                        .AddTextRenderer(n => n.Subdivision)
-                        .XAlign(0.5f)
-                    .AddColumn("")
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Уровень 1")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level1)
+						.XAlign(0.5f)
+					.AddColumn("Уровень 2")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level2)
+						.XAlign(0.5f)
+					.AddColumn("Уровень 3")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level3)
+						.XAlign(0.5f)
+					.AddColumn("Уровень 4")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level4)
+						.XAlign(0.5f)
+					.AddColumn("Уровень 5")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Level5)
+						.XAlign(0.5f)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(n => n.IsArchive)
+						.Editing(false)
+						.XAlign(0.5f)
+					.AddColumn("Подразделение")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Subdivision)
+						.XAlign(0.5f)
+					.AddColumn("")
 					.RowCells()
 					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
@@ -1002,33 +1007,33 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-            //RouteListWorkingJournalViewModel
-            TreeViewColumnsConfigFactory.Register<RouteListWorkingJournalViewModel>(
-                () => FluentColumnsConfig<RouteListJournalNode>.Create()
-                    .AddColumn("Номер")
-                        .AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Дата")
-                        .AddTextRenderer(node => node.Date.ToString("d"))
-                    .AddColumn("Смена")
-                        .AddTextRenderer(node => node.ShiftName)
-                    .AddColumn("Статус")
-                        .AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
-                    .AddColumn("Водитель и машина")
-                        .AddTextRenderer(node => node.DriverAndCar)
-                    .AddColumn("Сдается в кассу")
-                        .AddTextRenderer(node => node.ClosingSubdivision)
-                    .AddColumn("Комментарий ЛО")
-                        .AddTextRenderer(node => node.LogisticiansComment)
-                        .WrapWidth(300)
-                        .WrapMode(Pango.WrapMode.WordChar)
-                    .AddColumn("Комментарий по закрытию")
-                        .AddTextRenderer(node => node.ClosinComments)
-                        .WrapWidth(300)
-                        .WrapMode(Pango.WrapMode.WordChar)
-                    .RowCells()
-                        .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
-                    .Finish()
-            );
+			//RouteListWorkingJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RouteListWorkingJournalViewModel>(
+				() => FluentColumnsConfig<RouteListJournalNode>.Create()
+					.AddColumn("Номер")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата")
+						.AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Смена")
+						.AddTextRenderer(node => node.ShiftName)
+					.AddColumn("Статус")
+						.AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Водитель и машина")
+						.AddTextRenderer(node => node.DriverAndCar)
+					.AddColumn("Сдается в кассу")
+						.AddTextRenderer(node => node.ClosingSubdivision)
+					.AddColumn("Комментарий ЛО")
+						.AddTextRenderer(node => node.LogisticiansComment)
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Комментарий по закрытию")
+						.AddTextRenderer(node => node.ClosinComments)
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+					.Finish()
+			);
 
 			//RegisteredRMJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RegisteredRMJournalViewModel>(
@@ -1043,27 +1048,27 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-            //DeliveryPointResponsiblePersonTypeJournalViewModel
-            TreeViewColumnsConfigFactory.Register<DeliveryPointResponsiblePersonTypeJournalViewModel>(
-                () => FluentColumnsConfig<DeliveryPointResponsiblePersonTypeJournalNode>.Create()
-                    .AddColumn("Номер")
-                        .AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Имя")
-                        .AddTextRenderer(node => node.Title)
-                    .AddColumn("")
-                    .Finish()
-            );
+			//DeliveryPointResponsiblePersonTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DeliveryPointResponsiblePersonTypeJournalViewModel>(
+				() => FluentColumnsConfig<DeliveryPointResponsiblePersonTypeJournalNode>.Create()
+					.AddColumn("Номер")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.Title)
+					.AddColumn("")
+					.Finish()
+			);
 
-            //DeliveryPointResponsiblePersonTypeJournalViewModel
-            TreeViewColumnsConfigFactory.Register<SalesChannelJournalViewModel>(
-                () => FluentColumnsConfig<SalesChannelJournalNode>.Create()
-                    .AddColumn("Номер")
-                        .AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Имя")
-                        .AddTextRenderer(node => node.Title)
-                    .AddColumn("")
-                    .Finish()
-            );
+			//DeliveryPointResponsiblePersonTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<SalesChannelJournalViewModel>(
+				() => FluentColumnsConfig<SalesChannelJournalNode>.Create()
+					.AddColumn("Номер")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.Title)
+					.AddColumn("")
+					.Finish()
+			);
 
 			//RetailOrderJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RetailOrderJournalViewModel>(
@@ -1108,36 +1113,36 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-            //NomenclaturesPlanJournalViewModel
-            TreeViewColumnsConfigFactory.Register<NomenclaturesPlanJournalViewModel>(
-                () => FluentColumnsConfig<NomenclaturePlanJournalNode>.Create()
-                    .AddColumn("Код")
-                        .AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Номенклатура")
-                        .AddTextRenderer(node => node.Name)
-                    .AddColumn("Категория")
-                        .AddTextRenderer(node => node.Category.GetEnumTitle())
-                    .AddColumn("Код в ИМ")
-                        .AddTextRenderer(node => node.OnlineStoreExternalId)
-                    .AddColumn("План день")
-                        .AddTextRenderer(node => node.PlanDay.ToString())
-                    .AddColumn("План месяц")
-                        .AddTextRenderer(node => node.PlanMonth.ToString())
-                    .Finish()
-            );
+			//NomenclaturesPlanJournalViewModel
+			TreeViewColumnsConfigFactory.Register<NomenclaturesPlanJournalViewModel>(
+				() => FluentColumnsConfig<NomenclaturePlanJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номенклатура")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Категория")
+						.AddTextRenderer(node => node.Category.GetEnumTitle())
+					.AddColumn("Код в ИМ")
+						.AddTextRenderer(node => node.OnlineStoreExternalId)
+					.AddColumn("План день")
+						.AddTextRenderer(node => node.PlanDay.ToString())
+					.AddColumn("План месяц")
+						.AddTextRenderer(node => node.PlanMonth.ToString())
+					.Finish()
+			);
 
-            //OrganizationCashTransferDocumentJournalViewModel
-            TreeViewColumnsConfigFactory.Register<OrganizationCashTransferDocumentJournalViewModel>(
-                () => FluentColumnsConfig<OrganizationCashTransferDocumentJournalNode>.Create()
-                    .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Дата создания").AddTextRenderer(node => node.DocumentDate.ToString("d"))
-                    .AddColumn("Автор").AddTextRenderer(node => node.Author)
-                    .AddColumn("Орг.откуда").AddTextRenderer(node => node.OrganizationFrom)
-                    .AddColumn("Орг.куда").AddTextRenderer(node => node.OrganizationTo)
-                    .AddColumn("Сумма").AddTextRenderer(node => node.TransferedSum.ToString())
+			//OrganizationCashTransferDocumentJournalViewModel
+			TreeViewColumnsConfigFactory.Register<OrganizationCashTransferDocumentJournalViewModel>(
+				() => FluentColumnsConfig<OrganizationCashTransferDocumentJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата создания").AddTextRenderer(node => node.DocumentDate.ToString("d"))
+					.AddColumn("Автор").AddTextRenderer(node => node.Author)
+					.AddColumn("Орг.откуда").AddTextRenderer(node => node.OrganizationFrom)
+					.AddColumn("Орг.куда").AddTextRenderer(node => node.OrganizationTo)
+					.AddColumn("Сумма").AddTextRenderer(node => node.TransferedSum.ToString())
 					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 					.Finish()
-            );
+			);
 
 			//PremiumJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PremiumJournalViewModel>(

@@ -34,7 +34,6 @@ namespace Vodovoz.TempAdapters
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
 				() => new SubdivisionsJournalViewModel(
-					_filterViewModel ?? new SubdivisionFilterViewModel(),
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
@@ -50,10 +49,6 @@ namespace Vodovoz.TempAdapters
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
 				() => new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel
-					{
-						SubdivisionType = SubdivisionType.Default
-					},
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
@@ -69,10 +64,6 @@ namespace Vodovoz.TempAdapters
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
 				() => new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel
-					{
-						SubdivisionType = SubdivisionType.Logistic
-					},
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),

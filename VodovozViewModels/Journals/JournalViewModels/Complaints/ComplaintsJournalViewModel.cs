@@ -165,7 +165,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			);
 			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 
-			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
+			(DataLoader as IListLoader).PostLoadProcessingFunc = BeforeItemsUpdated;
 		}
 
 		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)

@@ -64,9 +64,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public DelegateCommand AttachSubdivisionCommand => _attachSubdivisionCommand ?? (_attachSubdivisionCommand = new DelegateCommand(() =>
 				{
-					var subdivisionFilter = new SubdivisionFilterViewModel();
 					var subdivisionJournalViewModel = new SubdivisionsJournalViewModel(
-						subdivisionFilter,
 						_unitOfWorkFactory,
 						_commonServices,
 						_employeeSelectorFactory,
