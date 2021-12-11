@@ -4,19 +4,11 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
+using System.ServiceModel.Web;
 using System.Threading;
 using Mono.Unix;
 using Mono.Unix.Native;
-using MySql.Data.MySqlClient;
-using Nini.Config;
 using NLog;
-using QS.Banks.Domain;
-using QS.Osm.Osrm;
-using QS.Project.DB;
-using QSProjectsLib;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 
 namespace VodovozDeliveryRulesService
 {
@@ -24,96 +16,32 @@ namespace VodovozDeliveryRulesService
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string configFile = "/etc/vodovoz-delivery-rules-service.conf";
-
-		//Service
-		private static string serviceHostName;
-		private static string servicePort;
-
-		//OsrmService
-		private static string serverUrl;
-
-		//Mysql
-		private static string mysqlServerHostName;
-		private static string mysqlServerPort;
-		private static string mysqlUser;
-		private static string mysqlPassword;
-		private static string mysqlDatabase;
-
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 
-			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
-				confFile.Reload();
-				IConfig serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
-
-				IConfig osrmConfig = confFile.Configs["OsrmService"];
-				serverUrl = osrmConfig.GetString("server_url");
-
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
-			}
-			catch(Exception ex) {
-				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
-				return;
-			}
-
 			logger.Info("Запуск службы правил доставки...");
 			try {
-				var conStrBuilder = new MySqlConnectionStringBuilder();
-				conStrBuilder.Server = mysqlServerHostName;
-				conStrBuilder.Port = UInt32.Parse(mysqlServerPort);
-				conStrBuilder.Database = mysqlDatabase;
-				conStrBuilder.UserID = mysqlUser;
-				conStrBuilder.Password = mysqlPassword;
-				conStrBuilder.SslMode = MySqlSslMode.None;
 
-				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(QSMain.ConnectionString);
+				WebServiceHost host = new WebServiceHost(typeof(DeliveryRulesService));
 
-				OrmConfig.ConfigureOrm(db_config,
-					new[]
-					{
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
-					});
-				OsrmMain.ServerUrl = serverUrl;
-
-				IDeliveryRepository deliveryRepository = new DeliveryRepository();
-				var backupDistrictService = new BackupDistrictService();
-				IDeliveryRulesParametersProvider deliveryRulesParametersProvider
-					= new DeliveryRulesParametersProvider(new ParametersProvider());
-				
-				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = 
-					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider);
-				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);
-
-				ServiceEndpoint webEndPoint = deliveryRulesHost.AddServiceEndpoint(
+				ServiceEndpoint webEndPoint = host.AddServiceEndpoint(
 					typeof(IDeliveryRulesService),
 					new WebHttpBinding(),
-					$"http://{serviceHostName}:{servicePort}/DeliveryRules"
+					$"http://delivery.vod.qsolution.ru:7075/DeliveryRules"
 				);
+				// $"http://delivery.vod.qsolution.ru:7075/DeliveryRules"
+				//$"http://localhost:7075/DeliveryRules"
+
+
 				WebHttpBehavior httpBehavior = new WebHttpBehavior();
 				webEndPoint.Behaviors.Add(httpBehavior);
 
 #if DEBUG
-				deliveryRulesHost.Description.Behaviors.Add(new PreFilter());
+				host.Description.Behaviors.Add(new PreFilter());
 #endif
-				backupDistrictService.StartAutoUpdateTask();
-				
-				deliveryRulesHost.Open();
+
+				host.Open();
 
 				logger.Info("Server started.");
 

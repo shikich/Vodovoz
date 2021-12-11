@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Vodovoz.Domain.Sale;
 
 namespace VodovozDeliveryRulesService
 {
     [DataContract]
     public class WeekDayDeliveryRuleDTO
     {
-        private WeekDayName weekDayEnum;
-        public WeekDayName WeekDayEnum {
+        private DeliveryRulesService.WeekDayName weekDayEnum;
+        public DeliveryRulesService.WeekDayName WeekDayEnum {
             get => weekDayEnum;
             set {
                 weekDayEnum = value;

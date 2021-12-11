@@ -50,8 +50,8 @@ smsPaymentServiceName="vodovoz-sms-payment.service"
 mangoServiceFolder="VodovozMangoService"
 mangoServiceName="vodovoz-mango.service"
 
-serverAddress="root@srv2.vod.qsolution.ru"
-serverPort="2203"
+serverAddress="root@persephone.srv.qsolution.ru"
+serverPort="22"
 
 buildFolderName=""
 case $build in
