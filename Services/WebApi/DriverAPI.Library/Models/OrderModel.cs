@@ -278,10 +278,18 @@ namespace DriverAPI.Library.Models
 				_unitOfWork.Save(complaint);
 			}
 
-			if(bottlesReturnCount < vodovozOrder.BottlesReturn)
+			if(bottlesReturnCount != vodovozOrder.BottlesReturn)
 			{
-				vodovozOrder.CommentManager += $"{ Environment.NewLine }{ driverComment }";
+				if(!string.IsNullOrWhiteSpace(driverComment))
+				{
+					vodovozOrder.CommentManager =
+						string.IsNullOrWhiteSpace(vodovozOrder.CommentManager)
+							? driverComment
+							: vodovozOrder.CommentManager + Environment.NewLine + driverComment;
+				}
+
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
+
 				_unitOfWork.Save(vodovozOrder);
 			}
 
