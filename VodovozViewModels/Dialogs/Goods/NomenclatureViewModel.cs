@@ -20,13 +20,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 	public class NomenclatureViewModel : EntityTabViewModelBase<Nomenclature>, IAskSaveOnCloseViewModel
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		
+
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		
+
 		public Action PricesViewSaveChanges;
-		
+
 		public NomenclatureViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		
+
 		public bool ImageLoaded { get; set; }
 		public NomenclatureImage PopupMenuOn { get; set; }
 		public bool IsWaterCategory => Entity.Category == NomenclatureCategory.water;
@@ -94,12 +94,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				() => IsEquipmentCategory,
 				() => IsNotServiceAndDepositCategory
 			);
-			
+
 			SetPropertyChangeRelation(
 				e => e.IsDisposableTare,
 				() => IsWaterInNotDisposableTare
 			);
-			
+
 			SetPropertyChangeRelation(
 				e => e.ProductGroup,
 				() => IsEshopNomenclature
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				e => e.DependsOnNomenclature,
 				() => WithoutDependsOnNomenclature
 			);
-			
+
 			SetPropertyChangeRelation(
 				e => e.TareVolume,
 				() => Is19lTareVolume
@@ -134,13 +134,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			Entity.Images.Remove(PopupMenuOn);
 			PopupMenuOn = null;
 		}
-		
+
 		public void OnEnumKindChanged(object sender, EventArgs e) {
 			if(Entity.Category != NomenclatureCategory.deposit) {
 				Entity.TypeOfDepositCategory = null;
 			}
 		}
-		
+
 		public void OnEnumKindChangedByUser(object sender, EventArgs e) {
 			if(Entity.Id == 0 && IsSaleCategory)
 			{
@@ -152,7 +152,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				Entity.IsDisposableTare = false;
 			}
 		}
-		
+
 		private void SetPermissions()
 		{
 			CanCreateAndArcNomenclatures =
@@ -164,13 +164,14 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				Entity.Code1c = _nomenclatureRepository.GetNextCode1c(UoW);
 			}
 		}
-		
-		protected override void BeforeSave() {
+
+		protected override bool BeforeSave() {
 			logger.Info("Сохраняем номенклатуру...");
 			Entity.SetNomenclatureCreationInfo(_userRepository);
 			PricesViewSaveChanges?.Invoke();
+			return base.BeforeSave();
 		}
-		
+
 		#region Commands
 
 		private DelegateCommand saveCommand = null;

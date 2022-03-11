@@ -72,7 +72,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelDeliverySchedule;
 
-		private global::Gamma.Widgets.yEntryReference referenceDeliverySchedule;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDeliverySchedule;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckFastDelivery;
 
@@ -703,6 +703,7 @@ namespace Vodovoz
 			this.entityVMEntryClient.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryClient.Name = "entityVMEntryClient";
 			this.entityVMEntryClient.CanEditReference = false;
+			this.entityVMEntryClient.OpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryClient);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryClient]));
 			w18.TopAttach = ((uint)(2));
@@ -761,6 +762,7 @@ namespace Vodovoz
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
+			this.evmeAuthor.OpenWithoutTabParent = false;
 			this.table1.Add(this.evmeAuthor);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
 			w22.TopAttach = ((uint)(1));
@@ -774,6 +776,7 @@ namespace Vodovoz
 			this.evmeDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDeliveryPoint.Name = "evmeDeliveryPoint";
 			this.evmeDeliveryPoint.CanEditReference = false;
+			this.evmeDeliveryPoint.OpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDeliveryPoint);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDeliveryPoint]));
 			w23.TopAttach = ((uint)(3));
@@ -851,14 +854,14 @@ namespace Vodovoz
 			w30.Expand = false;
 			w30.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.referenceDeliverySchedule = new global::Gamma.Widgets.yEntryReference();
-			this.referenceDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
-			this.referenceDeliverySchedule.Name = "referenceDeliverySchedule";
-			this.hbox8.Add(this.referenceDeliverySchedule);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.referenceDeliverySchedule]));
+			this.entryDeliverySchedule = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
+			this.entryDeliverySchedule.Name = "entryDeliverySchedule";
+			this.entryDeliverySchedule.CanEditReference = false;
+			this.entryDeliverySchedule.OpenWithoutTabParent = false;
+			this.hbox8.Add(this.entryDeliverySchedule);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entryDeliverySchedule]));
 			w31.Position = 1;
-			w31.Expand = false;
-			w31.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.ycheckFastDelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckFastDelivery.CanFocus = true;
@@ -1071,6 +1074,7 @@ namespace Vodovoz
 			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
+			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Статус:");
 			this.table1.Add(this.label1);
@@ -1385,7 +1389,6 @@ namespace Vodovoz
 			this.ylabelContract = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelContract.Name = "ylabelContract";
 			this.ylabelContract.Xalign = 0F;
-			this.ylabelContract.LabelProp = "";
 			this.table1.Add(this.ylabelContract);
 			global::Gtk.Table.TableChild w78 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelContract]));
 			w78.TopAttach = ((uint)(6));
@@ -1414,6 +1417,7 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelOrderAddressType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrderAddressType.Name = "ylabelOrderAddressType";
+			this.ylabelOrderAddressType.Xalign = 0F;
 			this.ylabelOrderAddressType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип адреса:");
 			this.table1.Add(this.ylabelOrderAddressType);
 			global::Gtk.Table.TableChild w80 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOrderAddressType]));
