@@ -50,9 +50,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozBusinessTests", "Vod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Project.Gtk", "..\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj", "{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Testing", "..\QSProjects\QS.Testing\QS.Testing.csproj", "{BA8E8ACF-ECB0-4617-9E09-D1BE93992D0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Testing", "..\QSProjects\QS.Testing\QS.Testing.csproj", "{BA8E8ACF-ECB0-4617-9E09-D1BE93992D0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.HistoryLog", "..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj", "{3D3D6700-C625-46C5-9702-5F010A8DD035}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.HistoryLog", "..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj", "{3D3D6700-C625-46C5-9702-5F010A8DD035}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozViewModels", "VodovozViewModels\VodovozViewModels.csproj", "{EF73674E-B8D5-461B-A072-AC73231C82B2}"
 EndProject
@@ -206,11 +206,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozFiasWidgets", "Vodov
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VodovozReports", "VodovozReports\VodovozReports.csproj", "{6321194C-7A91-4C91-ABAE-46941FECED3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.HistoryLog.Desktop", "..\QSProjects\QS.HistoryLog.Desktop\QS.HistoryLog.Desktop.csproj", "{917A8E97-042F-4E6C-9CB5-B3CA14FA7A09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.HistoryLog.Desktop", "..\QSProjects\QS.HistoryLog.Desktop\QS.HistoryLog.Desktop.csproj", "{917A8E97-042F-4E6C-9CB5-B3CA14FA7A09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.BaseParameters", "..\QSProjects\QS.BaseParameters\QS.BaseParameters.csproj", "{A869EC36-67D2-4A36-95E9-0B1E7350928F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.BaseParameters", "..\QSProjects\QS.BaseParameters\QS.BaseParameters.csproj", "{A869EC36-67D2-4A36-95E9-0B1E7350928F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoboAtsService", "RoboAtsService\RoboAtsService.csproj", "{F21D5E5F-3C41-4CE0-8345-519B185DA280}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoboAtsService", "RoboAtsService\RoboAtsService.csproj", "{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1204,18 +1204,18 @@ Global
 		{A869EC36-67D2-4A36-95E9-0B1E7350928F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A869EC36-67D2-4A36-95E9-0B1E7350928F}.Release|x86.ActiveCfg = Release|Any CPU
 		{A869EC36-67D2-4A36-95E9-0B1E7350928F}.Release|x86.Build.0 = Release|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Debug|x86.Build.0 = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.DebugWin|x86.ActiveCfg = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.DebugWin|x86.Build.0 = Debug|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Release|x86.ActiveCfg = Release|Any CPU
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280}.Release|x86.Build.0 = Release|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Debug|x86.Build.0 = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Release|x86.ActiveCfg = Release|Any CPU
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1317,7 +1317,7 @@ Global
 		{6321194C-7A91-4C91-ABAE-46941FECED3C} = {161D264D-BA89-4A34-92F8-2ED795BC637E}
 		{917A8E97-042F-4E6C-9CB5-B3CA14FA7A09} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
 		{A869EC36-67D2-4A36-95E9-0B1E7350928F} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
-		{F21D5E5F-3C41-4CE0-8345-519B185DA280} = {F2BFD0D2-5A21-4D6C-9CEA-328B30FDFBAB}
+		{8D99B77B-F2A2-45BC-95D0-24F1C793D44E} = {F2BFD0D2-5A21-4D6C-9CEA-328B30FDFBAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
