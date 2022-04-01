@@ -1237,6 +1237,7 @@ namespace Vodovoz
 
 			labelTaraComments.Visible = tareVisible;
 			textTaraComments.Visible = tareVisible;
+			GtkScrolledWindow4.Visible = tareVisible;
 
 			if (Entity.Client != null)
 			{
@@ -1251,8 +1252,10 @@ namespace Vodovoz
 				{
 					textOPComments.Visible = false;
 					labelOPComments.Visible = false;
+					GtkScrolledWindow6.Visible = false;
 					labelODZComments.Visible = false;
 					textODZComments.Visible = false;
+					GtkScrolledWindow8.Visible = false;
 				}
 			}
 			
