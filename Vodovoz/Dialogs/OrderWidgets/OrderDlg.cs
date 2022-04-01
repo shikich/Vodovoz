@@ -1232,8 +1232,11 @@ namespace Vodovoz
 		private void OldFieldsConfigure()
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
-			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
-			hbxTareComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			var tareVisible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			textTaraComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+
+			labelTaraComments.Visible = tareVisible;
+			textTaraComments.Visible = tareVisible;
 
 			if (Entity.Client != null)
 			{
@@ -1246,8 +1249,10 @@ namespace Vodovoz
 				}
 				else
 				{
-					hbxODZComments.Visible = false;
-					hbxOPComments.Visible = false;
+					textOPComments.Visible = false;
+					labelOPComments.Visible = false;
+					labelODZComments.Visible = false;
+					textODZComments.Visible = false;
 				}
 			}
 			
