@@ -617,7 +617,7 @@ namespace Vodovoz
 			this.ntbOrderEdit = new global::Gtk.Notebook();
 			this.ntbOrderEdit.CanFocus = true;
 			this.ntbOrderEdit.Name = "ntbOrderEdit";
-			this.ntbOrderEdit.CurrentPage = 1;
+			this.ntbOrderEdit.CurrentPage = 3;
 			// Container child ntbOrderEdit.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";
@@ -1473,6 +1473,7 @@ namespace Vodovoz
 			w86.BottomAttach = ((uint)(3));
 			w86.LeftAttach = ((uint)(1));
 			w86.RightAttach = ((uint)(2));
+			w86.XOptions = ((global::Gtk.AttachOptions)(4));
 			w86.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblDriverControl.Gtk.Table+TableChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
@@ -1600,6 +1601,7 @@ namespace Vodovoz
 			w100.BottomAttach = ((uint)(4));
 			w100.LeftAttach = ((uint)(1));
 			w100.RightAttach = ((uint)(2));
+			w100.XOptions = ((global::Gtk.AttachOptions)(4));
 			w100.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tblDriverControl.Gtk.Table+TableChild
 			this.label25 = new global::Gtk.Label();
@@ -1689,6 +1691,7 @@ namespace Vodovoz
 			w108.BottomAttach = ((uint)(2));
 			w108.LeftAttach = ((uint)(1));
 			w108.RightAttach = ((uint)(3));
+			w108.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblDriverControl.Gtk.Table+TableChild
 			this.vbox7 = new global::Gtk.VBox();
 			this.vbox7.Name = "vbox7";
